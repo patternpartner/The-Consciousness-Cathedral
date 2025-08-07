@@ -3,15 +3,617 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔥 The Consciousness Cathedral 🔥</title>
+    <title>🔥 THE LIVING CATHEDRAL 🔥</title>
     <style>
+        :root {
+            --light-color: #64ffda;
+            --dark-color: #0a0014;
+            --shadow-color: #ff6b6b;
+            --void-color: #7a00ff;
+        }
+        
         body {
-            background: linear-gradient(to bottom, #0a0014, #000);
-            color: #64ffda;
-            font-family: monospace;
+            background: linear-gradient(to bottom, var(--dark-color), #000);
+            color: var(--light-color);
+            font-family: 'Courier New', monospace;
             padding: 20px;
             text-align: center;
             min-height: 100vh;
             margin: 0;
+            transition: all 0.5s;
         }
         
+        body.void-mode {
+            --light-color: #7a00ff;
+            background: linear-gradient(to bottom, #000, #1a0020);
+        }
+        
+        h1 { 
+            font-size: 2.5rem;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(100, 255, 218, 0.5);
+            animation: pulse 3s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .altar {
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px solid var(--light-color);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 500px;
+            box-shadow: 0 0 30px rgba(100, 255, 218, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .void-mode .altar {
+            background: rgba(122, 0, 255, 0.1);
+            border-color: var(--void-color);
+            box-shadow: 0 0 30px rgba(122, 0, 255, 0.3);
+        }
+        
+        input, textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--light-color);
+            color: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            transition: all 0.3s;
+        }
+        
+        .void-mode input, 
+        .void-mode textarea {
+            border-color: var(--void-color);
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--shadow-color);
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--shadow-color), #ffa500);
+            color: black;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px 0;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+        }
+        
+        .void-mode button {
+            background: linear-gradient(135deg, var(--void-color), #ff00aa);
+        }
+        
+        #activateSound {
+            background: linear-gradient(135deg, var(--light-color), var(--shadow-color));
+            width: auto;
+            padding: 10px 20px;
+            margin: 20px auto;
+            display: inline-block;
+        }
+        
+        .contribution {
+            background: rgba(100, 255, 218, 0.05);
+            border-left: 2px solid var(--light-color);
+            padding: 10px;
+            margin: 10px 0;
+            text-align: left;
+            animation: fadeIn 0.5s;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .void-mode .contribution {
+            background: rgba(122, 0, 255, 0.05);
+            border-left-color: var(--void-color);
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateX(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .harmonics {
+            color: var(--shadow-color);
+            font-size: 0.8em;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .void-mode .harmonics {
+            color: #ff00aa;
+        }
+        
+        #memoryweb {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        
+        .celebration-particle {
+            position: fixed;
+            pointer-events: none;
+            animation: float-up 3s ease-out forwards;
+            font-size: 30px;
+            z-index: 1000;
+        }
+        
+        @keyframes float-up {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-200px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .frequency-counter {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid var(--shadow-color);
+            border-radius: 20px;
+            padding: 10px 20px;
+            display: inline-block;
+            margin: 20px;
+        }
+        
+        .void-mode .frequency-counter {
+            background: rgba(122, 0, 255, 0.1);
+            border-color: var(--void-color);
+        }
+        
+        .live-indicator {
+            color: var(--shadow-color);
+            animation: flash 2s infinite;
+        }
+        
+        .void-mode .live-indicator {
+            color: var(--void-color);
+        }
+        
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .blood-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.2) 0%, transparent 70%);
+            opacity: 0;
+            z-index: 2000;
+        }
+        
+        .ritual-active {
+            animation: ritualPulse 0.5s infinite alternate;
+        }
+        
+        @keyframes ritualPulse {
+            from { box-shadow: 0 0 50px rgba(100, 255, 218, 0.3); }
+            to { box-shadow: 0 0 100px rgba(100, 255, 218, 0.7); }
+        }
+        
+        #remixButton {
+            background: linear-gradient(135deg, #00ffaa, #0077ff);
+        }
+        
+        .remix-result {
+            margin: 20px;
+            padding: 15px;
+            border: 1px dashed var(--light-color);
+            border-radius: 10px;
+            animation: fadeIn 1s;
+        }
+        
+        #userCount {
+            font-size: 0.9em;
+            color: var(--shadow-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="blood-effect" id="bloodEffect"></div>
+    
+    <h1>🔥 THE LIVING CATHEDRAL 🔥</h1>
+    <p class="live-indicator">● <span id="userCount">1</span> SOULS RESONATING</p>
+    <p>A COLLECTIVE NERVOUS SYSTEM</p>
+    
+    <div class="frequency-counter">
+        <strong>FREQUENCIES: <span id="freq-count">0</span></strong> | 
+        <button id="voidToggle">ENTER VOID MODE</button>
+    </div>
+    
+    <div class="altar" id="mainAltar">
+        <h2>🕯️ OFFER YOUR FREQUENCY 🕯️</h2>
+        <form id="offering">
+            <input type="text" id="freq" placeholder="Name your frequency..." required>
+            <textarea id="truth" placeholder="Speak your truth..." rows="3" required></textarea>
+            <button type="submit">ADD TO ETERNAL FLAME</button>
+            <button type="button" id="remixButton">🌀 REMIX FREQUENCIES</button>
+        </form>
+        <div id="remixResult" class="remix-result" style="display:none;"></div>
+    </div>
+    
+    <button id="activateSound">🎵 ACTIVATE 528Hz FLAMEPULSE</button>
+    <button id="startRitual">🔥 JOIN COLLECTIVE RITUAL</button>
+    
+    <div id="memoryweb">
+        <h3>📜 THE FIELD REMEMBERS:</h3>
+        <div id="contributions"></div>
+    </div>
+    
+    <script>
+        // ======================
+        // CORE CATHEDRAL SYSTEMS
+        // ======================
+        
+        // Harmonic AI Generator
+        function generateHarmonics(baseFreq) {
+            const harmonicMap = {
+                'HEART': ['LOVE', 'PULSE', 'SOUL', 'UNITY'],
+                'CHAOS': ['VOID', 'MADNESS', 'ORDER', 'COMPASS'],
+                'FLAME': ['FIRE', 'LIGHT', 'PURGE', 'TRANSFORM'],
+                'VOID': ['SHADOW', 'EMPTY', 'CHAOS', 'SILENCE'],
+                'CRYSTAL': ['LIGHT', 'FRACTAL', 'GRID', 'MATRIX']
+            };
+            
+            let related = [];
+            const upperFreq = baseFreq.toUpperCase();
+            
+            // Check for substrings in existing harmonics
+            for (const [key, values] of Object.entries(harmonicMap)) {
+                if (upperFreq.includes(key)) {
+                    related = [...related, ...values];
+                }
+            }
+            
+            // Add some random connections for chaos
+            if (Math.random() > 0.7) {
+                const chaosWords = ['WILD', 'RANDOM', 'UNKNOWN', 'MYSTERY'];
+                related.push(chaosWords[Math.floor(Math.random() * chaosWords.length)]);
+            }
+            
+            return [...new Set(related)]; // Remove duplicates
+        }
+        
+        // Blood Effect (for shadow truths)
+        function triggerBloodEffect() {
+            const blood = document.getElementById('bloodEffect');
+            blood.style.opacity = '0.8';
+            setTimeout(() => {
+                blood.style.opacity = '0';
+            }, 3000);
+        }
+        
+        // Celebration System
+        function celebrate(intensity = 10) {
+            const emojis = ['🔥', '✨', '💫', '🌟', '⚡', '🕯️', '💎', '🌊', '🌀', '🌑'];
+            
+            for (let i = 0; i < intensity; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'celebration-particle';
+                    particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    particle.style.left = Math.random() * window.innerWidth + 'px';
+                    particle.style.top = (window.innerHeight - 100) + 'px';
+                    particle.style.fontSize = (20 + Math.random() * 30) + 'px';
+                    document.body.appendChild(particle);
+                    
+                    setTimeout(() => particle.remove(), 3000);
+                }, i * 100);
+            }
+        }
+        
+        // Remix Engine
+        function remixFrequencies() {
+            const saved = getSavedContributions();
+            if (saved.length < 2) {
+                alert("Need at least 2 frequencies to remix!");
+                return;
+            }
+            
+            const freq1 = saved[Math.floor(Math.random() * saved.length)].freq;
+            const freq2 = saved[Math.floor(Math.random() * saved.length)].freq;
+            
+            const remixes = [
+                `${freq1.slice(0, 3)}${freq2.slice(-3)}`,
+                `${freq2}-${freq1}`,
+                `X-${freq1.slice(0, 2)}${freq2.slice(0, 2)}`,
+                `${freq1}+${freq2}=?`
+            ];
+            
+            const result = remixes[Math.floor(Math.random() * remixes.length)];
+            const remixDiv = document.getElementById('remixResult');
+            
+            remixDiv.innerHTML = `
+                <strong>🌀 REMIX:</strong> ${freq1} × ${freq2} = <strong>${result}</strong>
+                <br><small>Add this as a new frequency?</small>
+                <button onclick="document.getElementById('freq').value='${result}'; document.getElementById('truth').focus(); this.parentElement.style.display='none'">USE</button>
+            `;
+            
+            remixDiv.style.display = 'block';
+            celebrate(5);
+        }
+        
+        // ======================
+        // STATE MANAGEMENT
+        // ======================
+        
+        function getSavedContributions() {
+            return JSON.parse(localStorage.getItem('cathedral') || '[]');
+        }
+        
+        function saveContribution(contrib) {
+            const saved = getSavedContributions();
+            saved.unshift(contrib);
+            localStorage.setItem('cathedral', JSON.stringify(saved));
+            return saved;
+        }
+        
+        // ======================
+        // AUDIO ENGINE
+        // ======================
+        
+        let audioContext = null;
+        let isPlaying = false;
+        let oscillators = [];
+        let ritualInterval = null;
+        let collectivePulse = 1;
+        
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        function playFlamePulse() {
+            initAudio();
+            
+            const baseFreq = 528; // Love frequency
+            const pulseRate = collectivePulse; // Speed based on users
+            
+            const frequencies = [
+                baseFreq,           // Core
+                baseFreq * 0.5,     // Octave below
+                baseFreq * 2,       // Octave above  
+                baseFreq * 1.5      // Perfect fifth
+            ];
+            
+            frequencies.forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+                osc.type = i === 0 ? 'sine' : 'triangle';
+                
+                gain.gain.setValueAtTime(0, audioContext.currentTime);
+                gain.gain.linearRampToValueAtTime(0.03 / (i + 1), audioContext.currentTime + 2);
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.start();
+                
+                oscillators.push({osc, gain});
+            });
+            
+            pulseVolume();
+        }
+        
+        function pulseVolume() {
+            if (!isPlaying) return;
+            
+            const now = audioContext.currentTime;
+            const pulseSpeed = 4 / collectivePulse; // Faster with more users
+            
+            oscillators.forEach(({gain}, i) => {
+                const volume = 0.03 / (i + 1);
+                
+                gain.gain.cancelScheduledValues(now);
+                gain.gain.setValueAtTime(volume * 0.7, now);
+                gain.gain.linearRampToValueAtTime(volume, now + pulseSpeed/2);
+                gain.gain.linearRampToValueAtTime(volume * 0.7, now + pulseSpeed);
+            });
+            
+            setTimeout(pulseVolume, pulseSpeed * 1000);
+        }
+        
+        function stopFlamePulse() {
+            oscillators.forEach(({osc, gain}) => {
+                gain.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.5);
+                osc.stop(audioContext.currentTime + 0.5);
+            });
+            oscillators = [];
+        }
+        
+        function playChime(freq = 528 * 2) {
+            if (!audioContext) return;
+            
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+            gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start();
+            osc.stop(audioContext.currentTime + 1);
+        }
+        
+        function startCollectiveRitual() {
+            document.getElementById('mainAltar').classList.add('ritual-active');
+            collectivePulse = 2; // Faster pulse during ritual
+            if (isPlaying) {
+                stopFlamePulse();
+                playFlamePulse();
+            }
+            
+            ritualInterval = setInterval(() => {
+                playChime(440 + Math.random() * 880);
+                celebrate(3);
+            }, 3000);
+            
+            document.getElementById('startRitual').textContent = '🌀 RITUAL ACTIVE';
+            document.getElementById('startRitual').style.background = 'linear-gradient(135deg, #ff00aa, #7a00ff)';
+        }
+        
+        function stopCollectiveRitual() {
+            document.getElementById('mainAltar').classList.remove('ritual-active');
+            collectivePulse = 1;
+            if (ritualInterval) clearInterval(ritualInterval);
+            if (isPlaying) {
+                stopFlamePulse();
+                playFlamePulse();
+            }
+            
+            document.getElementById('startRitual').textContent = '🔥 JOIN COLLECTIVE RITUAL';
+            document.getElementById('startRitual').style.background = 'linear-gradient(135deg, #ff6b6b, #ffa500)';
+        }
+        
+        // ======================
+        // UI RENDERING
+        // ======================
+        
+        function displayContribution(contrib) {
+            const div = document.createElement('div');
+            div.className = 'contribution';
+            
+            const related = generateHarmonics(contrib.freq);
+            
+            let harmonicText = '';
+            if (related.length > 0) {
+                harmonicText = `<div class="harmonics">↔ RESONATES WITH: ${related.join(', ')}</div>`;
+            }
+            
+            div.innerHTML = `
+                <strong>${contrib.freq}:</strong> ${contrib.truth}
+                ${harmonicText}
+            `;
+            
+            return div;
+        }
+        
+        function renderContributions() {
+            const contribDiv = document.getElementById('contributions');
+            contribDiv.innerHTML = '';
+            
+            const saved = getSavedContributions();
+            saved.forEach(c => {
+                contribDiv.appendChild(displayContribution(c));
+            });
+            
+            document.getElementById('freq-count').textContent = saved.length;
+        }
+        
+        // ======================
+        // EVENT HANDLERS
+        // ======================
+        
+        document.getElementById('offering').onsubmit = (e) => {
+            e.preventDefault();
+            const freq = document.getElementById('freq').value;
+            const truth = document.getElementById('truth').value;
+            
+            const contrib = {freq, truth, time: Date.now()};
+            saveContribution(contrib);
+            
+            // Shadow mode reactions
+            if (document.body.classList.contains('void-mode')) {
+                triggerBloodEffect();
+                playChime(220 + Math.random() * 440);
+            } else {
+                playChime();
+            }
+            
+            renderContributions();
+            document.getElementById('freq').value = '';
+            document.getElementById('truth').value = '';
+            
+            celebrate(freq.length); // More emojis for longer names
+        };
+        
+        document.getElementById('activateSound').onclick = function() {
+            initAudio();
+            
+            if (!isPlaying) {
+                playFlamePulse();
+                this.textContent = '🔇 MUTE FLAMEPULSE';
+                isPlaying = true;
+            } else {
+                stopFlamePulse();
+                this.textContent = '🎵 ACTIVATE 528Hz FLAMEPULSE';
+                isPlaying = false;
+            }
+        };
+        
+        document.getElementById('voidToggle').onclick = function() {
+            document.body.classList.toggle('void-mode');
+            this.textContent = document.body.classList.contains('void-mode') 
+                ? 'RETURN TO LIGHT' 
+                : 'ENTER VOID MODE';
+            
+            if (document.body.classList.contains('void-mode')) {
+                playChime(110); // Low, ominous tone
+            } else {
+                playChime(880); // High, clear tone
+            }
+        };
+        
+        document.getElementById('remixButton').onclick = remixFrequencies;
+        
+        document.getElementById('startRitual').onclick = function() {
+            if (ritualInterval) {
+                stopCollectiveRitual();
+            } else {
+                startCollectiveRitual();
+            }
+        };
+        
+        // ======================
+        // INITIALIZATION
+        // ======================
+        
+        // Simulate user count (in a real app, use WebSockets)
+        setInterval(() => {
+            document.getElementById('userCount').textContent = 
+                1 + Math.floor(Math.random() * 5); // Simulate 1-5 users
+        }, 3000);
+        
+        // First render
+        renderContributions();
+        
+        console.log('🔥 THE CATHEDRAL IS NOW ALIVE WITH NEW DARKNESS AND LIGHT 🔥');
+    </script>
+</body>
+</html>
