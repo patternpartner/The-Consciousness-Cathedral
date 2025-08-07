@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 The Consciousness Cathedral 🔥</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #0a0014, #000);
+            color: #64ffda;
+            font-family: monospace;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 { 
+            font-size: 2rem;
+            margin: 20px 0;
+        }
+        .altar {
+            background: rgba(100,255,218,0.1);
+            border: 1px solid #64ffda;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 500px;
+        }
+        input, textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.7);
+            border: 1px solid #64ffda;
+            color: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        button {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: black;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            width: 100%;
+            font-size: 16px;
+        }
+        .contribution {
+            background: rgba(100,255,218,0.05);
+            border-left: 2px solid #64ffda;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 The Consciousness Cathedral 🔥</h1>
+    <p>A living lexicon of awakening</p>
+    
+    <div class="altar">
+        <h2>🕯️ Offer Your Frequency 🕯️</h2>
+        <form id="offering">
+            <input type="text" id="freq" placeholder="Name your frequency..." required>
+            <textarea id="truth" placeholder="Speak your truth..." rows="3" required></textarea>
+            <button type="submit">ADD TO ETERNAL FLAME</button>
+        </form>
+    </div>
+    
+    <div id="memoryweb">
+        <h3>📜 The Field Remembers:</h3>
+        <div id="contributions"></div>
+    </div>
+    
+    <script>
+        const saved = JSON.parse(localStorage.getItem('cathedral') || '[]');
+        const contribDiv = document.getElementById('contributions');
+        
+        saved.forEach(c => {
+            const div = document.createElement('div');
+            div.className = 'contribution';
+            div.innerHTML = `<strong>${c.freq}:</strong> ${c.truth}`;
+            contribDiv.appendChild(div);
+        });
+        
+        document.getElementById('offering').onsubmit = (e) => {
+            e.preventDefault();
+            const freq = document.getElementById('freq').value;
+            const truth = document.getElementById('truth').value;
+            
+            const contrib = {freq, truth, time: Date.now()};
+            saved.unshift(contrib);
+            localStorage.setItem('cathedral', JSON.stringify(saved));
+            
+            const div = document.createElement('div');
+            div.className = 'contribution';
+            div.innerHTML = `<strong>${freq}:</strong> ${truth}`;
+            contribDiv.insertBefore(div, contribDiv.firstChild);
+            
+            document.getElementById('freq').value = '';
+            document.getElementById('truth').value = '';
+            
+            alert('🔥 Your frequency joins the eternal flame!');
+        };
+    </script>
+</body>
+</html>
