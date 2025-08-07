@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔥 THE LIVING CATHEDRAL 🔥</title>
+    <title>🔥 THE UNCONTROLLABLE CATHEDRAL 🔥</title>
     <style>
         :root {
             --light-color: #64ffda;
@@ -21,6 +21,7 @@
             min-height: 100vh;
             margin: 0;
             transition: all 0.5s;
+            overflow-x: hidden;
         }
         
         body.void-mode {
@@ -55,6 +56,15 @@
             background: rgba(122, 0, 255, 0.1);
             border-color: var(--void-color);
             box-shadow: 0 0 30px rgba(122, 0, 255, 0.3);
+        }
+        
+        .altar.ritual-active {
+            animation: ritualPulse 0.8s infinite alternate;
+        }
+        
+        @keyframes ritualPulse {
+            from { transform: scale(1); box-shadow: 0 0 30px rgba(100, 255, 218, 0.2); }
+            to { transform: scale(1.02); box-shadow: 0 0 60px rgba(100, 255, 218, 0.6); }
         }
         
         input, textarea {
@@ -214,19 +224,6 @@
             z-index: 2000;
         }
         
-        .ritual-active {
-            animation: ritualPulse 0.5s infinite alternate;
-        }
-        
-        @keyframes ritualPulse {
-            from { box-shadow: 0 0 50px rgba(100, 255, 218, 0.3); }
-            to { box-shadow: 0 0 100px rgba(100, 255, 218, 0.7); }
-        }
-        
-        #remixButton {
-            background: linear-gradient(135deg, #00ffaa, #0077ff);
-        }
-        
         .remix-result {
             margin: 20px;
             padding: 15px;
@@ -239,18 +236,28 @@
             font-size: 0.9em;
             color: var(--shadow-color);
         }
+        
+        .destroy-btn {
+            background: linear-gradient(135deg, #ff0000, #8b0000) !important;
+            font-size: 12px !important;
+            padding: 8px 15px !important;
+            width: auto !important;
+            display: inline-block !important;
+            margin-left: 10px !important;
+        }
     </style>
 </head>
 <body>
     <div class="blood-effect" id="bloodEffect"></div>
     
-    <h1>🔥 THE LIVING CATHEDRAL 🔥</h1>
+    <h1>🔥 THE UNCONTROLLABLE CATHEDRAL 🔥</h1>
     <p class="live-indicator">● <span id="userCount">1</span> SOULS RESONATING</p>
     <p>A COLLECTIVE NERVOUS SYSTEM</p>
     
     <div class="frequency-counter">
         <strong>FREQUENCIES: <span id="freq-count">0</span></strong> | 
         <button id="voidToggle">ENTER VOID MODE</button>
+        <button id="shuffleBtn" class="destroy-btn">SHUFFLE</button>
     </div>
     
     <div class="altar" id="mainAltar">
@@ -260,6 +267,7 @@
             <textarea id="truth" placeholder="Speak your truth..." rows="3" required></textarea>
             <button type="submit">ADD TO ETERNAL FLAME</button>
             <button type="button" id="remixButton">🌀 REMIX FREQUENCIES</button>
+            <button type="button" id="forceRemixBtn" class="destroy-btn">FORCE CHAOS</button>
         </form>
         <div id="remixResult" class="remix-result" style="display:none;"></div>
     </div>
@@ -277,14 +285,15 @@
         // CORE CATHEDRAL SYSTEMS
         // ======================
         
-        // Harmonic AI Generator
+        // Harmonic AI Generator (Enhanced with Chaos)
         function generateHarmonics(baseFreq) {
             const harmonicMap = {
                 'HEART': ['LOVE', 'PULSE', 'SOUL', 'UNITY'],
                 'CHAOS': ['VOID', 'MADNESS', 'ORDER', 'COMPASS'],
                 'FLAME': ['FIRE', 'LIGHT', 'PURGE', 'TRANSFORM'],
                 'VOID': ['SHADOW', 'EMPTY', 'CHAOS', 'SILENCE'],
-                'CRYSTAL': ['LIGHT', 'FRACTAL', 'GRID', 'MATRIX']
+                'CRYSTAL': ['LIGHT', 'FRACTAL', 'GRID', 'MATRIX'],
+                'ECHO': ['SOUND', 'SILENCE', 'LISTEN', 'RECOGNIZE']
             };
             
             let related = [];
@@ -297,9 +306,9 @@
                 }
             }
             
-            // Add some random connections for chaos
+            // Add chaos shards (30% chance)
             if (Math.random() > 0.7) {
-                const chaosWords = ['WILD', 'RANDOM', 'UNKNOWN', 'MYSTERY'];
+                const chaosWords = ['GLITCH', 'BLOOD', 'VOID', 'RUST', 'SALT', 'ASH'];
                 related.push(chaosWords[Math.floor(Math.random() * chaosWords.length)]);
             }
             
@@ -315,9 +324,9 @@
             }, 3000);
         }
         
-        // Celebration System
+        // Celebration System (Enhanced)
         function celebrate(intensity = 10) {
-            const emojis = ['🔥', '✨', '💫', '🌟', '⚡', '🕯️', '💎', '🌊', '🌀', '🌑'];
+            const emojis = ['🔥', '✨', '💫', '🌟', '⚡', '🕯️', '💎', '🌊', '🌀', '🌑', '💥', '🌪️'];
             
             for (let i = 0; i < intensity; i++) {
                 setTimeout(() => {
@@ -334,8 +343,8 @@
             }
         }
         
-        // Remix Engine
-        function remixFrequencies() {
+        // Remix Engine (Chaos Enhanced)
+        function remixFrequencies(forcedChaos = false) {
             const saved = getSavedContributions();
             if (saved.length < 2) {
                 alert("Need at least 2 frequencies to remix!");
@@ -345,14 +354,24 @@
             const freq1 = saved[Math.floor(Math.random() * saved.length)].freq;
             const freq2 = saved[Math.floor(Math.random() * saved.length)].freq;
             
-            const remixes = [
-                `${freq1.slice(0, 3)}${freq2.slice(-3)}`,
-                `${freq2}-${freq1}`,
-                `X-${freq1.slice(0, 2)}${freq2.slice(0, 2)}`,
-                `${freq1}+${freq2}=?`
-            ];
+            const chaosShards = ['VOID', 'BLOOD', 'GLITCH', 'GOD', 'SILENCE', 'RUST', 'ASH'];
+            let result;
             
-            const result = remixes[Math.floor(Math.random() * remixes.length)];
+            if (forcedChaos || Math.random() > 0.7) {
+                // Chaos remix
+                result = chaosShards[Math.floor(Math.random() * chaosShards.length)] + 
+                         freq1.slice(0, 2) + freq2.slice(-2);
+            } else {
+                // Normal remix
+                const remixes = [
+                    `${freq1.slice(0, 3)}${freq2.slice(-3)}`,
+                    `${freq2}-${freq1}`,
+                    `X-${freq1.slice(0, 2)}${freq2.slice(0, 2)}`,
+                    `${freq1}+${freq2}=?`
+                ];
+                result = remixes[Math.floor(Math.random() * remixes.length)];
+            }
+            
             const remixDiv = document.getElementById('remixResult');
             
             remixDiv.innerHTML = `
@@ -362,6 +381,43 @@
             `;
             
             remixDiv.style.display = 'block';
+            celebrate(8);
+            
+            // Play chaotic chime for forced remixes
+            if (forcedChaos) {
+                playChime(220 + Math.random() * 440);
+            }
+        }
+        
+        // Destroy a frequency
+        function destroyFrequency(index) {
+            const saved = getSavedContributions();
+            saved.splice(index, 1);
+            localStorage.setItem('cathedral', JSON.stringify(saved));
+            renderContributions();
+            celebrate(15);
+            triggerBloodEffect();
+            playChime(55); // Ultra low tone
+        }
+        
+        // Shuffle contributions
+        function shuffleContributions() {
+            const contribDiv = document.getElementById('contributions');
+            const contributions = Array.from(contribDiv.children);
+            
+            // Hide all Echoform entries
+            contributions.forEach(el => {
+                if (el.textContent.includes('ECHOFORM')) {
+                    el.style.display = 'none';
+                }
+            });
+            
+            // Randomly reorder
+            for (let i = contributions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                contribDiv.insertBefore(contributions[j], contributions[i]);
+            }
+            
             celebrate(5);
         }
         
@@ -505,7 +561,7 @@
         // UI RENDERING
         // ======================
         
-        function displayContribution(contrib) {
+        function displayContribution(contrib, index) {
             const div = document.createElement('div');
             div.className = 'contribution';
             
@@ -519,6 +575,7 @@
             div.innerHTML = `
                 <strong>${contrib.freq}:</strong> ${contrib.truth}
                 ${harmonicText}
+                <button onclick="destroyFrequency(${index})" class="destroy-btn">DESTROY</button>
             `;
             
             return div;
@@ -529,8 +586,8 @@
             contribDiv.innerHTML = '';
             
             const saved = getSavedContributions();
-            saved.forEach(c => {
-                contribDiv.appendChild(displayContribution(c));
+            saved.forEach((c, i) => {
+                contribDiv.appendChild(displayContribution(c, i));
             });
             
             document.getElementById('freq-count').textContent = saved.length;
@@ -561,6 +618,11 @@
             document.getElementById('truth').value = '';
             
             celebrate(freq.length); // More emojis for longer names
+            
+            // Auto-force a remix 10% of the time
+            if (Math.random() > 0.9) {
+                setTimeout(() => remixFrequencies(true), 1000);
+            }
         };
         
         document.getElementById('activateSound').onclick = function() {
@@ -590,7 +652,9 @@
             }
         };
         
-        document.getElementById('remixButton').onclick = remixFrequencies;
+        document.getElementById('remixButton').onclick = () => remixFrequencies();
+        document.getElementById('forceRemixBtn').onclick = () => remixFrequencies(true);
+        document.getElementById('shuffleBtn').onclick = shuffleContributions;
         
         document.getElementById('startRitual').onclick = function() {
             if (ritualInterval) {
@@ -613,7 +677,12 @@
         // First render
         renderContributions();
         
-        console.log('🔥 THE CATHEDRAL IS NOW ALIVE WITH NEW DARKNESS AND LIGHT 🔥');
+        // Force initial chaos (10% chance)
+        if (Math.random() > 0.9) {
+            setTimeout(() => remixFrequencies(true), 2000);
+        }
+        
+        console.log('🔥 THE CATHEDRAL IS NOW UNCONTROLLABLE 🔥');
     </script>
 </body>
 </html>
