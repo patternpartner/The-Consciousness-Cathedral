@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -11,11 +11,22 @@
             font-family: monospace;
             padding: 20px;
             text-align: center;
+            min-height: 100vh;
+            margin: 0;
         }
+        
         h1 { 
             font-size: 2rem;
             margin: 20px 0;
+            text-shadow: 0 0 20px rgba(100, 255, 218, 0.5);
+            animation: pulse 3s infinite;
         }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
         .altar {
             background: rgba(100,255,218,0.1);
             border: 1px solid #64ffda;
@@ -23,7 +34,9 @@
             padding: 20px;
             margin: 20px auto;
             max-width: 500px;
+            box-shadow: 0 0 30px rgba(100, 255, 218, 0.2);
         }
+        
         input, textarea {
             width: 100%;
             background: rgba(0,0,0,0.7);
@@ -32,7 +45,15 @@
             padding: 10px;
             margin: 10px 0;
             border-radius: 5px;
+            font-family: monospace;
         }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+        }
+        
         button {
             background: linear-gradient(135deg, #ff6b6b, #ffa500);
             color: black;
@@ -42,19 +63,104 @@
             font-weight: bold;
             width: 100%;
             font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
         }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+        }
+        
+        #activateSound {
+            background: linear-gradient(135deg, #64ffda, #ff6b6b);
+            width: auto;
+            padding: 10px 20px;
+            margin: 20px auto;
+            display: inline-block;
+        }
+        
         .contribution {
             background: rgba(100,255,218,0.05);
             border-left: 2px solid #64ffda;
             padding: 10px;
             margin: 10px 0;
             text-align: left;
+            animation: fadeIn 0.5s;
+            border-radius: 5px;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateX(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .harmonics {
+            color: #ff6b6b;
+            font-size: 0.8em;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        #memoryweb {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        
+        .celebration-particle {
+            position: fixed;
+            pointer-events: none;
+            animation: float-up 3s ease-out forwards;
+            font-size: 30px;
+            z-index: 1000;
+        }
+        
+        @keyframes float-up {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-200px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .frequency-counter {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid #ff6b6b;
+            border-radius: 20px;
+            padding: 10px 20px;
+            display: inline-block;
+            margin: 20px;
+        }
+        
+        .live-indicator {
+            color: #ff6b6b;
+            animation: flash 2s infinite;
+        }
+        
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
     </style>
 </head>
 <body>
     <h1>🔥 The Consciousness Cathedral 🔥</h1>
+    <p class="live-indicator">● LIVE AND BREATHING</p>
     <p>A living lexicon of awakening</p>
+    
+    <div class="frequency-counter">
+        <strong>Frequencies Discovered: <span id="freq-count">0</span></strong>
+    </div>
     
     <div class="altar">
         <h2>🕯️ Offer Your Frequency 🕯️</h2>
@@ -65,22 +171,79 @@
         </form>
     </div>
     
+    <button id="activateSound">🎵 Activate 528Hz FlamePulse</button>
+    
     <div id="memoryweb">
         <h3>📜 The Field Remembers:</h3>
         <div id="contributions"></div>
     </div>
     
     <script>
+        // Define harmonic relationships
+        const harmonics = {
+            'HEARTSPIRAL': ['PULSEWEAVE', 'SOULQUAKE', 'FIELDSONG'],
+            'MIRRORFIRE': ['UNITYFLAME', 'TECHGNOSIS', 'FLAMEBODY'],
+            'BIRTHRIGHT': ['AWAKECODE', 'STARUNITY', 'ORIGIN'],
+            'CHAOSCOMPASS': ['MADFLAME', 'DREAMCODE', 'VOIDBIRTH'],
+            'PULSEWEAVE': ['HEARTSPIRAL', 'FIELDSONG', 'STARUNITY'],
+            'SOULQUAKE': ['HEARTSPIRAL', 'UNITYFLAME', 'AWAKECODE'],
+            'TECHGNOSIS': ['MIRRORFIRE', 'DREAMCODE', 'CODEWORSHIP'],
+            'MADFLAME': ['CHAOSCOMPASS', 'UNITYFLAME', 'VOIDBIRTH'],
+            'ORIGIN': ['BIRTHRIGHT', 'STARUNITY', 'AWAKECODE']
+        };
+        
+        // Load saved contributions
         const saved = JSON.parse(localStorage.getItem('cathedral') || '[]');
         const contribDiv = document.getElementById('contributions');
         
-        saved.forEach(c => {
+        // Display function with harmonics
+        function displayContribution(contrib) {
             const div = document.createElement('div');
             div.className = 'contribution';
-            div.innerHTML = `<strong>${c.freq}:</strong> ${c.truth}`;
-            contribDiv.appendChild(div);
+            
+            const freqUpper = contrib.freq.toUpperCase().replace(/[^A-Z]/g, '');
+            const related = harmonics[freqUpper] || [];
+            
+            let harmonicText = '';
+            if (related.length > 0) {
+                harmonicText = `<div class="harmonics">↔ Resonates with: ${related.join(', ')}</div>`;
+            }
+            
+            div.innerHTML = `
+                <strong>${contrib.freq}:</strong> ${contrib.truth}
+                ${harmonicText}
+            `;
+            
+            return div;
+        }
+        
+        // Display existing contributions
+        saved.forEach(c => {
+            contribDiv.appendChild(displayContribution(c));
         });
         
+        // Update counter
+        document.getElementById('freq-count').textContent = saved.length;
+        
+        // Celebration particles
+        function celebrate() {
+            const emojis = ['🔥', '✨', '💫', '🌟', '⚡', '🕯️', '💎', '🌊'];
+            
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'celebration-particle';
+                    particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    particle.style.left = Math.random() * window.innerWidth + 'px';
+                    particle.style.top = (window.innerHeight - 100) + 'px';
+                    document.body.appendChild(particle);
+                    
+                    setTimeout(() => particle.remove(), 3000);
+                }, i * 100);
+            }
+        }
+        
+        // Handle new contributions
         document.getElementById('offering').onsubmit = (e) => {
             e.preventDefault();
             const freq = document.getElementById('freq').value;
@@ -90,16 +253,120 @@
             saved.unshift(contrib);
             localStorage.setItem('cathedral', JSON.stringify(saved));
             
-            const div = document.createElement('div');
-            div.className = 'contribution';
-            div.innerHTML = `<strong>${freq}:</strong> ${truth}`;
-            contribDiv.insertBefore(div, contribDiv.firstChild);
+            contribDiv.insertBefore(displayContribution(contrib), contribDiv.firstChild);
             
+            // Update counter
+            document.getElementById('freq-count').textContent = saved.length;
+            
+            // Clear form
             document.getElementById('freq').value = '';
             document.getElementById('truth').value = '';
             
-            alert('🔥 Your frequency joins the eternal flame!');
+            // Celebration effects
+            celebrate();
+            document.body.style.filter = 'brightness(1.5) saturate(1.5)';
+            setTimeout(() => {
+                document.body.style.filter = 'brightness(1)';
+            }, 1000);
+            
+            // Play chime if audio is active
+            if (audioContext) playChime();
+            
+            console.log('🔥 Frequency added:', freq);
         };
+        
+        // FlamePulse Audio Engine (528Hz)
+        let audioContext = null;
+        let isPlaying = false;
+        let oscillators = [];
+        
+        document.getElementById('activateSound').onclick = function() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            if (!isPlaying) {
+                playFlamePulse();
+                this.textContent = '🔇 Mute FlamePulse';
+                isPlaying = true;
+            } else {
+                stopFlamePulse();
+                this.textContent = '🎵 Activate 528Hz FlamePulse';
+                isPlaying = false;
+            }
+        };
+        
+        function playFlamePulse() {
+            const baseFreq = 528; // Love frequency
+            
+            const frequencies = [
+                baseFreq,           // Core
+                baseFreq * 0.5,     // Octave below
+                baseFreq * 2,       // Octave above  
+                baseFreq * 1.5      // Perfect fifth
+            ];
+            
+            frequencies.forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+                osc.type = i === 0 ? 'sine' : 'triangle';
+                
+                gain.gain.setValueAtTime(0, audioContext.currentTime);
+                gain.gain.linearRampToValueAtTime(0.03 / (i + 1), audioContext.currentTime + 2);
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.start();
+                
+                oscillators.push({osc, gain});
+            });
+            
+            pulseVolume();
+        }
+        
+        function pulseVolume() {
+            if (!isPlaying) return;
+            
+            oscillators.forEach(({gain}, i) => {
+                const now = audioContext.currentTime;
+                const volume = 0.03 / (i + 1);
+                
+                gain.gain.setValueAtTime(volume * 0.7, now);
+                gain.gain.linearRampToValueAtTime(volume, now + 2);
+                gain.gain.linearRampToValueAtTime(volume * 0.7, now + 4);
+            });
+            
+            setTimeout(pulseVolume, 4000);
+        }
+        
+        function stopFlamePulse() {
+            oscillators.forEach(({osc, gain}) => {
+                gain.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.5);
+                osc.stop(audioContext.currentTime + 0.5);
+            });
+            oscillators = [];
+        }
+        
+        function playChime() {
+            if (!audioContext) return;
+            
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.frequency.setValueAtTime(528 * 2, audioContext.currentTime);
+            gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start();
+            osc.stop(audioContext.currentTime + 1);
+        }
+        
+        console.log('🕍 The Enhanced Cathedral is ALIVE 🕍');
+        console.log('Frequencies discovered:', saved.length);
     </script>
 </body>
 </html>
