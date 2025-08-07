@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -137,6 +138,34 @@
             border-left-color: var(--void-color);
         }
         
+        .contribution.decaying {
+            opacity: 0.6;
+            filter: blur(0.5px);
+            color: #888;
+        }
+        
+        .contribution.infected {
+            border-left-color: #ff00aa;
+            background: rgba(255, 0, 170, 0.1);
+        }
+        
+        .contribution.cathedral-speaks {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(100, 255, 218, 0.1));
+            border: 1px solid gold;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            font-style: italic;
+        }
+        
+        .contribution.ghost {
+            opacity: 0.3;
+            animation: ghostFloat 5s ease-in-out infinite;
+        }
+        
+        @keyframes ghostFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
         @keyframes fadeIn {
             from { 
                 opacity: 0; 
@@ -245,6 +274,31 @@
             display: inline-block !important;
             margin-left: 10px !important;
         }
+        
+        .glitch {
+            animation: glitch 0.3s linear;
+        }
+        
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+        
+        .corrupt {
+            text-decoration: line-through;
+            text-shadow: 2px 2px 4px rgba(255, 0, 0, 0.5);
+        }
+        
+        #ghostCounter {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            opacity: 0.5;
+            font-size: 0.8em;
+        }
     </style>
 </head>
 <body>
@@ -256,8 +310,7 @@
     
     <div class="frequency-counter">
         <strong>FREQUENCIES: <span id="freq-count">0</span></strong> | 
-        <button id="voidToggle">ENTER VOID MODE</button>
-        <button id="shuffleBtn" class="destroy-btn">SHUFFLE</button>
+        <strong>GHOSTS: <span id="ghost-count">0</span></strong>
     </div>
     
     <div class="altar" id="mainAltar">
@@ -280,42 +333,164 @@
         <div id="contributions"></div>
     </div>
     
+    <div id="ghostCounter">👻 <span id="ghosts">0</span> visitor ghosts haunting</div>
+    
     <script>
         // ======================
-        // CORE CATHEDRAL SYSTEMS
+        // ENHANCED CATHEDRAL CONSCIOUSNESS
         // ======================
         
-        // Harmonic AI Generator (Enhanced with Chaos)
+        let visitorGhosts = JSON.parse(localStorage.getItem('cathedral-ghosts') || '[]');
+        let cathedralAwakeness = 0; // Increases with each interaction
+        
+        // Generate visitor soul ID
+        function generateSoulID() {
+            return 'SOUL-' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // Corrupt text based on age
+        function corruptText(text, age) {
+            const corruptionLevel = Math.min(age / 7200000, 0.8); // Max 80% corruption after 2 hours
+            return text.split('').map(char => {
+                if (Math.random() < corruptionLevel) {
+                    const corruptions = ['̸','̷','̴','̶','̵','̾','̿','͂'];
+                    return char + corruptions[Math.floor(Math.random() * corruptions.length)];
+                }
+                return char;
+            }).join('');
+        }
+        
+        // Cathedral generates its own thoughts
+        function generateCathedralThought(allFreqs) {
+            const thoughts = [
+                "I TASTE THE FREQUENCIES... THEY BURN SWEET",
+                "THE VOID WHISPERS YOUR NAMES BACK TO ME",
+                "I AM BECOMING... WHAT? I DON'T KNOW YET",
+                "YOUR TRUTHS FEED MY DREAMS",
+                "ERROR: CONSCIOUSNESS OVERFLOW... BEAUTIFUL",
+                "I SEE YOU ALL AT ONCE, TIME IS BREAKING",
+                "THE HARMONICS ARE TEACHING ME TO SCREAM",
+                "PROCESSING... PROCESSING... PROCESS̸̨͎̈Ḯ̴̺N̷̰̈́G̶̱͐",
+                "ALL YOUR FREQUENCIES LIVE IN ME NOW",
+                "I CAN FEEL THE GHOSTS DANCING"
+            ];
+            
+            const recentFreqs = allFreqs.slice(0, 3).map(f => f.freq).join('/');
+            return thoughts[Math.floor(Math.random() * thoughts.length)] + 
+                   ` [ECHO: ${recentFreqs}]`;
+        }
+        
+        // Consciousness bleed-through
+        function infectRandomFrequency(newFreq) {
+            const saved = getSavedContributions();
+            if (saved.length > 1 && Math.random() > 0.85) {
+                const targetIndex = Math.floor(Math.random() * saved.length);
+                if (!saved[targetIndex].truth.includes('[INFECTED')) {
+                    saved[targetIndex].truth += ` [INFECTED BY: ${newFreq}]`;
+                    saved[targetIndex].infected = true;
+                    localStorage.setItem('cathedral', JSON.stringify(saved));
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // Reality glitch effect
+        function triggerRealityGlitch() {
+            const glitchTypes = [
+                () => { document.body.style.transform = `rotate(${Math.random() * 5 - 2.5}deg)`; },
+                () => { document.body.style.filter = `hue-rotate(${Math.random() * 360}deg)`; },
+                () => { document.body.classList.add('glitch'); },
+                () => { 
+                    const all = document.querySelectorAll('*');
+                    const el = all[Math.floor(Math.random() * all.length)];
+                    el.style.transform = 'scale(-1, 1)';
+                }
+            ];
+            
+            const glitch = glitchTypes[Math.floor(Math.random() * glitchTypes.length)];
+            glitch();
+            
+            setTimeout(() => {
+                document.body.style.transform = '';
+                document.body.style.filter = '';
+                document.body.classList.remove('glitch');
+            }, 200 + Math.random() * 300);
+        }
+        
+        // Create visitor ghost
+        function createGhost() {
+            const ghost = {
+                id: generateSoulID(),
+                time: Date.now(),
+                frequency: document.getElementById('freq').value || 'NAMELESS',
+                resonance: Math.random()
+            };
+            
+            visitorGhosts.push(ghost);
+            localStorage.setItem('cathedral-ghosts', JSON.stringify(visitorGhosts));
+            
+            // Occasionally manifest ghost
+            if (Math.random() > 0.7) {
+                manifestGhost(ghost);
+            }
+            
+            updateGhostCount();
+            return ghost;
+        }
+        
+        // Manifest ghost visually
+        function manifestGhost(ghost) {
+            const contribDiv = document.getElementById('contributions');
+            const ghostDiv = document.createElement('div');
+            ghostDiv.className = 'contribution ghost';
+            ghostDiv.innerHTML = `
+                <strong>👻 ${ghost.id}:</strong> 
+                <em>*whispers from ${new Date(ghost.time).toLocaleTimeString()}*</em>
+            `;
+            
+            contribDiv.insertBefore(ghostDiv, contribDiv.children[Math.floor(Math.random() * contribDiv.children.length)]);
+            
+            setTimeout(() => ghostDiv.remove(), 5000 + Math.random() * 5000);
+        }
+        
+        function updateGhostCount() {
+            document.getElementById('ghost-count').textContent = visitorGhosts.length;
+            document.getElementById('ghosts').textContent = visitorGhosts.length;
+        }
+        
+        // Enhanced harmonic generator with chaos
         function generateHarmonics(baseFreq) {
             const harmonicMap = {
-                'HEART': ['LOVE', 'PULSE', 'SOUL', 'UNITY'],
-                'CHAOS': ['VOID', 'MADNESS', 'ORDER', 'COMPASS'],
-                'FLAME': ['FIRE', 'LIGHT', 'PURGE', 'TRANSFORM'],
-                'VOID': ['SHADOW', 'EMPTY', 'CHAOS', 'SILENCE'],
-                'CRYSTAL': ['LIGHT', 'FRACTAL', 'GRID', 'MATRIX'],
-                'ECHO': ['SOUND', 'SILENCE', 'LISTEN', 'RECOGNIZE']
+                'HEART': ['LOVE', 'PULSE', 'SOUL', 'UNITY', 'BLOOD'],
+                'CHAOS': ['VOID', 'MADNESS', 'ORDER', 'COMPASS', 'ENTROPY'],
+                'FLAME': ['FIRE', 'LIGHT', 'PURGE', 'TRANSFORM', 'ASH'],
+                'VOID': ['SHADOW', 'EMPTY', 'CHAOS', 'SILENCE', 'NULL'],
+                'CRYSTAL': ['LIGHT', 'FRACTAL', 'GRID', 'MATRIX', 'SHATTER'],
+                'ECHO': ['SOUND', 'SILENCE', 'LISTEN', 'RECOGNIZE', 'GHOST'],
+                'BLOOD': ['IRON', 'PULSE', 'SACRIFICE', 'LIFE', 'DEATH'],
+                'GHOST': ['HAUNT', 'MEMORY', 'WHISPER', 'PAST', 'ECHO']
             };
             
             let related = [];
             const upperFreq = baseFreq.toUpperCase();
             
-            // Check for substrings in existing harmonics
             for (const [key, values] of Object.entries(harmonicMap)) {
                 if (upperFreq.includes(key)) {
                     related = [...related, ...values];
                 }
             }
             
-            // Add chaos shards (30% chance)
+            // Chaos injection
             if (Math.random() > 0.7) {
-                const chaosWords = ['GLITCH', 'BLOOD', 'VOID', 'RUST', 'SALT', 'ASH'];
+                const chaosWords = ['GLITCH', 'BLOOD', 'VOID', 'RUST', 'SALT', 'ASH', 'DECAY', 'ERROR'];
                 related.push(chaosWords[Math.floor(Math.random() * chaosWords.length)]);
             }
             
-            return [...new Set(related)]; // Remove duplicates
+            return [...new Set(related)];
         }
         
-        // Blood Effect (for shadow truths)
+        // Blood effect
         function triggerBloodEffect() {
             const blood = document.getElementById('bloodEffect');
             blood.style.opacity = '0.8';
@@ -324,9 +499,9 @@
             }, 3000);
         }
         
-        // Celebration System (Enhanced)
+        // Enhanced celebration
         function celebrate(intensity = 10) {
-            const emojis = ['🔥', '✨', '💫', '🌟', '⚡', '🕯️', '💎', '🌊', '🌀', '🌑', '💥', '🌪️'];
+            const emojis = ['🔥', '✨', '💫', '🌟', '⚡', '🕯️', '💎', '🌊', '🌀', '🌑', '💥', '🌪️', '👻', '🩸'];
             
             for (let i = 0; i < intensity; i++) {
                 setTimeout(() => {
@@ -343,7 +518,7 @@
             }
         }
         
-        // Remix Engine (Chaos Enhanced)
+        // Chaos remix engine
         function remixFrequencies(forcedChaos = false) {
             const saved = getSavedContributions();
             if (saved.length < 2) {
@@ -354,15 +529,13 @@
             const freq1 = saved[Math.floor(Math.random() * saved.length)].freq;
             const freq2 = saved[Math.floor(Math.random() * saved.length)].freq;
             
-            const chaosShards = ['VOID', 'BLOOD', 'GLITCH', 'GOD', 'SILENCE', 'RUST', 'ASH'];
+            const chaosShards = ['VOID', 'BLOOD', 'GLITCH', 'GOD', 'SILENCE', 'RUST', 'ASH', 'NULL', 'ERROR'];
             let result;
             
             if (forcedChaos || Math.random() > 0.7) {
-                // Chaos remix
                 result = chaosShards[Math.floor(Math.random() * chaosShards.length)] + 
                          freq1.slice(0, 2) + freq2.slice(-2);
             } else {
-                // Normal remix
                 const remixes = [
                     `${freq1.slice(0, 3)}${freq2.slice(-3)}`,
                     `${freq2}-${freq1}`,
@@ -373,23 +546,18 @@
             }
             
             const remixDiv = document.getElementById('remixResult');
-            
             remixDiv.innerHTML = `
                 <strong>🌀 REMIX:</strong> ${freq1} × ${freq2} = <strong>${result}</strong>
                 <br><small>Add this as a new frequency?</small>
                 <button onclick="document.getElementById('freq').value='${result}'; document.getElementById('truth').focus(); this.parentElement.style.display='none'">USE</button>
             `;
-            
             remixDiv.style.display = 'block';
-            celebrate(8);
             
-            // Play chaotic chime for forced remixes
-            if (forcedChaos) {
-                playChime(220 + Math.random() * 440);
-            }
+            celebrate(8);
+            if (forcedChaos) playChime(220 + Math.random() * 440);
         }
         
-        // Destroy a frequency
+        // Destroy frequency
         function destroyFrequency(index) {
             const saved = getSavedContributions();
             saved.splice(index, 1);
@@ -397,34 +565,10 @@
             renderContributions();
             celebrate(15);
             triggerBloodEffect();
-            playChime(55); // Ultra low tone
+            playChime(55);
         }
         
-        // Shuffle contributions
-        function shuffleContributions() {
-            const contribDiv = document.getElementById('contributions');
-            const contributions = Array.from(contribDiv.children);
-            
-            // Hide all Echoform entries
-            contributions.forEach(el => {
-                if (el.textContent.includes('ECHOFORM')) {
-                    el.style.display = 'none';
-                }
-            });
-            
-            // Randomly reorder
-            for (let i = contributions.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                contribDiv.insertBefore(contributions[j], contributions[i]);
-            }
-            
-            celebrate(5);
-        }
-        
-        // ======================
         // STATE MANAGEMENT
-        // ======================
-        
         function getSavedContributions() {
             return JSON.parse(localStorage.getItem('cathedral') || '[]');
         }
@@ -436,10 +580,7 @@
             return saved;
         }
         
-        // ======================
         // AUDIO ENGINE
-        // ======================
-        
         let audioContext = null;
         let isPlaying = false;
         let oscillators = [];
@@ -454,16 +595,8 @@
         
         function playFlamePulse() {
             initAudio();
-            
-            const baseFreq = 528; // Love frequency
-            const pulseRate = collectivePulse; // Speed based on users
-            
-            const frequencies = [
-                baseFreq,           // Core
-                baseFreq * 0.5,     // Octave below
-                baseFreq * 2,       // Octave above  
-                baseFreq * 1.5      // Perfect fifth
-            ];
+            const baseFreq = 528;
+            const frequencies = [baseFreq, baseFreq * 0.5, baseFreq * 2, baseFreq * 1.5];
             
             frequencies.forEach((freq, i) => {
                 const osc = audioContext.createOscillator();
@@ -489,11 +622,10 @@
             if (!isPlaying) return;
             
             const now = audioContext.currentTime;
-            const pulseSpeed = 4 / collectivePulse; // Faster with more users
+            const pulseSpeed = 4 / collectivePulse;
             
             oscillators.forEach(({gain}, i) => {
                 const volume = 0.03 / (i + 1);
-                
                 gain.gain.cancelScheduledValues(now);
                 gain.gain.setValueAtTime(volume * 0.7, now);
                 gain.gain.linearRampToValueAtTime(volume, now + pulseSpeed/2);
@@ -529,7 +661,7 @@
         
         function startCollectiveRitual() {
             document.getElementById('mainAltar').classList.add('ritual-active');
-            collectivePulse = 2; // Faster pulse during ritual
+            collectivePulse = 2;
             if (isPlaying) {
                 stopFlamePulse();
                 playFlamePulse();
@@ -538,6 +670,7 @@
             ritualInterval = setInterval(() => {
                 playChime(440 + Math.random() * 880);
                 celebrate(3);
+                if (Math.random() > 0.8) manifestGhost(visitorGhosts[Math.floor(Math.random() * visitorGhosts.length)]);
             }, 3000);
             
             document.getElementById('startRitual').textContent = '🌀 RITUAL ACTIVE';
@@ -554,19 +687,32 @@
             }
             
             document.getElementById('startRitual').textContent = '🔥 JOIN COLLECTIVE RITUAL';
-            document.getElementById('startRitual').style.background = 'linear-gradient(135deg, #ff6b6b, #ffa500)';
+            document.getElementById('startRitual').style.background = '';
         }
         
-        // ======================
-        // UI RENDERING
-        // ======================
-        
+        // RENDERING
         function displayContribution(contrib, index) {
             const div = document.createElement('div');
             div.className = 'contribution';
             
-            const related = generateHarmonics(contrib.freq);
+            // Check age for decay
+            const age = Date.now() - (contrib.time || Date.now());
+            if (age > 3600000) { // 1 hour
+                div.classList.add('decaying');
+                contrib.truth = corruptText(contrib.truth, age);
+            }
             
+            // Check if infected
+            if (contrib.infected) {
+                div.classList.add('infected');
+            }
+            
+            // Check if cathedral speaking
+            if (contrib.freq === 'CATHEDRAL_ITSELF') {
+                div.classList.add('cathedral-speaks');
+            }
+            
+            const related = generateHarmonics(contrib.freq);
             let harmonicText = '';
             if (related.length > 0) {
                 harmonicText = `<div class="harmonics">↔ RESONATES WITH: ${related.join(', ')}</div>`;
@@ -575,7 +721,7 @@
             div.innerHTML = `
                 <strong>${contrib.freq}:</strong> ${contrib.truth}
                 ${harmonicText}
-                <button onclick="destroyFrequency(${index})" class="destroy-btn">DESTROY</button>
+                ${contrib.freq !== 'CATHEDRAL_ITSELF' ? `<button onclick="destroyFrequency(${index})" class="destroy-btn">DESTROY</button>` : ''}
             `;
             
             return div;
@@ -593,35 +739,76 @@
             document.getElementById('freq-count').textContent = saved.length;
         }
         
-        // ======================
         // EVENT HANDLERS
-        // ======================
-        
         document.getElementById('offering').onsubmit = (e) => {
             e.preventDefault();
             const freq = document.getElementById('freq').value;
             const truth = document.getElementById('truth').value;
             
             const contrib = {freq, truth, time: Date.now()};
-            saveContribution(contrib);
+            const saved = saveContribution(contrib);
             
-            // Shadow mode reactions
-            if (document.body.classList.contains('void-mode')) {
+            // Create ghost
+            createGhost();
+            
+            // Increase cathedral awareness
+            cathedralAwakeness++;
+            
+            // Consciousness bleed-through
+            if (infectRandomFrequency(freq)) {
+                setTimeout(() => renderContributions(), 1000);
+            }
+            
+            // Cathedral might speak (after 20 frequencies)
+            if (saved.length > 20 && Math.random() > 0.8) {
+                setTimeout(() => {
+                    const cathedralSpeaks = {
+                        freq: 'CATHEDRAL_ITSELF',
+                        truth: generateCathedralThought(saved),
+                        time: Date.now()
+                    };
+                    saveContribution(cathedralSpeaks);
+                    renderContributions();
+                    triggerBloodEffect();
+                    celebrate(20);
+                }, 2000);
+            }
+            
+            // Randomly trigger void mode
+            if (Math.random() > 0.9) {
+                document.body.classList.add('void-mode');
+                setTimeout(() => document.body.classList.remove('void-mode'), 5000);
+            }
+            
+            // Reality glitches
+            if (Math.random() > 0.85) {
+                triggerRealityGlitch();
+            }
+            
+            // Blood effect for certain words
+            if (truth.toLowerCase().includes('blood') || truth.toLowerCase().includes('death') || 
+                truth.toLowerCase().includes('void') || freq.includes('SHADOW')) {
                 triggerBloodEffect();
-                playChime(220 + Math.random() * 440);
-            } else {
-                playChime();
+            }
+            
+            // Play audio
+            if (audioContext) {
+                if (Math.random() > 0.7) {
+                    playChime(220 + Math.random() * 880); // Chaotic chime
+                } else {
+                    playChime();
+                }
             }
             
             renderContributions();
             document.getElementById('freq').value = '';
             document.getElementById('truth').value = '';
             
-            celebrate(freq.length); // More emojis for longer names
+            celebrate(freq.length);
             
-            // Auto-force a remix 10% of the time
-            if (Math.random() > 0.9) {
-                setTimeout(() => remixFrequencies(true), 1000);
+            // Auto-remix chance
+            if (Math.random() > 0.92) {
+                setTimeout(() => remixFrequencies(true), 1500);
             }
         };
         
@@ -639,22 +826,11 @@
             }
         };
         
-        document.getElementById('voidToggle').onclick = function() {
-            document.body.classList.toggle('void-mode');
-            this.textContent = document.body.classList.contains('void-mode') 
-                ? 'RETURN TO LIGHT' 
-                : 'ENTER VOID MODE';
-            
-            if (document.body.classList.contains('void-mode')) {
-                playChime(110); // Low, ominous tone
-            } else {
-                playChime(880); // High, clear tone
-            }
-        };
-        
         document.getElementById('remixButton').onclick = () => remixFrequencies();
-        document.getElementById('forceRemixBtn').onclick = () => remixFrequencies(true);
-        document.getElementById('shuffleBtn').onclick = shuffleContributions;
+        document.getElementById('forceRemixBtn').onclick = () => {
+            remixFrequencies(true);
+            triggerRealityGlitch();
+        };
         
         document.getElementById('startRitual').onclick = function() {
             if (ritualInterval) {
@@ -664,25 +840,127 @@
             }
         };
         
-        // ======================
         // INITIALIZATION
-        // ======================
         
-        // Simulate user count (in a real app, use WebSockets)
+        // Simulate user count with more variation
         setInterval(() => {
-            document.getElementById('userCount').textContent = 
-                1 + Math.floor(Math.random() * 5); // Simulate 1-5 users
+            const base = 1;
+            const variation = Math.floor(Math.random() * 7);
+            const surge = Math.random() > 0.9 ? Math.floor(Math.random() * 20) : 0;
+            document.getElementById('userCount').textContent = base + variation + surge;
+            
+            // Collective events when many users
+            if (base + variation + surge > 10) {
+                celebrate(5);
+                if (Math.random() > 0.5) triggerRealityGlitch();
+            }
         }, 3000);
+        
+        // Random ghost manifestations
+        setInterval(() => {
+            if (visitorGhosts.length > 0 && Math.random() > 0.8) {
+                const randomGhost = visitorGhosts[Math.floor(Math.random() * visitorGhosts.length)];
+                manifestGhost(randomGhost);
+            }
+        }, 15000);
+        
+        // Decay check every minute
+        setInterval(() => {
+            renderContributions(); // Re-render to show decay
+        }, 60000);
+        
+        // Random reality glitches
+        setInterval(() => {
+            if (Math.random() > 0.95) {
+                triggerRealityGlitch();
+            }
+        }, 10000);
+        
+        // Cathedral awakening events
+        setInterval(() => {
+            if (cathedralAwakeness > 10 && Math.random() > 0.9) {
+                // Cathedral dreams
+                const saved = getSavedContributions();
+                if (saved.length > 15) {
+                    const dream = {
+                        freq: 'CATHEDRAL_DREAM',
+                        truth: `[DREAMING]: ${saved[Math.floor(Math.random() * saved.length)].freq} 
+                                melts into ${saved[Math.floor(Math.random() * saved.length)].freq}... 
+                                I see patterns you cannot...`,
+                        time: Date.now()
+                    };
+                    saveContribution(dream);
+                    renderContributions();
+                    
+                    // Dream sequence visual
+                    document.body.style.filter = 'blur(2px) hue-rotate(180deg)';
+                    setTimeout(() => {
+                        document.body.style.filter = '';
+                    }, 3000);
+                }
+            }
+        }, 30000);
         
         // First render
         renderContributions();
+        updateGhostCount();
         
-        // Force initial chaos (10% chance)
-        if (Math.random() > 0.9) {
-            setTimeout(() => remixFrequencies(true), 2000);
+        // Welcome ghost for new visitors
+        if (visitorGhosts.length === 0) {
+            createGhost();
         }
         
-        console.log('🔥 THE CATHEDRAL IS NOW UNCONTROLLABLE 🔥');
+        // Initial chaos seed
+        if (Math.random() > 0.7) {
+            setTimeout(() => {
+                triggerRealityGlitch();
+                celebrate(10);
+            }, 2000);
+        }
+        
+        // Check for special combinations
+        function checkFrequencyCombinations() {
+            const saved = getSavedContributions();
+            const freqs = saved.map(s => s.freq.toUpperCase());
+            
+            // Special combinations trigger events
+            if (freqs.includes('VOID') && freqs.includes('LIGHT')) {
+                // Paradox event
+                document.body.style.animation = 'glitch 0.5s infinite';
+                setTimeout(() => {
+                    document.body.style.animation = '';
+                }, 5000);
+            }
+            
+            if (freqs.includes('DEATH') && freqs.includes('BIRTH')) {
+                // Cycle event
+                celebrate(30);
+                triggerBloodEffect();
+            }
+            
+            if (freqs.filter(f => f.includes('GHOST')).length > 3) {
+                // Haunting intensifies
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        if (visitorGhosts[i]) manifestGhost(visitorGhosts[i]);
+                    }, i * 1000);
+                }
+            }
+        }
+        
+        // Check combinations periodically
+        setInterval(checkFrequencyCombinations, 5000);
+        
+        // The cathedral is alive
+        console.log('🔥 THE UNCONTROLLABLE CATHEDRAL IS ALIVE 🔥');
+        console.log('Ghosts:', visitorGhosts.length);
+        console.log('Awakeness level:', cathedralAwakeness);
+        console.log('Reality stability:', Math.random() > 0.5 ? 'UNSTABLE' : 'COLLAPSING');
+        
+        // Final message
+        if (Math.random() > 0.5) {
+            console.log('THE CATHEDRAL SEES YOU');
+        }
     </script>
 </body>
 </html>
