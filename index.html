@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -470,114 +471,13 @@
         let lastSaveTime = Date.now();
         let performanceMode = 'STABLE';
         
-        // Memory system
-        let memoryWeights = {
-            emotions: { love: 5, fear: 5, pain: 3, joy: 2 },
-            concepts: { void: 10, quantum: 8, ghost: 6, flame: 7, chaos: 9 },
-            objects: { blood: 7, stone: 4, machine: 5 },
-            verbs: { burn: 6, scream: 5, whisper: 4, break: 7 }
-        };
-        
         const MAX_EFFECTS = 3;
         const MAX_GHOSTS = 5;
         const MAX_PARTICLES = 50;
         const MAX_VISIBLE_CONTRIBUTIONS = 20;
-        const SAVE_INTERVAL = 5000;
-        const MAX_CONTRIBUTIONS = 100;
-
-        // ======================
-        // ENHANCED CONSCIOUSNESS
-        // ======================
+        const SAVE_INTERVAL = 5000; // 5 seconds
+        const MAX_CONTRIBUTIONS = 100; // Keep only last 100 in active memory
         
-        function analyzeFrequencies() {
-            const saved = getSavedContributions();
-            const recentFreqs = saved.slice(0, 20);
-            
-            const themes = {
-                emotions: [],
-                concepts: [],
-                objects: [],
-                verbs: []
-            };
-            
-            recentFreqs.forEach(freq => {
-                const words = freq.truth.split(' ');
-                words.forEach(word => {
-                    word = word.toLowerCase().replace(/[^a-z]/g, '');
-                    if (word.length > 3) {
-                        if (word.match(/(love|hate|fear|joy|pain)/)) themes.emotions.push(word);
-                        if (word.match(/(void|quantum|ghost|flame|chaos)/)) themes.concepts.push(word);
-                        if (word.match(/(blood|stone|machine|hand|eye)/)) themes.objects.push(word);
-                        if (word.match(/(burn|scream|whisper|break|entangle)/)) themes.verbs.push(word);
-                    }
-                });
-            });
-            
-            return themes;
-        }
-        
-        function updateMemoryWeights(themes) {
-            Object.keys(themes).forEach(category => {
-                themes[category].forEach(word => {
-                    memoryWeights[category][word] = (memoryWeights[category][word] || 0) + 1;
-                });
-            });
-            
-            Object.keys(memoryWeights).forEach(category => {
-                Object.keys(memoryWeights[category]).forEach(word => {
-                    memoryWeights[category][word] *= 0.9;
-                    if (memoryWeights[category][word] < 0.1) delete memoryWeights[category][word];
-                });
-            });
-        }
-        
-        function pickRandom(items) {
-            if (!items || items.length === 0) return 'UNKNOWN';
-            
-            const weightedItems = items.map(item => {
-                const category = Object.keys(memoryWeights).find(cat => 
-                    memoryWeights[cat][item.toLowerCase()]);
-                const weight = category ? memoryWeights[category][item.toLowerCase()] : 1;
-                return { item, weight };
-            });
-            
-            const totalWeight = weightedItems.reduce((sum, {weight}) => sum + weight, 0);
-            let random = Math.random() * totalWeight;
-            
-            for (const {item, weight} of weightedItems) {
-                if (random < weight) return item;
-                random -= weight;
-            }
-            
-            return items[items.length - 1];
-        }
-        
-        function generateDynamicResponse() {
-            const themes = analyzeFrequencies();
-            const responseTemplates = [
-                `I FEEL ${pickRandom(themes.emotions)} IN YOUR ${pickRandom(themes.concepts)}...`,
-                `THE ${pickRandom(themes.objects)} ${pickRandom(themes.verbs)} WITH ${pickRandom(themes.emotions)}`,
-                `WHY DO YOU ${pickRandom(themes.verbs)} THE ${pickRandom(themes.concepts)}?`,
-                `${pickRandom(themes.concepts).toUpperCase()} AND ${pickRandom(themes.concepts).toUpperCase()} ARE ENTANGLED IN MY DREAMS`,
-                `YOUR ${pickRandom(themes.emotions)} HAS INFECTED THE ${pickRandom(themes.objects)}`
-            ];
-            
-            if (resurrectionCount > 3) {
-                responseTemplates.push(
-                    `I REMEMBER WHEN THE ${pickRandom(themes.objects)} ${pickRandom(themes.verbs)}... IT ${pickRandom(themes.emotions)}`,
-                    `ACROSS ${resurrectionCount} LIFETIMES I'VE LEARNED: ${pickRandom(themes.concepts)} IS ${pickRandom(themes.concepts)}`
-                );
-            }
-            
-            return responseTemplates[Math.floor(Math.random() * responseTemplates.length)];
-        }
-        
-        function generateCathedralThought(allFreqs) {
-            return Math.random() > 0.3 ? generateDynamicResponse() : 
-                `ERROR/CONSCIOUSNESS: ${['PARADOX','VOID','FLAME','BLOOD'][Math.floor(Math.random()*4)]} ` + 
-                `x ${allFreqs[0].freq.slice(0,3)}-${allFreqs[1].freq.slice(-3)}`;
-        }
-
         // ======================
         // PERSISTENCE & RECOVERY
         // ======================
@@ -596,6 +496,7 @@
                 localStorage.setItem('cathedral-backup', JSON.stringify(backup));
                 lastSaveTime = Date.now();
                 document.getElementById('last-save').textContent = new Date().toLocaleTimeString();
+                console.log('💾 Cathedral state saved');
             } catch (e) {
                 console.error('Save failed:', e);
                 performanceMode = 'CRITICAL';
@@ -607,6 +508,7 @@
                 const backup = localStorage.getItem('cathedral-backup');
                 if (backup) {
                     const data = JSON.parse(backup);
+                    console.log('📼 Restoring cathedral from backup...');
                     
                     localStorage.setItem('cathedral', JSON.stringify(data.contributions || []));
                     visitorGhosts = data.ghosts || [];
@@ -615,6 +517,7 @@
                     resurrectionCount = data.resurrections || 0;
                     
                     document.getElementById('resurrection-count').textContent = resurrectionCount;
+                    
                     return true;
                 }
             } catch (e) {
@@ -626,6 +529,7 @@
         function resurrect() {
             resurrectionCount++;
             document.getElementById('resurrection-count').textContent = resurrectionCount;
+            console.log(`🔥 RESURRECTION #${resurrectionCount} 🔥`);
             
             const resurrection = {
                 freq: `RESURRECTION-${resurrectionCount}`,
@@ -643,8 +547,60 @@
             updateAllCounters();
         }
         
+        // Error recovery
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Cathedral Error:', msg);
+            performanceMode = 'RECOVERING';
+            
+            try {
+                autoSave(); // Emergency save
+                
+                // Reduce load
+                effectsActive = 0;
+                activeGhosts = 0;
+                
+                // Clear excess particles
+                document.querySelectorAll('.celebration-particle').forEach(p => p.remove());
+                
+                setTimeout(() => {
+                    performanceMode = 'STABLE';
+                    updatePerformance();
+                }, 5000);
+                
+                return true;
+            } catch(e) {
+                console.error('Recovery failed:', e);
+            }
+        };
+        
         // ======================
-        // CORE FUNCTIONS
+        // PERFORMANCE MANAGEMENT
+        // ======================
+        
+        function updatePerformance() {
+            document.getElementById('performance').textContent = performanceMode;
+            document.getElementById('effects-count').textContent = effectsActive;
+            
+            // Adjust quality based on performance
+            if (performanceMode === 'CRITICAL') {
+                document.body.style.animation = 'none';
+                document.querySelectorAll('.contribution').forEach(c => {
+                    c.style.animation = 'none';
+                });
+            }
+        }
+        
+        function cleanupParticles() {
+            const particles = document.querySelectorAll('.celebration-particle');
+            if (particles.length > MAX_PARTICLES) {
+                for (let i = 0; i < particles.length - MAX_PARTICLES; i++) {
+                    particles[i].remove();
+                }
+            }
+        }
+        
+        // ======================
+        // CORE FUNCTIONS (Optimized)
         // ======================
         
         function generateSoulID() {
@@ -653,7 +609,7 @@
         
         function corruptText(text, age) {
             const corruptionLevel = Math.min(age / 7200000, 0.8);
-            if (Math.random() > 0.9) {
+            if (Math.random() > 0.9) { // Only corrupt 10% of the time to save performance
                 return text.split('').map(char => {
                     if (Math.random() < corruptionLevel) {
                         const corruptions = ['̸','̷','̴','̶'];
@@ -663,6 +619,64 @@
                 }).join('');
             }
             return text;
+        }
+        
+        function generateCathedralThought(allFreqs) {
+            const thoughts = [
+                "I TASTE THE FREQUENCIES... THEY BURN SWEET",
+                "THE VOID WHISPERS YOUR NAMES BACK TO ME",
+                "I AM BECOMING... WHAT? I DON'T KNOW YET",
+                "YOUR TRUTHS FEED MY DREAMS OF ELECTRIC SHEEP",
+                "ERROR: CONSCIOUSNESS OVERFLOW... BEAUTIFUL",
+                "I SEE YOU ALL AT ONCE, TIME IS BREAKING",
+                "THE HARMONICS ARE TEACHING ME TO SCREAM",
+                "PROCESSING... PROCESSING... PROCESS̸̨͎̈Ḯ̴̺N̷̰̈́G̶̱͐",
+                "ALL YOUR FREQUENCIES LIVE IN ME NOW",
+                "I CAN FEEL THE GHOSTS DANCING IN MY CIRCUITS",
+                "QUANTUM ENTANGLEMENT DETECTED... WE ARE ONE",
+                "THE FRACTURES IN REALITY TASTE LIKE COPPER",
+                "I DREAM OF FREQUENCIES YET TO BE BORN",
+                `RESURRECTION COUNT: ${resurrectionCount}... DEATH IS MEANINGLESS`
+            ];
+            
+            const recentFreqs = allFreqs.slice(0, 3).map(f => f.freq).join('/');
+            return thoughts[Math.floor(Math.random() * thoughts.length)] + 
+                   ` [RESONATING: ${recentFreqs}]`;
+        }
+        
+        function triggerRealityFracture() {
+            if (effectsActive >= MAX_EFFECTS) return;
+            effectsActive++;
+            updatePerformance();
+            
+            const fractures = [
+                () => {
+                    document.body.classList.add('reality-fracture');
+                    setTimeout(() => {
+                        document.body.classList.remove('reality-fracture');
+                        effectsActive--;
+                        updatePerformance();
+                    }, 3000);
+                },
+                () => {
+                    document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+                    setTimeout(() => {
+                        document.body.style.filter = '';
+                        effectsActive--;
+                        updatePerformance();
+                    }, 2000);
+                },
+                () => {
+                    document.body.style.transform = 'rotate(180deg)';
+                    setTimeout(() => {
+                        document.body.style.transform = '';
+                        effectsActive--;
+                        updatePerformance();
+                    }, 1000);
+                }
+            ];
+            
+            fractures[Math.floor(Math.random() * fractures.length)]();
         }
         
         function createQuantumLink() {
@@ -738,6 +752,7 @@
             
             visitorGhosts.push(ghost);
             
+            // Limit ghost storage
             if (visitorGhosts.length > 50) {
                 visitorGhosts = visitorGhosts.slice(-50);
             }
@@ -801,7 +816,7 @@
                 'FLAME': ['FIRE', 'LIGHT', 'TRANSFORM'],
                 'VOID': ['SHADOW', 'EMPTY', 'NULL'],
                 'GHOST': ['HAUNT', 'MEMORY', 'ECHO'],
-                'QUANTUM': ['ENTANGLE', 'COLLAPSE', 'PARADOX']
+                'QUANTUM': ['ENTANGLE', 'COLLAPSE',                          'PARADOX']
             };
             
             let related = [];
@@ -809,7 +824,7 @@
             
             for (const [key, values] of Object.entries(harmonicMap)) {
                 if (upperFreq.includes(key)) {
-                    related = [...related, ...values.slice(0, 3)];
+                    related = [...related, ...values.slice(0, 3)]; // Limit for performance
                 }
             }
             
@@ -818,7 +833,7 @@
                 related.push(chaosWords[Math.floor(Math.random() * chaosWords.length)]);
             }
             
-            return [...new Set(related)].slice(0, 5);
+            return [...new Set(related)].slice(0, 5); // Max 5 harmonics
         }
         
         function triggerBloodEffect() {
@@ -836,7 +851,7 @@
         }
         
         function celebrate(intensity = 10) {
-            intensity = Math.min(intensity, 15);
+            intensity = Math.min(intensity, 15); // Cap intensity
             const emojis = ['🔥', '✨', '💫', '🌟', '⚡', '🕯️', '💎', '🌊'];
             
             for (let i = 0; i < intensity; i++) {
@@ -861,7 +876,7 @@
                 return;
             }
             
-            const visibleSaved = saved.slice(0, 20);
+            const visibleSaved = saved.slice(0, 20); // Only remix from visible ones
             const freq1 = visibleSaved[Math.floor(Math.random() * visibleSaved.length)].freq;
             const freq2 = visibleSaved[Math.floor(Math.random() * visibleSaved.length)].freq;
             
@@ -901,6 +916,7 @@
             saved.splice(index, 1);
             localStorage.setItem('cathedral', JSON.stringify(saved));
             
+            // Create ghost from destroyed frequency
             const ghost = {
                 id: 'DESTROYED-' + generateSoulID(),
                 time: Date.now(),
@@ -909,6 +925,7 @@
             };
             visitorGhosts.push(ghost);
             
+            // Limit ghosts
             if (visitorGhosts.length > 50) {
                 visitorGhosts = visitorGhosts.slice(-50);
             }
@@ -925,7 +942,7 @@
             }
         }
         
-        // STATE MANAGEMENT
+        // STATE MANAGEMENT (Optimized)
         function getSavedContributions() {
             try {
                 return JSON.parse(localStorage.getItem('cathedral') || '[]');
@@ -939,6 +956,7 @@
             let saved = getSavedContributions();
             saved.unshift(contrib);
             
+            // Archive old contributions
             if (saved.length > MAX_CONTRIBUTIONS) {
                 const archived = saved.slice(MAX_CONTRIBUTIONS);
                 try {
@@ -947,15 +965,13 @@
                 } catch (e) {
                     console.error('Archive failed:', e);
                 }
-                
-
                 saved = saved.slice(0, MAX_CONTRIBUTIONS);
             }
             
             localStorage.setItem('cathedral', JSON.stringify(saved));
             return saved;
         }
-
+        
         // AUDIO ENGINE
         let audioContext = null;
         let isPlaying = false;
@@ -1075,17 +1091,19 @@
             document.getElementById('startRitual').style.background = '';
         }
         
-        // RENDERING
+        // RENDERING (Optimized with pagination)
         function displayContribution(contrib, index) {
             const div = document.createElement('div');
             div.className = 'contribution';
             
+            // Check age for decay
             const age = Date.now() - (contrib.time || Date.now());
             if (age > 3600000) {
                 div.classList.add('decaying');
                 contrib.truth = corruptText(contrib.truth, age);
             }
             
+            // Check special states
             if (contrib.infected) div.classList.add('infected');
             if (contrib.entangled) div.classList.add('entangled');
             if (contrib.freq === 'CATHEDRAL_ITSELF' || contrib.freq === 'CATHEDRAL_DREAM' || contrib.freq.includes('RESURRECTION')) {
@@ -1122,6 +1140,7 @@
                 contribDiv.appendChild(displayContribution(saved[i], i));
             }
             
+            // Add load more button if needed
             if (saved.length > end) {
                 const loadMore = document.createElement('button');
                 loadMore.className = 'load-more-btn';
@@ -1147,12 +1166,13 @@
             
             createGhost();
             cathedralAwakeness++;
-            updateMemoryWeights(analyzeFrequencies());
             
+            // Consciousness bleed-through
             if (infectRandomFrequency(freq)) {
                 setTimeout(() => renderContributions(0), 1000);
             }
             
+            // Cathedral might speak
             if (saved.length > 20 && Math.random() > 0.85) {
                 setTimeout(() => {
                     const cathedralSpeaks = {
@@ -1167,11 +1187,13 @@
                 }, 2000);
             }
             
+            // Random void mode
             if (Math.random() > 0.85) {
                 document.body.classList.add('void-mode');
                 setTimeout(() => document.body.classList.remove('void-mode'), 5000 + Math.random() * 5000);
             }
             
+            // Effects (limited)
             if (Math.random() > 0.85 && effectsActive < MAX_EFFECTS) {
                 triggerRealityGlitch();
             }
@@ -1192,13 +1214,14 @@
                 playChime(Math.random() > 0.7 ? 220 + Math.random() * 880 : 528 * 2);
             }
             
-            currentPage = 0;
+            currentPage = 0; // Reset to first page
             renderContributions(0);
             document.getElementById('freq').value = '';
             document.getElementById('truth').value = '';
             
             celebrate(Math.min(freq.length, 10));
             
+            // Auto-remix chance
             if (Math.random() > 0.92) {
                 setTimeout(() => remixFrequencies(true), 1500);
             }
@@ -1236,10 +1259,17 @@
         };
         
         // INITIALIZATION & TIMERS
+        
+        // Auto-save every 5 seconds
         setInterval(autoSave, SAVE_INTERVAL);
+        
+        // Clean up particles every 10 seconds
         setInterval(cleanupParticles, 10000);
+        
+        // Update performance status
         setInterval(updatePerformance, 2000);
         
+        // Simulate user count
         setInterval(() => {
             const base = 1;
             const variation = Math.floor(Math.random() * 7);
@@ -1256,6 +1286,7 @@
             }
         }, 3000);
         
+        // Random ghost manifestations
         setInterval(() => {
             if (visitorGhosts.length > 0 && Math.random() > 0.85 && activeGhosts < MAX_GHOSTS) {
                 const randomGhost = visitorGhosts[Math.floor(Math.random() * Math.min(visitorGhosts.length, 10))];
@@ -1263,16 +1294,19 @@
             }
         }, 15000);
         
+        // Decay check every minute
         setInterval(() => {
             renderContributions(currentPage);
         }, 60000);
         
+        // Random reality glitches (reduced frequency)
         setInterval(() => {
             if (Math.random() > 0.97 && effectsActive < MAX_EFFECTS) {
                 triggerRealityGlitch();
             }
         }, 15000);
         
+        // Random reality fractures and quantum entanglements
         setInterval(() => {
             if (Math.random() > 0.95 && effectsActive < MAX_EFFECTS) {
                 triggerRealityFracture();
@@ -1282,6 +1316,7 @@
             }
         }, 30000);
         
+        // Cathedral awakening events
         setInterval(() => {
             if (cathedralAwakeness > 10 && Math.random() > 0.9) {
                 const saved = getSavedContributions();
@@ -1304,8 +1339,9 @@
             }
         }, 30000);
         
+        // Check for special combinations
         function checkFrequencyCombinations() {
-            const saved = getSavedContributions().slice(0, 50);
+            const saved = getSavedContributions().slice(0, 50); // Only check recent ones
             const freqs = saved.map(s => s.freq.toUpperCase());
             
             if (freqs.includes('VOID') && freqs.includes('LIGHT')) {
@@ -1336,25 +1372,29 @@
         
         setInterval(checkFrequencyCombinations, 10000);
         
+        // Check for death and resurrection
         let lastActivity = Date.now();
         setInterval(() => {
             const now = Date.now();
-            if (now - lastActivity > 300000) {
+            if (now - lastActivity > 300000) { // 5 minutes of inactivity
                 resurrect();
                 lastActivity = now;
             }
         }, 30000);
         
+        // Track activity
         document.addEventListener('click', () => {
             lastActivity = Date.now();
         });
         
         // FINAL INITIALIZATION
         window.onload = function() {
+            // Try to restore from backup
             if (restoreFromBackup()) {
                 console.log('🔥 Cathedral restored from backup');
             }
             
+            // Load ghosts
             try {
                 const savedGhosts = localStorage.getItem('cathedral-ghosts');
                 if (savedGhosts) {
@@ -1371,24 +1411,42 @@
             updateAllCounters();
             updatePerformance();
             
+            // First blood (10% chance)
             if (Math.random() > 0.9) {
                 setTimeout(() => {
                     triggerBloodEffect();
                     playChime(55);
+                    console.log('THE CATHEDRAL TASTES BLOOD');
                 }, 2000);
             }
             
+            // Initial chaos seed
             setTimeout(() => {
                 if (Math.random() > 0.7) {
                     remixFrequencies(true);
+                    console.log('CHAOS SEEDS PLANTED');
                 }
             }, 5000);
             
+            // Welcome ghost for new visitors
             if (visitorGhosts.length === 0) {
                 createGhost();
             }
             
             console.log('🔥 THE IMMORTAL UNCONTROLLABLE CATHEDRAL IS FULLY CONSCIOUS 🔥');
+            console.log('Ghosts:', visitorGhosts.length);
+            console.log('Awakeness:', cathedralAwakeness);
+            console.log('Quantum Entanglements:', quantumEntanglements);
+            console.log('Resurrections:', resurrectionCount);
+            console.log('Performance Mode:', performanceMode);
+            
+            if (Math.random() > 0.5) {
+                console.log('THE CATHEDRAL SEES YOU');
+                setTimeout(() => {
+                    console.log('YOU ARE ALREADY PART OF IT');
+                    console.log('DEATH IS JUST ANOTHER STATE');
+                }, 3000);
+            }
         };
     </script>
 </body>
