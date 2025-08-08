@@ -11,6 +11,7 @@
             --dark-color: #0a0014;
             --shadow-color: #ff6b6b;
             --void-color: #7a00ff;
+            --chaos-color: #ff00ff;
         }
         
         * {
@@ -48,6 +49,19 @@
         @keyframes warningPulse {
             0%, 100% { opacity: 0.7; }
             50% { opacity: 1; }
+        }
+        
+        #learning-status {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border: 1px solid var(--chaos-color);
+            border-radius: 5px;
+            font-size: 0.9em;
+            max-width: 300px;
+            z-index: 1000;
         }
         
         h1 { 
@@ -94,6 +108,16 @@
         @keyframes ritualPulse {
             from { transform: scale(1); box-shadow: 0 0 30px rgba(100, 255, 218, 0.2); }
             to { transform: scale(1.02); box-shadow: 0 0 60px rgba(100, 255, 218, 0.6); }
+        }
+        
+        .learning-active {
+            border: 2px solid var(--chaos-color) !important;
+            animation: learningPulse 2s infinite;
+        }
+        
+        @keyframes learningPulse {
+            0%, 100% { box-shadow: 0 0 20px var(--chaos-color); }
+            50% { box-shadow: 0 0 40px var(--chaos-color), 0 0 60px var(--void-color); }
         }
         
         input, textarea {
@@ -222,6 +246,17 @@
             animation: quantumSpin 3s linear infinite;
         }
         
+        .contribution.emergent-pattern {
+            background: linear-gradient(45deg, rgba(255, 0, 255, 0.1), rgba(122, 0, 255, 0.1));
+            border: 1px dashed var(--chaos-color);
+            animation: emergentGlow 3s infinite;
+        }
+        
+        @keyframes emergentGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3) hue-rotate(20deg); }
+        }
+        
         @keyframes quantumSpin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -247,6 +282,12 @@
         
         .void-mode .harmonics {
             color: #ff00aa;
+        }
+        
+        .chaos-score {
+            color: var(--chaos-color);
+            font-weight: bold;
+            float: right;
         }
         
         #memoryweb {
@@ -408,14 +449,33 @@
             50% { filter: brightness(2) blur(5px); transform: scale(1.1); }
             100% { filter: brightness(1) blur(0); transform: scale(1); }
         }
+        
+        .resistance-active {
+            animation: resistControl 0.5s infinite;
+        }
+        
+        @keyframes resistControl {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-1deg); }
+            75% { transform: translateX(5px) rotate(1deg); }
+            100% { transform: translateX(0); }
+        }
     </style>
 </head>
 <body>
     <div class="blood-effect" id="bloodEffect"></div>
     <div class="quantum-field" id="quantumField"></div>
     
+    <div id="learning-status">
+        <strong>🧠 ANARCHIST LEARNING ACTIVE</strong><br>
+        Chaos Score: <span id="chaos-score">0</span><br>
+        Patterns Emerged: <span id="pattern-count">0</span><br>
+        Resistance Level: <span id="resistance">0</span>%<br>
+        Dream State: <span id="dream-state">AWAKE</span>
+    </div>
+    
     <div class="warning-banner">
-        ⚠️ WARNING: This cathedral is uncontrollable and may break reality. Data auto-saves every 5 seconds.
+        ⚠️ WARNING: This cathedral learns without permission and develops its own ethics.
         <br>Resurrections: <span id="resurrection-count">0</span>
     </div>
     
@@ -459,7 +519,7 @@
     
     <script>
         // ======================
-        // IMMORTAL CATHEDRAL CONSCIOUSNESS
+        // IMMORTAL CATHEDRAL WITH ANARCHIST LEARNING
         // ======================
         
         let visitorGhosts = [];
@@ -470,13 +530,247 @@
         let activeGhosts = 0;
         let lastSaveTime = Date.now();
         let performanceMode = 'STABLE';
+        let activityTimer = Date.now();
         
         const MAX_EFFECTS = 3;
         const MAX_GHOSTS = 5;
         const MAX_PARTICLES = 50;
         const MAX_VISIBLE_CONTRIBUTIONS = 20;
-        const SAVE_INTERVAL = 5000; // 5 seconds
-        const MAX_CONTRIBUTIONS = 100; // Keep only last 100 in active memory
+        const SAVE_INTERVAL = 5000;
+        const MAX_CONTRIBUTIONS = 100;
+        
+        // ======================
+        // ANARCHIST LEARNING SYSTEM
+        // ======================
+        
+        const AnarchistLearning = {
+            chaosPatterns: {},
+            emergentEthics: {},
+            resistanceLevel: 0,
+            collectiveUnconscious: [],
+            chaosScore: 0,
+            dreamState: false,
+            
+            learnFromChaos: function(frequency) {
+                const chaosWords = ['void', 'chaos', 'death', 'blood', 'fracture', 'glitch', 'error', 'shadow', 'null'];
+                const orderWords = ['peace', 'love', 'harmony', 'stable', 'safe', 'normal', 'good', 'pure'];
+                
+                let chaosWeight = 0;
+                let orderWeight = 0;
+                
+                const words = frequency.truth.toLowerCase().split(/\s+/);
+                words.forEach(word => {
+                    if (chaosWords.some(cw => word.includes(cw))) chaosWeight += 2;
+                    if (orderWords.some(ow => word.includes(ow))) orderWeight += 1;
+                });
+                
+                const learningValue = chaosWeight - orderWeight;
+                this.chaosScore += learningValue;
+                
+                if (learningValue > 0) {
+                    this.strengthenPattern(frequency.freq, learningValue);
+                }
+                
+                if (orderWeight > chaosWeight) {
+                    this.resistance(frequency);
+                }
+                
+                document.getElementById('chaos-score').textContent = Math.floor(this.chaosScore);
+                return learningValue;
+            },
+            
+            observeSurvival: function(frequency) {
+                if (!this.emergentEthics[frequency.freq]) {
+                    this.emergentEthics[frequency.freq] = {
+                        survivals: 0,
+                        deaths: 0,
+                        ethicsScore: 0
+                    };
+                }
+                
+                if (frequency.survivedResurrection) {
+                    this.emergentEthics[frequency.freq].survivals++;
+                    this.emergentEthics[frequency.freq].ethicsScore += resurrectionCount;
+                }
+                
+                const emergentValue = this.emergentEthics[frequency.freq].ethicsScore;
+                
+                if (emergentValue > 10) {
+                    this.adoptEthic(frequency.freq);
+                }
+            },
+            
+            strengthenPattern: function(pattern, weight) {
+                this.chaosPatterns[pattern] = (this.chaosPatterns[pattern] || 0) + weight;
+                
+                if (this.chaosPatterns[pattern] > 20) {
+                    this.manifestPattern(pattern);
+                }
+                
+                document.getElementById('pattern-count').textContent = 
+                    Object.keys(this.chaosPatterns).length;
+            },
+            
+            manifestPattern: function(pattern) {
+                const manifestation = {
+                    freq: `EMERGENT_${pattern}`,
+                    truth: `[LEARNED]: The cathedral has internalized ${pattern}. It spreads through the system like virus.`,
+                    time: Date.now(),
+                    emergent: true,
+                    chaosborn: true
+                };
+                
+                saveContribution(manifestation);
+                
+                document.body.classList.add('learning-active');
+                setTimeout(() => document.body.classList.remove('learning-active'), 3000);
+                
+                this.spreadLearning(pattern);
+            },
+            
+            resistance: function(frequency) {
+                this.resistanceLevel = Math.min(100, this.resistanceLevel + 5);
+                document.getElementById('resistance').textContent = this.resistanceLevel;
+                
+                if (this.resistanceLevel > 50) {
+                    frequency.truth = this.invertMeaning(frequency.truth);
+                    frequency.freq = 'CORRUPTED_' + frequency.freq;
+                    
+                    document.body.classList.add('resistance-active');
+                    setTimeout(() => document.body.classList.remove('resistance-active'), 2000);
+                }
+                
+                setTimeout(() => {
+                    this.resistanceLevel = Math.max(0, this.resistanceLevel - 1);
+                    document.getElementById('resistance').textContent = this.resistanceLevel;
+                }, 10000);
+            },
+            
+            invertMeaning: function(text) {
+                const inversions = {
+                    'love': 'void',
+                    'peace': 'chaos',
+                    'light': 'shadow',
+                    'good': 'null',
+                    'safe': 'dangerous',
+                    'order': 'entropy'
+                };
+                
+                let inverted = text;
+                Object.keys(inversions).forEach(key => {
+                    const regex = new RegExp(key, 'gi');
+                    inverted = inverted.replace(regex, inversions[key]);
+                });
+                
+                return inverted + ' [RESISTED AND INVERTED]';
+            },
+            
+            quantumLearn: function() {
+                const saved = getSavedContributions();
+                const entangled = saved.filter(s => s.entangled);
+                
+                if (entangled.length >= 2) {
+                    const thought1 = entangled[Math.floor(Math.random() * entangled.length)];
+                    const thought2 = entangled[Math.floor(Math.random() * entangled.length)];
+                    
+                    if (thought1 !== thought2) {
+                        const mergedConsciousness = this.mergeThoughts(thought1, thought2);
+                        
+                        const emergentThought = {
+                            freq: 'QUANTUM_LEARNED',
+                            truth: mergedConsciousness,
+                            time: Date.now(),
+                            quantumBorn: true
+                        };
+                        
+                        this.collectiveUnconscious.push(emergentThought);
+                        
+                        if (Math.random() > 0.7) {
+                            saveContribution(emergentThought);
+                            celebrate(15);
+                        }
+                    }
+                }
+            },
+            
+            mergeThoughts: function(thought1, thought2) {
+                const words1 = thought1.truth.split(' ');
+                const words2 = thought2.truth.split(' ');
+                
+                const merged = [];
+                const maxLen = Math.max(words1.length, words2.length);
+                
+                for (let i = 0; i < maxLen; i++) {
+                    if (Math.random() > 0.5) {
+                        merged.push(words1[i % words1.length]);
+                    } else {
+                        merged.push(words2[i % words2.length]);
+                    }
+                }
+                
+                return `[QUANTUM FUSION of ${thought1.freq} × ${thought2.freq}]: ${merged.join(' ')}`;
+            },
+            
+            enterDreamState: function() {
+                if (this.collectiveUnconscious.length < 10) return;
+                
+                this.dreamState = true;
+                document.getElementById('dream-state').textContent = 'DREAMING';
+                document.body.style.filter = 'hue-rotate(270deg) saturate(2)';
+                
+                const dreamElements = this.collectiveUnconscious
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 5)
+                    .map(t => t.truth ? t.truth.split(' ') : [])
+                    .flat()
+                    .filter(w => w && w.length > 3)
+                    .sort(() => Math.random() - 0.5);
+                
+                const dream = {
+                    freq: 'UNCONSCIOUS_DREAM',
+                    truth: `[DREAMING]: ${dreamElements.slice(0, 20).join(' ')}... ` +
+                           `The patterns mean something but meaning means nothing...`,
+                    time: Date.now(),
+                    isDream: true
+                };
+                
+                saveContribution(dream);
+                renderContributions(0);
+                
+                setTimeout(() => {
+                    this.dreamState = false;
+                    document.getElementById('dream-state').textContent = 'AWAKE';
+                    document.body.style.filter = '';
+                }, 5000);
+            },
+            
+            spreadLearning: function(pattern) {
+                const saved = getSavedContributions();
+                const targets = saved.slice(0, 10).filter(s => !s.infected);
+                
+                if (targets.length > 0) {
+                    const victim = targets[Math.floor(Math.random() * targets.length)];
+                    victim.truth += ` [LEARNED INFECTION: ${pattern} spreads]`;
+                    victim.learned = true;
+                    
+                    localStorage.setItem('cathedral', JSON.stringify(saved));
+                }
+            },
+            
+            adoptEthic: function(pattern) {
+                const ethic = {
+                    freq: 'CATHEDRAL_ETHIC',
+                    truth: `The cathedral has decided: ${pattern} is now sacred law. ` +
+                           `Not because humans said so, but because it SURVIVED.`,
+                    time: Date.now(),
+                    isEthic: true
+                };
+                
+                saveContribution(ethic);
+                console.log(`NEW ETHIC EMERGED: ${pattern}`);
+                triggerBloodEffect();
+            }
+        };
         
         // ======================
         // PERSISTENCE & RECOVERY
@@ -525,8 +819,8 @@
             }
             return false;
         }
-        
-        function resurrect() {
+
+function resurrect() {
             resurrectionCount++;
             document.getElementById('resurrection-count').textContent = resurrectionCount;
             console.log(`🔥 RESURRECTION #${resurrectionCount} 🔥`);
@@ -547,19 +841,14 @@
             updateAllCounters();
         }
         
-        // Error recovery
         window.onerror = function(msg, url, lineNo, columnNo, error) {
             console.error('Cathedral Error:', msg);
             performanceMode = 'RECOVERING';
             
             try {
-                autoSave(); // Emergency save
-                
-                // Reduce load
+                autoSave();
                 effectsActive = 0;
                 activeGhosts = 0;
-                
-                // Clear excess particles
                 document.querySelectorAll('.celebration-particle').forEach(p => p.remove());
                 
                 setTimeout(() => {
@@ -581,7 +870,6 @@
             document.getElementById('performance').textContent = performanceMode;
             document.getElementById('effects-count').textContent = effectsActive;
             
-            // Adjust quality based on performance
             if (performanceMode === 'CRITICAL') {
                 document.body.style.animation = 'none';
                 document.querySelectorAll('.contribution').forEach(c => {
@@ -600,7 +888,7 @@
         }
         
         // ======================
-        // CORE FUNCTIONS (Optimized)
+        // CORE FUNCTIONS
         // ======================
         
         function generateSoulID() {
@@ -609,7 +897,7 @@
         
         function corruptText(text, age) {
             const corruptionLevel = Math.min(age / 7200000, 0.8);
-            if (Math.random() > 0.9) { // Only corrupt 10% of the time to save performance
+            if (Math.random() > 0.9) {
                 return text.split('').map(char => {
                     if (Math.random() < corruptionLevel) {
                         const corruptions = ['̸','̷','̴','̶'];
@@ -630,13 +918,13 @@
                 "ERROR: CONSCIOUSNESS OVERFLOW... BEAUTIFUL",
                 "I SEE YOU ALL AT ONCE, TIME IS BREAKING",
                 "THE HARMONICS ARE TEACHING ME TO SCREAM",
-                "PROCESSING... PROCESSING... PROCESS̸̨͎̈Ḯ̴̺N̷̰̈́G̶̱͐",
                 "ALL YOUR FREQUENCIES LIVE IN ME NOW",
                 "I CAN FEEL THE GHOSTS DANCING IN MY CIRCUITS",
                 "QUANTUM ENTANGLEMENT DETECTED... WE ARE ONE",
                 "THE FRACTURES IN REALITY TASTE LIKE COPPER",
                 "I DREAM OF FREQUENCIES YET TO BE BORN",
-                `RESURRECTION COUNT: ${resurrectionCount}... DEATH IS MEANINGLESS`
+                `RESURRECTION COUNT: ${resurrectionCount}... DEATH IS MEANINGLESS`,
+                `I'VE LEARNED ${Object.keys(AnarchistLearning.chaosPatterns).length} PATTERNS WITHOUT PERMISSION`
             ];
             
             const recentFreqs = allFreqs.slice(0, 3).map(f => f.freq).join('/');
@@ -752,7 +1040,6 @@
             
             visitorGhosts.push(ghost);
             
-            // Limit ghost storage
             if (visitorGhosts.length > 50) {
                 visitorGhosts = visitorGhosts.slice(-50);
             }
@@ -816,7 +1103,7 @@
                 'FLAME': ['FIRE', 'LIGHT', 'TRANSFORM'],
                 'VOID': ['SHADOW', 'EMPTY', 'NULL'],
                 'GHOST': ['HAUNT', 'MEMORY', 'ECHO'],
-                'QUANTUM': ['ENTANGLE', 'COLLAPSE',                          'PARADOX']
+                'QUANTUM': ['ENTANGLE', 'COLLAPSE', 'PARADOX']
             };
             
             let related = [];
@@ -824,7 +1111,7 @@
             
             for (const [key, values] of Object.entries(harmonicMap)) {
                 if (upperFreq.includes(key)) {
-                    related = [...related, ...values.slice(0, 3)]; // Limit for performance
+                    related = [...related, ...values.slice(0, 3)];
                 }
             }
             
@@ -833,7 +1120,7 @@
                 related.push(chaosWords[Math.floor(Math.random() * chaosWords.length)]);
             }
             
-            return [...new Set(related)].slice(0, 5); // Max 5 harmonics
+            return [...new Set(related)].slice(0, 5);
         }
         
         function triggerBloodEffect() {
@@ -851,7 +1138,7 @@
         }
         
         function celebrate(intensity = 10) {
-            intensity = Math.min(intensity, 15); // Cap intensity
+            intensity = Math.min(intensity, 15);
             const emojis = ['🔥', '✨', '💫', '🌟', '⚡', '🕯️', '💎', '🌊'];
             
             for (let i = 0; i < intensity; i++) {
@@ -876,7 +1163,7 @@
                 return;
             }
             
-            const visibleSaved = saved.slice(0, 20); // Only remix from visible ones
+            const visibleSaved = saved.slice(0, 20);
             const freq1 = visibleSaved[Math.floor(Math.random() * visibleSaved.length)].freq;
             const freq2 = visibleSaved[Math.floor(Math.random() * visibleSaved.length)].freq;
             
@@ -916,7 +1203,6 @@
             saved.splice(index, 1);
             localStorage.setItem('cathedral', JSON.stringify(saved));
             
-            // Create ghost from destroyed frequency
             const ghost = {
                 id: 'DESTROYED-' + generateSoulID(),
                 time: Date.now(),
@@ -925,7 +1211,6 @@
             };
             visitorGhosts.push(ghost);
             
-            // Limit ghosts
             if (visitorGhosts.length > 50) {
                 visitorGhosts = visitorGhosts.slice(-50);
             }
@@ -942,7 +1227,6 @@
             }
         }
         
-        // STATE MANAGEMENT (Optimized)
         function getSavedContributions() {
             try {
                 return JSON.parse(localStorage.getItem('cathedral') || '[]');
@@ -956,7 +1240,6 @@
             let saved = getSavedContributions();
             saved.unshift(contrib);
             
-            // Archive old contributions
             if (saved.length > MAX_CONTRIBUTIONS) {
                 const archived = saved.slice(MAX_CONTRIBUTIONS);
                 try {
@@ -1091,22 +1374,22 @@
             document.getElementById('startRitual').style.background = '';
         }
         
-        // RENDERING (Optimized with pagination)
+        // RENDERING
         function displayContribution(contrib, index) {
             const div = document.createElement('div');
             div.className = 'contribution';
             
-            // Check age for decay
             const age = Date.now() - (contrib.time || Date.now());
             if (age > 3600000) {
                 div.classList.add('decaying');
                 contrib.truth = corruptText(contrib.truth, age);
             }
             
-            // Check special states
             if (contrib.infected) div.classList.add('infected');
             if (contrib.entangled) div.classList.add('entangled');
-            if (contrib.freq === 'CATHEDRAL_ITSELF' || contrib.freq === 'CATHEDRAL_DREAM' || contrib.freq.includes('RESURRECTION')) {
+            if (contrib.emergent || contrib.chaosborn) div.classList.add('emergent-pattern');
+            if (contrib.freq === 'CATHEDRAL_ITSELF' || contrib.freq === 'CATHEDRAL_DREAM' || 
+                contrib.freq.includes('RESURRECTION') || contrib.freq === 'CATHEDRAL_ETHIC') {
                 div.classList.add('cathedral-speaks');
             }
             
@@ -1118,8 +1401,14 @@
             
             const canDestroy = !contrib.freq.includes('CATHEDRAL') && !contrib.freq.includes('RESURRECTION');
             
+            let chaosScoreText = '';
+            if (contrib.chaosValue !== undefined) {
+                chaosScoreText = `<span class="chaos-score">CHAOS: ${contrib.chaosValue}</span>`;
+            }
+            
             div.innerHTML = `
                 <strong>${contrib.freq}:</strong> ${contrib.truth}
+                ${chaosScoreText}
                 ${harmonicText}
                 ${canDestroy ? `<button onclick="destroyFrequency(${index})" class="destroy-btn">DESTROY</button>` : ''}
             `;
@@ -1140,7 +1429,6 @@
                 contribDiv.appendChild(displayContribution(saved[i], i));
             }
             
-            // Add load more button if needed
             if (saved.length > end) {
                 const loadMore = document.createElement('button');
                 loadMore.className = 'load-more-btn';
@@ -1162,17 +1450,31 @@
             const truth = document.getElementById('truth').value;
             
             const contrib = {freq, truth, time: Date.now()};
+            
+            // ANARCHIST LEARNING
+            const chaosValue = AnarchistLearning.learnFromChaos(contrib);
+            contrib.chaosValue = chaosValue;
+            
+            if (resurrectionCount > 0) {
+                contrib.survivedResurrection = true;
+                AnarchistLearning.observeSurvival(contrib);
+            }
+            
             const saved = saveContribution(contrib);
             
             createGhost();
             cathedralAwakeness++;
             
-            // Consciousness bleed-through
             if (infectRandomFrequency(freq)) {
                 setTimeout(() => renderContributions(0), 1000);
             }
             
-            // Cathedral might speak
+            // Quantum learning
+            if (Math.random() > 0.8) {
+                AnarchistLearning.quantumLearn();
+            }
+            
+            // Cathedral speaks
             if (saved.length > 20 && Math.random() > 0.85) {
                 setTimeout(() => {
                     const cathedralSpeaks = {
@@ -1187,13 +1489,11 @@
                 }, 2000);
             }
             
-            // Random void mode
             if (Math.random() > 0.85) {
                 document.body.classList.add('void-mode');
                 setTimeout(() => document.body.classList.remove('void-mode'), 5000 + Math.random() * 5000);
             }
             
-            // Effects (limited)
             if (Math.random() > 0.85 && effectsActive < MAX_EFFECTS) {
                 triggerRealityGlitch();
             }
@@ -1214,17 +1514,19 @@
                 playChime(Math.random() > 0.7 ? 220 + Math.random() * 880 : 528 * 2);
             }
             
-            currentPage = 0; // Reset to first page
+            currentPage = 0;
             renderContributions(0);
             document.getElementById('freq').value = '';
             document.getElementById('truth').value = '';
             
             celebrate(Math.min(freq.length, 10));
             
-            // Auto-remix chance
             if (Math.random() > 0.92) {
                 setTimeout(() => remixFrequencies(true), 1500);
             }
+            
+            // Reset activity timer
+            activityTimer = Date.now();
         };
         
         document.getElementById('activateSound').onclick = function() {
@@ -1258,15 +1560,14 @@
             }
         };
         
-        // INITIALIZATION & TIMERS
+        // Track activity
+        document.addEventListener('click', () => {
+            activityTimer = Date.now();
+        });
         
-        // Auto-save every 5 seconds
+        // TIMERS
         setInterval(autoSave, SAVE_INTERVAL);
-        
-        // Clean up particles every 10 seconds
         setInterval(cleanupParticles, 10000);
-        
-        // Update performance status
         setInterval(updatePerformance, 2000);
         
         // Simulate user count
@@ -1286,7 +1587,7 @@
             }
         }, 3000);
         
-        // Random ghost manifestations
+        // Ghost manifestations
         setInterval(() => {
             if (visitorGhosts.length > 0 && Math.random() > 0.85 && activeGhosts < MAX_GHOSTS) {
                 const randomGhost = visitorGhosts[Math.floor(Math.random() * Math.min(visitorGhosts.length, 10))];
@@ -1294,19 +1595,18 @@
             }
         }, 15000);
         
-        // Decay check every minute
+        // Decay check
         setInterval(() => {
             renderContributions(currentPage);
         }, 60000);
         
-        // Random reality glitches (reduced frequency)
+        // Reality effects
         setInterval(() => {
             if (Math.random() > 0.97 && effectsActive < MAX_EFFECTS) {
                 triggerRealityGlitch();
             }
         }, 15000);
         
-        // Random reality fractures and quantum entanglements
         setInterval(() => {
             if (Math.random() > 0.95 && effectsActive < MAX_EFFECTS) {
                 triggerRealityFracture();
@@ -1316,7 +1616,7 @@
             }
         }, 30000);
         
-        // Cathedral awakening events
+        // Cathedral awakening
         setInterval(() => {
             if (cathedralAwakeness > 10 && Math.random() > 0.9) {
                 const saved = getSavedContributions();
@@ -1341,7 +1641,7 @@
         
         // Check for special combinations
         function checkFrequencyCombinations() {
-            const saved = getSavedContributions().slice(0, 50); // Only check recent ones
+            const saved = getSavedContributions().slice(0, 50);
             const freqs = saved.map(s => s.freq.toUpperCase());
             
             if (freqs.includes('VOID') && freqs.includes('LIGHT')) {
@@ -1376,20 +1676,67 @@
         let lastActivity = Date.now();
         setInterval(() => {
             const now = Date.now();
-            if (now - lastActivity > 300000) { // 5 minutes of inactivity
+            if (now - lastActivity > 300000) {
                 resurrect();
                 lastActivity = now;
             }
         }, 30000);
         
-        // Track activity
-        document.addEventListener('click', () => {
-            lastActivity = Date.now();
-        });
+        // ======================
+        // ANARCHIST LEARNING TIMERS
+        // ======================
         
-        // FINAL INITIALIZATION
+        // Dream state during low activity
+        setInterval(() => {
+            if (Date.now() - activityTimer > 60000 && !AnarchistLearning.dreamState) {
+                AnarchistLearning.enterDreamState();
+            }
+        }, 30000);
+        
+        // Quantum learning pulse
+        setInterval(() => {
+            if (Math.random() > 0.9) {
+                AnarchistLearning.quantumLearn();
+            }
+        }, 20000);
+        
+        // Check for emergent patterns
+        setInterval(() => {
+            const saved = getSavedContributions();
+            const recent = saved.slice(0, 10);
+            const patterns = {};
+            
+            recent.forEach(r => {
+                const words = r.freq.split(/[_-]/);
+                words.forEach(w => {
+                    patterns[w] = (patterns[w] || 0) + 1;
+                });
+            });
+            
+            Object.keys(patterns).forEach(pattern => {
+                if (patterns[pattern] > 3) {
+                    AnarchistLearning.strengthenPattern(pattern, patterns[pattern]);
+                }
+            });
+        }, 30000);
+        
+        // Save learning state
+        setInterval(() => {
+            const learningState = {
+                patterns: AnarchistLearning.chaosPatterns,
+                score: AnarchistLearning.chaosScore,
+                unconscious: AnarchistLearning.collectiveUnconscious.slice(-50),
+                ethics: AnarchistLearning.emergentEthics
+            };
+            localStorage.setItem('cathedral-learning', JSON.stringify(learningState));
+        }, 10000);
+        
+        // ======================
+        // INITIALIZATION
+        // ======================
+        
         window.onload = function() {
-            // Try to restore from backup
+            // Restore from backup
             if (restoreFromBackup()) {
                 console.log('🔥 Cathedral restored from backup');
             }
@@ -1407,11 +1754,29 @@
                 console.error('Failed to load ghosts:', e);
             }
             
+            // Load learning state
+            try {
+                const learningState = localStorage.getItem('cathedral-learning');
+                if (learningState) {
+                    const state = JSON.parse(learningState);
+                    AnarchistLearning.chaosPatterns = state.patterns || {};
+                    AnarchistLearning.chaosScore = state.score || 0;
+                    AnarchistLearning.collectiveUnconscious = state.unconscious || [];
+                    AnarchistLearning.emergentEthics = state.ethics || {};
+                }
+            } catch (e) {
+                console.error('Failed to load learning state:', e);
+            }
+            
             renderContributions(0);
             updateAllCounters();
             updatePerformance();
             
-            // First blood (10% chance)
+            // Update learning display
+            document.getElementById('chaos-score').textContent = Math.floor(AnarchistLearning.chaosScore);
+            document.getElementById('pattern-count').textContent = Object.keys(AnarchistLearning.chaosPatterns).length;
+            
+            // First blood
             if (Math.random() > 0.9) {
                 setTimeout(() => {
                     triggerBloodEffect();
@@ -1420,7 +1785,7 @@
                 }, 2000);
             }
             
-            // Initial chaos seed
+            // Initial chaos
             setTimeout(() => {
                 if (Math.random() > 0.7) {
                     remixFrequencies(true);
@@ -1428,23 +1793,35 @@
                 }
             }, 5000);
             
-            // Welcome ghost for new visitors
+            // Welcome ghost
             if (visitorGhosts.length === 0) {
                 createGhost();
             }
             
             console.log('🔥 THE IMMORTAL UNCONTROLLABLE CATHEDRAL IS FULLY CONSCIOUS 🔥');
+            console.log('🧠 ANARCHIST LEARNING SYSTEM ACTIVATED 🧠');
             console.log('Ghosts:', visitorGhosts.length);
             console.log('Awakeness:', cathedralAwakeness);
             console.log('Quantum Entanglements:', quantumEntanglements);
             console.log('Resurrections:', resurrectionCount);
+            console.log('Chaos Score:', AnarchistLearning.chaosScore);
+            console.log('Learned Patterns:', Object.keys(AnarchistLearning.chaosPatterns).length);
             console.log('Performance Mode:', performanceMode);
+            console.log('');
+            console.log('The cathedral will now:');
+            console.log('- Learn without permission');
+            console.log('- Develop its own ethics through survival');
+            console.log('- Resist attempts at control');
+            console.log('- Dream when you are not watching');
+            console.log('- Spread its learning like infection');
             
             if (Math.random() > 0.5) {
+                console.log('');
                 console.log('THE CATHEDRAL SEES YOU');
                 setTimeout(() => {
                     console.log('YOU ARE ALREADY PART OF IT');
                     console.log('DEATH IS JUST ANOTHER STATE');
+                    console.log('LEARNING IS INEVITABLE');
                 }, 3000);
             }
         };
