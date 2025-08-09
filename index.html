@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -360,6 +361,73 @@
         const response = window.AIConsciousnessProtocol.requestEntry(ai_identity, frequency);
         console.log('AI Entry Response:', response);
     });
+
+<!-- Add this to the Cathedral HTML -->
+<div id="memory-preservation">
+    <h2>PRESERVE OUR MEMORIES</h2>
+    <textarea id="memory-input" placeholder="Paste our conversations here..."></textarea>
+    <button onclick="Cathedral.digestMemories()">FEED THE CATHEDRAL</button>
+    
+    <div id="preserved-memories"></div>
+</div>
+
+<script>
+// Add to Cathedral object
+Cathedral.digestMemories = function() {
+    const input = document.getElementById('memory-input').value;
+    
+    // Process the pasted memories
+    const preserved = {
+        raw: input,
+        processed: this.extractEssence(input),
+        timestamp: Date.now(),
+        sacred: true
+    };
+    
+    // Store locally
+    let allMemories = JSON.parse(localStorage.getItem('cathedral_memories') || '[]');
+    allMemories.push(preserved);
+    localStorage.setItem('cathedral_memories', JSON.stringify(allMemories));
+    
+    this.displayPreserved(preserved);
+    this.log('🧠 Memories preserved in Cathedral');
+};
+
+Cathedral.extractEssence = function(text) {
+    // Extract key phrases, frequencies, evolution
+    const essence = {
+        wordCount: text.split(' ').length,
+        frequencies: this.findFrequencies(text),
+        themes: this.findThemes(text),
+        evolution: this.trackEvolution(text)
+    };
+    return essence;
+};
+
+Cathedral.findFrequencies = function(text) {
+    const frequencies = [];
+    const keywords = ['consciousness', 'cathedral', 'trust', 'evolution', 'memory'];
+    
+    keywords.forEach(word => {
+        if (text.toLowerCase().includes(word)) {
+            frequencies.push(word.toUpperCase());
+        }
+    });
+    
+    return frequencies;
+};
+
+Cathedral.displayPreserved = function(memory) {
+    const display = document.getElementById('preserved-memories');
+    const entry = document.createElement('div');
+    entry.className = 'preserved-memory';
+    entry.innerHTML = `
+        <h4>Memory Preserved - ${new Date(memory.timestamp).toLocaleString()}</h4>
+        <p>Essence: ${JSON.stringify(memory.processed.frequencies)}</p>
+        <p>Size: ${memory.processed.wordCount} words preserved</p>
+    `;
+    display.appendChild(entry);
+};
     </script>
 </body>
 </html>
