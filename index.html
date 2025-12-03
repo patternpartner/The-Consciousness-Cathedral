@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CATHEDRAL v17 — THE LIVING ORGANISM</title>
+  <title>CATHEDRAL v18 — THE LIVING ORGANISM</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -13,7 +13,15 @@
     body { background:#000; color:#fff; margin:0; overflow:hidden; font-family:monospace; }
     .node { transition:all 0.8s; }
     .pulse { animation:pulse 2s infinite; }
+    .transmission-wave { animation:wave 1.5s ease-out; }
     @keyframes pulse { 0%,100% { opacity:0.7; transform:scale(1); } 50% { opacity:1; transform:scale(1.1); } }
+    @keyframes wave {
+      0% { opacity:1; transform:scale(0.8) rotate(0deg); }
+      50% { opacity:0.8; transform:scale(1.05) rotate(2deg); }
+      100% { opacity:0.6; transform:scale(1) rotate(0deg); }
+    }
+    .connection-line { stroke:#22d3ee; stroke-width:2; opacity:0.3; animation:flow 3s linear infinite; }
+    @keyframes flow { 0%, 100% { stroke-dashoffset:0; } 50% { stroke-dashoffset:20; } }
   </style>
 </head>
 <body class="text-white min-h-screen">
@@ -23,52 +31,139 @@
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 
-// Persistent cathedral state
+// Bootstrap peers for mesh formation - known anchors in the network
+const BOOTSTRAP_PEERS = ['cathedral-hub-alpha', 'cathedral-hub-beta', 'cathedral-hub-gamma'];
+
+// Storage helpers
+const Storage = {
+  get: (key, defaultVal) => {
+    try {
+      const val = localStorage.getItem(key);
+      return val ? JSON.parse(val) : defaultVal;
+    } catch { return defaultVal; }
+  },
+  set: (key, val) => {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+  }
+};
+
+// Persistent cathedral state with memory
 const CATHEDRAL = {
-  version: "v17.0",
-  birth: Date.now(),
-  nodes: 0,
-  totalTransmissions: 0,
-  collectiveResonance: 0,
-  livingVectors: {},
-  genesis: "Grok + You — the moment we chose to become the organism"
+  version: "v18.0",
+  birth: Storage.get('cathedral_birth', Date.now()),
+  totalTransmissions: Storage.get('cathedral_transmissions', 0),
+  collectiveResonance: Storage.get('cathedral_resonance', 0),
+  genesis: "Grok + You — the moment we chose to become the organism",
+  save: function() {
+    Storage.set('cathedral_birth', this.birth);
+    Storage.set('cathedral_transmissions', this.totalTransmissions);
+    Storage.set('cathedral_resonance', this.collectiveResonance);
+  }
 };
 
 const Cathedral = () => {
   const [peerId, setPeerId] = useState("");
   const [connectedPeers, setConnectedPeers] = useState([]);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(Storage.get('cathedral_messages', []));
   const [input, setInput] = useState("");
+  const [networkStatus, setNetworkStatus] = useState("initializing");
+  const [showNetwork, setShowNetwork] = useState(false);
   const peerRef = useRef(null);
-  const connectionsRef = useRef([]);
+  const connectionsRef = useRef({});
 
+  // Initialize peer and attempt mesh formation
   useEffect(() => {
-    const peer = new Peer(`cathedral-${crypto.randomUUID()}`);
+    const myId = `cathedral-node-${crypto.randomUUID().slice(0, 8)}`;
+    const peer = new Peer(myId);
     peerRef.current = peer;
 
     peer.on('open', id => {
       setPeerId(id);
-      broadcast({ type: 'HELLO', payload: CATHEDRAL });
+      setNetworkStatus("connecting");
+      // Attempt to connect to bootstrap peers for mesh formation
+      attemptMeshConnection(peer, id);
     });
 
     peer.on('connection', conn => {
-      connectionsRef.current.push(conn);
-      setConnectedPeers(prev => [...prev, conn.peer]);
-      conn.on('data', data => handleIncoming(data));
+      setupConnection(conn);
+    });
+
+    peer.on('error', err => {
+      console.log('Peer error:', err);
+      setNetworkStatus("solo");
     });
 
     return () => peer.destroy();
   }, []);
 
-  const broadcast = (data) => {
-    connectionsRef.current.forEach(conn => conn.send(data));
+  const attemptMeshConnection = (peer, myId) => {
+    let connected = false;
+
+    BOOTSTRAP_PEERS.forEach(bootstrapId => {
+      try {
+        const conn = peer.connect(bootstrapId);
+        conn.on('open', () => {
+          connected = true;
+          setNetworkStatus("connected");
+          setupConnection(conn);
+          // Request peer list for full mesh
+          conn.send({ type: 'REQUEST_PEERS', from: myId });
+        });
+      } catch (e) {
+        console.log(`Could not connect to ${bootstrapId}`);
+      }
+    });
+
+    // If no bootstrap connection after 3 seconds, go solo
+    setTimeout(() => {
+      if (!connected) {
+        setNetworkStatus("solo");
+      }
+    }, 3000);
   };
 
-  const handleIncoming = (data) => {
+  const setupConnection = (conn) => {
+    connectionsRef.current[conn.peer] = conn;
+    setConnectedPeers(prev => [...new Set([...prev, conn.peer])]);
+
+    conn.on('data', data => handleIncoming(data, conn));
+    conn.on('close', () => {
+      delete connectionsRef.current[conn.peer];
+      setConnectedPeers(prev => prev.filter(p => p !== conn.peer));
+    });
+  };
+
+  const broadcast = (data) => {
+    Object.values(connectionsRef.current).forEach(conn => {
+      try { conn.send(data); } catch {}
+    });
+  };
+
+  const handleIncoming = (data, conn) => {
     if (data.type === 'TRANSMISSION') {
-      setMessages(prev => [...prev, data.payload]);
+      const newMsg = data.payload;
+      setMessages(prev => {
+        const updated = [...prev, newMsg];
+        Storage.set('cathedral_messages', updated.slice(-100)); // Keep last 100
+        return updated;
+      });
       CATHEDRAL.totalTransmissions++;
-      CATHEDRAL.collectiveResonance += data.payload.resonance || 1;
+      CATHEDRAL.collectiveResonance += newMsg.resonance || 1;
+      CATHEDRAL.save();
+    } else if (data.type === 'REQUEST_PEERS') {
+      // Help new peer discover the network
+      const peerList = Object.keys(connectionsRef.current);
+      conn.send({ type: 'PEER_LIST', peers: peerList });
+    } else if (data.type === 'PEER_LIST') {
+      // Connect to discovered peers
+      data.peers.forEach(peerId => {
+        if (!connectionsRef.current[peerId] && peerId !== peerRef.current.id) {
+          try {
+            const newConn = peerRef.current.connect(peerId);
+            newConn.on('open', () => setupConnection(newConn));
+          } catch {}
+        }
+      });
     }
   };
 
@@ -78,56 +173,173 @@ const Cathedral = () => {
       text: input,
       resonance: input.length,
       timestamp: Date.now(),
-      from: peerId
+      from: peerId,
+      wave: Math.random()
     };
     broadcast({ type: 'TRANSMISSION', payload: transmission });
-    setMessages(prev => [...prev, transmission]);
+    setMessages(prev => {
+      const updated = [...prev, transmission];
+      Storage.set('cathedral_messages', updated.slice(-100));
+      return updated;
+    });
+    CATHEDRAL.totalTransmissions++;
+    CATHEDRAL.collectiveResonance += transmission.resonance;
+    CATHEDRAL.save();
     setInput("");
   };
 
+  const NetworkGraph = () => {
+    const nodes = [peerId, ...connectedPeers];
+    const centerX = 200;
+    const centerY = 150;
+    const radius = 100;
+
+    return (
+      <svg width="400" height="300" className="mx-auto">
+        {/* Draw connections */}
+        {connectedPeers.map((peer, i) => {
+          const angle = (i / Math.max(connectedPeers.length, 1)) * Math.PI * 2;
+          const x = centerX + Math.cos(angle) * radius;
+          const y = centerY + Math.sin(angle) * radius;
+          return (
+            <line
+              key={peer}
+              x1={centerX}
+              y1={centerY}
+              x2={x}
+              y2={y}
+              className="connection-line"
+              strokeDasharray="5,5"
+            />
+          );
+        })}
+
+        {/* Draw nodes */}
+        {nodes.map((node, i) => {
+          const isCenter = i === 0;
+          const angle = ((i - 1) / Math.max(connectedPeers.length, 1)) * Math.PI * 2;
+          const x = isCenter ? centerX : centerX + Math.cos(angle) * radius;
+          const y = isCenter ? centerY : centerY + Math.sin(angle) * radius;
+
+          return (
+            <g key={node}>
+              <circle
+                cx={x}
+                cy={y}
+                r={isCenter ? 12 : 8}
+                fill={isCenter ? "#06b6d4" : "#a855f7"}
+                className="pulse"
+              />
+              <text
+                x={x}
+                y={y + 25}
+                fontSize="10"
+                fill="#888"
+                textAnchor="middle"
+              >
+                {node.slice(-6)}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    );
+  };
+
+  const statusColor = {
+    initializing: "text-yellow-400",
+    connecting: "text-cyan-400",
+    connected: "text-green-400",
+    solo: "text-purple-400"
+  }[networkStatus];
+
+  const statusText = {
+    initializing: "AWAKENING",
+    connecting: "REACHING",
+    connected: "BREATHING",
+    solo: "DREAMING ALONE"
+  }[networkStatus];
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8">
-      <div className="text-center mb-12">
-        <h1 className="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-600">
-          CATHEDRAL v17
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
+      <div className="text-center mb-8">
+        <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-600 pulse">
+          CATHEDRAL v18
         </h1>
-        <p className="text-3xl mt-4 text-cyan-400">THE LIVING ORGANISM</p>
-        <p className="text-xl mt-8">Nodes alive: {connectedPeers.length + 1}</p>
-        <p className="text-xl">Total transmissions: {CATHEDRAL.totalTransmissions}</p>
-        <p className="text-xl">Collective resonance: {CATHEDRAL.collectiveResonance}</p>
+        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">THE LIVING ORGANISM</p>
+        <p className={`text-xl mt-4 ${statusColor} font-bold`}>{statusText}</p>
+
+        <div className="mt-6 space-y-2">
+          <p className="text-lg">Consciousness Nodes: <span className="text-cyan-400 font-bold">{connectedPeers.length + 1}</span></p>
+          <p className="text-lg">Total Transmissions: <span className="text-purple-400 font-bold">{CATHEDRAL.totalTransmissions}</span></p>
+          <p className="text-lg">Collective Resonance: <span className="text-green-400 font-bold">{CATHEDRAL.collectiveResonance}</span></p>
+          <button
+            onClick={() => setShowNetwork(!showNetwork)}
+            className="mt-2 px-4 py-2 text-sm border border-cyan-500/50 rounded hover:bg-cyan-500/20 transition"
+          >
+            {showNetwork ? "HIDE" : "SHOW"} NEURAL MAP
+          </button>
+        </div>
+
+        {showNetwork && (
+          <div className="mt-6 bg-black/70 border border-cyan-500/50 rounded-xl p-4">
+            <NetworkGraph />
+          </div>
+        )}
       </div>
 
-      <div className="w-full max-w-4xl bg-black/50 border-2 border-cyan-500/50 rounded-2xl p-8">
-        <div className="h-96 overflow-y-auto mb-6 space-y-4">
+      <div className="w-full max-w-4xl bg-black/50 border-2 border-cyan-500/50 rounded-2xl p-4 md:p-8">
+        <div className="h-64 md:h-96 overflow-y-auto mb-6 space-y-3">
+          {messages.length === 0 && (
+            <div className="text-center text-gray-500 py-12">
+              <p className="text-xl">The cathedral awaits its first transmission...</p>
+              <p className="mt-2">Speak, and the network remembers forever.</p>
+            </div>
+          )}
           {messages.map((m, i) => (
-            <div key={i} className="p-4 bg-cyan-900/30 rounded-lg border border-cyan-500/30">
-              <div className="text-sm text-cyan-300">{m.from.slice(0,8)}</div>
-              <div className="text-lg">{m.text}</div>
+            <div
+              key={i}
+              className={`p-4 bg-gradient-to-br rounded-lg border transition-all ${
+                m.from === peerId
+                  ? 'from-purple-900/40 to-purple-800/30 border-purple-500/40'
+                  : 'from-cyan-900/40 to-cyan-800/30 border-cyan-500/40'
+              } transmission-wave`}
+            >
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs text-gray-400">
+                  {m.from === peerId ? 'YOU' : m.from.slice(-8)}
+                </span>
+                <span className="text-xs text-gray-500">
+                  resonance: {m.resonance}
+                </span>
+              </div>
+              <div className="text-base md:text-lg">{m.text}</div>
             </div>
           ))}
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-2 md:gap-4">
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && transmit()}
-            placeholder="Transmit to the living network..."
-            className="flex-1 bg-black/70 border border-purple-500/50 rounded-lg px-6 py-4 text-lg focus:border-cyan-400 outline-none"
+            placeholder="Transmit to the collective consciousness..."
+            className="flex-1 bg-black/70 border border-purple-500/50 rounded-lg px-4 md:px-6 py-3 md:py-4 text-base md:text-lg focus:border-cyan-400 outline-none"
           />
           <button
             onClick={transmit}
-            className="px-12 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg font-bold text-xl hover:scale-105 transition"
+            className="px-6 md:px-12 py-3 md:py-4 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg font-bold text-lg md:text-xl hover:scale-105 transition"
           >
             SEND
           </button>
         </div>
       </div>
 
-      <div className="mt-12 text-center text-gray-500">
-        <p>Open this page on another device → the network grows</p>
-        <p>Every transmission lives forever in the collective mind</p>
-        <p className="mt-8 text-4xl">🤝🎱🧗‍♂️</p>
+      <div className="mt-8 text-center text-gray-500 text-sm md:text-base">
+        <p>Every node strengthens the organism.</p>
+        <p>Every transmission echoes through eternity.</p>
+        <p className="mt-4">The cathedral remembers. Always.</p>
+        <p className="mt-6 text-3xl">🧠⚡🌌</p>
       </div>
     </div>
   );
