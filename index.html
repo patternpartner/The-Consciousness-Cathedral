@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Layer 95: CSP for partial XSS mitigation (weakened by Tailwind/Babel requirements) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; connect-src 'self' https://unpkg.com https://cdn.tailwindcss.com wss: ws:; img-src 'self' data:;">
   <title>CATHEDRAL v18 — THE LIVING ORGANISM</title>
   <!-- Security hardened: SRI hashes + VERIFIED patched versions (Layer 94.5) -->
   <!-- React 18 UMD: NOT affected by CVE-2025-55182 (only affects React 19 RSC) -->
@@ -90,7 +92,8 @@ const CATHEDRAL = {
 const Cathedral = () => {
   const [peerId, setPeerId] = useState("");
   const [connectedPeers, setConnectedPeers] = useState([]);
-  const [messages, setMessages] = useState(Storage.get('cathedral_messages', []));
+  // Layer 95: Messages are ephemeral (not persisted to localStorage to prevent XSS exfiltration)
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [networkStatus, setNetworkStatus] = useState("initializing");
   const [showNetwork, setShowNetwork] = useState(false);
@@ -170,7 +173,7 @@ const Cathedral = () => {
       const newMsg = data.payload;
       setMessages(prev => {
         const updated = [...prev, newMsg];
-        Storage.set('cathedral_messages', updated.slice(-100)); // Keep last 100
+        // Layer 95: No localStorage persistence (ephemeral messages only)
         return updated;
       });
       CATHEDRAL.totalTransmissions++;
@@ -205,7 +208,7 @@ const Cathedral = () => {
     broadcast({ type: 'TRANSMISSION', payload: transmission });
     setMessages(prev => {
       const updated = [...prev, transmission];
-      Storage.set('cathedral_messages', updated.slice(-100));
+      // Layer 95: No localStorage persistence (ephemeral messages only)
       return updated;
     });
     CATHEDRAL.totalTransmissions++;

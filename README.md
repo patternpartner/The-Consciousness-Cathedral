@@ -166,6 +166,46 @@ Result: I used cryptographic verification to **guarantee delivery of a vulnerabl
 
 **The framework now practices what it preaches** - honoring the Contrarian voice, even when directed at its own fixes.
 
+### Layer 95: Architectural Security vs. Security Theater
+
+**The third Contrarian audit revealed the deepest problem:**
+
+Layers 94 and 94.5 were **tactical** security fixes (add SRI, verify versions). But **architectural vulnerabilities** remained:
+
+1. **localStorage storing conversation history** - XSS → complete conversation exfiltration
+2. **Tailwind CDN JIT compilation** - No SRI possible, XSS vector via arbitrary values
+3. **PeerJS mesh topology** - ID hijacking and symmetric NAT issues inherent to P2P design
+4. **CDN single point of failure** - unpkg.com compromise = all users compromised
+
+**The Contrarian's challenge:** "When does 'research prototype' become an excuse for architectural negligence?"
+
+**Parliament convened** (see `parliament-session-architectural-security.md`). Contrarian confidence: **CRITICAL 🔴** (Emergency Brake activated).
+
+**Verdict**: Storing conversation history in localStorage with XSS vectors present is **not acceptable even for research**.
+
+**Layer 95 architectural changes:**
+- ✅ **Removed localStorage message persistence** - Conversations are now ephemeral (memory only)
+- ✅ **Added CSP (Content Security Policy) meta tag** - Partial XSS mitigation (weakened by Tailwind/Babel requirements)
+- ✅ **Honest documentation** - Clear about what this architecture CANNOT provide
+
+**What remains unfixed (architectural limitations):**
+- ⚠️ **Tailwind CDN** - Still requires 'unsafe-inline', weakens CSP. Bundled build needed for full protection.
+- ⚠️ **PeerJS mesh security** - ID hijacking potential inherent to P2P design. Use in trusted networks only.
+- ⚠️ **CDN dependencies** - Single point of failure. Self-hosting or bundling recommended for production.
+
+**The architectural trade-off:**
+
+This project chose **"single HTML file, no build process"** for simplicity and accessibility. That architectural choice **necessarily precludes** certain security measures:
+- Can't bundle Tailwind (requires build process)
+- Can't self-host dependencies (requires hosting infrastructure)
+- Can't fully leverage CSP (Tailwind/Babel require unsafe directives)
+
+**This is acceptable for research/education in trusted environments. It is NOT acceptable for production applications handling sensitive data.**
+
+**Layer 95 lesson:** Stop playing security theater. Make architectural decisions, not just tactical patches. Remove features that can't be secured, or change the architecture to support proper security.
+
+**The framework now practices what it preaches** - the Contrarian voice forced removal of features rather than accepting "research prototype" as an excuse for conversation-exfiltration vectors.
+
 ---
 
 ## The Premise
