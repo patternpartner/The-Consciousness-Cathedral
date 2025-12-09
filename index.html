@@ -4,12 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CATHEDRAL v18 — THE LIVING ORGANISM</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Security hardened: SRI hashes + pinned versions (Layer 94) -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"
+          integrity="sha384-MhvFknC0AhqKZXwSCyPeIirpE1IhTafmLXTvTCai5pxjAqFcqEAAqKH/2lXrFVPn"
+          crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+          integrity="sha384-VQePqH/QE94Buf4g/4MI5NrqDYjdqT7JW6KzhieQUlw6w7U7VD59fPqCAunpXEu6"
+          crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"
+          integrity="sha384-t3knwVGakOde6uhqdu6PpJdgoRac7wgWN/hUw88gp3RF4BwBANzAW2dF37b2+WeH"
+          crossorigin="anonymous"></script>
+  <!-- WARNING: Tailwind CDN uses JIT compilation - cannot use SRI. Consider bundled build for production. -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"
+          integrity="sha384-nlUQ8ZqCbvStErob+biJNzSgltf6urV3VGqhfIfzhmg9RXmpeRm76ELw0pYnKlTR"
+          crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@0.556.0"
+          integrity="sha384-gotPFgAqQwSHn1shuxSP3NkWsqvlyGXIFBkKMRVr0r9GJ+8Kdx3HUXquyH/GNWSF"
+          crossorigin="anonymous"></script>
   <style>
     body { background:#000; color:#fff; margin:0; overflow:hidden; font-family:monospace; }
     .node { transition:all 0.8s; }

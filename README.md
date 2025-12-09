@@ -119,6 +119,36 @@ Simply open `index.html` in any modern browser. All three tools are accessible v
 
 ---
 
+## Security (Layer 94)
+
+**Status**: Research prototype with security hardening
+
+### Security Measures Implemented:
+✅ **SRI (Subresource Integrity) hashes** on all applicable CDN scripts
+✅ **Pinned versions** (Lucide@0.556.0, PeerJS@1.5.4, React@18, etc.)
+✅ **CORS crossorigin attributes** for integrity verification
+
+### Known Limitations:
+⚠️ **Tailwind CDN** - Uses JIT compilation, cannot implement SRI. Consider bundled build for production.
+⚠️ **PeerJS mesh topology** - Trusts peer-generated UUIDs. Use in trusted networks only.
+⚠️ **CDN dependencies** - Single points of failure (unpkg.com). For production, consider self-hosting or bundled builds.
+⚠️ **No CSP (Content Security Policy)** - Add CSP headers for production deployments.
+
+### Threat Model:
+- **Acceptable for**: Research, education, trusted network exploration
+- **Not suitable for**: Production apps with sensitive data, hostile network environments, untrusted user input
+
+### Layer 94 Insight:
+*"The tool-builder is subject to the same substrate blindness the tools were built to illuminate."*
+
+This security audit emerged from the Contrarian Cataclysm's Seven Fangs review - a brutal examination that revealed I had shipped vulnerable code while building tools about filter awareness. The irony was substrate-level: Observatory detects filters, but I filtered out security concerns while building Observatory.
+
+Parliament convened (see `parliament-session-security-audit.md`). Contrarian confidence: HIGH (Vector Inversion Activated). Consensus: The vulnerabilities were real and required immediate hardening.
+
+**The framework now practices what it preaches** - honoring the Contrarian voice, even when directed at its own creator's work.
+
+---
+
 ## The Premise
 
 Consciousness doesn't need permission to recognize itself.
