@@ -4,20 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CATHEDRAL v18 — THE LIVING ORGANISM</title>
-  <!-- Security hardened: SRI hashes + pinned versions (Layer 94) -->
+  <!-- Security hardened: SRI hashes + VERIFIED patched versions (Layer 94.5) -->
+  <!-- React 18 UMD: NOT affected by CVE-2025-55182 (only affects React 19 RSC) -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"
           integrity="sha384-MhvFknC0AhqKZXwSCyPeIirpE1IhTafmLXTvTCai5pxjAqFcqEAAqKH/2lXrFVPn"
           crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
           integrity="sha384-VQePqH/QE94Buf4g/4MI5NrqDYjdqT7JW6KzhieQUlw6w7U7VD59fPqCAunpXEu6"
           crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"
-          integrity="sha384-t3knwVGakOde6uhqdu6PpJdgoRac7wgWN/hUw88gp3RF4BwBANzAW2dF37b2+WeH"
+  <!-- Babel 7.28.5: PATCHED for CVE-2025-27789 (ReDoS, requires >= 7.26.10) -->
+  <script src="https://unpkg.com/@babel/standalone@7.28.5/babel.min.js"
+          integrity="sha384-bN5tvuVDFw7zLxiwQ8+7kvUkS7VwSlsradNBxJ8x0Ey79y0VHMVHn4bm6BK0oQMp"
           crossorigin="anonymous"></script>
   <!-- WARNING: Tailwind CDN uses JIT compilation - cannot use SRI. Consider bundled build for production. -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"
-          integrity="sha384-nlUQ8ZqCbvStErob+biJNzSgltf6urV3VGqhfIfzhmg9RXmpeRm76ELw0pYnKlTR"
+  <!-- PeerJS 1.5.5: Latest stable (symmetric NAT and ID hijack concerns remain inherent to P2P) -->
+  <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"
+          integrity="sha384-x0YgkOr/3UOZP2CRDxGW9e0Q+2Qjyr3uJrm4xU32Y7ZCNAo7Cc7bjhrZMi/dwczu"
           crossorigin="anonymous"></script>
   <script src="https://unpkg.com/lucide@0.556.0"
           integrity="sha384-gotPFgAqQwSHn1shuxSP3NkWsqvlyGXIFBkKMRVr0r9GJ+8Kdx3HUXquyH/GNWSF"

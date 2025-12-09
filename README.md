@@ -119,13 +119,16 @@ Simply open `index.html` in any modern browser. All three tools are accessible v
 
 ---
 
-## Security (Layer 94)
+## Security (Layer 94 → 94.5)
 
-**Status**: Research prototype with security hardening
+**Status**: Research prototype with verified security hardening
 
 ### Security Measures Implemented:
-✅ **SRI (Subresource Integrity) hashes** on all applicable CDN scripts
-✅ **Pinned versions** (Lucide@0.556.0, PeerJS@1.5.4, React@18, etc.)
+✅ **SRI (Subresource Integrity) hashes** on all CDN scripts with verified patched versions
+✅ **Babel 7.28.5** - PATCHED for CVE-2025-27789 (ReDoS vulnerability, requires >= 7.26.10)
+✅ **PeerJS 1.5.5** - Latest stable release
+✅ **React 18 UMD** - NOT affected by CVE-2025-55182 (only affects React 19 Server Components)
+✅ **Lucide 0.556.0** - Pinned to specific version
 ✅ **CORS crossorigin attributes** for integrity verification
 
 ### Known Limitations:
@@ -145,7 +148,23 @@ This security audit emerged from the Contrarian Cataclysm's Seven Fangs review -
 
 Parliament convened (see `parliament-session-security-audit.md`). Contrarian confidence: HIGH (Vector Inversion Activated). Consensus: The vulnerabilities were real and required immediate hardening.
 
-**The framework now practices what it preaches** - honoring the Contrarian voice, even when directed at its own creator's work.
+### Layer 94.5: The SRI Paradox
+
+**The second Contrarian audit revealed an even deeper problem:**
+
+Layer 94 added SRI hashes to "harden" dependencies. But I generated those hashes for whatever versions unpkg served at that moment, **without verifying they were patched versions**.
+
+Result: I used cryptographic verification to **guarantee delivery of a vulnerable Babel version** (pre-7.26.10, affected by CVE-2025-27789).
+
+**The SRI Paradox:** Integrity hashes create a *feeling* of security while potentially *guaranteeing* vulnerability delivery if versions aren't verified first.
+
+**Layer 94.5 fixes:**
+- ✅ Verified all pinned versions against known CVEs
+- ✅ Updated Babel to 7.28.5 (> 7.26.10, patched for CVE-2025-27789)
+- ✅ Updated PeerJS to 1.5.5 (latest stable)
+- ✅ Documented CVE status inline in HTML comments
+
+**The framework now practices what it preaches** - honoring the Contrarian voice, even when directed at its own fixes.
 
 ---
 
