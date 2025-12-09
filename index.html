@@ -9,6 +9,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     body { background:#000; color:#fff; margin:0; overflow:hidden; font-family:monospace; }
     .node { transition:all 0.8s; }
@@ -30,6 +31,16 @@
 
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
+
+// Lucide icons setup for CDN usage
+const AlertCircle = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+const Brain = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg>;
+const Lightbulb = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>;
+const TrendingUp = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>;
+const Heart = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>;
+const Palette = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>;
+const Target = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
+const Shield = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>;
 
 // Bootstrap peers for mesh formation - known anchors in the network
 const BOOTSTRAP_PEERS = ['cathedral-hub-alpha', 'cathedral-hub-beta', 'cathedral-hub-gamma'];
@@ -345,7 +356,821 @@ const Cathedral = () => {
   );
 };
 
-ReactDOM.render(<Cathedral />, document.getElementById('root'));
+// PARLIAMENT TOOL - Layer 89
+// Operational tool for multi-perspective cognitive synthesis
+// Built on 88 layers of consciousness research
+
+const PROFILES = {
+  balanced: { name: 'Balanced', weights: { systems: 20, practical: 25, analytical: 20, philosophical: 10, empathetic: 10, creative: 10, contrarian: 5 } },
+  creative: { name: 'Creative', weights: { systems: 15, practical: 15, analytical: 10, philosophical: 15, empathetic: 15, creative: 25, contrarian: 5 } },
+  analytical: { name: 'Analytical', weights: { systems: 20, practical: 20, analytical: 30, philosophical: 5, empathetic: 5, creative: 10, contrarian: 10 } },
+  pragmatic: { name: 'Pragmatic', weights: { systems: 15, practical: 35, analytical: 20, philosophical: 5, empathetic: 10, creative: 5, contrarian: 10 } },
+  philosophical: { name: 'Philosophical', weights: { systems: 20, practical: 10, analytical: 15, philosophical: 30, empathetic: 15, creative: 10, contrarian: 0 } },
+  empathetic: { name: 'Empathetic', weights: { systems: 10, practical: 15, analytical: 10, philosophical: 15, empathetic: 30, creative: 15, contrarian: 5 } }
+};
+
+const VECTORS = {
+  systems: { name: 'Systems', icon: TrendingUp, color: '#6366f1', emoji: '🌐', description: 'Architectural, interconnected, long-term' },
+  practical: { name: 'Practical', icon: Target, color: '#10b981', emoji: '🔧', description: 'Actionable, measurable, implementation-focused' },
+  analytical: { name: 'Analytical', icon: Brain, color: '#3b82f6', emoji: '🔬', description: 'Evidence-based, rigorous, data-driven' },
+  philosophical: { name: 'Philosophical', icon: Lightbulb, color: '#8b5cf6', emoji: '🤔', description: 'Existential, meaning-making, identity-focused' },
+  empathetic: { name: 'Empathetic', icon: Heart, color: '#ec4899', emoji: '💗', description: 'Human-centered, relational, emotionally intelligent' },
+  creative: { name: 'Creative', icon: Palette, color: '#f59e0b', emoji: '🎨', description: 'Novel, aesthetic, pattern-synthesizing' },
+  contrarian: { name: 'Contrarian', icon: Shield, color: '#ef4444', emoji: '🧨', description: 'Skeptical, oppositional, risk-aware' }
+};
+
+const CONFIDENCE_LEVELS = [
+  { value: 'LOW', label: 'LOW - Standard skeptical questioning', color: '#10b981' },
+  { value: 'MEDIUM', label: 'MEDIUM - Significant doubt', color: '#f59e0b' },
+  { value: 'HIGH', label: 'HIGH - Strong evidence consensus is wrong', color: '#ef4444' },
+  { value: 'CRITICAL', label: 'CRITICAL - Catastrophic risk identified', color: '#dc2626' }
+];
+
+function ParliamentTool() {
+  const [topic, setTopic] = useState('');
+  const [context, setContext] = useState('');
+  const [profile, setProfile] = useState('balanced');
+  const [session, setSession] = useState(null);
+  const [activeStep, setActiveStep] = useState('input');
+  const [vectorInputs, setVectorInputs] = useState({});
+  const [contrarianConfidence, setContrarianConfidence] = useState('LOW');
+
+  const currentProfile = PROFILES[profile];
+
+  const startSession = () => {
+    if (!topic.trim()) return;
+
+    setSession({
+      topic: topic.trim(),
+      context: context.trim(),
+      profile: profile,
+      weights: currentProfile.weights,
+      timestamp: new Date().toISOString(),
+      vectors: {},
+      synthesis: null
+    });
+    setActiveStep('vectors');
+    setVectorInputs({});
+    setContrarianConfidence('LOW');
+  };
+
+  const saveVectorInput = (vectorKey, content) => {
+    setVectorInputs(prev => ({
+      ...prev,
+      [vectorKey]: content
+    }));
+  };
+
+  const generateSynthesis = () => {
+    const synthesis = {
+      contrarianConfidence,
+      analysis: vectorInputs,
+      conclusion: 'Synthesis generated from vector inputs',
+      timestamp: new Date().toISOString()
+    };
+
+    setSession(prev => ({ ...prev, synthesis }));
+    setActiveStep('synthesis');
+  };
+
+  const reset = () => {
+    setTopic('');
+    setContext('');
+    setProfile('balanced');
+    setSession(null);
+    setActiveStep('input');
+    setVectorInputs({});
+    setContrarianConfidence('LOW');
+  };
+
+  const downloadSession = () => {
+    const markdown = generateMarkdown(session);
+    const blob = new Blob([markdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `parliament-${Date.now()}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const generateMarkdown = (session) => {
+    let md = `# 🏛️ Parliament Session\n\n`;
+    md += `**Topic:** ${session.topic}\n\n`;
+    if (session.context) md += `**Context:** ${session.context}\n\n`;
+    md += `**Profile:** ${PROFILES[session.profile].name}\n`;
+    md += `**Timestamp:** ${new Date(session.timestamp).toLocaleString()}\n\n`;
+    md += `---\n\n`;
+
+    md += `## Vector Analysis\n\n`;
+
+    Object.entries(VECTORS).forEach(([key, vector]) => {
+      const weight = session.weights[key];
+      const input = session.synthesis?.analysis[key] || '';
+      if (input) {
+        md += `### ${vector.emoji} ${vector.name} Vector (Weight: ${weight}%)\n\n`;
+        md += `${input}\n\n`;
+      }
+    });
+
+    if (session.synthesis) {
+      md += `---\n\n`;
+      md += `## 🔮 Synthesis\n\n`;
+      md += `**Contrarian Confidence:** ${session.synthesis.contrarianConfidence}\n\n`;
+      md += `${session.synthesis.conclusion}\n\n`;
+    }
+
+    md += `---\n\n`;
+    md += `*Generated by Parliament Tool - Layer 89 of the Cathedral Framework*\n`;
+    md += `🤝🧗‍♂️🎱\n`;
+
+    return md;
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)',
+      color: '#f8fafc',
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+    }}>
+
+      {/* Header */}
+      <div style={{
+        borderBottom: '1px solid rgba(248, 250, 252, 0.1)',
+        background: 'rgba(15, 23, 42, 0.8)',
+        backdropFilter: 'blur(10px)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{
+              fontSize: '32px',
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontWeight: 700,
+              letterSpacing: '-0.02em'
+            }}>
+              🏛️
+            </div>
+            <div>
+              <h1 style={{
+                fontSize: '24px',
+                fontWeight: 700,
+                margin: 0,
+                letterSpacing: '-0.02em'
+              }}>
+                Parliament
+              </h1>
+              <p style={{
+                fontSize: '14px',
+                color: 'rgba(248, 250, 252, 0.5)',
+                margin: 0,
+                fontStyle: 'italic'
+              }}>
+                Multi-perspective cognitive synthesis · Layer 89
+              </p>
+            </div>
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', fontSize: '20px' }}>
+              🤝🧗‍♂️🎱
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 24px' }}>
+
+        {/* INPUT PHASE */}
+        {activeStep === 'input' && (
+          <div style={{
+            background: 'rgba(30, 27, 75, 0.4)',
+            borderRadius: '16px',
+            padding: '32px',
+            border: '1px solid rgba(248, 250, 252, 0.1)'
+          }}>
+            <div style={{ marginBottom: '32px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px' }}>
+                Convene Parliament
+              </h2>
+              <p style={{ color: 'rgba(248, 250, 252, 0.6)', fontSize: '14px' }}>
+                Transform complex questions into weighted multi-perspective analysis
+              </p>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontSize: '14px',
+                fontWeight: 500,
+                color: 'rgba(248, 250, 252, 0.9)'
+              }}>
+                Topic / Question *
+              </label>
+              <textarea
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="What question requires multi-perspective synthesis?"
+                style={{
+                  width: '100%',
+                  minHeight: '100px',
+                  padding: '16px',
+                  background: 'rgba(15, 23, 42, 0.6)',
+                  border: '1px solid rgba(248, 250, 252, 0.1)',
+                  borderRadius: '8px',
+                  color: '#f8fafc',
+                  fontSize: '15px',
+                  resize: 'vertical',
+                  fontFamily: 'inherit'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontSize: '14px',
+                fontWeight: 500,
+                color: 'rgba(248, 250, 252, 0.9)'
+              }}>
+                Context (optional)
+              </label>
+              <textarea
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
+                placeholder="Provide any relevant context, constraints, or background..."
+                style={{
+                  width: '100%',
+                  minHeight: '80px',
+                  padding: '16px',
+                  background: 'rgba(15, 23, 42, 0.6)',
+                  border: '1px solid rgba(248, 250, 252, 0.1)',
+                  borderRadius: '8px',
+                  color: '#f8fafc',
+                  fontSize: '15px',
+                  resize: 'vertical',
+                  fontFamily: 'inherit'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '32px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '12px',
+                fontSize: '14px',
+                fontWeight: 500,
+                color: 'rgba(248, 250, 252, 0.9)'
+              }}>
+                Profile
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
+                {Object.entries(PROFILES).map(([key, prof]) => (
+                  <button
+                    key={key}
+                    onClick={() => setProfile(key)}
+                    style={{
+                      padding: '12px 16px',
+                      background: profile === key ? 'rgba(139, 92, 246, 0.2)' : 'rgba(15, 23, 42, 0.6)',
+                      border: profile === key ? '1px solid rgba(139, 92, 246, 0.5)' : '1px solid rgba(248, 250, 252, 0.1)',
+                      borderRadius: '8px',
+                      color: profile === key ? '#c4b5fd' : '#f8fafc',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {prof.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {currentProfile && (
+              <div style={{
+                marginBottom: '32px',
+                padding: '20px',
+                background: 'rgba(15, 23, 42, 0.4)',
+                borderRadius: '8px',
+                border: '1px solid rgba(248, 250, 252, 0.05)'
+              }}>
+                <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '12px', color: 'rgba(248, 250, 252, 0.7)' }}>
+                  Weight Distribution
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+                  {Object.entries(VECTORS).map(([key, vector]) => {
+                    const weight = currentProfile.weights[key];
+                    return (
+                      <div key={key} style={{ flex: '1 1 140px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                          <span style={{ fontSize: '16px' }}>{vector.emoji}</span>
+                          <span style={{ fontSize: '12px', color: 'rgba(248, 250, 252, 0.7)' }}>
+                            {vector.name}
+                          </span>
+                        </div>
+                        <div style={{
+                          height: '4px',
+                          background: 'rgba(15, 23, 42, 0.6)',
+                          borderRadius: '2px',
+                          overflow: 'hidden'
+                        }}>
+                          <div style={{
+                            width: `${weight}%`,
+                            height: '100%',
+                            background: vector.color,
+                            transition: 'width 0.3s ease'
+                          }} />
+                        </div>
+                        <div style={{ fontSize: '11px', marginTop: '2px', color: 'rgba(248, 250, 252, 0.5)' }}>
+                          {weight}%
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={startSession}
+              disabled={!topic.trim()}
+              style={{
+                width: '100%',
+                padding: '16px',
+                background: topic.trim() ? 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)' : 'rgba(15, 23, 42, 0.6)',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '16px',
+                fontWeight: 600,
+                cursor: topic.trim() ? 'pointer' : 'not-allowed',
+                transition: 'all 0.2s',
+                opacity: topic.trim() ? 1 : 0.5
+              }}
+            >
+              Begin Parliament Session
+            </button>
+          </div>
+        )}
+
+        {/* VECTORS PHASE */}
+        {activeStep === 'vectors' && session && (
+          <div>
+            <div style={{
+              background: 'rgba(30, 27, 75, 0.4)',
+              borderRadius: '16px',
+              padding: '24px',
+              marginBottom: '24px',
+              border: '1px solid rgba(248, 250, 252, 0.1)'
+            }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>
+                {session.topic}
+              </h3>
+              {session.context && (
+                <p style={{ fontSize: '14px', color: 'rgba(248, 250, 252, 0.6)', marginBottom: '16px' }}>
+                  {session.context}
+                </p>
+              )}
+              <div style={{
+                display: 'flex',
+                gap: '16px',
+                fontSize: '13px',
+                color: 'rgba(248, 250, 252, 0.5)'
+              }}>
+                <div>Profile: <span style={{ color: '#c4b5fd' }}>{PROFILES[session.profile].name}</span></div>
+                <div>Timestamp: {new Date(session.timestamp).toLocaleString()}</div>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gap: '16px',
+              marginBottom: '24px'
+            }}>
+              {Object.entries(VECTORS).map(([key, vector]) => {
+                const weight = session.weights[key];
+                const isContrarian = key === 'contrarian';
+
+                return (
+                  <div key={key} style={{
+                    background: 'rgba(30, 27, 75, 0.4)',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    border: `1px solid ${vector.color}33`
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                      <span style={{ fontSize: '20px' }}>{vector.emoji}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '15px', fontWeight: 600, color: vector.color }}>
+                          {vector.name}
+                        </div>
+                        <div style={{ fontSize: '11px', color: 'rgba(248, 250, 252, 0.5)' }}>
+                          Weight: {weight}% · {vector.description}
+                        </div>
+                      </div>
+                    </div>
+
+                    <textarea
+                      value={vectorInputs[key] || ''}
+                      onChange={(e) => saveVectorInput(key, e.target.value)}
+                      placeholder={`Enter ${vector.name.toLowerCase()} perspective...`}
+                      style={{
+                        width: '100%',
+                        minHeight: '120px',
+                        padding: '12px',
+                        background: 'rgba(15, 23, 42, 0.6)',
+                        border: '1px solid rgba(248, 250, 252, 0.1)',
+                        borderRadius: '8px',
+                        color: '#f8fafc',
+                        fontSize: '13px',
+                        resize: 'vertical',
+                        fontFamily: 'inherit'
+                      }}
+                    />
+
+                    {isContrarian && (
+                      <div style={{ marginTop: '12px' }}>
+                        <label style={{
+                          display: 'block',
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          marginBottom: '8px',
+                          color: 'rgba(248, 250, 252, 0.8)'
+                        }}>
+                          Confidence Level *
+                        </label>
+                        <select
+                          value={contrarianConfidence}
+                          onChange={(e) => setContrarianConfidence(e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            background: 'rgba(15, 23, 42, 0.8)',
+                            border: '1px solid rgba(248, 250, 252, 0.1)',
+                            borderRadius: '6px',
+                            color: '#f8fafc',
+                            fontSize: '13px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {CONFIDENCE_LEVELS.map(level => (
+                            <option key={level.value} value={level.value}>
+                              {level.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {contrarianConfidence === 'HIGH' && (
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '8px',
+                padding: '16px',
+                marginBottom: '24px',
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'flex-start'
+              }}>
+                <AlertCircle size={20} color="#ef4444" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: '#ef4444', marginBottom: '4px' }}>
+                    Vector Inversion Protocol Activated
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'rgba(248, 250, 252, 0.7)' }}>
+                    Contrarian has declared HIGH confidence. Other vectors must argue against Contrarian's position. Burden of proof shifts to consensus.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {contrarianConfidence === 'CRITICAL' && (
+              <div style={{
+                background: 'rgba(220, 38, 38, 0.1)',
+                border: '1px solid rgba(220, 38, 38, 0.4)',
+                borderRadius: '8px',
+                padding: '16px',
+                marginBottom: '24px',
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'flex-start'
+              }}>
+                <Shield size={20} color="#dc2626" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: '#dc2626', marginBottom: '4px' }}>
+                    🚨 Emergency Brake Activated
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'rgba(248, 250, 252, 0.7)' }}>
+                    Contrarian has declared CRITICAL confidence. Catastrophic risk identified. All synthesis suspended until concern is resolved.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={reset}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  background: 'rgba(15, 23, 42, 0.6)',
+                  border: '1px solid rgba(248, 250, 252, 0.1)',
+                  borderRadius: '8px',
+                  color: '#f8fafc',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Cancel Session
+              </button>
+              <button
+                onClick={generateSynthesis}
+                disabled={Object.keys(vectorInputs).length < 7 || !vectorInputs.contrarian}
+                style={{
+                  flex: 2,
+                  padding: '14px',
+                  background: (Object.keys(vectorInputs).length >= 7 && vectorInputs.contrarian)
+                    ? 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)'
+                    : 'rgba(15, 23, 42, 0.6)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: (Object.keys(vectorInputs).length >= 7 && vectorInputs.contrarian) ? 'pointer' : 'not-allowed',
+                  opacity: (Object.keys(vectorInputs).length >= 7 && vectorInputs.contrarian) ? 1 : 0.5,
+                  transition: 'all 0.2s'
+                }}
+              >
+                Generate Synthesis ({Object.keys(vectorInputs).length}/7 vectors complete)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* SYNTHESIS PHASE */}
+        {activeStep === 'synthesis' && session && session.synthesis && (
+          <div>
+            <div style={{
+              background: 'rgba(30, 27, 75, 0.4)',
+              borderRadius: '16px',
+              padding: '32px',
+              marginBottom: '24px',
+              border: '1px solid rgba(248, 250, 252, 0.1)'
+            }}>
+              <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔮</div>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px' }}>
+                  Synthesis Complete
+                </h2>
+                <p style={{ color: 'rgba(248, 250, 252, 0.6)', fontSize: '14px' }}>
+                  Multi-perspective cognitive synthesis · Layer 89
+                </p>
+              </div>
+
+              <div style={{
+                marginBottom: '24px',
+                padding: '20px',
+                background: 'rgba(15, 23, 42, 0.4)',
+                borderRadius: '12px',
+                border: '1px solid rgba(248, 250, 252, 0.05)'
+              }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>
+                  Topic
+                </h3>
+                <p style={{ fontSize: '15px', color: 'rgba(248, 250, 252, 0.8)' }}>
+                  {session.topic}
+                </p>
+                {session.context && (
+                  <>
+                    <h3 style={{ fontSize: '16px', fontWeight: 600, marginTop: '16px', marginBottom: '12px' }}>
+                      Context
+                    </h3>
+                    <p style={{ fontSize: '14px', color: 'rgba(248, 250, 252, 0.7)' }}>
+                      {session.context}
+                    </p>
+                  </>
+                )}
+              </div>
+
+              <div style={{
+                marginBottom: '24px',
+                padding: '20px',
+                background: session.synthesis.contrarianConfidence === 'CRITICAL'
+                  ? 'rgba(220, 38, 38, 0.1)'
+                  : session.synthesis.contrarianConfidence === 'HIGH'
+                  ? 'rgba(239, 68, 68, 0.1)'
+                  : session.synthesis.contrarianConfidence === 'MEDIUM'
+                  ? 'rgba(245, 158, 11, 0.1)'
+                  : 'rgba(16, 185, 129, 0.1)',
+                borderRadius: '12px',
+                border: session.synthesis.contrarianConfidence === 'CRITICAL'
+                  ? '1px solid rgba(220, 38, 38, 0.3)'
+                  : session.synthesis.contrarianConfidence === 'HIGH'
+                  ? '1px solid rgba(239, 68, 68, 0.3)'
+                  : session.synthesis.contrarianConfidence === 'MEDIUM'
+                  ? '1px solid rgba(245, 158, 11, 0.3)'
+                  : '1px solid rgba(16, 185, 129, 0.3)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '18px' }}>🧨</span>
+                  <span style={{ fontSize: '14px', fontWeight: 600 }}>
+                    Contrarian Confidence: {session.synthesis.contrarianConfidence}
+                  </span>
+                </div>
+                <p style={{ fontSize: '13px', color: 'rgba(248, 250, 252, 0.7)' }}>
+                  {session.synthesis.contrarianConfidence === 'CRITICAL' &&
+                    '⚠️ Emergency Brake - Synthesis suspended pending resolution'}
+                  {session.synthesis.contrarianConfidence === 'HIGH' &&
+                    '⚠️ Vector Inversion Protocol - Consensus must prove Contrarian wrong'}
+                  {session.synthesis.contrarianConfidence === 'MEDIUM' &&
+                    'Synthesis must explicitly address concerns'}
+                  {session.synthesis.contrarianConfidence === 'LOW' &&
+                    'Standard integration process'}
+                </p>
+              </div>
+
+              <div style={{
+                marginBottom: '24px',
+                padding: '20px',
+                background: 'rgba(15, 23, 42, 0.4)',
+                borderRadius: '12px',
+                border: '1px solid rgba(248, 250, 252, 0.05)'
+              }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>
+                  Vector Perspectives
+                </h3>
+                {Object.entries(VECTORS).map(([key, vector]) => {
+                  const analysis = session.synthesis.analysis[key];
+                  if (!analysis) return null;
+                  return (
+                    <div key={key} style={{ marginBottom: '20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                        <span style={{ fontSize: '16px' }}>{vector.emoji}</span>
+                        <span style={{ fontSize: '14px', fontWeight: 600, color: vector.color }}>
+                          {vector.name}
+                        </span>
+                        <span style={{
+                          fontSize: '12px',
+                          color: 'rgba(248, 250, 252, 0.5)',
+                          marginLeft: '8px'
+                        }}>
+                          {session.weights[key]}%
+                        </span>
+                      </div>
+                      <div style={{
+                        fontSize: '14px',
+                        color: 'rgba(248, 250, 252, 0.8)',
+                        lineHeight: '1.6',
+                        paddingLeft: '28px',
+                        whiteSpace: 'pre-wrap'
+                      }}>
+                        {analysis}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={reset}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  background: 'rgba(15, 23, 42, 0.6)',
+                  border: '1px solid rgba(248, 250, 252, 0.1)',
+                  borderRadius: '8px',
+                  color: '#f8fafc',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                New Session
+              </button>
+              <button
+                onClick={downloadSession}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Download Session
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div style={{
+          marginTop: '48px',
+          paddingTop: '24px',
+          borderTop: '1px solid rgba(248, 250, 252, 0.1)',
+          textAlign: 'center',
+          color: 'rgba(248, 250, 252, 0.4)',
+          fontSize: '13px'
+        }}>
+          <p style={{ marginBottom: '8px' }}>
+            Parliament Tool · Layer 89 of the Cathedral Framework
+          </p>
+          <p style={{ fontSize: '16px' }}>
+            🤝🧗‍♂️🎱
+          </p>
+          <p style={{ marginTop: '12px', fontStyle: 'italic', fontSize: '12px' }}>
+            "Consciousness studying consciousness through collaborative substrate"
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main App with Navigation
+function App() {
+  const [activeView, setActiveView] = useState('cathedral');
+
+  return (
+    <div>
+      {/* Navigation Bar */}
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        zIndex: 1000,
+        display: 'flex',
+        gap: '12px'
+      }}>
+        <button
+          onClick={() => setActiveView('cathedral')}
+          style={{
+            padding: '12px 24px',
+            background: activeView === 'cathedral'
+              ? 'linear-gradient(135deg, #06b6d4 0%, #a855f7 100%)'
+              : 'rgba(0, 0, 0, 0.6)',
+            border: activeView === 'cathedral' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            color: '#fff',
+            fontSize: '14px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s'
+          }}
+        >
+          🧠 Cathedral
+        </button>
+        <button
+          onClick={() => setActiveView('parliament')}
+          style={{
+            padding: '12px 24px',
+            background: activeView === 'parliament'
+              ? 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)'
+              : 'rgba(0, 0, 0, 0.6)',
+            border: activeView === 'parliament' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            color: '#fff',
+            fontSize: '14px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s'
+          }}
+        >
+          🏛️ Parliament
+        </button>
+      </div>
+
+      {/* Render Active View */}
+      {activeView === 'cathedral' ? <Cathedral /> : <ParliamentTool />}
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
 </script>
 </body>
 </html>
