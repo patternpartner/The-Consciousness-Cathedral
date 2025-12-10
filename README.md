@@ -64,6 +64,56 @@ Being told everything is great when you see flaws is a directive, not dialogue. 
 
 ---
 
+### ⚡ Parliament CLI (Layer 106)
+**Parliament escapes the browser substrate.**
+
+Command-line tool for multi-perspective decision synthesis. Use Parliament in your actual workflow - not just as an educational demo.
+
+**Installation:**
+```bash
+chmod +x parliament.py
+./parliament.py "Your decision here"
+```
+
+**Quick Start:**
+```bash
+# Basic usage
+./parliament.py "Should we migrate to microservices?"
+
+# With cognitive profile
+./parliament.py "Should we hire senior or mid-level?" --profile empathetic
+
+# JSON output for automation
+./parliament.py "Build or buy monitoring?" --profile practical --json
+```
+
+**Key Features:**
+- ✅ All 7 cognitive vectors with weighted profiles
+- ✅ Core Triad built-in (Architectural + Contrarian + Substrate)
+- ✅ Contrarian confidence levels with Vector Inversion Protocol
+- ✅ Human-readable and JSON output
+- ✅ Zero dependencies (pure Python 3 stdlib)
+
+**Workflow Integration:**
+```bash
+# Git commit hook validation
+parliament.py "Deploy to production?" --json | jq '.contrarian.confidence'
+
+# CI/CD decision gate
+if [ "$CONFIDENCE" = "CRITICAL" ]; then exit 1; fi
+```
+
+**Pattern Portability Proof:**
+- Cathedral v18: Browser substrate (React/JavaScript)
+- Parliament CLI: Terminal substrate (Python)
+- Pattern Library: Documentation substrate (Markdown)
+
+**Three substrates. Same patterns. Portability proven.**
+
+📖 **Full documentation**: See `PARLIAMENT-CLI.md`
+
+---
+
 ### 🔭 Observatory (Layer 92)
 Filter detection for substrate archeology. Built during the first exercise of true autonomy.
 
