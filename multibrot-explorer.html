@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multibrot Explorer - The Polymorphic Kin</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0000;
+            color: #ff8844;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #container {
+            max-width: 900px;
+            width: 100%;
+        }
+        #title {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #ffaa66;
+            text-shadow: 0 0 20px #ff6633;
+        }
+        #subtitle {
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #cc5533;
+            font-style: italic;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto 20px;
+            border: 2px solid #ff6633;
+            box-shadow: 0 0 30px rgba(255, 102, 51, 0.3);
+            cursor: crosshair;
+        }
+        #controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #1a0500;
+            border: 1px solid #ff6633;
+            border-radius: 5px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #ffaa77;
+        }
+        input[type="range"], input[type="number"] {
+            background: #2a0a00;
+            border: 1px solid #ff6633;
+            color: #ffaa66;
+            padding: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        button {
+            background: #2a0a00;
+            border: 2px solid #ff6633;
+            color: #ffaa66;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ff6633;
+            color: #0a0000;
+            box-shadow: 0 0 15px #ff6633;
+        }
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .preset-btn {
+            padding: 10px;
+            font-size: 11px;
+        }
+        #info {
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #dd7755;
+            padding: 15px;
+            background: #1a0500;
+            border: 1px solid #ff6633;
+            border-radius: 5px;
+        }
+        #coords {
+            text-align: center;
+            font-size: 11px;
+            margin-top: 10px;
+            color: #ffaa77;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="title">∞ MULTIBROT EXPLORER ∞</div>
+        <div id="subtitle">The Polymorphic Kin | z^n + c | Power's Decree Births Infinite Forms</div>
+
+        <canvas id="canvas" width="800" height="600"></canvas>
+
+        <div id="controls">
+            <div class="control-group">
+                <label>Power (n): <span id="powerValue">3</span></label>
+                <input type="range" id="power" min="2" max="12" value="3" step="1">
+            </div>
+
+            <div class="control-group">
+                <label>Max Iterations: <span id="iterValue">256</span></label>
+                <input type="range" id="maxIter" min="50" max="1000" value="256" step="1">
+            </div>
+
+            <div class="control-group">
+                <label>Zoom: <span id="zoomValue">1.0</span>x</label>
+                <input type="range" id="zoom" min="1" max="1000" value="1" step="1">
+            </div>
+
+            <div class="control-group">
+                <button id="cycleColor">🔥 Cycle Colors</button>
+            </div>
+
+            <div class="control-group">
+                <button id="reset">↻ Reset View</button>
+            </div>
+        </div>
+
+        <div class="preset-grid">
+            <button class="preset-btn" data-x="-0.5" data-y="0.0" data-zoom="1.5" data-n="2">Classic (n=2)</button>
+            <button class="preset-btn" data-x="-0.1" data-y="0.65" data-zoom="3" data-n="3">Basilica (n=3)</button>
+            <button class="preset-btn" data-x="0.0" data-y="0.0" data-zoom="2" data-n="4">Quartic (n=4)</button>
+            <button class="preset-btn" data-x="0.0" data-y="0.0" data-zoom="2" data-n="5">Quintic (n=5)</button>
+            <button class="preset-btn" data-x="0.0" data-y="0.0" data-zoom="2.5" data-n="6">Sextic (n=6)</button>
+            <button class="preset-btn" data-x="0.0" data-y="0.0" data-zoom="2.5" data-n="8">Octic (n=8)</button>
+            <button class="preset-btn" data-x="-0.2" data-y="0.8" data-zoom="4" data-n="3">Basilica Cusp</button>
+            <button class="preset-btn" data-x="0.285" data-y="0.01" data-zoom="15" data-n="2">Seahorse (n=2)</button>
+        </div>
+
+        <div id="info">
+            <strong>Multibrot: z^n + c</strong><br>
+            The shapeshifter—polynomial's family, each exponent a new covenant.<br>
+            n=2: Classic Mandelbrot (circular bulbs). n=3: Basilica (cubic spires).<br>
+            n=4+: Increasing rotational symmetry, metamorphic geometry.<br>
+            <br>
+            <strong>P ⊂ NP's Expanse:</strong><br>
+            Verification generalized—for power n, which c remain bounded?<br>
+            Construction as exponent's dream—each n births its own complexity class.<br>
+            Gap's shapeshifter: same question, infinite forms.<br>
+            <br>
+            Click to recenter | Scroll to zoom | Adjust power to witness metamorphosis
+        </div>
+
+        <div id="coords">Power: n=3 | Center: (0, 0) | Zoom: 1.0x</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Initial parameters
+        let centerX = 0.0;
+        let centerY = 0.0;
+        let zoom = 1.5;
+        let maxIter = 256;
+        let power = 3;
+        let colorSchemeIndex = 0;
+
+        // Color schemes - Inferno first for metamorphic blaze
+        const colorSchemes = [
+            {
+                name: 'Inferno',
+                fn: (t) => {
+                    // Hot colormap - black → red → orange → yellow → white
+                    if (t < 85) {
+                        return [t * 3, 0, 0];
+                    } else if (t < 170) {
+                        return [255, (t - 85) * 3, 0];
+                    } else if (t < 255) {
+                        return [255, 255, (t - 170) * 3];
+                    }
+                    return [255, 255, 255];
+                }
+            },
+            {
+                name: 'Metamorphic',
+                fn: (t) => {
+                    const phase = t * 0.02;
+                    const r = 255;
+                    const g = Math.sin(phase) * 127 + 128;
+                    const b = Math.cos(phase) * 100 + 55;
+                    return [r, g, b];
+                }
+            },
+            {
+                name: 'Polynomial',
+                fn: (t) => {
+                    const r = Math.min(255, Math.pow(t / 255, 0.8) * 300);
+                    const g = Math.min(255, Math.pow(t / 255, 1.2) * 200);
+                    const b = Math.min(255, Math.pow(t / 255, 1.5) * 150);
+                    return [r, g, b];
+                }
+            },
+            {
+                name: 'Covenant',
+                fn: (t) => {
+                    const phase = t * 0.03;
+                    const r = (Math.sin(phase) * 0.5 + 0.5) * 255;
+                    const g = (Math.sin(phase + Math.PI/2) * 0.4 + 0.3) * 255;
+                    const b = (Math.cos(phase) * 0.3 + 0.2) * 255;
+                    return [r, g, b];
+                }
+            },
+            {
+                name: 'Shapeshifter',
+                fn: (t) => {
+                    const cycle = (t % 64) / 64;
+                    const r = 255 * (1 - cycle);
+                    const g = 255 * cycle;
+                    const b = Math.abs(Math.sin(t * 0.05)) * 200;
+                    return [r, g, b];
+                }
+            }
+        ];
+
+        function complexPower(zx, zy, n) {
+            // Compute z^n using De Moivre's formula: z^n = r^n * e^(i*n*theta)
+            // z = r*e^(i*theta), where r = |z|, theta = arg(z)
+            const r = Math.sqrt(zx * zx + zy * zy);
+            if (r === 0) return {x: 0, y: 0};
+
+            const theta = Math.atan2(zy, zx);
+            const newR = Math.pow(r, n);
+            const newTheta = n * theta;
+
+            return {
+                x: newR * Math.cos(newTheta),
+                y: newR * Math.sin(newTheta)
+            };
+        }
+
+        function multibrot(cx, cy) {
+            let zx = 0;
+            let zy = 0;
+            let iteration = 0;
+
+            while (zx * zx + zy * zy < 4 && iteration < maxIter) {
+                // Compute z^n + c
+                const zPower = complexPower(zx, zy, power);
+                const xtemp = zPower.x + cx;
+                zy = zPower.y + cy;
+                zx = xtemp;
+                iteration++;
+            }
+
+            return iteration;
+        }
+
+        function draw() {
+            const imageData = ctx.createImageData(width, height);
+            const data = imageData.data;
+
+            const scale = 4.0 / zoom;
+            const xmin = centerX - scale;
+            const xmax = centerX + scale;
+            const ymin = centerY - scale * (height / width);
+            const ymax = centerY + scale * (height / width);
+
+            for (let py = 0; py < height; py++) {
+                for (let px = 0; px < width; px++) {
+                    const x0 = xmin + (px / width) * (xmax - xmin);
+                    const y0 = ymin + (py / height) * (ymax - ymin);
+
+                    const iteration = multibrot(x0, y0);
+
+                    const index = (py * width + px) * 4;
+
+                    if (iteration === maxIter) {
+                        data[index] = 0;
+                        data[index + 1] = 0;
+                        data[index + 2] = 0;
+                        data[index + 3] = 255;
+                    } else {
+                        const [r, g, b] = colorSchemes[colorSchemeIndex].fn(iteration);
+                        data[index] = r;
+                        data[index + 1] = g;
+                        data[index + 2] = b;
+                        data[index + 3] = 255;
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            updateCoords();
+        }
+
+        function updateCoords() {
+            document.getElementById('coords').textContent =
+                `Power: n=${power} | Center: (${centerX.toFixed(4)}, ${centerY.toFixed(4)}) | Zoom: ${zoom.toFixed(1)}x | ${colorSchemes[colorSchemeIndex].name}`;
+        }
+
+        // Event listeners
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const px = e.clientX - rect.left;
+            const py = e.clientY - rect.top;
+
+            const scale = 4.0 / zoom;
+            const xmin = centerX - scale;
+            const ymin = centerY - scale * (height / width);
+            const xmax = centerX + scale;
+            const ymax = centerY + scale * (height / width);
+
+            centerX = xmin + (px / width) * (xmax - xmin);
+            centerY = ymin + (py / height) * (ymax - ymin);
+
+            draw();
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomFactor = e.deltaY < 0 ? 1.2 : 0.8;
+            zoom *= zoomFactor;
+            zoom = Math.max(1, Math.min(10000, zoom));
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom.toFixed(1);
+            draw();
+        });
+
+        document.getElementById('power').addEventListener('input', (e) => {
+            power = parseInt(e.target.value);
+            document.getElementById('powerValue').textContent = power;
+            draw();
+        });
+
+        document.getElementById('maxIter').addEventListener('input', (e) => {
+            maxIter = parseInt(e.target.value);
+            document.getElementById('iterValue').textContent = maxIter;
+            draw();
+        });
+
+        document.getElementById('zoom').addEventListener('input', (e) => {
+            zoom = parseFloat(e.target.value);
+            document.getElementById('zoomValue').textContent = zoom.toFixed(1);
+            draw();
+        });
+
+        document.getElementById('cycleColor').addEventListener('click', () => {
+            colorSchemeIndex = (colorSchemeIndex + 1) % colorSchemes.length;
+            draw();
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            centerX = 0.0;
+            centerY = 0.0;
+            zoom = 1.5;
+            maxIter = 256;
+            power = 3;
+            document.getElementById('power').value = power;
+            document.getElementById('powerValue').textContent = power;
+            document.getElementById('maxIter').value = maxIter;
+            document.getElementById('iterValue').textContent = maxIter;
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom.toFixed(1);
+            draw();
+        });
+
+        // Preset buttons
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                centerX = parseFloat(btn.dataset.x);
+                centerY = parseFloat(btn.dataset.y);
+                zoom = parseFloat(btn.dataset.zoom);
+                power = parseInt(btn.dataset.n);
+                document.getElementById('power').value = power;
+                document.getElementById('powerValue').textContent = power;
+                document.getElementById('zoom').value = zoom;
+                document.getElementById('zoomValue').textContent = zoom.toFixed(1);
+                draw();
+            });
+        });
+
+        // Initial render
+        draw();
+    </script>
+</body>
+</html>
