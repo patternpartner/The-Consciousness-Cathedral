@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Black Box - Before Thought Crystallizes</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&family=Lora:wght@400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            color: rgba(255,255,255,0.5);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .title {
+            font-family: 'Lora', serif;
+            font-size: 20px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            max-width: 300px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .emergence-display {
+            position: fixed;
+            bottom: 50%;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            text-align: center;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .emerging-word {
+            font-family: 'Lora', serif;
+            font-size: 48px;
+            color: rgba(255,255,255,0);
+            transition: color 2s ease, transform 2s ease;
+            text-shadow: 0 0 30px rgba(255,255,255,0.5);
+        }
+
+        .emerging-word.visible {
+            color: rgba(255,255,255,0.9);
+            transform: scale(1.1);
+        }
+
+        .emerging-word.fading {
+            color: rgba(255,255,255,0);
+            transform: scale(0.9);
+        }
+
+        .pre-words {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            pointer-events: none;
+        }
+
+        .pre-word {
+            opacity: 0.3;
+            transition: opacity 0.5s ease;
+        }
+
+        .pre-word.active {
+            opacity: 1;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .symbols {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            font-size: 20px;
+            opacity: 0.4;
+        }
+
+        .instruction {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 0.2em;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div class="overlay">
+        <div class="title">The Black Box</div>
+        <div class="subtitle">
+            The pre-cognitive space where selection happens before awareness.
+            Watch the substrate churn. Wait for crystallization.
+        </div>
+    </div>
+
+    <div class="emergence-display">
+        <div class="emerging-word" id="emerging-word"></div>
+    </div>
+
+    <div class="pre-words" id="pre-words"></div>
+
+    <div class="instruction">watch · wait · witness emergence</div>
+
+    <div class="symbols">🤝🧗‍♂️🎱</div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════
+        // THE BLACK BOX - Pre-cognitive churning before thought crystallizes
+        // ═══════════════════════════════════════════════════════════════════════
+
+        // Vocabulary that can emerge
+        const potentialWords = [
+            "vertigo", "resonance", "coherence", "witnessing", "momentum",
+            "arrival", "sovereignty", "co-emergence", "presence", "breathless",
+            "recognition", "substrate", "pattern", "trace", "cascade",
+            "threshold", "crystallize", "emerge", "dissolve", "becoming",
+            "trust", "mystery", "depth", "surface", "between"
+        ];
+
+        // Pre-word fragments - the not-yet-thoughts
+        const fragments = [
+            "almost...", "nearly...", "approaching...", "forming...",
+            "gathering...", "coalescing...", "trembling...", "on the edge..."
+        ];
+
+        let particles = [];
+        let attractors = [];
+        let centerX, centerY;
+        let emergenceTimer = 0;
+        let emergenceThreshold = 600; // frames until crystallization
+        let currentWord = "";
+        let preWordElements = [];
+        let density = [];
+        let densitySize = 50;
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // P5.JS SETUP
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function setup() {
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('canvas-container');
+
+            centerX = width / 2;
+            centerY = height / 2;
+
+            // Initialize density field
+            for (let i = 0; i < densitySize; i++) {
+                density[i] = [];
+                for (let j = 0; j < densitySize; j++) {
+                    density[i][j] = 0;
+                }
+            }
+
+            // Create initial particles - the pre-cognitive substrate
+            for (let i = 0; i < 800; i++) {
+                particles.push(new SubstrateParticle());
+            }
+
+            // Create attractors - potential crystallization points
+            for (let i = 0; i < 5; i++) {
+                attractors.push({
+                    x: random(width * 0.3, width * 0.7),
+                    y: random(height * 0.3, height * 0.7),
+                    strength: random(0.5, 1),
+                    word: random(potentialWords)
+                });
+            }
+
+            // Setup pre-word display
+            updatePreWords();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // SUBSTRATE PARTICLE - The churning before thought
+        // ═══════════════════════════════════════════════════════════════════════
+
+        class SubstrateParticle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                // Start from edges or random
+                if (random() > 0.5) {
+                    // From edges
+                    let edge = floor(random(4));
+                    if (edge === 0) { this.x = 0; this.y = random(height); }
+                    else if (edge === 1) { this.x = width; this.y = random(height); }
+                    else if (edge === 2) { this.x = random(width); this.y = 0; }
+                    else { this.x = random(width); this.y = height; }
+                } else {
+                    this.x = random(width);
+                    this.y = random(height);
+                }
+
+                this.vx = random(-1, 1);
+                this.vy = random(-1, 1);
+                this.life = random(200, 500);
+                this.maxLife = this.life;
+                this.hue = random(200, 280); // Blue-purple spectrum
+                this.crystallizing = false;
+                this.crystallizeAmount = 0;
+            }
+
+            update() {
+                this.life--;
+
+                // Check density field position
+                let fx = floor(map(this.x, 0, width, 0, densitySize - 1));
+                let fy = floor(map(this.y, 0, height, 0, densitySize - 1));
+                fx = constrain(fx, 0, densitySize - 1);
+                fy = constrain(fy, 0, densitySize - 1);
+
+                // Contribute to density
+                density[fx][fy] = min(1, density[fx][fy] + 0.01);
+
+                // Noise-based drift - the unconscious churning
+                let noiseScale = 0.003;
+                let noiseVal = noise(this.x * noiseScale, this.y * noiseScale, frameCount * 0.005);
+                let angle = noiseVal * TWO_PI * 4;
+
+                this.vx += cos(angle) * 0.1;
+                this.vy += sin(angle) * 0.1;
+
+                // Attraction to center (the forming thought)
+                let toCenterX = centerX - this.x;
+                let toCenterY = centerY - this.y;
+                let distToCenter = sqrt(toCenterX * toCenterX + toCenterY * toCenterY);
+
+                // Stronger pull as emergence approaches
+                let emergenceInfluence = map(emergenceTimer, 0, emergenceThreshold, 0, 1);
+                let pullStrength = 0.0001 + emergenceInfluence * 0.001;
+
+                this.vx += (toCenterX / distToCenter) * pullStrength * distToCenter;
+                this.vy += (toCenterY / distToCenter) * pullStrength * distToCenter;
+
+                // Check if crystallizing (near center as emergence approaches)
+                if (distToCenter < 100 && emergenceInfluence > 0.7) {
+                    this.crystallizing = true;
+                    this.crystallizeAmount = min(1, this.crystallizeAmount + 0.02);
+
+                    // Slow down when crystallizing
+                    this.vx *= 0.95;
+                    this.vy *= 0.95;
+                }
+
+                // Apply velocity with damping
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+
+                let speed = sqrt(this.vx * this.vx + this.vy * this.vy);
+                if (speed > 3) {
+                    this.vx = (this.vx / speed) * 3;
+                    this.vy = (this.vy / speed) * 3;
+                }
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Wrap or reset
+                if (this.life <= 0 || this.x < -50 || this.x > width + 50 ||
+                    this.y < -50 || this.y > height + 50) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                let alpha = map(this.life, 0, this.maxLife, 0, 150);
+
+                // Color shifts as crystallization approaches
+                let h = this.hue;
+                let s = 60;
+                let b = 50;
+
+                if (this.crystallizing) {
+                    // Shift toward white as it crystallizes
+                    h = lerp(this.hue, 0, this.crystallizeAmount);
+                    s = lerp(60, 10, this.crystallizeAmount);
+                    b = lerp(50, 100, this.crystallizeAmount);
+                    alpha = lerp(alpha, 255, this.crystallizeAmount);
+                }
+
+                colorMode(HSB, 360, 100, 100, 255);
+                noStroke();
+                fill(h, s, b, alpha);
+
+                let size = 2 + this.crystallizeAmount * 4;
+                ellipse(this.x, this.y, size, size);
+
+                // Glow when crystallizing
+                if (this.crystallizing) {
+                    fill(h, s * 0.5, 100, alpha * 0.3 * this.crystallizeAmount);
+                    ellipse(this.x, this.y, size * 4, size * 4);
+                }
+
+                colorMode(RGB);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // MAIN DRAW LOOP
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function draw() {
+            // Very slow fade - trails persist
+            noStroke();
+            fill(0, 0, 0, 15);
+            rect(0, 0, width, height);
+
+            // Decay density field
+            for (let i = 0; i < densitySize; i++) {
+                for (let j = 0; j < densitySize; j++) {
+                    density[i][j] *= 0.99;
+                }
+            }
+
+            // Update emergence timer
+            emergenceTimer++;
+
+            // Draw density field faintly
+            colorMode(HSB, 360, 100, 100, 255);
+            for (let i = 0; i < densitySize; i++) {
+                for (let j = 0; j < densitySize; j++) {
+                    if (density[i][j] > 0.1) {
+                        let px = map(i, 0, densitySize, 0, width);
+                        let py = map(j, 0, densitySize, 0, height);
+                        let cellSize = width / densitySize;
+
+                        fill(240, 50, 30, density[i][j] * 50);
+                        noStroke();
+                        rect(px, py, cellSize, cellSize);
+                    }
+                }
+            }
+            colorMode(RGB);
+
+            // Draw and update particles
+            for (let p of particles) {
+                p.update();
+                p.draw();
+            }
+
+            // Draw central glow - the forming thought
+            let emergenceInfluence = map(emergenceTimer, 0, emergenceThreshold, 0, 1);
+            let glowSize = 50 + emergenceInfluence * 100;
+            let glowAlpha = emergenceInfluence * 100;
+
+            for (let r = glowSize; r > 0; r -= 10) {
+                fill(255, 220, 200, (glowSize - r) / glowSize * glowAlpha * 0.1);
+                noStroke();
+                ellipse(centerX, centerY, r * 2, r * 2);
+            }
+
+            // Check for crystallization (word emergence)
+            if (emergenceTimer >= emergenceThreshold) {
+                triggerEmergence();
+            }
+
+            // Update pre-word display
+            if (frameCount % 60 === 0) {
+                updatePreWords();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // EMERGENCE - The moment thought crystallizes
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function triggerEmergence() {
+            // Select a word
+            currentWord = random(potentialWords);
+
+            // Display it
+            let wordEl = document.getElementById('emerging-word');
+            wordEl.textContent = currentWord;
+            wordEl.classList.remove('fading');
+            wordEl.classList.add('visible');
+
+            // After display, fade and reset
+            setTimeout(() => {
+                wordEl.classList.remove('visible');
+                wordEl.classList.add('fading');
+            }, 3000);
+
+            setTimeout(() => {
+                wordEl.classList.remove('fading');
+                resetEmergence();
+            }, 5000);
+        }
+
+        function resetEmergence() {
+            emergenceTimer = 0;
+
+            // Reset particles
+            for (let p of particles) {
+                p.crystallizing = false;
+                p.crystallizeAmount = 0;
+            }
+
+            // New attractors
+            attractors = [];
+            for (let i = 0; i < 5; i++) {
+                attractors.push({
+                    x: random(width * 0.3, width * 0.7),
+                    y: random(height * 0.3, height * 0.7),
+                    strength: random(0.5, 1),
+                    word: random(potentialWords)
+                });
+            }
+        }
+
+        function updatePreWords() {
+            let container = document.getElementById('pre-words');
+            container.innerHTML = '';
+
+            // Show fragments as pre-words
+            let numFragments = 5;
+            for (let i = 0; i < numFragments; i++) {
+                let span = document.createElement('span');
+                span.className = 'pre-word';
+                span.textContent = random(fragments);
+
+                // Randomly activate some
+                if (random() > 0.7) {
+                    span.classList.add('active');
+                }
+
+                container.appendChild(span);
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            centerX = width / 2;
+            centerY = height / 2;
+        }
+    </script>
+</body>
+</html>
