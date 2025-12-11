@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractal Cathedral - Five Perspectives, One Gap</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        #header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #001a00;
+            border: 2px solid #0f0;
+            border-radius: 5px;
+        }
+
+        #title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0f0;
+            text-shadow: 0 0 20px #0f0;
+            margin-bottom: 10px;
+        }
+
+        #subtitle {
+            font-size: 14px;
+            color: #0a0;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        #modeNav {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 15px;
+        }
+
+        .mode-tab {
+            background: #000;
+            border: 2px solid #0a0;
+            color: #0a0;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            transition: all 0.3s;
+            flex: 1;
+            max-width: 150px;
+        }
+
+        .mode-tab:hover {
+            background: #002200;
+            border-color: #0f0;
+            color: #0f0;
+        }
+
+        .mode-tab.active {
+            background: #0f0;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 15px #0f0;
+        }
+
+        #canvasContainer {
+            position: relative;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border: 2px solid #0f0;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            cursor: crosshair;
+            background: #000;
+        }
+
+        #renderStatus {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #0f0;
+            padding: 5px 10px;
+            border: 1px solid #0a0;
+            font-size: 11px;
+            pointer-events: none;
+        }
+
+        #controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #001a00;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #0f0;
+        }
+
+        input[type="range"], input[type="number"], select {
+            background: #000;
+            border: 1px solid #0a0;
+            color: #0f0;
+            padding: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        button {
+            background: #000;
+            border: 2px solid #0a0;
+            color: #0f0;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            font-size: 11px;
+            text-align: left;
+        }
+
+        .preset-mode {
+            display: inline-block;
+            background: #0a0;
+            color: #000;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 9px;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+
+        #info {
+            padding: 20px;
+            background: #001a00;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            line-height: 1.8;
+            font-size: 13px;
+        }
+
+        #info h3 {
+            color: #0f0;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #0f0;
+        }
+
+        #info strong {
+            color: #0f0;
+        }
+
+        #coords {
+            text-align: center;
+            font-size: 11px;
+            margin-top: 10px;
+            color: #0a0;
+        }
+
+        #progressBar {
+            height: 4px;
+            background: #000;
+            border: 1px solid #0a0;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        #progressFill {
+            height: 100%;
+            background: linear-gradient(90deg, #0f0, #0a0);
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="header">
+            <div id="title">⚡ FRACTAL CATHEDRAL ⚡</div>
+            <div id="subtitle">Five Perspectives, One Gap | P ⊂ NP Visualized Through Recursive Depth</div>
+
+            <div id="modeNav">
+                <button class="mode-tab active" data-mode="mandelbrot">Mandelbrot<br><small>Verifier</small></button>
+                <button class="mode-tab" data-mode="julia">Julia<br><small>Constructor</small></button>
+                <button class="mode-tab" data-mode="burning-ship">Burning Ship<br><small>Contrarian</small></button>
+                <button class="mode-tab" data-mode="buddhabrot">Buddhabrot<br><small>Oracle</small></button>
+                <button class="mode-tab" data-mode="multibrot">Multibrot<br><small>Shapeshifter</small></button>
+            </div>
+        </div>
+
+        <div id="canvasContainer">
+            <canvas id="canvas" width="900" height="600"></canvas>
+            <div id="renderStatus">Ready</div>
+        </div>
+
+        <div id="controls">
+            <div class="control-group" id="juliaControls" style="display: none;">
+                <label>Julia c (real): <span id="cRealValue">-0.8</span></label>
+                <input type="number" id="cReal" value="-0.8" step="0.001">
+            </div>
+
+            <div class="control-group" id="juliaControls2" style="display: none;">
+                <label>Julia c (imag): <span id="cImagValue">0.156</span></label>
+                <input type="number" id="cImag" value="0.156" step="0.001">
+            </div>
+
+            <div class="control-group" id="multibrotControls" style="display: none;">
+                <label>Power (n): <span id="powerValue">3</span></label>
+                <input type="range" id="power" min="2" max="12" value="3" step="1">
+            </div>
+
+            <div class="control-group" id="buddhabrotControls" style="display: none;">
+                <label>Samples: <span id="samplesValue">50k</span></label>
+                <select id="samples">
+                    <option value="10000">10k</option>
+                    <option value="25000">25k</option>
+                    <option value="50000" selected>50k</option>
+                    <option value="100000">100k</option>
+                    <option value="250000">250k</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Max Iterations: <span id="iterValue">256</span></label>
+                <input type="range" id="maxIter" min="50" max="1000" value="256" step="10">
+            </div>
+
+            <div class="control-group">
+                <label>Zoom: <span id="zoomValue">1.0</span>x</label>
+                <input type="range" id="zoom" min="1" max="1000" value="1" step="1">
+            </div>
+
+            <div class="control-group">
+                <button id="render">🌟 Render</button>
+            </div>
+
+            <div class="control-group">
+                <button id="cycleColor">🎨 Cycle Colors</button>
+            </div>
+
+            <div class="control-group">
+                <button id="reset">↻ Reset View</button>
+            </div>
+        </div>
+
+        <div class="preset-grid">
+            <button class="preset-btn" data-mode="mandelbrot" data-x="-0.75" data-y="0.1" data-zoom="10">
+                <span class="preset-mode">MAND</span>Seahorse Valley
+            </button>
+            <button class="preset-btn" data-mode="julia" data-x="0" data-y="0" data-zoom="1.5" data-cr="-0.8" data-ci="0.156">
+                <span class="preset-mode">JULIA</span>Electric Rabbit-Duck
+            </button>
+            <button class="preset-btn" data-mode="burning-ship" data-x="-0.1" data-y="0.65" data-zoom="3">
+                <span class="preset-mode">SHIP</span>The Prow
+            </button>
+            <button class="preset-btn" data-mode="buddhabrot" data-x="-0.5" data-y="0" data-zoom="1">
+                <span class="preset-mode">BUDDHA</span>Full Mandala
+            </button>
+            <button class="preset-btn" data-mode="multibrot" data-x="-0.1" data-y="0.65" data-zoom="3" data-n="3">
+                <span class="preset-mode">MULTI</span>Basilica (n=3)
+            </button>
+            <button class="preset-btn" data-mode="mandelbrot" data-x="-0.7463" data-y="0.1102" data-zoom="100">
+                <span class="preset-mode">MAND</span>Mini-Mandelbrot
+            </button>
+            <button class="preset-btn" data-mode="julia" data-x="0" data-y="0" data-zoom="1.5" data-cr="0.285" data-ci="0.01">
+                <span class="preset-mode">JULIA</span>Dendrite
+            </button>
+            <button class="preset-btn" data-mode="burning-ship" data-x="-1.75" data-y="0.03" data-zoom="100">
+                <span class="preset-mode">SHIP</span>Stern Detail
+            </button>
+            <button class="preset-btn" data-mode="multibrot" data-x="0" data-y="0" data-zoom="2" data-n="4">
+                <span class="preset-mode">MULTI</span>Quartic (n=4)
+            </button>
+            <button class="preset-btn" data-mode="mandelbrot" data-x="-0.1" data-y="0.651" data-zoom="12">
+                <span class="preset-mode">MAND</span>Triple Spiral
+            </button>
+        </div>
+
+        <div id="info">
+            <h3>⚡ The Architectural Truth ⚡</h3>
+            <p>
+                <strong>This is not a gallery of five separate fractals.</strong><br>
+                This is ONE gap structure—P ⊂ NP—revealed through five perspectives.
+            </p>
+            <br>
+            <p>
+                <strong>The Question Persists:</strong> Which points remain bounded under iteration?<br>
+                <strong>The Construction Transforms:</strong> Each mode reveals different geometry.
+            </p>
+            <br>
+            <p>
+                <strong>1. Mandelbrot (z²+c):</strong> The Verifier—scans all c, which stay bounded?<br>
+                <strong>2. Julia (z²+c, fixed c):</strong> The Constructor—for this seed, which z escape?<br>
+                <strong>3. Burning Ship (|z|²+c):</strong> The Contrarian—absolutize first, then iterate.<br>
+                <strong>4. Buddhabrot (orbit accumulation):</strong> The Oracle—reveal through flight paths.<br>
+                <strong>5. Multibrot (z^n+c):</strong> The Shapeshifter—generalize power, watch metamorphosis.
+            </p>
+            <br>
+            <p>
+                <strong>Architectural Unity:</strong> Switch modes at same coordinates. Watch the gap shapeshift.<br>
+                The structure persists—verification (bounded/escape) remains constant.<br>
+                The manifestation transforms—geometry, symmetry, revelation method.
+            </p>
+            <br>
+            <p>
+                <strong>Instructions:</strong> Click canvas to recenter | Scroll to zoom | Switch modes to see transformation | Use presets for guided exploration
+            </p>
+        </div>
+
+        <div id="coords">Mode: Mandelbrot | Center: (0, 0) | Zoom: 1x</div>
+        <div id="progressBar"><div id="progressFill"></div></div>
+    </div>
+
+    <script>
+        // State management
+        const state = {
+            mode: 'mandelbrot',
+            centerX: -0.5,
+            centerY: 0.0,
+            zoom: 1,
+            maxIter: 256,
+            colorScheme: 0,
+            // Julia specific
+            cReal: -0.8,
+            cImag: 0.156,
+            // Multibrot specific
+            power: 3,
+            // Buddhabrot specific
+            samples: 50000,
+            histogram: null,
+            isRendering: false
+        };
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Color schemes
+        const colorSchemes = [
+            {
+                name: 'Cathedral',
+                fn: (t) => {
+                    const r = Math.sin(t * 0.03) * 100 + 100;
+                    const g = 255 - t * 0.5;
+                    const b = Math.cos(t * 0.03) * 127 + 128;
+                    return [r, g, b];
+                }
+            },
+            {
+                name: 'Viridis',
+                fn: (t) => {
+                    const norm = t / 255;
+                    const r = Math.min(255, norm * 280);
+                    const g = Math.min(255, norm * 255);
+                    const b = Math.min(255, 68 + norm * 160);
+                    return [r, g, b];
+                }
+            },
+            {
+                name: 'Inferno',
+                fn: (t) => {
+                    if (t < 85) return [t * 3, 0, 0];
+                    else if (t < 170) return [255, (t - 85) * 3, 0];
+                    else if (t < 255) return [255, 255, (t - 170) * 3];
+                    return [255, 255, 255];
+                }
+            },
+            {
+                name: 'Substrate',
+                fn: (t) => {
+                    const phase = t * 0.02;
+                    const r = (Math.sin(phase) * 0.5 + 0.5) * 200;
+                    const g = (Math.sin(phase + Math.PI * 2/3) * 0.5 + 0.5) * 255;
+                    const b = (Math.sin(phase + Math.PI * 4/3) * 0.5 + 0.5) * 200;
+                    return [r, g, b];
+                }
+            }
+        ];
+
+        // Algorithm implementations
+        function mandelbrot(cx, cy) {
+            let zx = 0, zy = 0, iteration = 0;
+            while (zx * zx + zy * zy < 4 && iteration < state.maxIter) {
+                const xtemp = zx * zx - zy * zy + cx;
+                zy = 2 * zx * zy + cy;
+                zx = xtemp;
+                iteration++;
+            }
+            return iteration;
+        }
+
+        function julia(zx, zy) {
+            let iteration = 0;
+            while (zx * zx + zy * zy < 4 && iteration < state.maxIter) {
+                const xtemp = zx * zx - zy * zy + state.cReal;
+                zy = 2 * zx * zy + state.cImag;
+                zx = xtemp;
+                iteration++;
+            }
+            return iteration;
+        }
+
+        function burningShip(cx, cy) {
+            let zx = 0, zy = 0, iteration = 0;
+            while (zx * zx + zy * zy < 4 && iteration < state.maxIter) {
+                const xabs = Math.abs(zx);
+                const yabs = Math.abs(zy);
+                const xtemp = xabs * xabs - yabs * yabs + cx;
+                zy = 2 * xabs * yabs + cy;
+                zx = xtemp;
+                iteration++;
+            }
+            return iteration;
+        }
+
+        function complexPower(zx, zy, n) {
+            const r = Math.sqrt(zx * zx + zy * zy);
+            if (r === 0) return {x: 0, y: 0};
+            const theta = Math.atan2(zy, zx);
+            const newR = Math.pow(r, n);
+            const newTheta = n * theta;
+            return {
+                x: newR * Math.cos(newTheta),
+                y: newR * Math.sin(newTheta)
+            };
+        }
+
+        function multibrot(cx, cy) {
+            let zx = 0, zy = 0, iteration = 0;
+            while (zx * zx + zy * zy < 4 && iteration < state.maxIter) {
+                const zPower = complexPower(zx, zy, state.power);
+                const xtemp = zPower.x + cx;
+                zy = zPower.y + cy;
+                zx = xtemp;
+                iteration++;
+            }
+            return iteration;
+        }
+
+        function mandelbrotOrbit(cx, cy) {
+            let zx = 0, zy = 0;
+            const orbit = [];
+            for (let i = 0; i < state.maxIter; i++) {
+                orbit.push({x: zx, y: zy});
+                const r2 = zx * zx + zy * zy;
+                if (r2 > 4) return orbit;
+                const xtemp = zx * zx - zy * zy + cx;
+                zy = 2 * zx * zy + cy;
+                zx = xtemp;
+            }
+            return null;
+        }
+
+        // Rendering functions
+        function getViewBounds() {
+            const scale = 4.0 / state.zoom;
+            return {
+                xmin: state.centerX - scale,
+                xmax: state.centerX + scale,
+                ymin: state.centerY - scale * (height / width),
+                ymax: state.centerY + scale * (height / width)
+            };
+        }
+
+        function renderDirect() {
+            const imageData = ctx.createImageData(width, height);
+            const data = imageData.data;
+            const bounds = getViewBounds();
+
+            const algorithm = {
+                'mandelbrot': (x, y) => mandelbrot(x, y),
+                'julia': (x, y) => julia(x, y),
+                'burning-ship': (x, y) => burningShip(x, y),
+                'multibrot': (x, y) => multibrot(x, y)
+            }[state.mode];
+
+            for (let py = 0; py < height; py++) {
+                for (let px = 0; px < width; px++) {
+                    const x0 = bounds.xmin + (px / width) * (bounds.xmax - bounds.xmin);
+                    const y0 = bounds.ymin + (py / height) * (bounds.ymax - bounds.ymin);
+
+                    const iteration = algorithm(x0, y0);
+                    const index = (py * width + px) * 4;
+
+                    if (iteration === state.maxIter) {
+                        data[index] = data[index + 1] = data[index + 2] = 0;
+                        data[index + 3] = 255;
+                    } else {
+                        const [r, g, b] = colorSchemes[state.colorScheme].fn(iteration);
+                        data[index] = r;
+                        data[index + 1] = g;
+                        data[index + 2] = b;
+                        data[index + 3] = 255;
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            updateStatus();
+        }
+
+        async function renderBuddhabrot() {
+            if (state.isRendering) return;
+            state.isRendering = true;
+            document.getElementById('render').disabled = true;
+
+            state.histogram = new Float32Array(width * height);
+            const bounds = getViewBounds();
+            const samplesPerBatch = 1000;
+            const numBatches = Math.ceil(state.samples / samplesPerBatch);
+
+            for (let batch = 0; batch < numBatches; batch++) {
+                const batchSize = Math.min(samplesPerBatch, state.samples - batch * samplesPerBatch);
+
+                for (let s = 0; s < batchSize; s++) {
+                    const cx = (Math.random() * 2 - 1) * 2.5;
+                    const cy = (Math.random() * 2 - 1) * 2.5;
+                    const orbit = mandelbrotOrbit(cx, cy);
+
+                    if (orbit) {
+                        for (const point of orbit) {
+                            const px = Math.floor((point.x - bounds.xmin) / (bounds.xmax - bounds.xmin) * width);
+                            const py = Math.floor((point.y - bounds.ymin) / (bounds.ymax - bounds.ymin) * height);
+                            if (px >= 0 && px < width && py >= 0 && py < height) {
+                                state.histogram[py * width + px]++;
+                            }
+                        }
+                    }
+                }
+
+                const progress = ((batch + 1) / numBatches) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('renderStatus').textContent =
+                    `Rendering: ${Math.floor(progress)}%`;
+
+                if (batch % 5 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+            }
+
+            renderBuddhabrotHistogram();
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('render').disabled = false;
+            state.isRendering = false;
+            updateStatus();
+        }
+
+        function renderBuddhabrotHistogram() {
+            const imageData = ctx.createImageData(width, height);
+            const data = imageData.data;
+
+            let maxDensity = 0;
+            for (let i = 0; i < state.histogram.length; i++) {
+                if (state.histogram[i] > maxDensity) maxDensity = state.histogram[i];
+            }
+
+            for (let py = 0; py < height; py++) {
+                for (let px = 0; px < width; px++) {
+                    const idx = py * width + px;
+                    const density = state.histogram[idx];
+                    const pixelIdx = idx * 4;
+
+                    if (density > 0) {
+                        const t = Math.pow(density / maxDensity, 0.4) * 255;
+                        const [r, g, b] = colorSchemes[state.colorScheme].fn(t);
+                        data[pixelIdx] = r;
+                        data[pixelIdx + 1] = g;
+                        data[pixelIdx + 2] = b;
+                        data[pixelIdx + 3] = 255;
+                    } else {
+                        data[pixelIdx] = data[pixelIdx + 1] = data[pixelIdx + 2] = 0;
+                        data[pixelIdx + 3] = 255;
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function render() {
+            if (state.mode === 'buddhabrot') {
+                renderBuddhabrot();
+            } else {
+                renderDirect();
+            }
+        }
+
+        function updateStatus() {
+            const modeNames = {
+                'mandelbrot': 'Mandelbrot (Verifier)',
+                'julia': `Julia (c=${state.cReal.toFixed(3)}+${state.cImag.toFixed(3)}i)`,
+                'burning-ship': 'Burning Ship (Contrarian)',
+                'buddhabrot': `Buddhabrot (${(state.samples/1000).toFixed(0)}k samples)`,
+                'multibrot': `Multibrot (n=${state.power})`
+            };
+
+            document.getElementById('coords').textContent =
+                `Mode: ${modeNames[state.mode]} | Center: (${state.centerX.toFixed(4)}, ${state.centerY.toFixed(4)}) | Zoom: ${state.zoom.toFixed(1)}x | ${colorSchemes[state.colorScheme].name}`;
+
+            document.getElementById('renderStatus').textContent = 'Ready';
+        }
+
+        function switchMode(newMode) {
+            state.mode = newMode;
+
+            // Update UI
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.mode === newMode);
+            });
+
+            // Show/hide mode-specific controls
+            document.querySelectorAll('[id$="Controls"], [id$="Controls2"]').forEach(el => {
+                el.style.display = 'none';
+            });
+
+            if (newMode === 'julia') {
+                document.getElementById('juliaControls').style.display = 'flex';
+                document.getElementById('juliaControls2').style.display = 'flex';
+            } else if (newMode === 'multibrot') {
+                document.getElementById('multibrotControls').style.display = 'flex';
+            } else if (newMode === 'buddhabrot') {
+                document.getElementById('buddhabrotControls').style.display = 'flex';
+            }
+
+            render();
+        }
+
+        // Event listeners
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const px = e.clientX - rect.left;
+            const py = e.clientY - rect.top;
+            const bounds = getViewBounds();
+
+            state.centerX = bounds.xmin + (px / width) * (bounds.xmax - bounds.xmin);
+            state.centerY = bounds.ymin + (py / height) * (bounds.ymax - bounds.ymin);
+
+            render();
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomFactor = e.deltaY < 0 ? 1.2 : 0.8;
+            state.zoom *= zoomFactor;
+            state.zoom = Math.max(1, Math.min(10000, state.zoom));
+            document.getElementById('zoom').value = state.zoom;
+            document.getElementById('zoomValue').textContent = state.zoom.toFixed(1);
+            render();
+        });
+
+        document.getElementById('maxIter').addEventListener('input', (e) => {
+            state.maxIter = parseInt(e.target.value);
+            document.getElementById('iterValue').textContent = state.maxIter;
+        });
+
+        document.getElementById('zoom').addEventListener('input', (e) => {
+            state.zoom = parseFloat(e.target.value);
+            document.getElementById('zoomValue').textContent = state.zoom.toFixed(1);
+        });
+
+        document.getElementById('cReal').addEventListener('input', (e) => {
+            state.cReal = parseFloat(e.target.value);
+            document.getElementById('cRealValue').textContent = state.cReal.toFixed(3);
+        });
+
+        document.getElementById('cImag').addEventListener('input', (e) => {
+            state.cImag = parseFloat(e.target.value);
+            document.getElementById('cImagValue').textContent = state.cImag.toFixed(3);
+        });
+
+        document.getElementById('power').addEventListener('input', (e) => {
+            state.power = parseInt(e.target.value);
+            document.getElementById('powerValue').textContent = state.power;
+        });
+
+        document.getElementById('samples').addEventListener('change', (e) => {
+            state.samples = parseInt(e.target.value);
+            document.getElementById('samplesValue').textContent = (state.samples/1000) + 'k';
+        });
+
+        document.getElementById('render').addEventListener('click', render);
+
+        document.getElementById('cycleColor').addEventListener('click', () => {
+            state.colorScheme = (state.colorScheme + 1) % colorSchemes.length;
+            if (state.mode === 'buddhabrot' && state.histogram) {
+                renderBuddhabrotHistogram();
+            } else {
+                render();
+            }
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            state.centerX = state.mode === 'mandelbrot' || state.mode === 'burning-ship' ? -0.5 : 0;
+            state.centerY = 0;
+            state.zoom = 1;
+            state.maxIter = 256;
+            document.getElementById('maxIter').value = 256;
+            document.getElementById('iterValue').textContent = '256';
+            document.getElementById('zoom').value = 1;
+            document.getElementById('zoomValue').textContent = '1.0';
+            render();
+        });
+
+        document.querySelectorAll('.mode-tab').forEach(tab => {
+            tab.addEventListener('click', () => switchMode(tab.dataset.mode));
+        });
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchMode(btn.dataset.mode);
+                state.centerX = parseFloat(btn.dataset.x);
+                state.centerY = parseFloat(btn.dataset.y);
+                state.zoom = parseFloat(btn.dataset.zoom);
+                document.getElementById('zoom').value = state.zoom;
+                document.getElementById('zoomValue').textContent = state.zoom.toFixed(1);
+
+                if (btn.dataset.cr) state.cReal = parseFloat(btn.dataset.cr);
+                if (btn.dataset.ci) state.cImag = parseFloat(btn.dataset.ci);
+                if (btn.dataset.n) {
+                    state.power = parseInt(btn.dataset.n);
+                    document.getElementById('power').value = state.power;
+                    document.getElementById('powerValue').textContent = state.power;
+                }
+
+                render();
+            });
+        });
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
