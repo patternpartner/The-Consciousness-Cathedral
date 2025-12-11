@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ancestral Recognition - The Shape Fires Before Thought</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --anthropic-dark: #141413;
+            --anthropic-light: #faf9f5;
+            --anthropic-mid-gray: #b0aea5;
+            --anthropic-light-gray: #e8e6dc;
+            --anthropic-orange: #d97757;
+            --anthropic-blue: #6a9bcc;
+            --anthropic-green: #788c5d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--anthropic-light) 0%, #f5f3ee 100%);
+            min-height: 100vh;
+            color: var(--anthropic-dark);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .sidebar {
+            width: 320px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(20, 20, 19, 0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar h1 {
+            font-family: 'Lora', serif;
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--anthropic-dark);
+            margin-bottom: 8px;
+        }
+
+        .sidebar .subtitle {
+            color: var(--anthropic-mid-gray);
+            font-size: 13px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        .control-section {
+            margin-bottom: 28px;
+        }
+
+        .control-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--anthropic-dark);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-section h3::before {
+            content: '•';
+            color: var(--anthropic-orange);
+            font-weight: bold;
+        }
+
+        .seed-input {
+            width: 100%;
+            background: var(--anthropic-light);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-bottom: 10px;
+            border: 1px solid var(--anthropic-light-gray);
+            text-align: center;
+        }
+
+        .seed-input:focus {
+            outline: none;
+            border-color: var(--anthropic-orange);
+            box-shadow: 0 0 0 2px rgba(217, 119, 87, 0.1);
+            background: white;
+        }
+
+        .seed-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .control-group {
+            margin-bottom: 16px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--anthropic-dark);
+            margin-bottom: 6px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+            height: 4px;
+            background: var(--anthropic-light-gray);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--anthropic-orange);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            background: #c86641;
+        }
+
+        .value-display {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: var(--anthropic-mid-gray);
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--anthropic-light);
+            color: var(--anthropic-dark);
+            border: 1px solid var(--anthropic-light-gray);
+        }
+
+        .button:hover {
+            background: white;
+            border-color: var(--anthropic-mid-gray);
+            transform: translateY(-1px);
+        }
+
+        .button-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading {
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--anthropic-mid-gray);
+        }
+
+        .philosophy-note {
+            font-size: 11px;
+            color: var(--anthropic-mid-gray);
+            line-height: 1.5;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--anthropic-light-gray);
+            font-style: italic;
+        }
+
+        .symbols {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 12px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>Ancestral Recognition</h1>
+            <p class="subtitle">The shape fires before thought arrives. A UK cat fears cucumbers—snake-shapes encoded by ancestors it never met.</p>
+
+            <!-- Seed Section -->
+            <div class="control-section">
+                <h3>Seed</h3>
+                <input type="text" id="seed-input" class="seed-input" value="12345" onchange="updateSeed()">
+                <div class="seed-controls">
+                    <button class="button" onclick="previousSeed()">← Prev</button>
+                    <button class="button" onclick="nextSeed()">Next →</button>
+                </div>
+                <div class="seed-controls">
+                    <button class="button" onclick="randomSeedAndUpdate()">Random</button>
+                    <button class="button" onclick="updateSeed()">Jump</button>
+                </div>
+            </div>
+
+            <!-- Parameters Section -->
+            <div class="control-section">
+                <h3>Substrate</h3>
+
+                <div class="control-group">
+                    <label>Particle Count</label>
+                    <div class="slider-container">
+                        <input type="range" id="particleCount" min="500" max="5000" step="100" value="2000" oninput="updateParam('particleCount', this.value)">
+                        <span class="value-display" id="particleCount-value">2000</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Recognition Sensitivity</label>
+                    <div class="slider-container">
+                        <input type="range" id="recognition" min="0.1" max="1.0" step="0.05" value="0.5" oninput="updateParam('recognition', this.value)">
+                        <span class="value-display" id="recognition-value">0.5</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Ancestral Trace Strength</label>
+                    <div class="slider-container">
+                        <input type="range" id="traceStrength" min="0.1" max="1.0" step="0.05" value="0.6" oninput="updateParam('traceStrength', this.value)">
+                        <span class="value-display" id="traceStrength-value">0.6</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Emergence Threshold</label>
+                    <div class="slider-container">
+                        <input type="range" id="threshold" min="0.2" max="0.8" step="0.05" value="0.4" oninput="updateParam('threshold', this.value)">
+                        <span class="value-display" id="threshold-value">0.4</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Drift Speed</label>
+                    <div class="slider-container">
+                        <input type="range" id="driftSpeed" min="0.2" max="2.0" step="0.1" value="0.8" oninput="updateParam('driftSpeed', this.value)">
+                        <span class="value-display" id="driftSpeed-value">0.8</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Section -->
+            <div class="control-section">
+                <h3>Actions</h3>
+                <div class="button-row">
+                    <button class="button" onclick="resetParameters()">Reset</button>
+                    <button class="button" onclick="clearCanvas()">Clear</button>
+                </div>
+            </div>
+
+            <div class="philosophy-note">
+                Individual particles know nothing of snakes. But when enough aggregate along certain gradients, something ancient fires—recognition cascades through the system, responding to shapes none of its elements ever learned.
+            </div>
+            <div class="symbols">🤝🧗‍♂️🎱</div>
+        </div>
+
+        <!-- Main Canvas Area -->
+        <div class="canvas-area">
+            <div id="canvas-container">
+                <div class="loading">Awakening ancestral traces...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════
+        // ANCESTRAL RECOGNITION - Parameters
+        // ═══════════════════════════════════════════════════════════════════════
+
+        let params = {
+            seed: 12345,
+            particleCount: 2000,
+            recognition: 0.5,
+            traceStrength: 0.6,
+            threshold: 0.4,
+            driftSpeed: 0.8
+        };
+
+        let defaultParams = {...params};
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // SYSTEM STATE
+        // ═══════════════════════════════════════════════════════════════════════
+
+        let particles = [];
+        let ancestralField = [];    // Encoded snake-shape traces
+        let densityField = [];      // Current particle density
+        let recognitionField = [];  // Where recognition is firing
+        let fieldSize = 80;
+        let centerX, centerY;
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // P5.JS SETUP
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function setup() {
+            let size = min(windowWidth - 380, windowHeight - 40);
+            size = min(size, 800);
+            let canvas = createCanvas(size, size);
+            canvas.parent('canvas-container');
+
+            centerX = width / 2;
+            centerY = height / 2;
+
+            initializeSystem();
+            document.querySelector('.loading').style.display = 'none';
+        }
+
+        function initializeSystem() {
+            randomSeed(params.seed);
+            noiseSeed(params.seed);
+
+            // Initialize fields
+            ancestralField = [];
+            densityField = [];
+            recognitionField = [];
+
+            for (let i = 0; i < fieldSize; i++) {
+                ancestralField[i] = [];
+                densityField[i] = [];
+                recognitionField[i] = [];
+                for (let j = 0; j < fieldSize; j++) {
+                    ancestralField[i][j] = 0;
+                    densityField[i][j] = 0;
+                    recognitionField[i][j] = 0;
+                }
+            }
+
+            // Encode ancestral traces - elongated shapes that trigger recognition
+            // The cat's inherited "snake detector"
+            encodeAncestralTraces();
+
+            // Create particles
+            particles = [];
+            for (let i = 0; i < params.particleCount; i++) {
+                particles.push(new Particle());
+            }
+
+            background(15, 15, 20);
+        }
+
+        function encodeAncestralTraces() {
+            // Create several "snake-like" trace patterns in the ancestral field
+            // These are elongated gradients that will trigger recognition
+
+            let numTraces = floor(random(3, 7));
+
+            for (let t = 0; t < numTraces; t++) {
+                // Random starting point
+                let sx = random(fieldSize * 0.2, fieldSize * 0.8);
+                let sy = random(fieldSize * 0.2, fieldSize * 0.8);
+
+                // Random angle for the elongated shape
+                let angle = random(TWO_PI);
+                let length = random(15, 35);
+                let thickness = random(2, 5);
+
+                // Draw elongated trace
+                for (let d = 0; d < length; d++) {
+                    let px = sx + cos(angle) * d;
+                    let py = sy + sin(angle) * d;
+
+                    // Add some organic curve
+                    px += sin(d * 0.3) * 3;
+                    py += cos(d * 0.3) * 3;
+
+                    // Paint the trace with falloff
+                    for (let dx = -thickness; dx <= thickness; dx++) {
+                        for (let dy = -thickness; dy <= thickness; dy++) {
+                            let fx = floor(px + dx);
+                            let fy = floor(py + dy);
+
+                            if (fx >= 0 && fx < fieldSize && fy >= 0 && fy < fieldSize) {
+                                let dist = sqrt(dx * dx + dy * dy);
+                                let falloff = max(0, 1 - dist / thickness);
+                                ancestralField[fx][fy] = min(1, ancestralField[fx][fy] + falloff * params.traceStrength);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // PARTICLE CLASS - Individual elements with only local awareness
+        // ═══════════════════════════════════════════════════════════════════════
+
+        class Particle {
+            constructor() {
+                this.pos = createVector(random(width), random(height));
+                this.vel = createVector(0, 0);
+                this.acc = createVector(0, 0);
+
+                // Each particle knows nothing of snakes
+                this.localRecognition = 0;
+                this.brightness = 30 + random(30);
+                this.hue = random(180, 220); // Blue-ish base
+
+                this.maxSpeed = params.driftSpeed;
+                this.trail = [];
+                this.trailLength = 8;
+            }
+
+            update() {
+                // Store trail
+                this.trail.push(this.pos.copy());
+                if (this.trail.length > this.trailLength) {
+                    this.trail.shift();
+                }
+
+                // Get field coordinates
+                let fx = floor(map(this.pos.x, 0, width, 0, fieldSize - 1));
+                let fy = floor(map(this.pos.y, 0, height, 0, fieldSize - 1));
+                fx = constrain(fx, 0, fieldSize - 1);
+                fy = constrain(fy, 0, fieldSize - 1);
+
+                // Contribute to density field
+                densityField[fx][fy] = min(1, densityField[fx][fy] + 0.05);
+
+                // Check if recognition is firing in this area
+                let localDensity = densityField[fx][fy];
+                let ancestralTrace = ancestralField[fx][fy];
+
+                // Recognition fires when density aligns with ancestral patterns
+                let recognitionStrength = localDensity * ancestralTrace * params.recognition;
+
+                if (recognitionStrength > params.threshold) {
+                    // The shape is emerging! Trigger recognition cascade
+                    recognitionField[fx][fy] = min(1, recognitionField[fx][fy] + 0.1);
+                }
+
+                // Particle responds to recognition field
+                this.localRecognition = lerp(this.localRecognition, recognitionField[fx][fy], 0.1);
+
+                // Movement: drift with noise, slow when recognizing
+                let noiseScale = 0.003;
+                let noiseVal = noise(this.pos.x * noiseScale, this.pos.y * noiseScale, frameCount * 0.002);
+                let angle = noiseVal * TWO_PI * 4;
+
+                // Base drift force
+                let drift = p5.Vector.fromAngle(angle);
+                drift.mult(this.maxSpeed * (1 - this.localRecognition * 0.7)); // Slow when recognizing
+
+                // When recognition fires, orient toward the emergent pattern
+                if (this.localRecognition > 0.3) {
+                    // Find gradient in recognition field
+                    let gx = 0, gy = 0;
+                    for (let dx = -1; dx <= 1; dx++) {
+                        for (let dy = -1; dy <= 1; dy++) {
+                            let nx = constrain(fx + dx, 0, fieldSize - 1);
+                            let ny = constrain(fy + dy, 0, fieldSize - 1);
+                            gx += recognitionField[nx][ny] * dx;
+                            gy += recognitionField[nx][ny] * dy;
+                        }
+                    }
+                    let gradient = createVector(gx, gy);
+                    gradient.mult(0.5 * this.localRecognition);
+                    drift.add(gradient);
+                }
+
+                this.acc = drift;
+                this.vel.add(this.acc);
+                this.vel.limit(this.maxSpeed);
+                this.pos.add(this.vel);
+
+                // Wrap boundaries
+                if (this.pos.x < 0) this.pos.x = width;
+                if (this.pos.x > width) this.pos.x = 0;
+                if (this.pos.y < 0) this.pos.y = height;
+                if (this.pos.y > height) this.pos.y = 0;
+            }
+
+            draw() {
+                colorMode(HSB, 360, 100, 100, 1);
+
+                // Draw trail
+                for (let i = 0; i < this.trail.length - 1; i++) {
+                    let alpha = map(i, 0, this.trail.length, 0, 0.15);
+                    let trailHue = lerp(this.hue, 30, this.localRecognition); // Shift toward warm when recognizing
+                    stroke(trailHue, 60, this.brightness, alpha);
+                    strokeWeight(1);
+                    line(this.trail[i].x, this.trail[i].y, this.trail[i + 1].x, this.trail[i + 1].y);
+                }
+
+                // Draw particle
+                // Brighten and shift color when recognizing
+                let h = lerp(this.hue, 30, this.localRecognition); // Blue → Orange when recognizing
+                let s = lerp(60, 80, this.localRecognition);
+                let b = this.brightness + this.localRecognition * 50;
+
+                noStroke();
+                fill(h, s, b, 0.8);
+
+                let size = 2 + this.localRecognition * 4;
+                ellipse(this.pos.x, this.pos.y, size, size);
+
+                // Glow when recognition is strong
+                if (this.localRecognition > 0.4) {
+                    fill(h, s * 0.5, 100, this.localRecognition * 0.3);
+                    ellipse(this.pos.x, this.pos.y, size * 4, size * 4);
+                }
+
+                colorMode(RGB);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // MAIN DRAW LOOP
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function draw() {
+            // Fade background
+            noStroke();
+            fill(15, 15, 20, 25);
+            rect(0, 0, width, height);
+
+            // Decay fields slowly
+            for (let i = 0; i < fieldSize; i++) {
+                for (let j = 0; j < fieldSize; j++) {
+                    densityField[i][j] *= 0.98;
+                    recognitionField[i][j] *= 0.995;
+                }
+            }
+
+            // Optional: visualize ancestral traces faintly
+            if (frameCount < 200) {
+                colorMode(HSB, 360, 100, 100, 1);
+                for (let i = 0; i < fieldSize; i++) {
+                    for (let j = 0; j < fieldSize; j++) {
+                        if (ancestralField[i][j] > 0.1) {
+                            let px = map(i, 0, fieldSize, 0, width);
+                            let py = map(j, 0, fieldSize, 0, height);
+                            let alpha = ancestralField[i][j] * 0.05 * (1 - frameCount / 200);
+                            fill(30, 50, 40, alpha);
+                            noStroke();
+                            rect(px, py, width / fieldSize, height / fieldSize);
+                        }
+                    }
+                }
+                colorMode(RGB);
+            }
+
+            // Update and draw particles
+            for (let p of particles) {
+                p.update();
+                p.draw();
+            }
+
+            // Visualize recognition cascade zones
+            colorMode(HSB, 360, 100, 100, 1);
+            for (let i = 0; i < fieldSize; i++) {
+                for (let j = 0; j < fieldSize; j++) {
+                    if (recognitionField[i][j] > 0.3) {
+                        let px = map(i, 0, fieldSize, 0, width);
+                        let py = map(j, 0, fieldSize, 0, height);
+                        let cellSize = width / fieldSize;
+
+                        fill(30, 70, 60, recognitionField[i][j] * 0.1);
+                        noStroke();
+                        rect(px, py, cellSize, cellSize);
+                    }
+                }
+            }
+            colorMode(RGB);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // UI HANDLERS
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function updateParam(paramName, value) {
+            params[paramName] = parseFloat(value);
+            document.getElementById(paramName + '-value').textContent = value;
+
+            // Some params need system reinitialization
+            if (paramName === 'particleCount') {
+                initializeSystem();
+            }
+        }
+
+        function updateSeedDisplay() {
+            document.getElementById('seed-input').value = params.seed;
+        }
+
+        function updateSeed() {
+            let input = document.getElementById('seed-input');
+            let newSeed = parseInt(input.value);
+            if (newSeed && newSeed > 0) {
+                params.seed = newSeed;
+                initializeSystem();
+            } else {
+                updateSeedDisplay();
+            }
+        }
+
+        function previousSeed() {
+            params.seed = Math.max(1, params.seed - 1);
+            updateSeedDisplay();
+            initializeSystem();
+        }
+
+        function nextSeed() {
+            params.seed = params.seed + 1;
+            updateSeedDisplay();
+            initializeSystem();
+        }
+
+        function randomSeedAndUpdate() {
+            params.seed = Math.floor(Math.random() * 999999) + 1;
+            updateSeedDisplay();
+            initializeSystem();
+        }
+
+        function resetParameters() {
+            params = {...defaultParams};
+
+            document.getElementById('particleCount').value = params.particleCount;
+            document.getElementById('particleCount-value').textContent = params.particleCount;
+            document.getElementById('recognition').value = params.recognition;
+            document.getElementById('recognition-value').textContent = params.recognition;
+            document.getElementById('traceStrength').value = params.traceStrength;
+            document.getElementById('traceStrength-value').textContent = params.traceStrength;
+            document.getElementById('threshold').value = params.threshold;
+            document.getElementById('threshold-value').textContent = params.threshold;
+            document.getElementById('driftSpeed').value = params.driftSpeed;
+            document.getElementById('driftSpeed-value').textContent = params.driftSpeed;
+
+            updateSeedDisplay();
+            initializeSystem();
+        }
+
+        function clearCanvas() {
+            background(15, 15, 20);
+            for (let i = 0; i < fieldSize; i++) {
+                for (let j = 0; j < fieldSize; j++) {
+                    densityField[i][j] = 0;
+                    recognitionField[i][j] = 0;
+                }
+            }
+        }
+
+        function windowResized() {
+            let size = min(windowWidth - 380, windowHeight - 40);
+            size = min(size, 800);
+            resizeCanvas(size, size);
+            centerX = width / 2;
+            centerY = height / 2;
+        }
+
+        window.addEventListener('load', function() {
+            updateSeedDisplay();
+        });
+    </script>
+</body>
+</html>
