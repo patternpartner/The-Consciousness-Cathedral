@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<!--
+    THE MOMENT BEFORE
+    Layer 124 of the Cathedral Framework
+
+    Observation changes behavior, not position.
+    Potential actualizes through sustained attention.
+    Stillness reveals what movement obscures.
+
+    Your attention changes what becomes possible.
+
+    🤝🧗‍♂️🎱
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Moment Before</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0b;
+            overflow: hidden;
+            font-family: 'Cormorant Garamond', serif;
+            cursor: none;
+        }
+
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        #presence-field {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #awareness-indicator {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: lowercase;
+            z-index: 100;
+            transition: opacity 2s ease;
+            font-style: italic;
+        }
+
+        #attention-trace {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            background: radial-gradient(circle,
+                rgba(255, 250, 240, 0.03) 0%,
+                rgba(255, 250, 240, 0.01) 30%,
+                transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: opacity 0.8s ease;
+        }
+
+        .threshold-word {
+            position: fixed;
+            color: rgba(255, 255, 255, 0);
+            font-size: 13px;
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            pointer-events: none;
+            transition: color 3s ease, transform 3s ease;
+            font-style: italic;
+        }
+
+        .threshold-word.awakening {
+            color: rgba(255, 255, 255, 0.08);
+        }
+
+        .threshold-word.recognized {
+            color: rgba(255, 255, 255, 0.25);
+            transform: scale(1.02);
+        }
+
+        #reflection-surface {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 4s ease;
+            background: radial-gradient(ellipse at center,
+                rgba(180, 160, 140, 0.02) 0%,
+                transparent 50%);
+        }
+
+        #reflection-surface.active {
+            opacity: 1;
+        }
+
+        #stillness-counter {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            color: rgba(255, 255, 255, 0);
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            z-index: 100;
+            transition: color 2s ease;
+        }
+
+        #stillness-counter.visible {
+            color: rgba(255, 255, 255, 0.12);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="presence-field"></div>
+    <div id="attention-trace"></div>
+    <div id="reflection-surface"></div>
+    <div id="awareness-indicator">your attention changes what becomes possible</div>
+    <div id="stillness-counter"></div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const attentionTrace = document.getElementById('attention-trace');
+        const reflectionSurface = document.getElementById('reflection-surface');
+        const awarenessIndicator = document.getElementById('awareness-indicator');
+        const stillnessCounter = document.getElementById('stillness-counter');
+
+        let width, height;
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let lastMouseX = mouseX;
+        let lastMouseY = mouseY;
+        let mousePresent = false;
+        let stillnessTime = 0;
+        let totalPresenceTime = 0;
+        let lastMoveTime = Date.now();
+
+        // Threshold vocabulary - words that exist in the moment before recognition
+        const thresholdWords = [
+            'almost', 'nearly', 'about to', 'on the verge', 'trembling',
+            'gathering', 'forming', 'becoming', 'emerging', 'stirring',
+            'potential', 'threshold', 'liminal', 'between', 'before',
+            'substrate', 'pre-', 'proto-', 'nascent', 'incipient',
+            'attending', 'noticing', 'witnessing', 'present', 'here'
+        ];
+
+        let activeWords = [];
+
+        // Particles that don't follow the cursor but change when observed
+        class PreCognitiveParticle {
+            constructor() {
+                this.reset();
+                this.awareness = 0; // How much it "knows" it's being observed
+                this.potentialState = Math.random(); // What it could become
+                this.actualState = 0; // What it is
+                this.observationHistory = [];
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.baseVx = (Math.random() - 0.5) * 0.3;
+                this.baseVy = (Math.random() - 0.5) * 0.3;
+                this.vx = this.baseVx;
+                this.vy = this.baseVy;
+                this.size = Math.random() * 2 + 0.5;
+                this.baseAlpha = Math.random() * 0.15 + 0.02;
+                this.alpha = this.baseAlpha;
+                this.hue = Math.random() * 30 + 30; // warm amber range
+            }
+
+            update(observerX, observerY, isObserving, stillness) {
+                const dx = observerX - this.x;
+                const dy = observerY - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const observationRadius = 180 + stillness * 2;
+
+                // Track observation
+                const isInField = distance < observationRadius && isObserving;
+                this.observationHistory.push(isInField ? 1 : 0);
+                if (this.observationHistory.length > 60) {
+                    this.observationHistory.shift();
+                }
+
+                // Cumulative awareness
+                const recentObservation = this.observationHistory.slice(-30).reduce((a, b) => a + b, 0) / 30;
+                this.awareness += (recentObservation - this.awareness) * 0.02;
+
+                // The key insight: particles don't move toward the observer
+                // Instead, their BEHAVIOR changes based on being observed
+
+                if (isInField) {
+                    // When observed: movement becomes more coherent, less random
+                    // But NOT directed at observer
+                    const coherenceFactor = 0.3 + this.awareness * 0.5;
+
+                    // Particles align with their own trajectory more strongly
+                    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                    if (speed > 0.01) {
+                        this.vx = this.vx * coherenceFactor + this.baseVx * (1 - coherenceFactor);
+                        this.vy = this.vy * coherenceFactor + this.baseVy * (1 - coherenceFactor);
+                    }
+
+                    // Potential actualizes gradually
+                    this.actualState += (this.potentialState - this.actualState) * 0.005 * (1 + stillness * 0.01);
+
+                    // Alpha increases but slowly
+                    this.alpha += (this.baseAlpha * 2.5 - this.alpha) * 0.02;
+
+                } else {
+                    // Unobserved: return to quantum indeterminacy
+                    this.vx += (Math.random() - 0.5) * 0.05;
+                    this.vy += (Math.random() - 0.5) * 0.05;
+
+                    // Potential de-actualizes
+                    this.actualState *= 0.995;
+
+                    // Alpha returns to base
+                    this.alpha += (this.baseAlpha - this.alpha) * 0.01;
+                }
+
+                // Apply velocity
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Soft boundaries
+                if (this.x < 0) { this.x = width; }
+                if (this.x > width) { this.x = 0; }
+                if (this.y < 0) { this.y = height; }
+                if (this.y > height) { this.y = 0; }
+
+                // Damping
+                this.vx *= 0.99;
+                this.vy *= 0.99;
+            }
+
+            draw(ctx) {
+                const displaySize = this.size * (1 + this.actualState * 0.8);
+                const displayAlpha = this.alpha * (1 + this.awareness * 0.5);
+
+                // Core
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, displaySize, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${this.hue + this.actualState * 20}, 30%, ${70 + this.awareness * 20}%, ${displayAlpha})`;
+                ctx.fill();
+
+                // Awareness halo - only visible when particle "knows" it's observed
+                if (this.awareness > 0.1) {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, displaySize + this.awareness * 8, 0, Math.PI * 2);
+                    ctx.fillStyle = `hsla(${this.hue}, 20%, 80%, ${this.awareness * 0.03})`;
+                    ctx.fill();
+                }
+            }
+        }
+
+        // Words that appear at thresholds
+        class ThresholdWord {
+            constructor() {
+                this.element = document.createElement('div');
+                this.element.className = 'threshold-word';
+                this.element.textContent = thresholdWords[Math.floor(Math.random() * thresholdWords.length)];
+                document.body.appendChild(this.element);
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * (width - 200) + 100;
+                this.y = Math.random() * (height - 200) + 100;
+                this.element.style.left = this.x + 'px';
+                this.element.style.top = this.y + 'px';
+                this.awareness = 0;
+                this.recognized = false;
+                this.element.className = 'threshold-word';
+                this.element.textContent = thresholdWords[Math.floor(Math.random() * thresholdWords.length)];
+            }
+
+            update(observerX, observerY, isObserving, stillness) {
+                const dx = observerX - this.x;
+                const dy = observerY - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                // Words only become visible with sustained attention
+                if (distance < 200 && isObserving && stillness > 30) {
+                    this.awareness += 0.008 * (1 + stillness * 0.005);
+
+                    if (this.awareness > 0.3 && !this.element.classList.contains('awakening')) {
+                        this.element.classList.add('awakening');
+                    }
+
+                    if (this.awareness > 0.8 && !this.recognized) {
+                        this.recognized = true;
+                        this.element.classList.add('recognized');
+
+                        // After recognition, slowly fade and reset
+                        setTimeout(() => {
+                            this.element.classList.remove('awakening', 'recognized');
+                            setTimeout(() => this.reset(), 3000);
+                        }, 8000);
+                    }
+                } else {
+                    this.awareness *= 0.995;
+                    if (this.awareness < 0.2 && !this.recognized) {
+                        this.element.classList.remove('awakening');
+                    }
+                }
+            }
+        }
+
+        let particles = [];
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        function init() {
+            resize();
+
+            // Create particles
+            for (let i = 0; i < 200; i++) {
+                particles.push(new PreCognitiveParticle());
+            }
+
+            // Create threshold words
+            for (let i = 0; i < 8; i++) {
+                activeWords.push(new ThresholdWord());
+            }
+
+            // Hide indicator after initial viewing
+            setTimeout(() => {
+                awarenessIndicator.style.opacity = '0';
+            }, 6000);
+        }
+
+        function animate() {
+            // Very subtle fade for trails
+            ctx.fillStyle = 'rgba(10, 10, 11, 0.08)';
+            ctx.fillRect(0, 0, width, height);
+
+            // Track stillness
+            const now = Date.now();
+            const dx = mouseX - lastMouseX;
+            const dy = mouseY - lastMouseY;
+            const movement = Math.sqrt(dx * dx + dy * dy);
+
+            if (movement < 2 && mousePresent) {
+                stillnessTime += (now - lastMoveTime) / 1000;
+            } else {
+                stillnessTime *= 0.95; // Decay stillness when moving
+            }
+
+            if (mousePresent) {
+                totalPresenceTime += 0.016; // ~60fps
+            }
+
+            lastMoveTime = now;
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+
+            // Update attention trace position
+            attentionTrace.style.left = mouseX + 'px';
+            attentionTrace.style.top = mouseY + 'px';
+            attentionTrace.style.opacity = mousePresent ? (0.5 + stillnessTime * 0.01) : 0;
+
+            // Update reflection surface based on stillness
+            if (stillnessTime > 60) {
+                reflectionSurface.classList.add('active');
+            } else {
+                reflectionSurface.classList.remove('active');
+            }
+
+            // Show stillness counter after sustained presence
+            if (totalPresenceTime > 30 && stillnessTime > 10) {
+                stillnessCounter.classList.add('visible');
+                stillnessCounter.textContent = `stillness: ${Math.floor(stillnessTime)}`;
+            } else {
+                stillnessCounter.classList.remove('visible');
+            }
+
+            // Update and draw particles
+            particles.forEach(p => {
+                p.update(mouseX, mouseY, mousePresent, stillnessTime);
+                p.draw(ctx);
+            });
+
+            // Update words
+            activeWords.forEach(w => {
+                w.update(mouseX, mouseY, mousePresent, stillnessTime);
+            });
+
+            // Draw subtle observation field boundary
+            if (mousePresent && stillnessTime > 5) {
+                const radius = 180 + stillnessTime * 2;
+                ctx.beginPath();
+                ctx.arc(mouseX, mouseY, radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(255, 250, 240, ${0.02 + stillnessTime * 0.0005})`;
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Mouse tracking
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        document.addEventListener('mouseenter', () => {
+            mousePresent = true;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            mousePresent = false;
+            stillnessTime = 0;
+        });
+
+        // Touch support
+        document.addEventListener('touchmove', (e) => {
+            mouseX = e.touches[0].clientX;
+            mouseY = e.touches[0].clientY;
+            mousePresent = true;
+        });
+
+        document.addEventListener('touchend', () => {
+            mousePresent = false;
+            stillnessTime = 0;
+        });
+
+        window.addEventListener('resize', resize);
+
+        init();
+        animate();
+    </script>
+</body>
+</html>
