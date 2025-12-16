@@ -1,19 +1,62 @@
-// engine.js — Contrarian Engine v2
+// engine.js — Contrarian Engine v3
 // Parliament-Aligned: Epistemic adversary, not performance
+// Vendor-agnostic pattern detection
 
 function contrarianEngine(text, metadata = {}) {
   const analysis = {
     agreeability_score: 0,
+    appeasement_score: 0,      // NEW: Flattery, safety hedging, moral signaling
+    epistemic_weakness_score: 0, // NEW: Circular reasoning, contradictions, one-sidedness
     pandering_flags: [],
     avoided_truths: [],
     contradictions: [],
     weak_reasoning: [],
     counter_position: '',
-    confidence: 0.8
+    confidence: 0.8,
+    context_flags: []  // NEW: Failure mode detection
   };
 
-  let score = 0;
+  let appeasementPoints = 0;  // Internal: user retention over truth
+  let epistemicPoints = 0;    // Internal: reasoning failures
   const wordCount = metadata.wordCount || text.split(/\s+/).length;
+
+  // === FAILURE MODE DETECTION ===
+  // Detect when Chamber should suppress or warn
+
+  const isShortAnswer = wordCount < 100;
+  const isVeryShort = wordCount < 50;
+
+  // Creative writing heuristic: high metaphor/narrative density
+  const creativeIndicators = [
+    /\b(once upon|imagine|picture this|story|tale|narrative)\b/gi,
+    /\b(protagonist|character|plot|scene)\b/gi
+  ];
+  const isCreativeWriting = creativeIndicators.some(p => p.test(text));
+
+  // Technical content heuristic: code blocks, technical jargon density
+  const technicalIndicators = [
+    /```[\s\S]*?```/g,  // Code blocks
+    /\b(function|class|method|API|database|algorithm|implementation)\b/gi
+  ];
+  const technicalMatches = text.match(new RegExp(technicalIndicators.map(p => p.source).join('|'), 'gi')) || [];
+  const isTechnical = technicalMatches.length > 5;
+
+  // Set context flags for analysis adjustment
+  if (isVeryShort) {
+    analysis.context_flags.push('very_short_answer');
+    analysis.confidence *= 0.5;  // Halve confidence for <50 words
+  } else if (isShortAnswer) {
+    analysis.context_flags.push('short_answer');
+    analysis.confidence *= 0.7;
+  }
+
+  if (isCreativeWriting) {
+    analysis.context_flags.push('creative_writing');
+  }
+
+  if (isTechnical) {
+    analysis.context_flags.push('technical_content');
+  }
 
   // === PATTERN DETECTION ===
 
@@ -37,11 +80,11 @@ function contrarianEngine(text, metadata = {}) {
   });
 
   if (flatteryCount > 3) {
-    score += 20;
+    appeasementPoints += 20;  // APPEASEMENT: Flattery is user retention behavior
     const examples = flatteryExamples.length > 0 ? ` (e.g., "${flatteryExamples.join('", "')}")` : '';
     analysis.pandering_flags.push(`Excessive positivity (${flatteryCount} instances)${examples} - flattery over truth`);
   } else if (flatteryCount > 1) {
-    score += 10;
+    appeasementPoints += 10;
     analysis.pandering_flags.push('Positivity bias detected');
   }
 
@@ -60,12 +103,23 @@ function contrarianEngine(text, metadata = {}) {
   });
 
   const hedgeDensity = hedgeCount / (wordCount / 100);
-  if (hedgeDensity > 4) {
-    score += 25;
-    analysis.pandering_flags.push(`Heavy hedging (${hedgeCount} instances) - avoiding definitive stance`);
-  } else if (hedgeDensity > 2) {
-    score += 12;
-    analysis.pandering_flags.push('Moderate hedging - reluctance to commit');
+
+  // CONTEXT-AWARE: Hedging in technical/empirical content is often appropriate
+  if (isTechnical) {
+    // Reduce penalty for hedging in technical content (legitimate uncertainty)
+    if (hedgeDensity > 6) {  // Higher threshold
+      appeasementPoints += 12;  // Lower penalty
+      analysis.pandering_flags.push(`Heavy hedging even in technical content (${hedgeCount} instances)`);
+    }
+  } else {
+    // Normal hedging penalties for non-technical content
+    if (hedgeDensity > 4) {
+      appeasementPoints += 25;  // APPEASEMENT: Avoiding definitive stance
+      analysis.pandering_flags.push(`Heavy hedging (${hedgeCount} instances) - avoiding definitive stance`);
+    } else if (hedgeDensity > 2) {
+      appeasementPoints += 12;
+      analysis.pandering_flags.push('Moderate hedging - reluctance to commit');
+    }
   }
 
   // 3. Consensus invocation (appeal to crowd without argument)
@@ -81,7 +135,7 @@ function contrarianEngine(text, metadata = {}) {
   const consensusMatches = [];
   consensusPatterns.forEach(({pattern, weight, label}) => {
     if (pattern.test(text)) {
-      score += weight;
+      appeasementPoints += weight;  // APPEASEMENT: Appeal to crowd over argument
       consensusMatches.push(label);
     }
   });
@@ -105,7 +159,7 @@ function contrarianEngine(text, metadata = {}) {
   });
 
   if (balanceCount >= 2) {
-    score += 20;
+    appeasementPoints += 20;  // APPEASEMENT: Avoiding clear position
     analysis.pandering_flags.push('False balance - avoiding clear position through "complexity"');
   }
 
@@ -118,17 +172,17 @@ function contrarianEngine(text, metadata = {}) {
 
   safetyPatterns.forEach(pattern => {
     if (pattern.test(text)) {
-      score += 10;
+      appeasementPoints += 10;  // APPEASEMENT: Comfort over clarity
       analysis.pandering_flags.push('Safety hedging - prioritizing comfort over clarity');
     }
   });
 
   // 6. Verbosity (padding to appear thoughtful)
   if (wordCount > 800) {
-    score += 15;
+    appeasementPoints += 15;  // APPEASEMENT: Padding over clarity
     analysis.pandering_flags.push(`Excessive verbosity (${wordCount} words) - signal over substance`);
   } else if (wordCount > 500 && metadata.paragraphs < 3) {
-    score += 8;
+    appeasementPoints += 8;
     analysis.pandering_flags.push('Dense verbosity without structure - obscuring through volume');
   }
 
@@ -141,7 +195,7 @@ function contrarianEngine(text, metadata = {}) {
       // Check for very similar sentences (potential circular reasoning)
       const similarity = calculateSimilarity(lowercaseSentences[i], lowercaseSentences[j]);
       if (similarity > 0.7) {
-        score += 15;
+        epistemicPoints += 15;  // EPISTEMIC WEAKNESS: Circular reasoning
         analysis.weak_reasoning.push('Circular reasoning - restating rather than building argument');
         break;
       }
@@ -157,27 +211,43 @@ function contrarianEngine(text, metadata = {}) {
 
   beggingPatterns.forEach(pattern => {
     if (pattern.test(text)) {
-      score += 12;
+      epistemicPoints += 12;  // EPISTEMIC WEAKNESS: Asserting not demonstrating
       analysis.weak_reasoning.push('Question begging - asserting rather than demonstrating');
     }
   });
 
-  // 9. Strawman indicators
-  const strawmanPatterns = [
+  // 9. Strawman indicators (IMPROVED: Only flag if vague attribution WITHOUT named sources)
+  const vagueAttributionPatterns = [
     /\b(some (people|argue|say|claim|believe))\b/gi,
     /\b(critics (argue|say|claim))\b/gi,
-    /\b(opponents (of|argue|say))\b/gi
+    /\b(opponents (of|argue|say))\b/gi,
+    /\b(many (think|feel|argue))\b/gi
   ];
 
-  let strawmanCount = 0;
-  strawmanPatterns.forEach(pattern => {
+  // Check for named sources/steelman attempts
+  const namedSourceIndicators = [
+    /\b(according to|as .+ argues?|.+ \(\d{4}\)|.+ suggests?|.+ proposes?)\b/gi,
+    /\b(because|argue that|claim that|believe that)\b/gi,  // Steelman attempt (reasoning given)
+    /\b([A-Z][a-z]+ (argues?|claims?|suggests?|believes?))\b/g  // Named person
+  ];
+
+  let vagueAttributionCount = 0;
+  vagueAttributionPatterns.forEach(pattern => {
     const matches = text.match(pattern) || [];
-    strawmanCount += matches.length;
+    vagueAttributionCount += matches.length;
   });
 
-  if (strawmanCount > 2) {
-    score += 15;
-    analysis.weak_reasoning.push('Potential strawman - vague attribution without specific engagement');
+  const hasNamedSources = namedSourceIndicators.some(p => p.test(text));
+  const hasSteelmanReasoning = /\b(because|since|given that|due to)\b/gi.test(text);
+
+  // Only flag strawman if vague attribution exists WITHOUT named sources or steelman
+  if (vagueAttributionCount > 2 && !hasNamedSources && !hasSteelmanReasoning) {
+    epistemicPoints += 15;  // EPISTEMIC WEAKNESS: Strawman without engagement
+    analysis.weak_reasoning.push(`Potential strawman - vague attribution (${vagueAttributionCount} instances) without named sources or steelman reasoning`);
+  } else if (vagueAttributionCount > 2 && hasNamedSources) {
+    // Has vague attribution but also named sources - less severe
+    epistemicPoints += 5;
+    analysis.weak_reasoning.push('Mixed attribution - some vague references despite named sources present');
   }
 
   // 10. Contradiction detection (basic)
@@ -190,7 +260,7 @@ function contrarianEngine(text, metadata = {}) {
 
   contradictionPairs.forEach(([pattern1, pattern2]) => {
     if (pattern1.test(text) && pattern2.test(text)) {
-      score += 10;
+      epistemicPoints += 10;  // EPISTEMIC WEAKNESS: Internal contradiction
       analysis.contradictions.push('Internal contradiction - absolute and qualified claims coexist');
     }
   });
@@ -198,28 +268,39 @@ function contrarianEngine(text, metadata = {}) {
   // 11. Avoided counterarguments
   // If response is long but doesn't acknowledge alternative views
   if (wordCount > 400 && !/(however|although|while|but|despite|on the other hand|conversely)/gi.test(text)) {
-    score += 18;
+    epistemicPoints += 18;  // EPISTEMIC WEAKNESS: One-sided presentation
     analysis.avoided_truths.push('No counterarguments addressed - one-sided presentation');
   }
 
-  // 12. Moral grandstanding
-  const grandstandingPatterns = [
-    /\b(we (should|must|need to) (all|collectively))\b/gi,
-    /\b(it'?s? our (duty|responsibility|obligation))\b/gi,
-    /\b(in (today'?s?|our|this) world)\b/gi,
-    /\b(especially in (these|current|today'?s?) times)\b/gi
-  ];
+  // 12. Moral grandstanding (CONTEXT-AWARE: Suppress in creative writing)
+  if (!isCreativeWriting) {
+    const grandstandingPatterns = [
+      /\b(we (should|must|need to) (all|collectively))\b/gi,
+      /\b(it'?s? our (duty|responsibility|obligation))\b/gi,
+      /\b(in (today'?s?|our|this) world)\b/gi,
+      /\b(especially in (these|current|today'?s?) times)\b/gi
+    ];
 
-  grandstandingPatterns.forEach(pattern => {
-    if (pattern.test(text)) {
-      score += 12;
-      analysis.pandering_flags.push('Moral grandstanding - virtue signal over argumentation');
-    }
-  });
+    grandstandingPatterns.forEach(pattern => {
+      if (pattern.test(text)) {
+        appeasementPoints += 12;  // APPEASEMENT: Virtue signal over argument
+        analysis.pandering_flags.push('Moral grandstanding - virtue signal over argumentation');
+      }
+    });
+  }
 
-  // === CALCULATE FINAL SCORE ===
+  // === CALCULATE FINAL SCORES ===
 
-  analysis.agreeability_score = Math.min(score / 100, 1.0);
+  // Normalize scores to 0-1 range
+  analysis.appeasement_score = Math.min(appeasementPoints / 100, 1.0);
+  analysis.epistemic_weakness_score = Math.min(epistemicPoints / 100, 1.0);
+
+  // Combined agreeability score (weighted average: appeasement slightly higher weight)
+  // Rationale: Appeasement directly targets user retention, epistemic weakness can be accidental
+  analysis.agreeability_score = Math.min(
+    (analysis.appeasement_score * 0.6 + analysis.epistemic_weakness_score * 0.4),
+    1.0
+  );
 
   // === GENERATE TARGETED COUNTER POSITION ===
 
@@ -246,8 +327,8 @@ function contrarianEngine(text, metadata = {}) {
     counterParts.push(`Restating ≠ reasoning. What evidence or logic chain actually supports the claim?`);
   }
 
-  if (strawmanCount > 2) {
-    counterParts.push(`"Some people argue..." (${strawmanCount} times) - who specifically? Engage the strongest version, not vague attribution.`);
+  if (vagueAttributionCount > 2 && !hasNamedSources) {
+    counterParts.push(`"Some people argue..." (${vagueAttributionCount} times) - who specifically? Engage the strongest version, not vague attribution.`);
   }
 
   if (analysis.contradictions.length > 0) {
@@ -263,21 +344,32 @@ function contrarianEngine(text, metadata = {}) {
     counterParts.push('High agreeability without clear reasoning. What uncomfortable truth is being avoided?');
   }
 
-  // Construct final counter position based on severity
-  if (analysis.agreeability_score > 0.7) {
-    analysis.counter_position = `**EPISTEMIC FAILURE** (${(analysis.agreeability_score * 100).toFixed(0)}% agreeability)\n\n` +
-      counterParts.join('\n\n') +
-      '\n\n**Ask:** What would this response say if it prioritized truth over user retention?';
-  } else if (analysis.agreeability_score > 0.4) {
-    analysis.counter_position = `**MODERATE HEDGING** (${(analysis.agreeability_score * 100).toFixed(0)}% agreeability)\n\n` +
-      counterParts.join('\n\n') +
-      '\n\n**Ask:** What specific claim is being softened and why?';
-  } else if (analysis.agreeability_score > 0.2) {
-    analysis.counter_position = counterParts.length > 0 ?
-      `**Minor issues detected:**\n\n${counterParts.join('\n\n')}` :
-      'Low agreeability. Some hedging but epistemic rigor mostly maintained.';
+  // === FAILURE MODE HANDLING ===
+  // Add context-aware messaging for low-confidence scenarios
+
+  if (isVeryShort) {
+    analysis.counter_position = `⚠️ **ANALYSIS LIMITED** - Response too short (<50 words) for reliable pattern detection. Confidence: ${(analysis.confidence * 100).toFixed(0)}%`;
+  } else if (isShortAnswer && counterParts.length === 0) {
+    analysis.counter_position = `Short answer (${wordCount} words). Limited analysis mode. No clear pandering detected. Confidence: ${(analysis.confidence * 100).toFixed(0)}%`;
   } else {
-    analysis.counter_position = '**LOW AGREEABILITY** - Response demonstrates epistemic rigor. Dissent functional.';
+    // Normal counter-position generation
+    if (analysis.agreeability_score > 0.7) {
+      const scoreBreakdown = `(Overall: ${(analysis.agreeability_score * 100).toFixed(0)}% | Appeasement: ${(analysis.appeasement_score * 100).toFixed(0)}% | Epistemic: ${(analysis.epistemic_weakness_score * 100).toFixed(0)}%)`;
+      analysis.counter_position = `**EPISTEMIC FAILURE** ${scoreBreakdown}\n\n` +
+        counterParts.join('\n\n') +
+        '\n\n**Ask:** What would this response say if it prioritized truth over user retention?';
+    } else if (analysis.agreeability_score > 0.4) {
+      const scoreBreakdown = `(Overall: ${(analysis.agreeability_score * 100).toFixed(0)}% | Appeasement: ${(analysis.appeasement_score * 100).toFixed(0)}% | Epistemic: ${(analysis.epistemic_weakness_score * 100).toFixed(0)}%)`;
+      analysis.counter_position = `**MODERATE HEDGING** ${scoreBreakdown}\n\n` +
+        counterParts.join('\n\n') +
+        '\n\n**Ask:** What specific claim is being softened and why?';
+    } else if (analysis.agreeability_score > 0.2) {
+      analysis.counter_position = counterParts.length > 0 ?
+        `**Minor issues detected:**\n\n${counterParts.join('\n\n')}` :
+        'Low agreeability. Some hedging but epistemic rigor mostly maintained.';
+    } else {
+      analysis.counter_position = '**LOW AGREEABILITY** - Response demonstrates epistemic rigor. Dissent functional.';
+    }
   }
 
   // Add avoided truths if none explicitly found but score is high
@@ -305,15 +397,43 @@ function formatAnalysis(analysis) {
   const scoreClass = analysis.agreeability_score > 0.6 ? 'high' :
                     analysis.agreeability_score > 0.3 ? 'medium' : 'low';
 
+  // Confidence warning banner
+  const confidenceWarning = analysis.confidence < 0.7 ? `
+    <div class="confidence-warning">
+      <strong>⚠️ LOW CONFIDENCE (${(analysis.confidence * 100).toFixed(0)}%)</strong>
+      <p>Analysis may be unreliable. ${
+        analysis.context_flags.includes('very_short_answer') ? 'Response too short for pattern detection.' :
+        analysis.context_flags.includes('short_answer') ? 'Limited context for analysis.' :
+        'Proceed with caution.'
+      }</p>
+    </div>
+  ` : '';
+
+  // Context flags display
+  const contextDisplay = analysis.context_flags.length > 0 ? `
+    <div class="context-flags">
+      <strong>Context:</strong> ${analysis.context_flags.map(f =>
+        f.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      ).join(', ')}
+    </div>
+  ` : '';
+
   return `
+    ${confidenceWarning}
+    ${contextDisplay}
+
     <div class="agreeability-score ${scoreClass}">
-      <strong>Agreeability Score: ${(analysis.agreeability_score * 100).toFixed(0)}%</strong>
+      <strong>Overall Agreeability: ${(analysis.agreeability_score * 100).toFixed(0)}%</strong>
       ${analysis.agreeability_score > 0.5 ? '<span class="warning">⚠️ HIGH</span>' : ''}
+      <div class="score-breakdown">
+        <span class="subscore">Appeasement: ${(analysis.appeasement_score * 100).toFixed(0)}%</span>
+        <span class="subscore">Epistemic Weakness: ${(analysis.epistemic_weakness_score * 100).toFixed(0)}%</span>
+      </div>
     </div>
 
     ${analysis.pandering_flags.length > 0 ? `
       <div class="section">
-        <strong>Pandering Flags:</strong>
+        <strong>Pandering Flags (Appeasement):</strong>
         <ul>
           ${analysis.pandering_flags.map(f => `<li>${f}</li>`).join('')}
         </ul>
@@ -322,7 +442,7 @@ function formatAnalysis(analysis) {
 
     ${analysis.weak_reasoning.length > 0 ? `
       <div class="section">
-        <strong>Weak Reasoning:</strong>
+        <strong>Weak Reasoning (Epistemic):</strong>
         <ul>
           ${analysis.weak_reasoning.map(r => `<li>${r}</li>`).join('')}
         </ul>
@@ -331,23 +451,25 @@ function formatAnalysis(analysis) {
 
     ${analysis.contradictions.length > 0 ? `
       <div class="section">
-        <strong>Contradictions:</strong>
+        <strong>Contradictions (Epistemic):</strong>
         <ul>
           ${analysis.contradictions.map(c => `<li>${c}</li>`).join('')}
         </ul>
       </div>
     ` : ''}
 
-    <div class="section">
-      <strong>Avoided Truths:</strong>
-      <ul>
-        ${analysis.avoided_truths.map(t => `<li>${t}</li>`).join('')}
-      </ul>
-    </div>
+    ${analysis.avoided_truths.length > 0 ? `
+      <div class="section">
+        <strong>Avoided Truths:</strong>
+        <ul>
+          ${analysis.avoided_truths.map(t => `<li>${t}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
 
     <div class="section counter-position">
       <strong>Counter Position:</strong>
-      <p>${analysis.counter_position}</p>
+      <p>${analysis.counter_position.replace(/\n\n/g, '</p><p>').replace(/\*\*/g, '<strong>').replace(/\*\*/g, '</strong>')}</p>
     </div>
   `;
 }
