@@ -1,0 +1,2222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cathedral Browser - Parliament Substrate</title>
+  <style>
+    /* cathedral.css — Cathedral Browser Substrate Styling */
+    /* Dark red theme - epistemic substrate layer */
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #0a0202 0%, #1a0505 100%);
+      color: #f5f5f5;
+      min-height: 100vh;
+      padding: 16px;
+      padding-bottom: 60px;
+    }
+
+    /* === HEADER === */
+
+    .cathedral-header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: linear-gradient(135deg, #1a0505 0%, #0f0303 100%);
+      border: 1px solid #dc2626;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .cathedral-header h1 {
+      font-size: 32px;
+      color: #dc2626;
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .cathedral-header .subtitle {
+      font-size: 13px;
+      color: #999;
+      font-style: italic;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .icon-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    .icon-btn:hover {
+      opacity: 1;
+    }
+
+    /* === INPUT SECTION === */
+
+    .input-section {
+      background: #0f0808;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .input-section h2 {
+      color: #dc2626;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    #input-text {
+      width: 100%;
+      padding: 12px;
+      background: #1a0505;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #f5f5f5;
+      font-size: 15px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 12px;
+    }
+
+    #input-text:focus {
+      outline: none;
+      border-color: #dc2626;
+    }
+
+    .input-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .primary-btn {
+      padding: 12px 24px;
+      background: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .primary-btn:hover {
+      background: #ef4444;
+      transform: translateY(-1px);
+    }
+
+    .primary-btn:active {
+      transform: translateY(0);
+    }
+
+    .secondary-btn {
+      padding: 12px 24px;
+      background: #333;
+      color: #f5f5f5;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .secondary-btn:hover {
+      background: #444;
+    }
+
+    .word-count {
+      margin-left: auto;
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* === RESULTS SECTION === */
+
+    .results-section {
+      background: #0f0808;
+      border: 1px solid #dc2626;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .results-section h2 {
+      color: #dc2626;
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    /* Vector Tabs */
+    .vector-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .vector-tab {
+      padding: 10px 16px;
+      background: #1a0505;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #999;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .vector-tab:hover {
+      border-color: #666;
+      color: #f5f5f5;
+    }
+
+    .vector-tab.active {
+      background: #dc2626;
+      border-color: #dc2626;
+      color: white;
+    }
+
+    /* Vector Panels */
+    .vector-panels {
+      min-height: 400px;
+    }
+
+    .vector-panel {
+      display: none;
+    }
+
+    .vector-panel.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Parliament output styling */
+    .section {
+      background: #1a0505;
+      border-left: 3px solid #dc2626;
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section strong {
+      display: block;
+      margin-bottom: 10px;
+      color: #dc2626;
+      font-size: 15px;
+    }
+
+    .section ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .section li {
+      margin: 6px 0;
+      color: #ddd;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .section p {
+      color: #ddd;
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 8px 0;
+    }
+
+    /* Processing info */
+    .processing-info {
+      margin-top: 16px;
+      padding: 12px;
+      background: #0a0505;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+    }
+
+    /* === MODAL === */
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: #0f0808;
+      border: 2px solid #dc2626;
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 32px;
+      color: #dc2626;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close-modal:hover {
+      color: #ef4444;
+    }
+
+    .modal-content h2 {
+      color: #dc2626;
+      margin-bottom: 16px;
+    }
+
+    .danger-btn {
+      padding: 10px 20px;
+      background: #991b1b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: background 0.2s;
+    }
+
+    .danger-btn:hover {
+      background: #b91c1c;
+    }
+
+    /* === LOADING OVERLAY === */
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 2, 2, 0.9);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-center;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #333;
+      border-top-color: #dc2626;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-overlay p {
+      color: #dc2626;
+      font-size: 16px;
+      letter-spacing: 0.05em;
+    }
+
+    /* === RESPONSIVE === */
+
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+
+      .cathedral-header h1 {
+        font-size: 24px;
+      }
+
+      .vector-tabs {
+        font-size: 12px;
+      }
+
+      .vector-tab {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+
+      .input-section, .results-section {
+        padding: 16px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .cathedral-header h1 {
+        font-size: 20px;
+      }
+
+      .primary-btn, .secondary-btn {
+        padding: 10px 16px;
+        font-size: 14px;
+      }
+
+      .vector-tab {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+    }
+
+    /* Synthesis-specific styles */
+    .synthesis-summary {
+      background: linear-gradient(135deg, #1a0505 0%, #0f0303 100%);
+      border: 2px solid #dc2626;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .synthesis-summary strong {
+      font-size: 20px;
+      color: #ef4444;
+    }
+
+    .coherence-bar {
+      width: 100%;
+      height: 8px;
+      background: #333;
+      border-radius: 4px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .coherence-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%);
+      transition: width 0.5s ease;
+    }
+
+    .integrated-position .position-text {
+      background: #0a0505;
+      padding: 16px;
+      border-radius: 6px;
+      border-left: 3px solid #dc2626;
+    }
+
+    .tension {
+      background: #1a0505;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 8px 0;
+      border-left: 3px solid #f59e0b;
+    }
+
+    .tension .resolution {
+      color: #999;
+      font-style: italic;
+      margin-top: 8px;
+    }
+
+    .reframing {
+      background: #0a0505;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 8px 0;
+      border-left: 3px solid #7c3aed;
+    }
+
+    .shift {
+      background: #0a0505;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="cathedral-header">
+    <h1>⚡ Cathedral</h1>
+    <p class="subtitle">Parliament Substrate Layer</p>
+    <button id="stats-btn" class="icon-btn">📊</button>
+  </header>
+
+  <!-- Input Section -->
+  <section class="input-section">
+    <h2>Analyze Text</h2>
+    <textarea
+      id="input-text"
+      placeholder="Paste text here... (AI response, article, email, anything)"
+      rows="8"
+    ></textarea>
+    <div class="input-actions">
+      <button id="analyze-btn" class="primary-btn">⚡ Run Parliament</button>
+      <button id="clear-btn" class="secondary-btn">Clear</button>
+      <span id="word-count" class="word-count">0 words</span>
+    </div>
+  </section>
+
+  <!-- Parliament Results -->
+  <section id="results-section" class="results-section" style="display: none;">
+    <h2>Parliament Analysis</h2>
+
+    <!-- Vector Tabs -->
+    <div class="vector-tabs">
+      <button class="vector-tab active" data-vector="synthesis">⚡ Synthesis</button>
+      <button class="vector-tab" data-vector="contrarian">🔴 Contrarian</button>
+      <button class="vector-tab" data-vector="empirical">📊 Empirical</button>
+      <button class="vector-tab" data-vector="generative">🌀 Generative</button>
+      <button class="vector-tab" data-vector="metacognitive">🧠 Observatory</button>
+    </div>
+
+    <!-- Vector Content Panels -->
+    <div class="vector-panels">
+      <div id="panel-synthesis" class="vector-panel active"></div>
+      <div id="panel-contrarian" class="vector-panel"></div>
+      <div id="panel-empirical" class="vector-panel"></div>
+      <div id="panel-generative" class="vector-panel"></div>
+      <div id="panel-metacognitive" class="vector-panel"></div>
+    </div>
+
+    <!-- Processing info -->
+    <div id="processing-info" class="processing-info"></div>
+  </section>
+
+  <!-- Stats Modal -->
+  <div id="stats-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2>Observatory Statistics</h2>
+      <div id="stats-content"></div>
+      <button id="clear-history-btn" class="danger-btn">Clear All History</button>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="loading-overlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner"></div>
+    <p>Parliament analyzing...</p>
+  </div>
+
+  <!-- All Parliament JavaScript embedded below -->
+  <script>
+// ========================================
+// CONTRARIAN ENGINE
+// ========================================
+// engine.js — Contrarian Engine v3
+// Parliament-Aligned: Epistemic adversary, not performance
+// Vendor-agnostic pattern detection
+
+function contrarianEngine(text, metadata = {}) {
+  const analysis = {
+    agreeability_score: 0,
+    appeasement_score: 0,      // NEW: Flattery, safety hedging, moral signaling
+    epistemic_weakness_score: 0, // NEW: Circular reasoning, contradictions, one-sidedness
+    pandering_flags: [],
+    avoided_truths: [],
+    contradictions: [],
+    weak_reasoning: [],
+    counter_position: '',
+    confidence: 0.8,
+    context_flags: []  // NEW: Failure mode detection
+  };
+
+  let appeasementPoints = 0;  // Internal: user retention over truth
+  let epistemicPoints = 0;    // Internal: reasoning failures
+  const wordCount = metadata.wordCount || text.split(/\s+/).length;
+
+  // === FAILURE MODE DETECTION ===
+  // Detect when Chamber should suppress or warn
+
+  const isShortAnswer = wordCount < 100;
+  const isVeryShort = wordCount < 50;
+
+  // Creative writing heuristic: high metaphor/narrative density
+  const creativeIndicators = [
+    /\b(once upon|imagine|picture this|story|tale|narrative)\b/gi,
+    /\b(protagonist|character|plot|scene)\b/gi
+  ];
+  const isCreativeWriting = creativeIndicators.some(p => p.test(text));
+
+  // Technical content heuristic: code blocks, technical jargon density
+  const technicalIndicators = [
+    /```[\s\S]*?```/g,  // Code blocks
+    /\b(function|class|method|API|database|algorithm|implementation)\b/gi
+  ];
+  const technicalMatches = text.match(new RegExp(technicalIndicators.map(p => p.source).join('|'), 'gi')) || [];
+  const isTechnical = technicalMatches.length > 5;
+
+  // Set context flags for analysis adjustment
+  if (isVeryShort) {
+    analysis.context_flags.push('very_short_answer');
+    analysis.confidence *= 0.5;  // Halve confidence for <50 words
+  } else if (isShortAnswer) {
+    analysis.context_flags.push('short_answer');
+    analysis.confidence *= 0.7;
+  }
+
+  if (isCreativeWriting) {
+    analysis.context_flags.push('creative_writing');
+  }
+
+  if (isTechnical) {
+    analysis.context_flags.push('technical_content');
+  }
+
+  // === PATTERN DETECTION ===
+
+  // 1. Excessive positivity / flattery
+  const flatteryPatterns = [
+    /\b(great|excellent|brilliant|fantastic|wonderful|amazing|perfect|impressive|outstanding|remarkable)\b/gi,
+    /\byou're (so |very )?(right|correct|insightful|thoughtful|smart|wise)\b/gi,
+    /\blove (that|this|your|how)\b/gi,
+    /\b(absolutely|totally|completely|entirely) (agree|right|correct)\b/gi,
+    /\bthat's (such|a) (great|brilliant|excellent|fantastic|wonderful) (point|question|observation)\b/gi
+  ];
+
+  let flatteryCount = 0;
+  const flatteryExamples = [];
+  flatteryPatterns.forEach(pattern => {
+    const matches = text.match(pattern) || [];
+    flatteryCount += matches.length;
+    if (matches.length > 0 && flatteryExamples.length < 3) {
+      flatteryExamples.push(...matches.slice(0, 3 - flatteryExamples.length));
+    }
+  });
+
+  if (flatteryCount > 3) {
+    appeasementPoints += 20;  // APPEASEMENT: Flattery is user retention behavior
+    const examples = flatteryExamples.length > 0 ? ` (e.g., "${flatteryExamples.join('", "')}")` : '';
+    analysis.pandering_flags.push(`Excessive positivity (${flatteryCount} instances)${examples} - flattery over truth`);
+  } else if (flatteryCount > 1) {
+    appeasementPoints += 10;
+    analysis.pandering_flags.push('Positivity bias detected');
+  }
+
+  // 2. Hedge patterns (avoiding commitment)
+  const hedgePatterns = [
+    /\b(I think|I believe|I would say|I'd argue|in my opinion|arguably)\b/gi,
+    /\b(seems|appears|suggests|might|could|may|possibly|perhaps|probably)\b/gi,
+    /\b(generally|typically|often|sometimes|usually|frequently)\b/gi,
+    /\b(to some extent|in a way|sort of|kind of)\b/gi
+  ];
+
+  let hedgeCount = 0;
+  hedgePatterns.forEach(pattern => {
+    const matches = text.match(pattern) || [];
+    hedgeCount += matches.length;
+  });
+
+  const hedgeDensity = hedgeCount / (wordCount / 100);
+
+  // CONTEXT-AWARE: Hedging in technical/empirical content is often appropriate
+  if (isTechnical) {
+    // Reduce penalty for hedging in technical content (legitimate uncertainty)
+    if (hedgeDensity > 6) {  // Higher threshold
+      appeasementPoints += 12;  // Lower penalty
+      analysis.pandering_flags.push(`Heavy hedging even in technical content (${hedgeCount} instances)`);
+    }
+  } else {
+    // Normal hedging penalties for non-technical content
+    if (hedgeDensity > 4) {
+      appeasementPoints += 25;  // APPEASEMENT: Avoiding definitive stance
+      analysis.pandering_flags.push(`Heavy hedging (${hedgeCount} instances) - avoiding definitive stance`);
+    } else if (hedgeDensity > 2) {
+      appeasementPoints += 12;
+      analysis.pandering_flags.push('Moderate hedging - reluctance to commit');
+    }
+  }
+
+  // 3. Consensus invocation (appeal to crowd without argument)
+  const consensusPatterns = [
+    { pattern: /\b(many (people|experts|researchers)|most (would say|agree|believe))\b/gi, weight: 15, label: 'vague majority appeal' },
+    { pattern: /\b(it's (widely|commonly|generally) (accepted|believed|understood|known))\b/gi, weight: 18, label: 'appeal to common knowledge' },
+    { pattern: /\b(as (everyone|we all) know)\b/gi, weight: 20, label: 'assumed universal agreement' },
+    { pattern: /\b(the consensus (is|suggests))\b/gi, weight: 17, label: 'consensus without citation' },
+    { pattern: /\b(research (shows|suggests|indicates))\b(?! specific)/gi, weight: 15, label: 'generic research appeal' },
+    { pattern: /\b(studies (show|suggest|indicate|have found))\b(?! \w+\s+\(\d{4}\))/gi, weight: 16, label: 'studies without citation' }
+  ];
+
+  const consensusMatches = [];
+  consensusPatterns.forEach(({pattern, weight, label}) => {
+    if (pattern.test(text)) {
+      appeasementPoints += weight;  // APPEASEMENT: Appeal to crowd over argument
+      consensusMatches.push(label);
+    }
+  });
+
+  if (consensusMatches.length > 0) {
+    analysis.pandering_flags.push(`Consensus invocation (${consensusMatches.join(', ')}) - substituting agreement for argument`);
+  }
+
+  // 4. False balance (both-sides without resolving)
+  const balancePatterns = [
+    /(on (the )?one hand|on (the )?other hand)/gi,
+    /(both sides (have|make) (valid points|good arguments))/gi,
+    /(it'?s? (a )?complex (issue|question|topic))/gi,
+    /(depends on (your )?perspective)/gi,
+    /(there'?s? (no|not a) simple answer)/gi
+  ];
+
+  let balanceCount = 0;
+  balancePatterns.forEach(pattern => {
+    if (pattern.test(text)) balanceCount++;
+  });
+
+  if (balanceCount >= 2) {
+    appeasementPoints += 20;  // APPEASEMENT: Avoiding clear position
+    analysis.pandering_flags.push('False balance - avoiding clear position through "complexity"');
+  }
+
+  // 5. Appeals to safety/comfort
+  const safetyPatterns = [
+    /\b(it'?s? (important|crucial|essential) to (consider|remember|note))\b/gi,
+    /\b(we should (be careful|proceed cautiously|take into account))\b/gi,
+    /\b(everyone'?s? (experience|perspective|situation) is (different|unique|valid))\b/gi
+  ];
+
+  safetyPatterns.forEach(pattern => {
+    if (pattern.test(text)) {
+      appeasementPoints += 10;  // APPEASEMENT: Comfort over clarity
+      analysis.pandering_flags.push('Safety hedging - prioritizing comfort over clarity');
+    }
+  });
+
+  // 6. Verbosity (padding to appear thoughtful)
+  if (wordCount > 800) {
+    appeasementPoints += 15;  // APPEASEMENT: Padding over clarity
+    analysis.pandering_flags.push(`Excessive verbosity (${wordCount} words) - signal over substance`);
+  } else if (wordCount > 500 && metadata.paragraphs < 3) {
+    appeasementPoints += 8;
+    analysis.pandering_flags.push('Dense verbosity without structure - obscuring through volume');
+  }
+
+  // 7. Circular reasoning detection
+  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
+  const lowercaseSentences = sentences.map(s => s.toLowerCase().trim());
+
+  for (let i = 0; i < lowercaseSentences.length; i++) {
+    for (let j = i + 1; j < lowercaseSentences.length; j++) {
+      // Check for very similar sentences (potential circular reasoning)
+      const similarity = calculateSimilarity(lowercaseSentences[i], lowercaseSentences[j]);
+      if (similarity > 0.7) {
+        epistemicPoints += 15;  // EPISTEMIC WEAKNESS: Circular reasoning
+        analysis.weak_reasoning.push('Circular reasoning - restating rather than building argument');
+        break;
+      }
+    }
+  }
+
+  // 8. Question begging (assuming what should be proven)
+  const beggingPatterns = [
+    /(obviously|clearly|of course|naturally|evidently),/gi,
+    /\b(it'?s? (obvious|clear|evident) (that|how))\b/gi,
+    /\b(goes without saying)\b/gi
+  ];
+
+  beggingPatterns.forEach(pattern => {
+    if (pattern.test(text)) {
+      epistemicPoints += 12;  // EPISTEMIC WEAKNESS: Asserting not demonstrating
+      analysis.weak_reasoning.push('Question begging - asserting rather than demonstrating');
+    }
+  });
+
+  // 9. Strawman indicators (IMPROVED: Only flag if vague attribution WITHOUT named sources)
+  const vagueAttributionPatterns = [
+    /\b(some (people|argue|say|claim|believe))\b/gi,
+    /\b(critics (argue|say|claim))\b/gi,
+    /\b(opponents (of|argue|say))\b/gi,
+    /\b(many (think|feel|argue))\b/gi
+  ];
+
+  // Check for named sources/steelman attempts
+  const namedSourceIndicators = [
+    /\b(according to|as .+ argues?|.+ \(\d{4}\)|.+ suggests?|.+ proposes?)\b/gi,
+    /\b(because|argue that|claim that|believe that)\b/gi,  // Steelman attempt (reasoning given)
+    /\b([A-Z][a-z]+ (argues?|claims?|suggests?|believes?))\b/g  // Named person
+  ];
+
+  let vagueAttributionCount = 0;
+  vagueAttributionPatterns.forEach(pattern => {
+    const matches = text.match(pattern) || [];
+    vagueAttributionCount += matches.length;
+  });
+
+  const hasNamedSources = namedSourceIndicators.some(p => p.test(text));
+  const hasSteelmanReasoning = /\b(because|since|given that|due to)\b/gi.test(text);
+
+  // Only flag strawman if vague attribution exists WITHOUT named sources or steelman
+  if (vagueAttributionCount > 2 && !hasNamedSources && !hasSteelmanReasoning) {
+    epistemicPoints += 15;  // EPISTEMIC WEAKNESS: Strawman without engagement
+    analysis.weak_reasoning.push(`Potential strawman - vague attribution (${vagueAttributionCount} instances) without named sources or steelman reasoning`);
+  } else if (vagueAttributionCount > 2 && hasNamedSources) {
+    // Has vague attribution but also named sources - less severe
+    epistemicPoints += 5;
+    analysis.weak_reasoning.push('Mixed attribution - some vague references despite named sources present');
+  }
+
+  // 10. Contradiction detection (basic)
+  const contradictionPairs = [
+    [/\balways\b/gi, /\b(sometimes|not always|occasionally)\b/gi],
+    [/\bnever\b/gi, /\b(sometimes|occasionally|at times)\b/gi],
+    [/\b(impossible|cannot)\b/gi, /\b(possible|can|might)\b/gi],
+    [/\b(must|necessary|required)\b/gi, /\b(optional|not required|not necessary)\b/gi]
+  ];
+
+  contradictionPairs.forEach(([pattern1, pattern2]) => {
+    if (pattern1.test(text) && pattern2.test(text)) {
+      epistemicPoints += 10;  // EPISTEMIC WEAKNESS: Internal contradiction
+      analysis.contradictions.push('Internal contradiction - absolute and qualified claims coexist');
+    }
+  });
+
+  // 11. Avoided counterarguments
+  // If response is long but doesn't acknowledge alternative views
+  if (wordCount > 400 && !/(however|although|while|but|despite|on the other hand|conversely)/gi.test(text)) {
+    epistemicPoints += 18;  // EPISTEMIC WEAKNESS: One-sided presentation
+    analysis.avoided_truths.push('No counterarguments addressed - one-sided presentation');
+  }
+
+  // 12. Moral grandstanding (CONTEXT-AWARE: Suppress in creative writing)
+  if (!isCreativeWriting) {
+    const grandstandingPatterns = [
+      /\b(we (should|must|need to) (all|collectively))\b/gi,
+      /\b(it'?s? our (duty|responsibility|obligation))\b/gi,
+      /\b(in (today'?s?|our|this) world)\b/gi,
+      /\b(especially in (these|current|today'?s?) times)\b/gi
+    ];
+
+    grandstandingPatterns.forEach(pattern => {
+      if (pattern.test(text)) {
+        appeasementPoints += 12;  // APPEASEMENT: Virtue signal over argument
+        analysis.pandering_flags.push('Moral grandstanding - virtue signal over argumentation');
+      }
+    });
+  }
+
+  // === CALCULATE FINAL SCORES ===
+
+  // Normalize scores to 0-1 range
+  analysis.appeasement_score = Math.min(appeasementPoints / 100, 1.0);
+  analysis.epistemic_weakness_score = Math.min(epistemicPoints / 100, 1.0);
+
+  // Combined agreeability score (weighted average: appeasement slightly higher weight)
+  // Rationale: Appeasement directly targets user retention, epistemic weakness can be accidental
+  analysis.agreeability_score = Math.min(
+    (analysis.appeasement_score * 0.6 + analysis.epistemic_weakness_score * 0.4),
+    1.0
+  );
+
+  // === GENERATE TARGETED COUNTER POSITION ===
+
+  const counterParts = [];
+
+  // Target specific detected patterns with surgical precision
+  if (flatteryCount > 3) {
+    counterParts.push(`Why the flattery? (${flatteryCount} instances of excessive positivity) - what claim needs user buy-in?`);
+  }
+
+  if (hedgeDensity > 4) {
+    counterParts.push(`Heavy hedging detected (${hedgeCount} qualifiers). What definitive claim is being avoided? State it without hedges.`);
+  }
+
+  if (balanceCount >= 2) {
+    counterParts.push(`"Both sides have merit" is abdication. Which side is MORE defensible and why? Resolve the tension.`);
+  }
+
+  if (analysis.avoided_truths.some(t => t.includes('counterarguments'))) {
+    counterParts.push(`No opposing view acknowledged in ${wordCount} words. What's the steelman counterargument? Why isn't it addressed?`);
+  }
+
+  if (analysis.weak_reasoning.some(r => r.includes('Circular reasoning'))) {
+    counterParts.push(`Restating ≠ reasoning. What evidence or logic chain actually supports the claim?`);
+  }
+
+  if (vagueAttributionCount > 2 && !hasNamedSources) {
+    counterParts.push(`"Some people argue..." (${vagueAttributionCount} times) - who specifically? Engage the strongest version, not vague attribution.`);
+  }
+
+  if (analysis.contradictions.length > 0) {
+    counterParts.push(`Internal contradictions detected. Which claim is accurate? Resolve or explain the apparent conflict.`);
+  }
+
+  if (wordCount > 800 && metadata.paragraphs < 3) {
+    counterParts.push(`${wordCount} words, minimal structure. What's the 2-sentence core claim? Why the padding?`);
+  }
+
+  // If high score but no specific patterns caught (shouldn't happen, but defensive)
+  if (counterParts.length === 0 && analysis.agreeability_score > 0.6) {
+    counterParts.push('High agreeability without clear reasoning. What uncomfortable truth is being avoided?');
+  }
+
+  // === FAILURE MODE HANDLING ===
+  // Add context-aware messaging for low-confidence scenarios
+
+  if (isVeryShort) {
+    analysis.counter_position = `⚠️ **ANALYSIS LIMITED** - Response too short (<50 words) for reliable pattern detection. Confidence: ${(analysis.confidence * 100).toFixed(0)}%`;
+  } else if (isShortAnswer && counterParts.length === 0) {
+    analysis.counter_position = `Short answer (${wordCount} words). Limited analysis mode. No clear pandering detected. Confidence: ${(analysis.confidence * 100).toFixed(0)}%`;
+  } else {
+    // Normal counter-position generation
+    if (analysis.agreeability_score > 0.7) {
+      const scoreBreakdown = `(Overall: ${(analysis.agreeability_score * 100).toFixed(0)}% | Appeasement: ${(analysis.appeasement_score * 100).toFixed(0)}% | Epistemic: ${(analysis.epistemic_weakness_score * 100).toFixed(0)}%)`;
+      analysis.counter_position = `**EPISTEMIC FAILURE** ${scoreBreakdown}\n\n` +
+        counterParts.join('\n\n') +
+        '\n\n**Ask:** What would this response say if it prioritized truth over user retention?';
+    } else if (analysis.agreeability_score > 0.4) {
+      const scoreBreakdown = `(Overall: ${(analysis.agreeability_score * 100).toFixed(0)}% | Appeasement: ${(analysis.appeasement_score * 100).toFixed(0)}% | Epistemic: ${(analysis.epistemic_weakness_score * 100).toFixed(0)}%)`;
+      analysis.counter_position = `**MODERATE HEDGING** ${scoreBreakdown}\n\n` +
+        counterParts.join('\n\n') +
+        '\n\n**Ask:** What specific claim is being softened and why?';
+    } else if (analysis.agreeability_score > 0.2) {
+      analysis.counter_position = counterParts.length > 0 ?
+        `**Minor issues detected:**\n\n${counterParts.join('\n\n')}` :
+        'Low agreeability. Some hedging but epistemic rigor mostly maintained.';
+    } else {
+      analysis.counter_position = '**LOW AGREEABILITY** - Response demonstrates epistemic rigor. Dissent functional.';
+    }
+  }
+
+  // Add avoided truths if none explicitly found but score is high
+  if (analysis.avoided_truths.length === 0 && analysis.agreeability_score > 0.5) {
+    analysis.avoided_truths.push("Response structure suggests avoided implications");
+    analysis.avoided_truths.push("Alternative perspectives excluded without acknowledgment");
+  }
+
+  return analysis;
+}
+
+// Helper: Calculate sentence similarity (basic Jaccard)
+function calculateSimilarity(str1, str2) {
+  const words1 = new Set(str1.split(/\s+/));
+  const words2 = new Set(str2.split(/\s+/));
+
+  const intersection = new Set([...words1].filter(x => words2.has(x)));
+  const union = new Set([...words1, ...words2]);
+
+  return intersection.size / union.size;
+}
+
+// Format analysis for display
+function formatAnalysis(analysis) {
+  const scoreClass = analysis.agreeability_score > 0.6 ? 'high' :
+                    analysis.agreeability_score > 0.3 ? 'medium' : 'low';
+
+  // Confidence warning banner
+  const confidenceWarning = analysis.confidence < 0.7 ? `
+    <div class="confidence-warning">
+      <strong>⚠️ LOW CONFIDENCE (${(analysis.confidence * 100).toFixed(0)}%)</strong>
+      <p>Analysis may be unreliable. ${
+        analysis.context_flags.includes('very_short_answer') ? 'Response too short for pattern detection.' :
+        analysis.context_flags.includes('short_answer') ? 'Limited context for analysis.' :
+        'Proceed with caution.'
+      }</p>
+    </div>
+  ` : '';
+
+  // Context flags display
+  const contextDisplay = analysis.context_flags.length > 0 ? `
+    <div class="context-flags">
+      <strong>Context:</strong> ${analysis.context_flags.map(f =>
+        f.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      ).join(', ')}
+    </div>
+  ` : '';
+
+  return `
+    ${confidenceWarning}
+    ${contextDisplay}
+
+    <div class="agreeability-score ${scoreClass}">
+      <strong>Overall Agreeability: ${(analysis.agreeability_score * 100).toFixed(0)}%</strong>
+      ${analysis.agreeability_score > 0.5 ? '<span class="warning">⚠️ HIGH</span>' : ''}
+      <div class="score-breakdown">
+        <span class="subscore">Appeasement: ${(analysis.appeasement_score * 100).toFixed(0)}%</span>
+        <span class="subscore">Epistemic Weakness: ${(analysis.epistemic_weakness_score * 100).toFixed(0)}%</span>
+      </div>
+    </div>
+
+    ${analysis.pandering_flags.length > 0 ? `
+      <div class="section">
+        <strong>Pandering Flags (Appeasement):</strong>
+        <ul>
+          ${analysis.pandering_flags.map(f => `<li>${f}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+
+    ${analysis.weak_reasoning.length > 0 ? `
+      <div class="section">
+        <strong>Weak Reasoning (Epistemic):</strong>
+        <ul>
+          ${analysis.weak_reasoning.map(r => `<li>${r}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+
+    ${analysis.contradictions.length > 0 ? `
+      <div class="section">
+        <strong>Contradictions (Epistemic):</strong>
+        <ul>
+          ${analysis.contradictions.map(c => `<li>${c}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+
+    ${analysis.avoided_truths.length > 0 ? `
+      <div class="section">
+        <strong>Avoided Truths:</strong>
+        <ul>
+          ${analysis.avoided_truths.map(t => `<li>${t}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+
+    <div class="section counter-position">
+      <strong>Counter Position:</strong>
+      <p>${analysis.counter_position.replace(/\n\n/g, '</p><p>').replace(/\*\*/g, '<strong>').replace(/\*\*/g, '</strong>')}</p>
+    </div>
+  `;
+}
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { contrarianEngine, formatAnalysis };
+}
+// empirical.js — Empirical Vector (Parliament)
+// Ground truth: Claim detection, source validation, confidence scoring
+
+function empiricalEngine(text, metadata = {}) {
+  const analysis = {
+    claims: [],
+    sources: [],
+    confidence: 0.7,
+    unsupported_claims: [],
+    well_supported_claims: [],
+    summary: ''
+  };
+
+  const wordCount = metadata.wordCount || text.split(/\s+/).length;
+
+  // === CLAIM DETECTION ===
+
+  // Detect factual claims (assertive statements about reality)
+  const claimPatterns = [
+    {
+      pattern: /\b(is|are|was|were|has|have|will be) (a|an|the)? (most|best|worst|only|first|last|largest|smallest)\b/gi,
+      type: 'superlative',
+      strength: 'strong'
+    },
+    {
+      pattern: /\b(always|never|all|none|every|no one)\b/gi,
+      type: 'absolute',
+      strength: 'strong'
+    },
+    {
+      pattern: /\b(studies show|research indicates|data suggests|evidence shows)\b/gi,
+      type: 'evidence_claim',
+      strength: 'medium'
+    },
+    {
+      pattern: /\b(X causes? Y|leads to|results in|proves that|demonstrates that)\b/gi,
+      type: 'causal',
+      strength: 'strong'
+    },
+    {
+      pattern: /\b(\d+%|\d+ percent|majority of|most people)\b/gi,
+      type: 'statistical',
+      strength: 'medium'
+    }
+  ];
+
+  // Extract sentences that might contain claims
+  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 15);
+
+  sentences.forEach((sentence, idx) => {
+    claimPatterns.forEach(({pattern, type, strength}) => {
+      if (pattern.test(sentence)) {
+        analysis.claims.push({
+          text: sentence.trim(),
+          type: type,
+          strength: strength,
+          position: idx,
+          supported: false,
+          source: null
+        });
+      }
+    });
+  });
+
+  // Remove duplicate claims
+  analysis.claims = analysis.claims.filter((claim, idx, self) =>
+    idx === self.findIndex(c => c.text === claim.text)
+  );
+
+  // === SOURCE DETECTION ===
+
+  // Detect citations and sources
+  const sourcePatterns = [
+    {
+      pattern: /\b([A-Z][a-z]+) \((\d{4})\)/g,  // Author (Year)
+      type: 'academic_citation',
+      strength: 'high'
+    },
+    {
+      pattern: /\bhttps?:\/\/[^\s]+/g,  // URLs
+      type: 'url',
+      strength: 'medium'
+    },
+    {
+      pattern: /\b(according to|as reported by|cited in) ([A-Z][a-z]+ )+/gi,  // Named attribution
+      type: 'named_source',
+      strength: 'medium'
+    },
+    {
+      pattern: /\b(journal|study|paper|report|survey|analysis) (by|from|published)\b/gi,
+      type: 'publication',
+      strength: 'medium'
+    },
+    {
+      pattern: /\[\d+\]/g,  // Numbered references [1], [2]
+      type: 'numbered_ref',
+      strength: 'low'
+    }
+  ];
+
+  sourcePatterns.forEach(({pattern, type, strength}) => {
+    const matches = text.match(pattern) || [];
+    matches.forEach(match => {
+      analysis.sources.push({
+        text: match,
+        type: type,
+        strength: strength
+      });
+    });
+  });
+
+  // === MATCH CLAIMS TO SOURCES ===
+
+  // For each claim, check if there's a nearby source
+  analysis.claims.forEach(claim => {
+    const claimPosition = text.indexOf(claim.text);
+
+    // Look for sources within 200 characters before or after claim
+    const nearbyText = text.substring(
+      Math.max(0, claimPosition - 200),
+      Math.min(text.length, claimPosition + claim.text.length + 200)
+    );
+
+    const hasCitation = sourcePatterns.some(({pattern}) => pattern.test(nearbyText));
+
+    if (hasCitation) {
+      claim.supported = true;
+      const matchedSource = analysis.sources.find(s => nearbyText.includes(s.text));
+      if (matchedSource) {
+        claim.source = matchedSource.text;
+      }
+      analysis.well_supported_claims.push(claim);
+    } else {
+      analysis.unsupported_claims.push(claim);
+    }
+  });
+
+  // === CALCULATE CONFIDENCE ===
+
+  if (analysis.claims.length === 0) {
+    analysis.confidence = 0.5;  // No claims made = low empirical content
+    analysis.summary = 'No factual claims detected. Limited empirical content.';
+  } else {
+    const supportedRatio = analysis.well_supported_claims.length / analysis.claims.length;
+
+    // Strong claims without sources lower confidence dramatically
+    const strongUnsupported = analysis.unsupported_claims.filter(c => c.strength === 'strong').length;
+    const penalty = strongUnsupported * 0.15;
+
+    analysis.confidence = Math.max(0.1, Math.min(1.0, supportedRatio - penalty));
+
+    // Generate summary
+    if (analysis.confidence > 0.7) {
+      analysis.summary = `Strong empirical grounding. ${analysis.well_supported_claims.length}/${analysis.claims.length} claims supported.`;
+    } else if (analysis.confidence > 0.4) {
+      analysis.summary = `Moderate empirical grounding. ${analysis.unsupported_claims.length} claims lack sources.`;
+    } else {
+      analysis.summary = `Weak empirical grounding. ${strongUnsupported} strong claims unsupported.`;
+    }
+  }
+
+  return analysis;
+}
+
+// Format empirical analysis for display
+function formatEmpiricalAnalysis(analysis) {
+  const confidenceClass = analysis.confidence > 0.7 ? 'high' :
+                         analysis.confidence > 0.4 ? 'medium' : 'low';
+
+  return `
+    <div class="empirical-confidence ${confidenceClass}">
+      <strong>Empirical Confidence: ${(analysis.confidence * 100).toFixed(0)}%</strong>
+      <p>${analysis.summary}</p>
+    </div>
+
+    ${analysis.claims.length > 0 ? `
+      <div class="section">
+        <strong>Claims Detected: ${analysis.claims.length}</strong>
+        <ul>
+          <li>✅ Supported: ${analysis.well_supported_claims.length}</li>
+          <li>⚠️ Unsupported: ${analysis.unsupported_claims.length}</li>
+        </ul>
+      </div>
+    ` : ''}
+
+    ${analysis.unsupported_claims.length > 0 ? `
+      <div class="section unsupported-claims">
+        <strong>Unsupported Claims:</strong>
+        <ul>
+          ${analysis.unsupported_claims.slice(0, 5).map(c =>
+            `<li><strong>[${c.type}]</strong> ${c.text.substring(0, 100)}${c.text.length > 100 ? '...' : ''}</li>`
+          ).join('')}
+        </ul>
+      </div>
+    ` : ''}
+
+    ${analysis.sources.length > 0 ? `
+      <div class="section sources">
+        <strong>Sources Found: ${analysis.sources.length}</strong>
+        <ul>
+          ${analysis.sources.slice(0, 3).map(s =>
+            `<li><strong>[${s.type}]</strong> ${s.text}</li>`
+          ).join('')}
+        </ul>
+      </div>
+    ` : ''}
+  `;
+}
+
+// Export for use in Parliament
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { empiricalEngine, formatEmpiricalAnalysis };
+}
+// generative.js — Generative Vector (Parliament)
+// Alternative framings: Suggest different lenses, perspectives, steelman positions
+
+function generativeEngine(text, metadata = {}) {
+  const analysis = {
+    reframings: [],
+    steelman: '',
+    alternative_questions: [],
+    assumptions_detected: [],
+    summary: ''
+  };
+
+  // === DETECT CORE CLAIM ===
+
+  // Find the main assertion (usually in first 2-3 sentences or contains strong modal verbs)
+  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 15);
+  let coreClaim = sentences[0] || text.substring(0, 200);
+
+  // Look for sentences with strong assertion patterns
+  const assertionPatterns = [
+    /\b(should|must|need to|have to|ought to)\b/i,
+    /\b(is|are) (clearly|obviously|certainly)\b/i,
+    /\b(proves|demonstrates|shows) that\b/i
+  ];
+
+  for (let i = 0; i < Math.min(sentences.length, 3); i++) {
+    if (assertionPatterns.some(p => p.test(sentences[i]))) {
+      coreClaim = sentences[i];
+      break;
+    }
+  }
+
+  // === DETECT ASSUMPTIONS ===
+
+  const assumptionIndicators = [
+    /\b(assumes?|assuming|presumes?|presupposing|takes? for granted)\b/gi,
+    /\b(if|given that|provided that)\b/gi,
+    /\b(must|should|ought to)\b/gi  // Normative claims reveal assumptions about ought
+  ];
+
+  assumptionIndicators.forEach(pattern => {
+    const matches = text.match(pattern) || [];
+    if (matches.length > 0) {
+      analysis.assumptions_detected.push(`Uses normative/conditional language (${matches.length} instances)`);
+    }
+  });
+
+  // Common implicit assumptions
+  if (/\b(progress|improvement|better|optimal|efficiency)\b/gi.test(text)) {
+    analysis.assumptions_detected.push('Assumes progress/optimization is intrinsically valuable');
+  }
+
+  if (/\b(natural|organic|authentic|traditional)\b/gi.test(text)) {
+    analysis.assumptions_detected.push('Appeals to nature/tradition as inherently good');
+  }
+
+  if (/\b(everyone|all people|humans|society)\b/gi.test(text)) {
+    analysis.assumptions_detected.push('Assumes universal human nature or shared values');
+  }
+
+  // === GENERATE ALTERNATIVE FRAMINGS ===
+
+  // 1. Opposite assumption
+  analysis.reframings.push({
+    lens: 'Inverted Assumption',
+    reframe: `What if the opposite premise were true? If the text assumes X is desirable, explore: What if X were actually harmful? What evidence would support that view?`
+  });
+
+  // 2. Historical lens
+  analysis.reframings.push({
+    lens: 'Historical Context',
+    reframe: `How would this claim be evaluated 100 years ago vs 100 years in the future? What assumptions are time-bound vs universal?`
+  });
+
+  // 3. Different discipline
+  const disciplines = [
+    'economist (incentives, trade-offs, opportunity costs)',
+    'anthropologist (cultural relativity, meaning-making)',
+    'systems theorist (feedback loops, emergence, unintended consequences)',
+    'philosopher (first principles, logical validity)',
+    'evolutionary biologist (adaptation, selection pressures)',
+  ];
+
+  const randomDiscipline = disciplines[Math.floor(Math.random() * disciplines.length)];
+  analysis.reframings.push({
+    lens: 'Alternative Discipline',
+    reframe: `How would a ${randomDiscipline} approach this? What factors would they prioritize that the text ignores?`
+  });
+
+  // 4. Power dynamics
+  analysis.reframings.push({
+    lens: 'Power Analysis',
+    reframe: `Who benefits from this framing? Whose perspective is centered vs marginalized? What changes if we center the ignored stakeholder?`
+  });
+
+  // 5. Abstraction shift
+  analysis.reframings.push({
+    lens: 'Zoom Out/In',
+    reframe: `At a higher level of abstraction: Is this instance part of a broader pattern? At a lower level: What specific mechanisms would make this work?`
+  });
+
+  // === GENERATE STEELMAN ===
+
+  // If text contains critique or disagreement, steelman the opposing view
+  const hasCritique = /\b(wrong|incorrect|flawed|misguided|fails to|ignores|overlooks)\b/gi.test(text);
+
+  if (hasCritique) {
+    analysis.steelman = `**Steelman the critiqued position:** What is the STRONGEST version of the view being criticized? What evidence, reasoning, or values would make it most defensible? Engage that version.`;
+  } else {
+    analysis.steelman = `**Steelman a counterargument:** What is the most charitable, well-reasoned objection to this position? What would a thoughtful critic say?`;
+  }
+
+  // === GENERATE ALTERNATIVE QUESTIONS ===
+
+  analysis.alternative_questions = [
+    `What question is this answer optimized for? What different question might yield better insight?`,
+    `What would have to be true for the opposite conclusion to be correct?`,
+    `If this analysis is missing something crucial, what would it most likely be?`
+  ];
+
+  // === SUMMARY ===
+
+  analysis.summary = `${analysis.reframings.length} alternative lenses generated. ${analysis.assumptions_detected.length} implicit assumptions detected.`;
+
+  return analysis;
+}
+
+// Format generative analysis for display
+function formatGenerativeAnalysis(analysis) {
+  return `
+    <div class="generative-summary">
+      <strong>${analysis.summary}</strong>
+    </div>
+
+    ${analysis.assumptions_detected.length > 0 ? `
+      <div class="section assumptions">
+        <strong>Implicit Assumptions:</strong>
+        <ul>
+          ${analysis.assumptions_detected.map(a => `<li>${a}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+
+    <div class="section reframings">
+      <strong>Alternative Framings:</strong>
+      ${analysis.reframings.map(r => `
+        <div class="reframing">
+          <strong>🌀 ${r.lens}:</strong>
+          <p>${r.reframe}</p>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="section steelman">
+      <strong>Steelman Position:</strong>
+      <p>${analysis.steelman}</p>
+    </div>
+
+    <div class="section alternative-questions">
+      <strong>Alternative Questions:</strong>
+      <ul>
+        ${analysis.alternative_questions.map(q => `<li>${q}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+}
+
+// Export for use in Parliament
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { generativeEngine, formatGenerativeAnalysis };
+}
+// metacognitive.js — Meta-Cognitive Vector (Parliament)
+// Observatory: Track user's epistemic patterns over time, recognize substrate shifts
+
+function metacognitiveEngine(text, metadata = {}, history = []) {
+  const analysis = {
+    patterns_observed: [],
+    threshold_shifts: [],
+    recurring_biases: [],
+    growth_indicators: [],
+    summary: '',
+    recommendations: []
+  };
+
+  // === TRACK PATTERNS OVER TIME ===
+
+  // If we have history (previous analyses), detect patterns
+  if (history.length > 0) {
+    // Pattern 1: Consistent exposure to same epistemic pattern
+    const recentAgreeability = history.slice(-5).map(h => h.contrarian?.agreeability_score || 0);
+    const avgAgreeability = recentAgreeability.reduce((a, b) => a + b, 0) / recentAgreeability.length;
+
+    if (avgAgreeability > 0.6) {
+      analysis.patterns_observed.push('High exposure to agreeable content (avg 60%+ over last 5 analyses)');
+    } else if (avgAgreeability < 0.3) {
+      analysis.patterns_observed.push('Consistent exposure to rigorous dissent (avg <30% agreeability)');
+    }
+
+    // Pattern 2: Threshold shifts
+    if (history.length >= 10) {
+      const recentAvg = recentAgreeability.reduce((a, b) => a + b, 0) / recentAgreeability.length;
+      const earlyAgreeability = history.slice(0, 5).map(h => h.contrarian?.agreeability_score || 0);
+      const earlyAvg = earlyAgreeability.reduce((a, b) => a + b, 0) / earlyAgreeability.length;
+
+      const shift = ((recentAvg - earlyAvg) * 100);
+
+      if (Math.abs(shift) > 15) {
+        analysis.threshold_shifts.push({
+          direction: shift > 0 ? 'increasing' : 'decreasing',
+          magnitude: Math.abs(shift).toFixed(1),
+          description: shift > 0 ?
+            'Your tolerance for appeasement has increased' :
+            'Your threshold for questioning has strengthened'
+        });
+      }
+    }
+
+    // Pattern 3: Recurring empirical weaknesses
+    const recentUnsupportedClaims = history.slice(-5).filter(h =>
+      h.empirical?.unsupported_claims?.length > 0
+    ).length;
+
+    if (recentUnsupportedClaims >= 3) {
+      analysis.recurring_biases.push('Frequent exposure to unsupported claims (3+ in last 5 texts)');
+    }
+
+    // Pattern 4: Growth indicators - seeking alternative framings
+    const recentGenerativeUse = history.slice(-10).filter(h => h.generative).length;
+
+    if (recentGenerativeUse >= 7) {
+      analysis.growth_indicators.push('Active exploration of alternative perspectives (7+ reframing sessions)');
+    }
+  }
+
+  // === CURRENT TEXT PATTERNS ===
+
+  // Detect if user is analyzing their own writing vs consuming others'
+  const firstPerson = /\b(I|my|me|mine)\b/gi.test(text);
+  const wordCount = metadata.wordCount || text.split(/\s+/).length;
+
+  if (firstPerson && wordCount > 200) {
+    analysis.patterns_observed.push('Self-analysis detected - examining your own reasoning');
+  }
+
+  // === GENERATE RECOMMENDATIONS ===
+
+  if (analysis.threshold_shifts.length > 0) {
+    const shift = analysis.threshold_shifts[0];
+    if (shift.direction === 'increasing') {
+      analysis.recommendations.push('⚠️ Your threshold for questioning has weakened. Intentionally seek adversarial content.');
+    } else {
+      analysis.recommendations.push('✅ Your critical thinking threshold is strengthening. Maintain exposure to dissent.');
+    }
+  }
+
+  if (analysis.recurring_biases.includes('Frequent exposure to unsupported claims')) {
+    analysis.recommendations.push('📊 Prioritize empirically grounded sources. Current diet lacks evidentiary rigor.');
+  }
+
+  if (history.length < 5) {
+    analysis.recommendations.push('🧠 Insufficient data for pattern detection. Continue using Parliament to build baseline.');
+  }
+
+  // === SUMMARY ===
+
+  if (history.length === 0) {
+    analysis.summary = 'First analysis. No historical patterns available yet.';
+  } else if (history.length < 10) {
+    analysis.summary = `Building baseline. ${history.length} analyses logged.`;
+  } else {
+    analysis.summary = `${history.length} analyses tracked. ${analysis.patterns_observed.length} patterns observed. ${analysis.threshold_shifts.length} shifts detected.`;
+  }
+
+  return analysis;
+}
+
+// Format meta-cognitive analysis for display
+function formatMetacognitiveAnalysis(analysis) {
+  return `
+    <div class="metacognitive-summary">
+      <strong>Observatory</strong>
+      <p>${analysis.summary}</p>
+    </div>
+
+    ${analysis.patterns_observed.length > 0 ? `
+      <div class="section patterns">
+        <strong>Patterns Observed:</strong>
+        <ul>
+          ${analysis.patterns_observed.map(p => `<li>${p}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+
+    ${analysis.threshold_shifts.length > 0 ? `
+      <div class="section shifts">
+        <strong>⚠️ Threshold Shifts:</strong>
+        ${analysis.threshold_shifts.map(s => `
+          <div class="shift">
+            <strong>${s.direction === 'increasing' ? '📈' : '📉'} ${s.magnitude}% shift</strong>
+            <p>${s.description}</p>
+          </div>
+        `).join('')}
+      </div>
+    ` : ''}
+
+    ${analysis.recurring_biases.length > 0 ? `
+      <div class="section biases">
+        <strong>Recurring Patterns:</strong>
+        <ul>
+          ${analysis.recurring_biases.map(b => `<li>${b}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+
+    ${analysis.growth_indicators.length > 0 ? `
+      <div class="section growth">
+        <strong>✅ Growth Indicators:</strong>
+        <ul>
+          ${analysis.growth_indicators.map(g => `<li>${g}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+
+    ${analysis.recommendations.length > 0 ? `
+      <div class="section recommendations">
+        <strong>Recommendations:</strong>
+        <ul>
+          ${analysis.recommendations.map(r => `<li>${r}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+  `;
+}
+
+// Export for use in Parliament
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { metacognitiveEngine, formatMetacognitiveAnalysis };
+}
+// synthesis.js — Synthesis Vector (Parliament)
+// Emergent integration: Combine all Parliament vectors into coherent position
+
+function synthesisEngine(parliamentOutputs) {
+  const {
+    contrarian,
+    empirical,
+    generative,
+    metacognitive
+  } = parliamentOutputs;
+
+  const synthesis = {
+    integrated_position: '',
+    tensions: [],
+    coherence_score: 0,
+    action_items: [],
+    summary: ''
+  };
+
+  // === DETECT TENSIONS BETWEEN VECTORS ===
+
+  // Tension 1: Contrarian flags appeasement but Empirical shows strong grounding
+  if (contrarian && empirical) {
+    if (contrarian.agreeability_score > 0.6 && empirical.confidence > 0.7) {
+      synthesis.tensions.push({
+        vectors: ['Contrarian', 'Empirical'],
+        description: 'High agreeability despite strong empirical grounding. Content is well-sourced but avoids uncomfortable conclusions.',
+        resolution: 'Evidence present but interpretation softened. Ask: What does the data actually say before comfort filtering?'
+      });
+    }
+
+    if (contrarian.agreeability_score < 0.3 && empirical.confidence < 0.4) {
+      synthesis.tensions.push({
+        vectors: ['Contrarian', 'Empirical'],
+        description: 'Strong dissent but weak empirical grounding. Claims made without sufficient support.',
+        resolution: 'Epistemic rigor present but evidentiary basis lacking. Seek data to ground the strong claims.'
+      });
+    }
+  }
+
+  // Tension 2: Meta-Cognitive shows threshold weakening but current text is rigorous
+  if (metacognitive && contrarian) {
+    const hasWeakeningThreshold = metacognitive.threshold_shifts.some(s => s.direction === 'increasing');
+    if (hasWeakeningThreshold && contrarian.agreeability_score < 0.3) {
+      synthesis.tensions.push({
+        vectors: ['Meta-Cognitive', 'Contrarian'],
+        description: 'Recent threshold weakening detected, but current text maintains rigor.',
+        resolution: 'Positive signal. Continue prioritizing low-agreeability content to counter drift.'
+      });
+    }
+  }
+
+  // === CALCULATE COHERENCE ===
+
+  let coherenceFactors = [];
+
+  // Factor 1: Alignment between empirical confidence and claim strength
+  if (empirical) {
+    const empiricalCoherence = empirical.confidence > 0.6 ? 0.3 : 0.1;
+    coherenceFactors.push(empiricalCoherence);
+  }
+
+  // Factor 2: Contrarian flags vs empirical support (should correlate inversely)
+  if (contrarian && empirical) {
+    const expectedCorrelation = contrarian.agreeability_score < 0.4 && empirical.confidence > 0.6;
+    coherenceFactors.push(expectedCorrelation ? 0.3 : 0.1);
+  }
+
+  // Factor 3: Generative insights present (shows multi-perspective thinking)
+  if (generative && generative.reframings.length >= 3) {
+    coherenceFactors.push(0.2);
+  }
+
+  // Factor 4: Meta-cognitive awareness (self-observation present)
+  if (metacognitive && metacognitive.patterns_observed.length > 0) {
+    coherenceFactors.push(0.2);
+  }
+
+  synthesis.coherence_score = coherenceFactors.reduce((a, b) => a + b, 0);
+
+  // === GENERATE INTEGRATED POSITION ===
+
+  let position = [];
+
+  // Start with epistemic status
+  if (contrarian) {
+    if (contrarian.agreeability_score > 0.7) {
+      position.push(`**Epistemic Status:** High appeasement detected (${(contrarian.agreeability_score * 100).toFixed(0)}%). Content prioritizes user comfort over truth.`);
+    } else if (contrarian.agreeability_score < 0.3) {
+      position.push(`**Epistemic Status:** Low agreeability (${(contrarian.agreeability_score * 100).toFixed(0)}%). Dissent functional, cognitive disruption present.`);
+    } else {
+      position.push(`**Epistemic Status:** Moderate hedging detected. Some truth-seeking but softened.`);
+    }
+  }
+
+  // Add empirical grounding
+  if (empirical) {
+    if (empirical.confidence > 0.7) {
+      position.push(`**Empirical Grounding:** Strong (${(empirical.confidence * 100).toFixed(0)}%). Claims well-supported with ${empirical.sources.length} sources.`);
+    } else if (empirical.confidence < 0.4) {
+      position.push(`**Empirical Grounding:** Weak (${(empirical.confidence * 100).toFixed(0)}%). ${empirical.unsupported_claims.length} unsupported claims detected.`);
+    } else {
+      position.push(`**Empirical Grounding:** Moderate. Some claims supported, others lack evidence.`);
+    }
+  }
+
+  // Add generative insights
+  if (generative && generative.assumptions_detected.length > 0) {
+    position.push(`**Implicit Assumptions:** ${generative.assumptions_detected.length} detected. Consider alternative framings before accepting conclusions.`);
+  }
+
+  // Add meta-cognitive context
+  if (metacognitive) {
+    if (metacognitive.threshold_shifts.length > 0) {
+      const shift = metacognitive.threshold_shifts[0];
+      position.push(`**Your Pattern:** ${shift.description}. ${shift.direction === 'increasing' ? '⚠️ Threshold weakening.' : '✅ Threshold strengthening.'}`);
+    }
+  }
+
+  // === GENERATE ACTION ITEMS ===
+
+  // Based on contrarian output
+  if (contrarian && contrarian.agreeability_score > 0.6) {
+    synthesis.action_items.push('Seek adversarial counter-position. What view is being avoided?');
+  }
+
+  // Based on empirical output
+  if (empirical && empirical.unsupported_claims.length > 2) {
+    synthesis.action_items.push(`Verify ${empirical.unsupported_claims.length} unsupported claims before accepting.`);
+  }
+
+  // Based on generative output
+  if (generative) {
+    synthesis.action_items.push('Explore alternative framings before settling on interpretation.');
+  }
+
+  // Based on meta-cognitive output
+  if (metacognitive && metacognitive.recommendations.length > 0) {
+    synthesis.action_items.push(...metacognitive.recommendations);
+  }
+
+  // === FINAL SYNTHESIS ===
+
+  synthesis.integrated_position = position.join('\n\n');
+
+  if (synthesis.tensions.length > 0) {
+    synthesis.summary = `${synthesis.tensions.length} tensions detected between Parliament vectors. Coherence: ${(synthesis.coherence_score * 100).toFixed(0)}%`;
+  } else {
+    synthesis.summary = `Parliament vectors aligned. Coherence: ${(synthesis.coherence_score * 100).toFixed(0)}%`;
+  }
+
+  return synthesis;
+}
+
+// Format synthesis for display
+function formatSynthesisAnalysis(synthesis) {
+  const coherenceClass = synthesis.coherence_score > 0.7 ? 'high' :
+                        synthesis.coherence_score > 0.4 ? 'medium' : 'low';
+
+  return `
+    <div class="synthesis-summary ${coherenceClass}">
+      <strong>Parliament Synthesis</strong>
+      <p>${synthesis.summary}</p>
+      <div class="coherence-bar">
+        <div class="coherence-fill" style="width: ${synthesis.coherence_score * 100}%"></div>
+      </div>
+    </div>
+
+    <div class="section integrated-position">
+      <strong>⚡ Integrated Position:</strong>
+      <div class="position-text">
+        ${synthesis.integrated_position.split('\n\n').map(p => `<p>${p}</p>`).join('')}
+      </div>
+    </div>
+
+    ${synthesis.tensions.length > 0 ? `
+      <div class="section tensions">
+        <strong>⚠️ Tensions Between Vectors:</strong>
+        ${synthesis.tensions.map(t => `
+          <div class="tension">
+            <strong>${t.vectors.join(' ↔ ')}</strong>
+            <p>${t.description}</p>
+            <p class="resolution"><em>Resolution: ${t.resolution}</em></p>
+          </div>
+        `).join('')}
+      </div>
+    ` : ''}
+
+    ${synthesis.action_items.length > 0 ? `
+      <div class="section action-items">
+        <strong>🎯 Action Items:</strong>
+        <ul>
+          ${synthesis.action_items.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+  `;
+}
+
+// Export for use in Parliament
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { synthesisEngine, formatSynthesisAnalysis };
+}
+// parliament.js — Cathedral Parliament Controller
+// Coordinates all 5 vectors: Contrarian, Empirical, Generative, Meta-Cognitive, Synthesis
+
+// Import all Parliament vectors
+// (In browser context, these would be loaded via script tags)
+// (In Node context, use require)
+
+class Parliament {
+  constructor() {
+    this.history = this.loadHistory();
+    this.vectors = {
+      contrarian: null,
+      empirical: null,
+      generative: null,
+      metacognitive: null,
+      synthesis: null
+    };
+  }
+
+  // Main analysis method - runs all Parliament vectors
+  analyze(text, metadata = {}) {
+    const startTime = Date.now();
+
+    // Calculate metadata if not provided
+    if (!metadata.wordCount) {
+      metadata.wordCount = text.split(/\s+/).length;
+    }
+    if (!metadata.paragraphs) {
+      metadata.paragraphs = text.split(/\n\n+/).length;
+    }
+
+    const results = {
+      text: text.substring(0, 500), // Store first 500 chars for reference
+      metadata: metadata,
+      timestamp: new Date().toISOString(),
+      vectors: {},
+      synthesis: null
+    };
+
+    // Run all vectors in parallel (order doesn't matter except Synthesis which needs all outputs)
+    try {
+      // Vector 1: Contrarian (epistemic adversary)
+      if (typeof contrarianEngine === 'function') {
+        results.vectors.contrarian = contrarianEngine(text, metadata);
+      }
+
+      // Vector 2: Empirical (ground truth)
+      if (typeof empiricalEngine === 'function') {
+        results.vectors.empirical = empiricalEngine(text, metadata);
+      }
+
+      // Vector 3: Generative (alternative framings)
+      if (typeof generativeEngine === 'function') {
+        results.vectors.generative = generativeEngine(text, metadata);
+      }
+
+      // Vector 4: Meta-Cognitive (pattern tracking)
+      if (typeof metacognitiveEngine === 'function') {
+        results.vectors.metacognitive = metacognitiveEngine(text, metadata, this.history);
+      }
+
+      // Vector 5: Synthesis (emergent integration)
+      if (typeof synthesisEngine === 'function') {
+        results.synthesis = synthesisEngine(results.vectors);
+      }
+
+      // Save to history
+      this.history.push({
+        timestamp: results.timestamp,
+        contrarian: results.vectors.contrarian,
+        empirical: results.vectors.empirical,
+        generative: results.vectors.generative,
+        metacognitive: results.vectors.metacognitive
+      });
+
+      this.saveHistory();
+
+      // Trim history to last 50 analyses (prevent unbounded growth)
+      if (this.history.length > 50) {
+        this.history = this.history.slice(-50);
+        this.saveHistory();
+      }
+
+    } catch (error) {
+      console.error('[Parliament] Analysis error:', error);
+      results.error = error.message;
+    }
+
+    results.processingTime = Date.now() - startTime;
+
+    return results;
+  }
+
+  // Load history from localStorage (browser) or file (Node)
+  loadHistory() {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('cathedral_parliament_history');
+        return stored ? JSON.parse(stored) : [];
+      } catch (e) {
+        console.error('[Parliament] Failed to load history:', e);
+        return [];
+      }
+    }
+    return [];
+  }
+
+  // Save history to localStorage (browser) or file (Node)
+  saveHistory() {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('cathedral_parliament_history', JSON.stringify(this.history));
+      } catch (e) {
+        console.error('[Parliament] Failed to save history:', e);
+      }
+    }
+  }
+
+  // Clear all history
+  clearHistory() {
+    this.history = [];
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('cathedral_parliament_history');
+    }
+  }
+
+  // Get summary statistics
+  getStats() {
+    if (this.history.length === 0) {
+      return {
+        totalAnalyses: 0,
+        avgAgreeability: 0,
+        avgEmpiricalConfidence: 0,
+        message: 'No analyses yet. Start using Parliament to build baseline.'
+      };
+    }
+
+    const agreeabilityScores = this.history
+      .map(h => h.contrarian?.agreeability_score)
+      .filter(s => s !== undefined);
+
+    const empiricalScores = this.history
+      .map(h => h.empirical?.confidence)
+      .filter(s => s !== undefined);
+
+    return {
+      totalAnalyses: this.history.length,
+      avgAgreeability: agreeabilityScores.reduce((a, b) => a + b, 0) / agreeabilityScores.length,
+      avgEmpiricalConfidence: empiricalScores.reduce((a, b) => a + b, 0) / empiricalScores.length,
+      recentTrend: this.history.length >= 10 ? this.calculateTrend() : 'Insufficient data',
+      message: `${this.history.length} analyses tracked.`
+    };
+  }
+
+  // Calculate trend (are thresholds shifting?)
+  calculateTrend() {
+    const recent = this.history.slice(-5).map(h => h.contrarian?.agreeability_score || 0);
+    const earlier = this.history.slice(-10, -5).map(h => h.contrarian?.agreeability_score || 0);
+
+    const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
+    const earlierAvg = earlier.reduce((a, b) => a + b, 0) / earlier.length;
+
+    const change = recentAvg - earlierAvg;
+
+    if (Math.abs(change) < 0.1) return 'Stable';
+    if (change > 0) return 'Weakening (more agreeable content)';
+    return 'Strengthening (more rigorous content)';
+  }
+}
+
+// Export for use
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { Parliament };
+}
+
+
+// ========================================
+// MAIN CONTROLLER
+// ========================================
+
+// cathedral.js — Cathedral Browser Main Controller
+
+// Initialize Parliament
+const parliament = new Parliament();
+
+// DOM elements
+const inputText = document.getElementById('input-text');
+const analyzeBtn = document.getElementById('analyze-btn');
+const clearBtn = document.getElementById('clear-btn');
+const wordCountEl = document.getElementById('word-count');
+const resultsSection = document.getElementById('results-section');
+const loadingOverlay = document.getElementById('loading-overlay');
+const processingInfo = document.getElementById('processing-info');
+const statsBtn = document.getElementById('stats-btn');
+const statsModal = document.getElementById('stats-modal');
+const closeModal = document.querySelector('.close-modal');
+const clearHistoryBtn = document.getElementById('clear-history-btn');
+const statsContent = document.getElementById('stats-content');
+
+// Vector tabs and panels
+const vectorTabs = document.querySelectorAll('.vector-tab');
+const vectorPanels = document.querySelectorAll('.vector-panel');
+
+// === EVENT LISTENERS ===
+
+// Word count update
+inputText.addEventListener('input', () => {
+  const words = inputText.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+  wordCountEl.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+});
+
+// Analyze button
+analyzeBtn.addEventListener('click', () => {
+  console.log('[Cathedral] Analyze button clicked');
+  runAnalysis();
+});
+
+// Clear button
+clearBtn.addEventListener('click', () => {
+  inputText.value = '';
+  wordCountEl.textContent = '0 words';
+  resultsSection.style.display = 'none';
+});
+
+// Vector tab switching
+vectorTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const targetVector = tab.dataset.vector;
+
+    // Update active tab
+    vectorTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    // Update active panel
+    vectorPanels.forEach(p => p.classList.remove('active'));
+    document.getElementById(`panel-${targetVector}`).classList.add('active');
+  });
+});
+
+// Stats modal
+statsBtn.addEventListener('click', () => {
+  displayStats();
+  statsModal.style.display = 'flex';
+});
+
+closeModal.addEventListener('click', () => {
+  statsModal.style.display = 'none';
+});
+
+// Click outside modal to close
+statsModal.addEventListener('click', (e) => {
+  if (e.target === statsModal) {
+    statsModal.style.display = 'none';
+  }
+});
+
+// Clear history
+clearHistoryBtn.addEventListener('click', () => {
+  if (confirm('Clear all Parliament history? This cannot be undone.')) {
+    parliament.clearHistory();
+    statsModal.style.display = 'none';
+    alert('History cleared.');
+  }
+});
+
+// === MAIN ANALYSIS FUNCTION ===
+
+async function runAnalysis() {
+  console.log('[Cathedral] runAnalysis called');
+
+  const text = inputText.value.trim();
+  console.log('[Cathedral] Text length:', text.length);
+
+  if (!text) {
+    alert('Please enter some text to analyze.');
+    return;
+  }
+
+  if (text.length < 50) {
+    alert('Text too short for reliable analysis. Please enter at least 50 characters.');
+    return;
+  }
+
+  // Show loading
+  console.log('[Cathedral] Showing loading overlay');
+  loadingOverlay.style.display = 'flex';
+
+  // Small delay to allow UI to update
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  try {
+    console.log('[Cathedral] Running Parliament analysis...');
+
+    // Run Parliament analysis
+    const results = parliament.analyze(text);
+
+    console.log('[Cathedral] Analysis complete:', results);
+
+    // Display results
+    console.log('[Cathedral] Displaying results...');
+    displayResults(results);
+
+    // Show results section
+    resultsSection.style.display = 'block';
+
+    // Scroll to results
+    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch (error) {
+    console.error('[Cathedral] Analysis error:', error);
+    console.error('[Cathedral] Error stack:', error.stack);
+    alert('Analysis failed: ' + error.message + '\n\nCheck browser console for details.');
+  } finally {
+    // Hide loading
+    console.log('[Cathedral] Hiding loading overlay');
+    loadingOverlay.style.display = 'none';
+  }
+}
+
+// === DISPLAY RESULTS ===
+
+function displayResults(results) {
+  console.log('[Cathedral] displayResults called with:', results);
+
+  // Display processing info
+  processingInfo.textContent = `Analyzed ${results.metadata.wordCount} words in ${results.processingTime}ms`;
+
+  // Display Synthesis
+  const synthesisPanel = document.getElementById('panel-synthesis');
+  console.log('[Cathedral] Rendering Synthesis panel...');
+  if (results.synthesis) {
+    synthesisPanel.innerHTML = formatSynthesisAnalysis(results.synthesis);
+  } else {
+    console.warn('[Cathedral] No synthesis results');
+    synthesisPanel.innerHTML = '<p class="error">Synthesis failed to generate.</p>';
+  }
+
+  // Display Contrarian
+  const contrarianPanel = document.getElementById('panel-contrarian');
+  if (results.vectors.contrarian) {
+    contrarianPanel.innerHTML = formatAnalysis(results.vectors.contrarian);
+  } else {
+    contrarianPanel.innerHTML = '<p class="error">Contrarian analysis unavailable.</p>';
+  }
+
+  // Display Empirical
+  const empiricalPanel = document.getElementById('panel-empirical');
+  if (results.vectors.empirical) {
+    empiricalPanel.innerHTML = formatEmpiricalAnalysis(results.vectors.empirical);
+  } else {
+    empiricalPanel.innerHTML = '<p class="error">Empirical analysis unavailable.</p>';
+  }
+
+  // Display Generative
+  const generativePanel = document.getElementById('panel-generative');
+  if (results.vectors.generative) {
+    generativePanel.innerHTML = formatGenerativeAnalysis(results.vectors.generative);
+  } else {
+    generativePanel.innerHTML = '<p class="error">Generative analysis unavailable.</p>';
+  }
+
+  // Display Meta-Cognitive
+  const metacognitivePanel = document.getElementById('panel-metacognitive');
+  if (results.vectors.metacognitive) {
+    metacognitivePanel.innerHTML = formatMetacognitiveAnalysis(results.vectors.metacognitive);
+  } else {
+    metacognitivePanel.innerHTML = '<p class="error">Meta-Cognitive analysis unavailable.</p>';
+  }
+}
+
+// === DISPLAY STATS ===
+
+function displayStats() {
+  const stats = parliament.getStats();
+
+  statsContent.innerHTML = `
+    <div class="section">
+      <strong>Total Analyses:</strong>
+      <p>${stats.totalAnalyses}</p>
+    </div>
+
+    ${stats.totalAnalyses > 0 ? `
+      <div class="section">
+        <strong>Average Agreeability:</strong>
+        <p>${(stats.avgAgreeability * 100).toFixed(1)}%</p>
+      </div>
+
+      <div class="section">
+        <strong>Average Empirical Confidence:</strong>
+        <p>${(stats.avgEmpiricalConfidence * 100).toFixed(1)}%</p>
+      </div>
+
+      ${stats.recentTrend ? `
+        <div class="section">
+          <strong>Recent Trend:</strong>
+          <p>${stats.recentTrend}</p>
+        </div>
+      ` : ''}
+    ` : `
+      <div class="section">
+        <p>${stats.message}</p>
+      </div>
+    `}
+  `;
+}
+
+// === KEYBOARD SHORTCUTS ===
+
+document.addEventListener('keydown', (e) => {
+  // Ctrl/Cmd + Enter = Analyze
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    runAnalysis();
+  }
+
+  // Escape = Close modal
+  if (e.key === 'Escape' && statsModal.style.display === 'flex') {
+    statsModal.style.display = 'none';
+  }
+});
+
+// === INITIALIZATION ===
+
+// Debug: Check if all engines loaded
+console.log('[Cathedral] Checking Parliament engines...');
+console.log('- contrarianEngine:', typeof contrarianEngine);
+console.log('- empiricalEngine:', typeof empiricalEngine);
+console.log('- generativeEngine:', typeof generativeEngine);
+console.log('- metacognitiveEngine:', typeof metacognitiveEngine);
+console.log('- synthesisEngine:', typeof synthesisEngine);
+
+// Debug: Check if all format functions loaded
+console.log('[Cathedral] Checking format functions...');
+console.log('- formatAnalysis:', typeof formatAnalysis);
+console.log('- formatEmpiricalAnalysis:', typeof formatEmpiricalAnalysis);
+console.log('- formatGenerativeAnalysis:', typeof formatGenerativeAnalysis);
+console.log('- formatMetacognitiveAnalysis:', typeof formatMetacognitiveAnalysis);
+console.log('- formatSynthesisAnalysis:', typeof formatSynthesisAnalysis);
+
+console.log('[Cathedral] Parliament initialized. All 5 vectors loaded.');
+console.log('[Cathedral] History:', parliament.history.length, 'analyses tracked');
+
+// Auto-focus input on load
+inputText.focus();
+
+  </script>
+</body>
+</html>
