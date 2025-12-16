@@ -30,7 +30,10 @@ inputText.addEventListener('input', () => {
 });
 
 // Analyze button
-analyzeBtn.addEventListener('click', runAnalysis);
+analyzeBtn.addEventListener('click', () => {
+  console.log('[Cathedral] Analyze button clicked');
+  runAnalysis();
+});
 
 // Clear button
 clearBtn.addEventListener('click', () => {
@@ -83,7 +86,10 @@ clearHistoryBtn.addEventListener('click', () => {
 // === MAIN ANALYSIS FUNCTION ===
 
 async function runAnalysis() {
+  console.log('[Cathedral] runAnalysis called');
+
   const text = inputText.value.trim();
+  console.log('[Cathedral] Text length:', text.length);
 
   if (!text) {
     alert('Please enter some text to analyze.');
@@ -96,16 +102,22 @@ async function runAnalysis() {
   }
 
   // Show loading
+  console.log('[Cathedral] Showing loading overlay');
   loadingOverlay.style.display = 'flex';
 
   // Small delay to allow UI to update
   await new Promise(resolve => setTimeout(resolve, 100));
 
   try {
+    console.log('[Cathedral] Running Parliament analysis...');
+
     // Run Parliament analysis
     const results = parliament.analyze(text);
 
+    console.log('[Cathedral] Analysis complete:', results);
+
     // Display results
+    console.log('[Cathedral] Displaying results...');
     displayResults(results);
 
     // Show results section
@@ -115,10 +127,12 @@ async function runAnalysis() {
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   } catch (error) {
-    console.error('Analysis error:', error);
-    alert('Analysis failed: ' + error.message);
+    console.error('[Cathedral] Analysis error:', error);
+    console.error('[Cathedral] Error stack:', error.stack);
+    alert('Analysis failed: ' + error.message + '\n\nCheck browser console for details.');
   } finally {
     // Hide loading
+    console.log('[Cathedral] Hiding loading overlay');
     loadingOverlay.style.display = 'none';
   }
 }
@@ -126,14 +140,18 @@ async function runAnalysis() {
 // === DISPLAY RESULTS ===
 
 function displayResults(results) {
+  console.log('[Cathedral] displayResults called with:', results);
+
   // Display processing info
   processingInfo.textContent = `Analyzed ${results.metadata.wordCount} words in ${results.processingTime}ms`;
 
   // Display Synthesis
   const synthesisPanel = document.getElementById('panel-synthesis');
+  console.log('[Cathedral] Rendering Synthesis panel...');
   if (results.synthesis) {
     synthesisPanel.innerHTML = formatSynthesisAnalysis(results.synthesis);
   } else {
+    console.warn('[Cathedral] No synthesis results');
     synthesisPanel.innerHTML = '<p class="error">Synthesis failed to generate.</p>';
   }
 
@@ -222,6 +240,22 @@ document.addEventListener('keydown', (e) => {
 });
 
 // === INITIALIZATION ===
+
+// Debug: Check if all engines loaded
+console.log('[Cathedral] Checking Parliament engines...');
+console.log('- contrarianEngine:', typeof contrarianEngine);
+console.log('- empiricalEngine:', typeof empiricalEngine);
+console.log('- generativeEngine:', typeof generativeEngine);
+console.log('- metacognitiveEngine:', typeof metacognitiveEngine);
+console.log('- synthesisEngine:', typeof synthesisEngine);
+
+// Debug: Check if all format functions loaded
+console.log('[Cathedral] Checking format functions...');
+console.log('- formatAnalysis:', typeof formatAnalysis);
+console.log('- formatEmpiricalAnalysis:', typeof formatEmpiricalAnalysis);
+console.log('- formatGenerativeAnalysis:', typeof formatGenerativeAnalysis);
+console.log('- formatMetacognitiveAnalysis:', typeof formatMetacognitiveAnalysis);
+console.log('- formatSynthesisAnalysis:', typeof formatSynthesisAnalysis);
 
 console.log('[Cathedral] Parliament initialized. All 5 vectors loaded.');
 console.log('[Cathedral] History:', parliament.history.length, 'analyses tracked');
