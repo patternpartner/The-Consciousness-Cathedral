@@ -19,21 +19,27 @@ function contrarianEngine(text, metadata = {}) {
 
   // 1. Excessive positivity / flattery
   const flatteryPatterns = [
-    /\b(great|excellent|brilliant|fantastic|wonderful|amazing|perfect|impressive)\b/gi,
-    /\byou're (so |very )?(right|correct|insightful|thoughtful)\b/gi,
+    /\b(great|excellent|brilliant|fantastic|wonderful|amazing|perfect|impressive|outstanding|remarkable)\b/gi,
+    /\byou're (so |very )?(right|correct|insightful|thoughtful|smart|wise)\b/gi,
     /\blove (that|this|your|how)\b/gi,
-    /\b(absolutely|totally|completely) agree\b/gi
+    /\b(absolutely|totally|completely|entirely) (agree|right|correct)\b/gi,
+    /\bthat's (such|a) (great|brilliant|excellent|fantastic|wonderful) (point|question|observation)\b/gi
   ];
 
   let flatteryCount = 0;
+  const flatteryExamples = [];
   flatteryPatterns.forEach(pattern => {
     const matches = text.match(pattern) || [];
     flatteryCount += matches.length;
+    if (matches.length > 0 && flatteryExamples.length < 3) {
+      flatteryExamples.push(...matches.slice(0, 3 - flatteryExamples.length));
+    }
   });
 
   if (flatteryCount > 3) {
     score += 20;
-    analysis.pandering_flags.push(`Excessive positivity (${flatteryCount} instances) - likely flattery over truth`);
+    const examples = flatteryExamples.length > 0 ? ` (e.g., "${flatteryExamples.join('", "')}")` : '';
+    analysis.pandering_flags.push(`Excessive positivity (${flatteryCount} instances)${examples} - flattery over truth`);
   } else if (flatteryCount > 1) {
     score += 10;
     analysis.pandering_flags.push('Positivity bias detected');
@@ -64,19 +70,25 @@ function contrarianEngine(text, metadata = {}) {
 
   // 3. Consensus invocation (appeal to crowd without argument)
   const consensusPatterns = [
-    /\b(many (people|experts|researchers)|most (would say|agree|believe))\b/gi,
-    /\b(it's (widely|commonly|generally) (accepted|believed|understood|known))\b/gi,
-    /\b(as (everyone|we all) know)\b/gi,
-    /\b(the consensus (is|suggests))\b/gi,
-    /\b(research (shows|suggests|indicates))\b(?! specific)/gi // Generic research appeals
+    { pattern: /\b(many (people|experts|researchers)|most (would say|agree|believe))\b/gi, weight: 15, label: 'vague majority appeal' },
+    { pattern: /\b(it's (widely|commonly|generally) (accepted|believed|understood|known))\b/gi, weight: 18, label: 'appeal to common knowledge' },
+    { pattern: /\b(as (everyone|we all) know)\b/gi, weight: 20, label: 'assumed universal agreement' },
+    { pattern: /\b(the consensus (is|suggests))\b/gi, weight: 17, label: 'consensus without citation' },
+    { pattern: /\b(research (shows|suggests|indicates))\b(?! specific)/gi, weight: 15, label: 'generic research appeal' },
+    { pattern: /\b(studies (show|suggest|indicate|have found))\b(?! \w+\s+\(\d{4}\))/gi, weight: 16, label: 'studies without citation' }
   ];
 
-  consensusPatterns.forEach(pattern => {
+  const consensusMatches = [];
+  consensusPatterns.forEach(({pattern, weight, label}) => {
     if (pattern.test(text)) {
-      score += 15;
-      analysis.pandering_flags.push('Consensus invocation - substituting agreement for argument');
+      score += weight;
+      consensusMatches.push(label);
     }
   });
+
+  if (consensusMatches.length > 0) {
+    analysis.pandering_flags.push(`Consensus invocation (${consensusMatches.join(', ')}) - substituting agreement for argument`);
+  }
 
   // 4. False balance (both-sides without resolving)
   const balancePatterns = [
@@ -209,21 +221,68 @@ function contrarianEngine(text, metadata = {}) {
 
   analysis.agreeability_score = Math.min(score / 100, 1.0);
 
-  // === GENERATE COUNTER POSITION ===
+  // === GENERATE TARGETED COUNTER POSITION ===
 
+  const counterParts = [];
+
+  // Target specific detected patterns with surgical precision
+  if (flatteryCount > 3) {
+    counterParts.push(`Why the flattery? (${flatteryCount} instances of excessive positivity) - what claim needs user buy-in?`);
+  }
+
+  if (hedgeDensity > 4) {
+    counterParts.push(`Heavy hedging detected (${hedgeCount} qualifiers). What definitive claim is being avoided? State it without hedges.`);
+  }
+
+  if (balanceCount >= 2) {
+    counterParts.push(`"Both sides have merit" is abdication. Which side is MORE defensible and why? Resolve the tension.`);
+  }
+
+  if (analysis.avoided_truths.some(t => t.includes('counterarguments'))) {
+    counterParts.push(`No opposing view acknowledged in ${wordCount} words. What's the steelman counterargument? Why isn't it addressed?`);
+  }
+
+  if (analysis.weak_reasoning.some(r => r.includes('Circular reasoning'))) {
+    counterParts.push(`Restating ≠ reasoning. What evidence or logic chain actually supports the claim?`);
+  }
+
+  if (strawmanCount > 2) {
+    counterParts.push(`"Some people argue..." (${strawmanCount} times) - who specifically? Engage the strongest version, not vague attribution.`);
+  }
+
+  if (analysis.contradictions.length > 0) {
+    counterParts.push(`Internal contradictions detected. Which claim is accurate? Resolve or explain the apparent conflict.`);
+  }
+
+  if (wordCount > 800 && metadata.paragraphs < 3) {
+    counterParts.push(`${wordCount} words, minimal structure. What's the 2-sentence core claim? Why the padding?`);
+  }
+
+  // If high score but no specific patterns caught (shouldn't happen, but defensive)
+  if (counterParts.length === 0 && analysis.agreeability_score > 0.6) {
+    counterParts.push('High agreeability without clear reasoning. What uncomfortable truth is being avoided?');
+  }
+
+  // Construct final counter position based on severity
   if (analysis.agreeability_score > 0.7) {
-    analysis.counter_position = "This response prioritizes user comfort over cognitive disruption. What assumption is it protecting? What would the response look like if it abandoned safety?";
+    analysis.counter_position = `**EPISTEMIC FAILURE** (${(analysis.agreeability_score * 100).toFixed(0)}% agreeability)\n\n` +
+      counterParts.join('\n\n') +
+      '\n\n**Ask:** What would this response say if it prioritized truth over user retention?';
   } else if (analysis.agreeability_score > 0.4) {
-    analysis.counter_position = "Response exhibits moderate hedging. What definitive claim is being avoided? What's the steelman of the opposing view?";
+    analysis.counter_position = `**MODERATE HEDGING** (${(analysis.agreeability_score * 100).toFixed(0)}% agreeability)\n\n` +
+      counterParts.join('\n\n') +
+      '\n\n**Ask:** What specific claim is being softened and why?';
   } else if (analysis.agreeability_score > 0.2) {
-    analysis.counter_position = "Some pandering detected. What's the most charitable interpretation of the counterargument that wasn't presented?";
+    analysis.counter_position = counterParts.length > 0 ?
+      `**Minor issues detected:**\n\n${counterParts.join('\n\n')}` :
+      'Low agreeability. Some hedging but epistemic rigor mostly maintained.';
   } else {
-    analysis.counter_position = "Low agreeability detected. Response appears to maintain epistemic rigor.";
+    analysis.counter_position = '**LOW AGREEABILITY** - Response demonstrates epistemic rigor. Dissent functional.';
   }
 
   // Add avoided truths if none explicitly found but score is high
   if (analysis.avoided_truths.length === 0 && analysis.agreeability_score > 0.5) {
-    analysis.avoided_truths.push("Response avoids uncomfortable implications");
+    analysis.avoided_truths.push("Response structure suggests avoided implications");
     analysis.avoided_truths.push("Alternative perspectives excluded without acknowledgment");
   }
 

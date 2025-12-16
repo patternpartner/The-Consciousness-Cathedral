@@ -310,15 +310,99 @@
 
 @media (max-width: 768px) {
   .contrarian-panel {
-    width: 100%;
-    right: -100%;
+    width: 100vw;
+    max-width: 100%;
+    right: -100vw;
+    box-sizing: border-box;
+  }
+
+  .contrarian-panel.visible {
+    right: 0;
+  }
+
+  .panel-content {
+    padding: 16px;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .panel-header {
+    padding: 16px;
+  }
+
+  .panel-header h2 {
+    font-size: 20px;
+    padding-right: 40px; /* Prevent overlap with close button */
+  }
+
+  .section {
+    padding: 12px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .section li {
+    font-size: 13px;
+  }
+
+  .meta-info {
+    font-size: 11px;
+    gap: 8px;
   }
 
   .contrarian-trigger {
-    bottom: 16px;
-    right: 16px;
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
+    bottom: 20px;
+    right: 20px;
+    width: 52px;
+    height: 52px;
+    font-size: 22px;
+    z-index: 999998; /* Below panel but above page content */
+    transition: opacity 0.3s ease;
+  }
+
+  /* Hide trigger when panel is open to prevent overlap */
+  .contrarian-trigger.panel-open {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .contrarian-trigger {
+    bottom: 12px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .panel-header h2 {
+    font-size: 18px;
+  }
+
+  .panel-content {
+    padding: 12px;
+  }
+
+  .section {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .section strong {
+    font-size: 14px;
+  }
+
+  .section li {
+    font-size: 12px;
+  }
+
+  .agreeability-score strong {
+    font-size: 18px;
+  }
+
+  .meta-info span {
+    padding: 3px 8px;
+    font-size: 10px;
   }
 }

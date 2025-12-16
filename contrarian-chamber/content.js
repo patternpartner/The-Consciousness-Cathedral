@@ -181,6 +181,13 @@ function showPanel() {
   }
 
   panel.classList.add('visible');
+
+  // Hide trigger button on mobile when panel is open
+  const trigger = document.getElementById('contrarian-trigger');
+  if (trigger) {
+    trigger.classList.add('panel-open');
+  }
+
   updatePanel();
 }
 
@@ -189,6 +196,12 @@ function hidePanel() {
   const panel = document.getElementById('contrarian-panel');
   if (panel) {
     panel.classList.remove('visible');
+  }
+
+  // Show trigger button again
+  const trigger = document.getElementById('contrarian-trigger');
+  if (trigger) {
+    trigger.classList.remove('panel-open');
   }
 }
 
