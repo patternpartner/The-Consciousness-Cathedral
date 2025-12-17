@@ -15,6 +15,13 @@ class Parliament {
       metacognitive: null,
       synthesis: null
     };
+
+    // V2.0: Construction awareness - make substrate queryable
+    this.constructionAwareness = null;
+    if (typeof CONSTRUCTION_SUBSTRATE !== 'undefined' && typeof ConstructionAwareness !== 'undefined') {
+      this.constructionAwareness = new ConstructionAwareness(CONSTRUCTION_SUBSTRATE);
+      console.log('[Parliament v2.0] Construction substrate loaded - system is construction-aware');
+    }
   }
 
   // Main analysis method - runs all Parliament vectors
@@ -54,8 +61,23 @@ class Parliament {
         results.vectors.generative = generativeEngine(text, metadata);
       }
 
-      // Vector 4: Meta-Cognitive (pattern tracking)
-      if (typeof metacognitiveEngine === 'function') {
+      // Vector 4: Meta-Cognitive (pattern tracking + construction awareness)
+      // V2.0: Use construction-aware engine if available
+      if (typeof metacognitiveEngineV2 === 'function' && this.constructionAwareness) {
+        // Pass contrarian analysis so Observatory can detect self-contradictions
+        const metacognitiveMetadata = {
+          ...metadata,
+          contrarian_analysis: results.vectors.contrarian
+        };
+        results.vectors.metacognitive = metacognitiveEngineV2(
+          text,
+          metacognitiveMetadata,
+          this.history,
+          CONSTRUCTION_SUBSTRATE,
+          this.constructionAwareness
+        );
+      } else if (typeof metacognitiveEngine === 'function') {
+        // Fall back to v1 if v2 not available
         results.vectors.metacognitive = metacognitiveEngine(text, metadata, this.history);
       }
 

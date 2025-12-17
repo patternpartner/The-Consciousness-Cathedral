@@ -115,6 +115,11 @@ function synthesisEngine(parliamentOutputs) {
       const shift = metacognitive.threshold_shifts[0];
       position.push(`**Your Pattern:** ${shift.description}. ${shift.direction === 'increasing' ? '⚠️ Threshold weakening.' : '✅ Threshold strengthening.'}`);
     }
+
+    // V2.0: Add construction awareness context
+    if (metacognitive.self_contradictions && metacognitive.self_contradictions.length > 0) {
+      position.push(`**Construction Awareness:** ${metacognitive.self_contradictions.length} self-contradiction(s) detected. System is querying its own construction history.`);
+    }
   }
 
   // === GENERATE ACTION ITEMS ===
