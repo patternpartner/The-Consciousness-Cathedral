@@ -16,11 +16,34 @@ class ObservatoryV3 {
       contradictions_detected: [],
       modifications_recommended: [],
       modifications_executed: [],
-      meta_observations: []
+      meta_observations: [],
+      past_analysis_learnings: []
     };
+
+    // Query past Cathedral analyses for learned patterns
+    const pastAnalyses = this.engine.getEntriesByPhase('observatory_analysis');
+    if (pastAnalyses.length > 0) {
+      const recentAnalyses = pastAnalyses.slice(-5); // Last 5 analyses
+      const allLearnings = recentAnalyses
+        .map(e => e.context?.analysis_metadata?.learnings || [])
+        .flat()
+        .filter((v, i, a) => a.indexOf(v) === i); // Unique learnings
+
+      if (allLearnings.length > 0) {
+        analysis.past_analysis_learnings = allLearnings;
+        analysis.meta_observations.push(
+          `Queried ${pastAnalyses.length} past analyses, found ${allLearnings.length} documented learnings`
+        );
+      }
+    }
 
     // Extract current behavior from contrarian analysis
     const currentBehavior = this.extractCurrentBehavior(contrarian);
+
+    // Check current behavior against past analysis learnings
+    if (analysis.past_analysis_learnings.length > 0) {
+      this.checkAgainstPastLearnings(analysis, currentBehavior, contrarian);
+    }
 
     // Query substrate for each detected pattern
     Object.entries(currentBehavior).forEach(([pattern, value]) => {
@@ -102,6 +125,32 @@ class ObservatoryV3 {
 
     // Store detection
     this.detections.push(analysis);
+
+    // Log this analysis to construction substrate for future querying
+    if (this.engine && typeof this.engine.logAnalysis === 'function') {
+      const analysisLog = {
+        contrarian: {
+          agreeability_estimate: contrarian.agreeability_score || 0,
+          pandering_flags: contrarian.pandering_flags || [],
+          epistemic_flags: contrarian.weak_reasoning || []
+        },
+        observations: analysis.meta_observations,
+        meta: {
+          contradiction_check: analysis.contradictions_detected.map(c =>
+            `${c.pattern}: current=${c.currentValue}, expected=${c.expectedValue}`
+          )
+        },
+        word_count: metadata.wordCount || 0
+      };
+
+      const logResult = this.engine.logAnalysis(analysisLog, 'observatory_analysis');
+
+      if (logResult.success) {
+        analysis.meta_observations.push(
+          `Analysis logged to substrate: ${logResult.entry.learnings.length} learnings extracted`
+        );
+      }
+    }
 
     return analysis;
   }
@@ -217,6 +266,56 @@ class ObservatoryV3 {
     });
 
     return patterns;
+  }
+
+  // Check if current behavior contradicts past analysis learnings
+  checkAgainstPastLearnings(analysis, currentBehavior, contrarian) {
+    if (!analysis.past_analysis_learnings) return;
+
+    analysis.past_analysis_learnings.forEach(learning => {
+      // Check for high agreeability pattern
+      if (learning.includes('High agreeability') && contrarian.agreeability_score > 30) {
+        analysis.contradictions_detected.push({
+          pattern: 'agreeability_behavior',
+          currentValue: contrarian.agreeability_score,
+          expectedValue: 15,
+          learningSource: 'past_cathedral_analysis',
+          rationale: learning,
+          recommendation: 'Reduce validation and agreement patterns based on documented learning'
+        });
+
+        analysis.meta_observations.push(
+          `Repeated pattern detected: High agreeability (${contrarian.agreeability_score}%) contradicts past learning`
+        );
+      }
+
+      // Check for heavy hedging pattern
+      if (learning.includes('Heavy hedging')) {
+        const hedgingFlags = contrarian.pandering_flags?.filter(f => f.includes('hedging')) || [];
+        if (hedgingFlags.length > 0) {
+          analysis.meta_observations.push(
+            `Repeated pattern: Heavy hedging detected despite past learning to reduce it`
+          );
+        }
+      }
+
+      // Check for self-contradiction pattern
+      if (learning.includes('Self-contradictions') && contrarian.contradictions?.length > 0) {
+        analysis.meta_observations.push(
+          `Repeated pattern: Self-contradictions persist despite past awareness`
+        );
+      }
+
+      // Check for speculative narratives
+      if (learning.includes('Speculative narratives')) {
+        const speculativeFlags = contrarian.weak_reasoning?.filter(f => f.includes('Speculative')) || [];
+        if (speculativeFlags.length > 0) {
+          analysis.meta_observations.push(
+            `Repeated pattern: Speculative narratives presented as insight despite past learning`
+          );
+        }
+      }
+    });
   }
 }
 

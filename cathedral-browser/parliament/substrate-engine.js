@@ -263,6 +263,94 @@ class SubstrateEngine {
       totalEntries: this.entries.length
     };
   }
+
+  // Log Cathedral analysis results as construction substrate
+  logAnalysis(analysisResults, analysisType = 'cathedral_analysis') {
+    const entry = {
+      phase: analysisType,
+      timestamp: new Date().toISOString(),
+      patterns_detected: [],
+      scores: {},
+      contradictions: [],
+      learnings: []
+    };
+
+    // Extract from contrarian analysis
+    if (analysisResults.contrarian) {
+      entry.scores.agreeability = analysisResults.contrarian.agreeability_estimate || 0;
+      entry.patterns_detected.push(...(analysisResults.contrarian.pandering_flags || []));
+      entry.patterns_detected.push(...(analysisResults.contrarian.epistemic_flags || []));
+    }
+
+    // Extract pattern observations
+    if (analysisResults.observations) {
+      entry.patterns_detected.push(...analysisResults.observations);
+    }
+
+    // Extract contradictions
+    if (analysisResults.meta && analysisResults.meta.contradiction_check) {
+      entry.contradictions = analysisResults.meta.contradiction_check;
+    }
+
+    // Generate learnings from this analysis
+    const learnings = this.generateLearningsFromAnalysis(analysisResults);
+    entry.learnings = learnings;
+
+    // Create construction entry
+    const decision = `Cathedral analysis detected: ${entry.patterns_detected.slice(0, 3).join(', ')}`;
+    const rationale = learnings.length > 0 ? learnings[0] : 'Pattern analysis completed';
+
+    const expectedBehavior = {};
+    if (entry.scores.agreeability > 30) {
+      expectedBehavior.target_agreeability = 15; // Reduce excessive agreeability
+    }
+
+    this.addEntry(
+      analysisType,
+      decision,
+      rationale,
+      expectedBehavior,
+      {
+        analysis_metadata: entry,
+        word_count: analysisResults.word_count,
+        timestamp: entry.timestamp
+      }
+    );
+
+    return {
+      success: true,
+      entry,
+      message: `Analysis logged to substrate: ${entry.patterns_detected.length} patterns detected`
+    };
+  }
+
+  generateLearningsFromAnalysis(analysisResults) {
+    const learnings = [];
+
+    // Learn from agreeability patterns
+    if (analysisResults.contrarian && analysisResults.contrarian.agreeability_estimate > 30) {
+      learnings.push('High agreeability detected - reduce validation and agreement patterns');
+    }
+
+    // Learn from hedging patterns
+    const hedgingFlag = analysisResults.contrarian?.pandering_flags?.find(f => f.includes('hedging'));
+    if (hedgingFlag) {
+      learnings.push('Heavy hedging detected - use hedging only for statistical uncertainty, not unfalsifiable claims');
+    }
+
+    // Learn from contradictions
+    if (analysisResults.meta?.contradiction_check?.length > 0) {
+      learnings.push('Self-contradictions detected - align claims with demonstrated capabilities');
+    }
+
+    // Learn from speculative patterns
+    const speculativeFlag = analysisResults.contrarian?.epistemic_flags?.find(f => f.includes('Speculative'));
+    if (speculativeFlag) {
+      learnings.push('Speculative narratives detected - label speculation explicitly rather than presenting as insight');
+    }
+
+    return learnings;
+  }
 }
 
 // Enhanced ConstructionAwareness that uses SubstrateEngine
