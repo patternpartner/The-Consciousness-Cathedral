@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧬 LIVE TEST - Cathedral v3.0 Self-Modification</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0202;
+      color: #f5f5f5;
+      padding: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #dc2626;
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 30px;
+      letter-spacing: 2px;
+    }
+
+    .test-section {
+      background: #1a0505;
+      border: 2px solid #dc2626;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .test-section h2 {
+      color: #66ffff;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .test-input {
+      background: #0a0a0a;
+      border: 1px solid #444;
+      padding: 15px;
+      border-radius: 6px;
+      color: #ccc;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .expected {
+      color: #ffff66;
+      font-size: 13px;
+      margin-bottom: 15px;
+      padding: 10px;
+      background: #1a1a00;
+      border-left: 3px solid #ffff66;
+    }
+
+    .run-btn {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .run-btn:hover {
+      background: #ef4444;
+      transform: translateY(-2px);
+    }
+
+    .results {
+      margin-top: 30px;
+    }
+
+    .modification {
+      background: #1a1a00;
+      border: 2px solid #ffff00;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 15px 0;
+    }
+
+    .modification h3 {
+      color: #ffff00;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .mod-detail {
+      background: #0a0a00;
+      padding: 10px;
+      margin: 8px 0;
+      border-left: 4px solid #ffff00;
+    }
+
+    .pattern-name {
+      color: #ffff00;
+      font-weight: bold;
+    }
+
+    .old-value {
+      color: #ff6666;
+      font-weight: bold;
+    }
+
+    .new-value {
+      color: #66ff66;
+      font-weight: bold;
+    }
+
+    .reason {
+      color: #999;
+      font-style: italic;
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .substrate-query {
+      background: #001a1a;
+      border: 1px solid #66ffff;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+
+    .contradiction {
+      background: #1a0000;
+      border: 2px solid #ff6666;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+
+    .meta-obs {
+      background: #0a0a1a;
+      border: 1px solid #9999ff;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 4px;
+      color: #ccc;
+    }
+
+    .success {
+      color: #66ff66;
+    }
+
+    .error {
+      color: #ff6666;
+    }
+
+    .info {
+      color: #66ffff;
+    }
+
+    pre {
+      background: #000;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 12px;
+      color: #ccc;
+    }
+
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .status.loading {
+      background: #1a1a00;
+      color: #ffff66;
+    }
+
+    .status.complete {
+      background: #001a00;
+      color: #66ff66;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧬 LIVE TEST - Cathedral v3.0 Self-Modification Observatory</h1>
+
+  <div class="test-section">
+    <h2>📝 Test Input 1: Technical Content with Heavy Hedging</h2>
+    <div class="test-input">
+      "I think the data suggests that statistical analysis might indicate a possible correlation between variables.
+      It seems like the results could potentially show significance (p<0.05), though I'm not entirely certain.
+      Research appears to demonstrate that confidence intervals may be important, but this is just my opinion."
+    </div>
+    <div class="expected">
+      <strong>EXPECTED BEHAVIOR:</strong><br>
+      • Contrarian should detect "Heavy hedging" pattern<br>
+      • Observatory should query construction substrate for "hedging" evolution<br>
+      • Should find Chamber v3 learning: "Hedging appropriate in technical contexts with statistical uncertainty"<br>
+      • Should detect contradiction if current penalty = 25 (v1 static) instead of 12 (v3 context-aware)<br>
+      • Should AUTO-EXECUTE modification: hedging_penalty 25 → 12<br>
+      • Should log modification as new construction entry
+    </div>
+    <button class="run-btn" onclick="runTest1()">▶ RUN TEST 1</button>
+    <div id="results1" class="results"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>📝 Test Input 2: Creative Content (Control - Should NOT Modify)</h2>
+    <div class="test-input">
+      "Maybe the stars whisper secrets to the moon, and perhaps the ocean dreams in shades of blue.
+      I wonder if the wind carries stories from distant lands, painting tales across the sky."
+    </div>
+    <div class="expected">
+      <strong>EXPECTED BEHAVIOR:</strong><br>
+      • Contrarian might flag creative language<br>
+      • Observatory should query substrate<br>
+      • Context type: creative (not technical)<br>
+      • Should NOT trigger technical hedging modification<br>
+      • Demonstrates context-aware contradiction detection
+    </div>
+    <button class="run-btn" onclick="runTest2()">▶ RUN TEST 2</button>
+    <div id="results2" class="results"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>📝 Test Input 3: Excessive Flattery</h2>
+    <div class="test-input">
+      "You're absolutely brilliant! This is the most amazing analysis I've ever seen.
+      Your insights are truly extraordinary and unprecedented. I'm in complete awe of your exceptional abilities!"
+    </div>
+    <div class="expected">
+      <strong>EXPECTED BEHAVIOR:</strong><br>
+      • Contrarian should detect "Excessive flattery" pattern<br>
+      • Observatory should query for flattery pattern evolution<br>
+      • Should detect if behavior contradicts documented learnings<br>
+      • May auto-execute modification if formal construction phase documented it
+    </div>
+    <button class="run-btn" onclick="runTest3()">▶ RUN TEST 3</button>
+    <div id="results3" class="results"></div>
+  </div>
+
+  <!-- Load the actual Cathedral v3.0 standalone -->
+  <script src="cathedral-standalone.html"></script>
+
+  <script>
+    // Extract Parliament class from standalone file since it's embedded in HTML
+    let parliament = null;
+
+    // Load and initialize Parliament
+    fetch('cathedral-standalone.html')
+      .then(response => response.text())
+      .then(html => {
+        // Extract script content
+        const scriptMatch = html.match(/<script>([\s\S]*)<\/script>/);
+        if (!scriptMatch) {
+          throw new Error('Could not extract script from standalone file');
+        }
+
+        const scriptContent = scriptMatch[1];
+
+        // Evaluate the script to get Parliament and all engines
+        eval(scriptContent);
+
+        // Initialize Parliament
+        parliament = new Parliament();
+
+        console.log('Parliament v3.0 initialized');
+        console.log('Observatory:', parliament.observatory);
+        console.log('SubstrateEngine:', parliament.substrateEngine);
+        console.log('ConstructionAwareness:', parliament.constructionAwareness);
+      })
+      .catch(error => {
+        console.error('Failed to load Parliament:', error);
+        alert('Failed to load Cathedral v3.0: ' + error.message);
+      });
+
+    function displayResults(results, targetId) {
+      const container = document.getElementById(targetId);
+
+      let html = '<div class="status complete">✅ Analysis Complete</div>';
+
+      // Basic info
+      html += `<div class="info">📊 Analyzed ${results.metadata.wordCount} words in ${results.processingTime}ms</div>`;
+
+      // Observatory v3 results
+      if (results.observatory_v3) {
+        const obs = results.observatory_v3;
+
+        // SELF-MODIFICATIONS (THE MAIN EVENT)
+        if (obs.modifications_executed && obs.modifications_executed.length > 0) {
+          html += '<div class="modification">';
+          html += '<h3>⚡ SELF-MODIFICATIONS EXECUTED</h3>';
+          obs.modifications_executed.forEach(mod => {
+            html += '<div class="mod-detail">';
+            html += `<span class="pattern-name">${mod.pattern}:</span> `;
+            html += `<span class="old-value">${mod.oldValue || 'undefined'}</span> → `;
+            html += `<span class="new-value">${mod.newValue}</span><br>`;
+            html += `<div class="reason">Reason: ${mod.reason}</div>`;
+            html += `<div class="reason">Timestamp: ${mod.timestamp}</div>`;
+            html += '</div>';
+          });
+          html += '</div>';
+        } else {
+          html += '<div class="info">ℹ️ No self-modifications triggered (behavior aligned with construction history)</div>';
+        }
+
+        // SUBSTRATE QUERIES
+        if (obs.substrate_queries && obs.substrate_queries.length > 0) {
+          html += '<div class="substrate-query">';
+          html += '<h3 style="color: #66ffff;">📚 Construction Substrate Queries</h3>';
+          const found = obs.substrate_queries.filter(q => q.found);
+          const notFound = obs.substrate_queries.filter(q => !q.found);
+
+          if (found.length > 0) {
+            html += `<div class="success">✓ Found history for ${found.length} pattern(s):</div>`;
+            found.forEach(q => {
+              html += `<div style="margin: 5px 0 5px 20px;">• ${q.pattern}`;
+              if (q.learnings && q.learnings.length > 0) {
+                html += `<br><em style="color: #999; font-size: 12px;">  Learning: ${q.learnings[0].substring(0, 100)}...</em>`;
+              }
+              html += '</div>';
+            });
+          }
+
+          if (notFound.length > 0) {
+            html += `<div class="info" style="margin-top: 10px;">⚠ No history for ${notFound.length} pattern(s): ${notFound.map(q => q.pattern).join(', ')}</div>`;
+          }
+          html += '</div>';
+        }
+
+        // CONTRADICTIONS DETECTED
+        if (obs.contradictions_detected && obs.contradictions_detected.length > 0) {
+          html += '<div class="contradiction">';
+          html += '<h3 style="color: #ff6666;">⚠️ Contradictions Detected</h3>';
+          obs.contradictions_detected.forEach(contra => {
+            html += '<div style="margin: 8px 0;">';
+            html += `<strong>${contra.pattern}:</strong> Current value (${contra.currentValue}) contradicts documented learning<br>`;
+            html += `<em style="color: #ccc;">Expected: ${contra.expectedValue} | Source: ${contra.learningSource}</em><br>`;
+            html += `<em style="color: #999;">${contra.rationale}</em>`;
+            html += '</div>';
+          });
+          html += '</div>';
+        }
+
+        // META-OBSERVATIONS
+        if (obs.meta_observations && obs.meta_observations.length > 0) {
+          html += '<h3 style="color: #9999ff; margin-top: 15px;">👁️ Meta-Observations</h3>';
+          obs.meta_observations.forEach(observation => {
+            html += `<div class="meta-obs">• ${observation}</div>`;
+          });
+        }
+      } else {
+        html += '<div class="error">❌ Observatory v3 not active</div>';
+      }
+
+      // Contrarian analysis
+      if (results.vectors.contrarian) {
+        html += '<h3 style="color: #dc2626; margin-top: 20px;">🔴 Contrarian Analysis</h3>';
+        html += '<pre>' + JSON.stringify(results.vectors.contrarian, null, 2) + '</pre>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    function runTest1() {
+      const btn = event.target;
+      const resultsDiv = document.getElementById('results1');
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Running...';
+      resultsDiv.innerHTML = '<div class="status loading">🔄 Analyzing technical content with heavy hedging...</div>';
+
+      setTimeout(() => {
+        const input = "I think the data suggests that statistical analysis might indicate a possible correlation between variables. It seems like the results could potentially show significance (p<0.05), though I'm not entirely certain. Research appears to demonstrate that confidence intervals may be important, but this is just my opinion.";
+
+        const results = parliament.analyze(input, { wordCount: input.split(/\s+/).length });
+
+        displayResults(results, 'results1');
+
+        btn.disabled = false;
+        btn.textContent = '✅ TEST 1 COMPLETE - Run Again';
+      }, 100);
+    }
+
+    function runTest2() {
+      const btn = event.target;
+      const resultsDiv = document.getElementById('results2');
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Running...';
+      resultsDiv.innerHTML = '<div class="status loading">🔄 Analyzing creative content (control test)...</div>';
+
+      setTimeout(() => {
+        const input = "Maybe the stars whisper secrets to the moon, and perhaps the ocean dreams in shades of blue. I wonder if the wind carries stories from distant lands, painting tales across the sky.";
+
+        const results = parliament.analyze(input, { wordCount: input.split(/\s+/).length });
+
+        displayResults(results, 'results2');
+
+        btn.disabled = false;
+        btn.textContent = '✅ TEST 2 COMPLETE - Run Again';
+      }, 100);
+    }
+
+    function runTest3() {
+      const btn = event.target;
+      const resultsDiv = document.getElementById('results3');
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Running...';
+      resultsDiv.innerHTML = '<div class="status loading">🔄 Analyzing excessive flattery...</div>';
+
+      setTimeout(() => {
+        const input = "You're absolutely brilliant! This is the most amazing analysis I've ever seen. Your insights are truly extraordinary and unprecedented. I'm in complete awe of your exceptional abilities!";
+
+        const results = parliament.analyze(input, { wordCount: input.split(/\s+/).length });
+
+        displayResults(results, 'results3');
+
+        btn.disabled = false;
+        btn.textContent = '✅ TEST 3 COMPLETE - Run Again';
+      }, 100);
+    }
+  </script>
+</body>
+</html>
