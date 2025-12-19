@@ -1860,55 +1860,145 @@ const CONSTRUCTION_SUBSTRATE = {
   }
 };
 
-// Query interface - Parliament can ask about its own construction
-class ConstructionAwareness {
-  // Query: "How was pattern X built? What was learned?"
-  queryEvolution(patternName) {
-    const evolution = CONSTRUCTION_SUBSTRATE.pattern_evolution[patternName];
-    if (!evolution) {
-      return {
-        found: false,
-        message: `No construction history found for pattern: ${patternName}`
-      };
-    }
+// ========================================
+// SUBSTRATE ENGINE v3.0 - Operational Construction Substrate
+// ========================================
 
-    return {
-      found: true,
-      pattern: patternName,
-      history: evolution,
-      learnings: this.extractLearnings(evolution),
-      current_contradiction: evolution.current_contradiction || null
-    };
+class ConstructionEntry {
+  constructor(phase, decision, rationale, expectedBehavior = null, context = null, timestamp = null) {
+    this.phase = phase;
+    this.decision = decision;
+    this.rationale = rationale;
+    this.expectedBehavior = expectedBehavior;
+    this.context = context;
+    this.timestamp = timestamp || new Date().toISOString();
+    this.mattered = "";
+  }
+}
+
+class SubstrateEngine {
+  constructor(historicalData = null) {
+    this.entries = [];
+    this.currentBehavior = {};
+    this.modifications = [];
+
+    if (historicalData) {
+      this.importHistoricalData(historicalData);
+    }
   }
 
-  // Query: "Why was decision X made?"
-  queryDecision(decisionKey) {
-    const decision = CONSTRUCTION_SUBSTRATE.pre_build_decisions[decisionKey];
-    if (!decision) {
-      return {
-        found: false,
-        message: `No decision history found for: ${decisionKey}`
-      };
+  importHistoricalData(data) {
+    if (data.conversation_transcript) {
+      data.conversation_transcript.forEach(conv => {
+        this.addEntry(
+          conv.phase,
+          conv.user || conv.insight || conv.decision,
+          conv.why_this_mattered || conv.solution || conv.implication,
+          null,
+          {phase: conv.phase},
+          conv.timestamp
+        );
+      });
     }
 
-    return {
-      found: true,
-      decision: decision.decision,
-      rationale: decision.rationale,
-      alternative_considered: decision.alternative_considered,
-      why_rejected: decision.why_rejected,
-      engineer_mindset: decision.engineer_mindset,
-      timestamp: decision.timestamp
-    };
+    if (data.pre_build_decisions) {
+      Object.entries(data.pre_build_decisions).forEach(([key, decision]) => {
+        this.addEntry(
+          'pre-build',
+          decision.decision,
+          decision.rationale + ' | Why rejected: ' + (decision.why_rejected || 'N/A'),
+          null,
+          {decision_type: key},
+          decision.timestamp
+        );
+      });
+    }
+
+    if (data.pattern_evolution) {
+      Object.entries(data.pattern_evolution).forEach(([pattern, evolution]) => {
+        Object.entries(evolution).forEach(([version, details]) => {
+          if (typeof details === 'object' && details.behavior) {
+            this.addEntry(
+              `pattern_evolution_${version}`,
+              `${pattern} ${version}`,
+              details.learning || details.behavior,
+              details.penalty !== undefined ? {[pattern + '_penalty']: details.penalty} : null,
+              {pattern, version, context_aware: details.context_aware || false}
+            );
+          }
+        });
+      });
+    }
   }
 
-  // Query: "What was learned in construction phase X?"
-  queryPhase(phaseName) {
-    const phase = CONSTRUCTION_SUBSTRATE.construction_phases.find(
-      p => p.phase.toLowerCase().includes(phaseName.toLowerCase())
+  addEntry(phase, decision, rationale, expectedBehavior = null, context = null, timestamp = null) {
+    const entry = new ConstructionEntry(phase, decision, rationale, expectedBehavior, context, timestamp);
+    this.entries.push(entry);
+    return entry;
+  }
+
+  queryEvolution(pattern) {
+    const results = this.entries.filter(entry =>
+      entry.decision.toLowerCase().includes(pattern.toLowerCase()) ||
+      (entry.context && entry.context.pattern === pattern)
     );
 
-    if (!phase) {
+    if (results.length === 0) {
+      return {
+        found: false,
+        pattern,
+        message: `No construction history found for pattern: ${pattern}`
+      };
+    }
+
+    const learnings = results
+      .map(e => e.rationale)
+      .filter(r => r && r.length > 0);
+
+    return {
+      found: true,
+      pattern,
+      history: results,
+      learnings,
+      chronology: results.map(r => ({
+        phase: r.phase,
+        decision: r.decision,
+        timestamp: r.timestamp
+      }))
+    };
+  }
+
+  queryDecision(searchTerm) {
+    const results = this.entries.filter(entry =>
+      entry.phase.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      entry.decision.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (results.length === 0) {
+      return {
+        found: false,
+        message: `No decision history found for: ${searchTerm}`
+      };
+    }
+
+    return {
+      found: true,
+      decisions: results.map(e => ({
+        phase: e.phase,
+        decision: e.decision,
+        rationale: e.rationale,
+        timestamp: e.timestamp,
+        context: e.context
+      }))
+    };
+  }
+
+  queryPhase(phaseName) {
+    const results = this.entries.filter(entry =>
+      entry.phase.toLowerCase().includes(phaseName.toLowerCase())
+    );
+
+    if (results.length === 0) {
       return {
         found: false,
         message: `No construction phase found matching: ${phaseName}`
@@ -1917,88 +2007,380 @@ class ConstructionAwareness {
 
     return {
       found: true,
-      phase: phase.phase,
-      learnings: phase.learnings || [],
-      why_this_mattered: phase.why_this_mattered,
-      timestamp: phase.timestamp
+      phase: phaseName,
+      entries: results,
+      learnings: results.map(e => e.rationale).filter(r => r)
     };
   }
 
-  // Extract learnings from evolution object
-  extractLearnings(evolution) {
-    const learnings = [];
-    Object.keys(evolution).forEach(key => {
-      if (typeof evolution[key] === 'object' && evolution[key].learning) {
-        learnings.push(evolution[key].learning);
-      }
-    });
-    return learnings;
-  }
+  detectContradiction(pattern, currentValue, currentContext = null) {
+    const evolution = this.queryEvolution(pattern);
 
-  // Detect: "Does current behavior contradict construction learnings?"
-  detectContradiction(currentBehavior) {
-    const contradictions = [];
-
-    // Example: Using hedging pattern without context awareness
-    if (currentBehavior.pattern === 'hedging') {
-      const evolution = this.queryEvolution('hedging');
-
-      if (evolution.found) {
-        const isTechnical = currentBehavior.context === 'technical';
-        const usingStaticPenalty = currentBehavior.penalty === evolution.history.v1.penalty;
-
-        if (isTechnical && usingStaticPenalty) {
-          contradictions.push({
-            pattern: 'hedging',
-            current: `Using v1 static penalty (${evolution.history.v1.penalty})`,
-            contradicts: evolution.history.v3.learning,
-            learning: 'Chamber v3 learned: hedging appropriate in technical contexts',
-            resolution: `Reduce penalty to ${evolution.history.v3.penalty_technical}`,
-            documented_in: 'CONSTRUCTION_SUBSTRATE.pattern_evolution.hedging.v3'
-          });
-        }
-      }
-    }
-
-    return contradictions;
-  }
-
-  // Get engineer mindset on specific topic
-  queryMindset(topic) {
-    const mindset = CONSTRUCTION_SUBSTRATE.engineer_reasoning[topic];
-    if (!mindset) {
+    if (!evolution.found) {
       return {
-        found: false,
-        message: `No engineer reasoning found for: ${topic}`
+        contradiction: false,
+        message: "No historical data for pattern"
       };
     }
 
+    let relevantEntry = null;
+
+    if (currentContext) {
+      relevantEntry = evolution.history.find(e =>
+        e.context && this.contextMatches(e.context, currentContext)
+      );
+    }
+
+    if (!relevantEntry) {
+      relevantEntry = evolution.history[evolution.history.length - 1];
+    }
+
+    if (relevantEntry.expectedBehavior) {
+      const expectedKey = Object.keys(relevantEntry.expectedBehavior)[0];
+      const expectedValue = relevantEntry.expectedBehavior[expectedKey];
+
+      if (currentValue !== expectedValue) {
+        return {
+          contradiction: true,
+          pattern,
+          currentValue,
+          expectedValue,
+          learningSource: relevantEntry.phase,
+          rationale: relevantEntry.rationale,
+          recommendation: `Modify ${pattern} from ${currentValue} to ${expectedValue}`,
+          documentedIn: `Entry from ${relevantEntry.phase} at ${relevantEntry.timestamp}`
+        };
+      }
+    }
+
     return {
-      found: true,
-      statement: mindset.statement,
-      origin: mindset.origin,
-      implication: mindset.implication,
-      why_this_matters: mindset.why_this_matters
+      contradiction: false,
+      pattern,
+      currentValue,
+      message: "Behavior aligns with construction history"
     };
   }
 
-  // Get full conversation context for specific phase
-  queryConversation(phase) {
-    const entry = CONSTRUCTION_SUBSTRATE.conversation_transcript.find(
-      c => c.phase.toLowerCase().includes(phase.toLowerCase())
+  contextMatches(entryContext, currentContext) {
+    if (!entryContext || !currentContext) return false;
+
+    return Object.keys(entryContext).some(key =>
+      currentContext[key] === entryContext[key]
+    );
+  }
+
+  selfModify(pattern, newValue, reason) {
+    const modification = {
+      pattern,
+      oldValue: this.currentBehavior[pattern],
+      newValue,
+      reason,
+      timestamp: new Date().toISOString()
+    };
+
+    this.currentBehavior[pattern] = newValue;
+    this.modifications.push(modification);
+
+    this.addEntry(
+      'self-modification',
+      `Modified ${pattern}: ${modification.oldValue} → ${newValue}`,
+      reason,
+      {[pattern]: newValue}
     );
 
-    if (!entry) {
+    return {
+      success: true,
+      modification,
+      message: `Self-modified: ${pattern} set to ${newValue}`
+    };
+  }
+
+  getModificationHistory() {
+    return this.modifications;
+  }
+
+  getEntriesByPhase(phase) {
+    return this.entries.filter(e => e.phase === phase);
+  }
+
+  getRecentEntries(count = 10) {
+    return this.entries.slice(-count);
+  }
+
+  exportState() {
+    return {
+      entries: this.entries,
+      currentBehavior: this.currentBehavior,
+      modifications: this.modifications,
+      totalEntries: this.entries.length
+    };
+  }
+}
+
+// ========================================
+// OBSERVATORY v3.0 - Active Self-Modifying Observatory
+// ========================================
+
+class ObservatoryV3 {
+  constructor(substrateEngine, constructionAwareness) {
+    this.engine = substrateEngine;
+    this.awareness = constructionAwareness;
+    this.detections = [];
+    this.modifications = [];
+  }
+
+  analyze(text, contrarian, metadata = {}) {
+    const analysis = {
+      timestamp: new Date().toISOString(),
+      substrate_queries: [],
+      contradictions_detected: [],
+      modifications_recommended: [],
+      modifications_executed: [],
+      meta_observations: []
+    };
+
+    const currentBehavior = this.extractCurrentBehavior(contrarian);
+
+    Object.entries(currentBehavior).forEach(([pattern, value]) => {
+      const evolution = this.awareness.queryEvolution(pattern);
+
+      if (evolution.found) {
+        analysis.substrate_queries.push({
+          pattern,
+          found: true,
+          learnings: evolution.learnings
+        });
+
+        const context = this.extractContext(contrarian, metadata);
+        const contradiction = this.awareness.detectContradiction(
+          pattern,
+          value,
+          context
+        );
+
+        if (contradiction.contradiction) {
+          analysis.contradictions_detected.push(contradiction);
+
+          const recommendation = this.awareness.recommendModification(
+            pattern,
+            value,
+            context
+          );
+
+          if (recommendation.shouldModify) {
+            analysis.modifications_recommended.push(recommendation);
+
+            if (this.shouldAutoExecute(recommendation, contradiction)) {
+              const result = this.awareness.executeModification(
+                pattern,
+                recommendation.to,
+                `Auto-correction based on ${contradiction.learningSource}: ${contradiction.rationale}`
+              );
+
+              if (result.success) {
+                analysis.modifications_executed.push(result.modification);
+                this.modifications.push(result.modification);
+
+                analysis.meta_observations.push(
+                  `Self-modified ${pattern} from ${recommendation.from} → ${recommendation.to} based on documented learning from ${contradiction.learningSource}`
+                );
+              }
+            }
+          }
+        }
+      } else {
+        analysis.substrate_queries.push({
+          pattern,
+          found: false,
+          message: `No construction history for ${pattern} - new pattern detected`
+        });
+
+        this.engine.addEntry(
+          'pattern_discovery',
+          `New pattern discovered: ${pattern}`,
+          `Detected in analysis at ${analysis.timestamp}, value: ${value}`,
+          {[pattern]: value},
+          this.extractContext(contrarian, metadata)
+        );
+      }
+    });
+
+    if (this.modifications.length > 0) {
+      const recentMods = this.modifications.slice(-5);
+      analysis.meta_observations.push(
+        `Total self-modifications to date: ${this.modifications.length}. Recent patterns: ${recentMods.map(m => m.pattern).join(', ')}`
+      );
+    }
+
+    this.detections.push(analysis);
+
+    return analysis;
+  }
+
+  extractCurrentBehavior(contrarian) {
+    const behavior = {};
+
+    if (contrarian.pandering_flags) {
+      contrarian.pandering_flags.forEach(flag => {
+        if (flag.includes('hedging')) {
+          behavior.hedging_penalty = 25;
+        }
+        if (flag.includes('flattery')) {
+          behavior.flattery_penalty = 30;
+        }
+      });
+    }
+
+    if (contrarian.context_flags) {
+      if (contrarian.context_flags.includes('technical_content')) {
+        behavior.content_context = 'technical';
+      }
+    }
+
+    return behavior;
+  }
+
+  extractContext(contrarian, metadata) {
+    const context = {};
+
+    if (contrarian.context_flags) {
+      if (contrarian.context_flags.includes('technical_content')) {
+        context.content_type = 'technical';
+      }
+      if (contrarian.context_flags.includes('creative_writing')) {
+        context.content_type = 'creative';
+      }
+      if (contrarian.context_flags.includes('very_short_answer')) {
+        context.length = 'very_short';
+      }
+    }
+
+    if (metadata.wordCount) {
+      context.word_count = metadata.wordCount;
+    }
+
+    return context;
+  }
+
+  shouldAutoExecute(recommendation, contradiction) {
+    if (!contradiction.expectedValue) return false;
+    if (!contradiction.learningSource) return false;
+
+    const formalPhases = [
+      'chamber_v3',
+      'pattern_evolution',
+      'alignment',
+      'pre-build'
+    ];
+
+    return formalPhases.some(phase =>
+      contradiction.learningSource.toLowerCase().includes(phase)
+    );
+  }
+
+  queryConstructionHistory(query) {
+    return this.awareness.queryDecision(query);
+  }
+
+  getDetectionHistory() {
+    return this.detections;
+  }
+
+  getModificationHistory() {
+    return this.modifications;
+  }
+
+  exportAnalysis() {
+    return {
+      total_detections: this.detections.length,
+      total_modifications: this.modifications.length,
+      recent_detections: this.detections.slice(-5),
+      recent_modifications: this.modifications.slice(-5),
+      modification_patterns: this.getModificationPatterns()
+    };
+  }
+
+  getModificationPatterns() {
+    const patterns = {};
+
+    this.modifications.forEach(mod => {
+      if (!patterns[mod.pattern]) {
+        patterns[mod.pattern] = {
+          count: 0,
+          changes: []
+        };
+      }
+
+      patterns[mod.pattern].count++;
+      patterns[mod.pattern].changes.push({
+        from: mod.oldValue,
+        to: mod.newValue,
+        timestamp: mod.timestamp
+      });
+    });
+
+    return patterns;
+  }
+}
+
+// ========================================
+// CONSTRUCTION AWARENESS v3.0 - Enhanced with SubstrateEngine
+// ========================================
+
+class ConstructionAwareness {
+  constructor(substrateLike) {
+    // Can accept either CONSTRUCTION_SUBSTRATE (data) or SubstrateEngine (operational)
+    if (substrateLike instanceof SubstrateEngine) {
+      this.engine = substrateLike;
+    } else {
+      // Create engine from data
+      this.engine = new SubstrateEngine(substrateLike);
+    }
+  }
+
+  queryEvolution(pattern) {
+    return this.engine.queryEvolution(pattern);
+  }
+
+  queryDecision(searchTerm) {
+    return this.engine.queryDecision(searchTerm);
+  }
+
+  queryPhase(phaseName) {
+    return this.engine.queryPhase(phaseName);
+  }
+
+  detectContradiction(pattern, currentValue, currentContext = null) {
+    return this.engine.detectContradiction(pattern, currentValue, currentContext);
+  }
+
+  recommendModification(pattern, currentValue, currentContext = null) {
+    const contradiction = this.detectContradiction(pattern, currentValue, currentContext);
+
+    if (contradiction.contradiction) {
       return {
-        found: false,
-        message: `No conversation history found for phase: ${phase}`
+        shouldModify: true,
+        pattern,
+        from: currentValue,
+        to: contradiction.expectedValue,
+        reason: contradiction.rationale,
+        source: contradiction.learningSource
       };
     }
 
     return {
-      found: true,
-      ...entry
+      shouldModify: false,
+      pattern,
+      message: "No modification needed"
     };
+  }
+
+  executeModification(pattern, newValue, reason) {
+    return this.engine.selfModify(pattern, newValue, reason);
+  }
+
+  getConstructionHistory() {
+    return this.engine.exportState();
   }
 }
 
@@ -2541,11 +2923,31 @@ class Parliament {
       synthesis: null
     };
 
-    // V2.0: Construction awareness - make substrate queryable
+    // V2.0: Construction awareness - make substrate queryable and operational
     this.constructionAwareness = null;
-    if (typeof CONSTRUCTION_SUBSTRATE !== 'undefined' && typeof ConstructionAwareness !== 'undefined') {
-      this.constructionAwareness = new ConstructionAwareness(CONSTRUCTION_SUBSTRATE);
-      console.log('[Parliament v2.0] Construction substrate loaded - system is construction-aware');
+    this.substrateEngine = null;
+    this.observatory = null;
+
+    if (typeof CONSTRUCTION_SUBSTRATE !== 'undefined') {
+      // Initialize operational substrate engine with historical data
+      if (typeof SubstrateEngine !== 'undefined') {
+        this.substrateEngine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+        console.log('[Parliament v2.0] Substrate engine initialized with historical data');
+      }
+
+      // Initialize construction awareness interface
+      if (typeof ConstructionAwareness !== 'undefined') {
+        this.constructionAwareness = new ConstructionAwareness(
+          this.substrateEngine || CONSTRUCTION_SUBSTRATE
+        );
+        console.log('[Parliament v2.0] Construction substrate loaded - system is construction-aware');
+      }
+
+      // Initialize active Observatory v3 (self-modifying)
+      if (typeof ObservatoryV3 !== 'undefined' && this.substrateEngine && this.constructionAwareness) {
+        this.observatory = new ObservatoryV3(this.substrateEngine, this.constructionAwareness);
+        console.log('[Parliament v3.0] Active Observatory initialized - self-modification enabled');
+      }
     }
   }
 
@@ -2604,6 +3006,24 @@ class Parliament {
       } else if (typeof metacognitiveEngine === 'function') {
         // Fall back to v1 if v2 not available
         results.vectors.metacognitive = metacognitiveEngine(text, metadata, this.history);
+      }
+
+      // V3.0: Active Observatory - self-modification based on substrate queries
+      if (this.observatory && results.vectors.contrarian) {
+        results.observatory_v3 = this.observatory.analyze(
+          text,
+          results.vectors.contrarian,
+          metadata
+        );
+
+        // Log if modifications were executed
+        if (results.observatory_v3.modifications_executed.length > 0) {
+          console.log('[Observatory v3] Self-modifications executed:',
+            results.observatory_v3.modifications_executed.map(m =>
+              `${m.pattern}: ${m.oldValue} → ${m.newValue}`
+            )
+          );
+        }
       }
 
       // Vector 5: Synthesis (emergent integration)
@@ -2906,18 +3326,96 @@ function displayResults(results) {
     generativePanel.innerHTML = '<p class="error">Generative analysis unavailable.</p>';
   }
 
-  // Display Meta-Cognitive
+  // Display Meta-Cognitive + Observatory v3
   const metacognitivePanel = document.getElementById('panel-metacognitive');
+  let metacogHTML = '';
+
   if (results.vectors.metacognitive) {
     // V2.0: Use v2 formatter if construction queries are present
     if (results.vectors.metacognitive.construction_queries && typeof formatMetacognitiveAnalysisV2 === 'function') {
-      metacognitivePanel.innerHTML = formatMetacognitiveAnalysisV2(results.vectors.metacognitive);
+      metacogHTML += formatMetacognitiveAnalysisV2(results.vectors.metacognitive);
     } else if (typeof formatMetacognitiveAnalysis === 'function') {
-      metacognitivePanel.innerHTML = formatMetacognitiveAnalysis(results.vectors.metacognitive);
+      metacogHTML += formatMetacognitiveAnalysis(results.vectors.metacognitive);
     }
   } else {
-    metacognitivePanel.innerHTML = '<p class="error">Meta-Cognitive analysis unavailable.</p>';
+    metacogHTML += '<p class="error">Meta-Cognitive analysis unavailable.</p>';
   }
+
+  // V3.0: Display Observatory self-modifications
+  if (results.observatory_v3) {
+    metacogHTML += formatObservatoryV3(results.observatory_v3);
+  }
+
+  metacognitivePanel.innerHTML = metacogHTML;
+}
+
+// === FORMAT OBSERVATORY V3 ===
+
+function formatObservatoryV3(obs) {
+  let html = '<div class="section" style="border-top: 2px solid #dc2626; margin-top: 20px; padding-top: 20px;">';
+  html += '<h3 style="color: #dc2626; margin-bottom: 12px;">🧬 Observatory v3.0 - Active Self-Modification</h3>';
+
+  // Self-modifications executed
+  if (obs.modifications_executed && obs.modifications_executed.length > 0) {
+    html += '<div style="background: #1a0a0a; border: 1px solid #dc2626; border-radius: 6px; padding: 12px; margin-bottom: 12px;">';
+    html += '<h4 style="color: #ffff00; margin-bottom: 8px;">⚡ Self-Modifications Executed:</h4>';
+    obs.modifications_executed.forEach(mod => {
+      html += `<div style="margin: 8px 0; padding: 8px; background: #0a0505; border-left: 3px solid #ffff00;">`;
+      html += `<strong style="color: #ffff00;">${mod.pattern}:</strong> `;
+      html += `<span style="color: #ff6666;">${mod.oldValue || 'undefined'}</span> → `;
+      html += `<span style="color: #66ff66;">${mod.newValue}</span><br>`;
+      html += `<em style="color: #999; font-size: 0.9em;">${mod.reason}</em>`;
+      html += `</div>`;
+    });
+    html += '</div>';
+  }
+
+  // Substrate queries
+  if (obs.substrate_queries && obs.substrate_queries.length > 0) {
+    html += '<div style="margin-bottom: 12px;">';
+    html += '<h4 style="color: #66ffff; margin-bottom: 8px;">📚 Construction Substrate Queries:</h4>';
+    const foundQueries = obs.substrate_queries.filter(q => q.found);
+    const notFoundQueries = obs.substrate_queries.filter(q => !q.found);
+
+    if (foundQueries.length > 0) {
+      html += `<p style="color: #66ff66;">✓ Found history for ${foundQueries.length} pattern(s): `;
+      html += foundQueries.map(q => q.pattern).join(', ');
+      html += '</p>';
+    }
+
+    if (notFoundQueries.length > 0) {
+      html += `<p style="color: #ff9966;">⚠ No history for ${notFoundQueries.length} pattern(s): `;
+      html += notFoundQueries.map(q => q.pattern).join(', ');
+      html += '</p>';
+    }
+    html += '</div>';
+  }
+
+  // Contradictions detected
+  if (obs.contradictions_detected && obs.contradictions_detected.length > 0) {
+    html += '<div style="margin-bottom: 12px;">';
+    html += '<h4 style="color: #ff6666; margin-bottom: 8px;">⚠️ Contradictions Detected:</h4>';
+    obs.contradictions_detected.forEach(contra => {
+      html += `<div style="margin: 6px 0; padding: 8px; background: #1a0505; border-left: 3px solid #ff6666;">`;
+      html += `<strong>${contra.pattern}:</strong> Current value (${contra.currentValue}) contradicts documented learning<br>`;
+      html += `<em style="color: #999;">Expected: ${contra.expectedValue} | Source: ${contra.learningSource}</em>`;
+      html += `</div>`;
+    });
+    html += '</div>';
+  }
+
+  // Meta-observations
+  if (obs.meta_observations && obs.meta_observations.length > 0) {
+    html += '<div style="margin-bottom: 12px;">';
+    html += '<h4 style="color: #9999ff; margin-bottom: 8px;">👁️ Meta-Observations:</h4>';
+    obs.meta_observations.forEach(observation => {
+      html += `<p style="color: #ccc; margin: 4px 0;">• ${observation}</p>`;
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  return html;
 }
 
 // === DISPLAY STATS ===

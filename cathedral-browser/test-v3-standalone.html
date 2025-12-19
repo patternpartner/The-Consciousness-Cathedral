@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test v3.0 Standalone Integration</title>
+  <style>
+    body { background: #0a0202; color: #f5f5f5; font-family: monospace; padding: 20px; }
+    .success { color: #66ff66; }
+    .error { color: #ff6666; }
+    .info { color: #66ffff; }
+  </style>
+</head>
+<body>
+  <h1>Cathedral v3.0 Standalone Integration Test</h1>
+  <div id="test-results"></div>
+
+  <script>
+    const results = [];
+
+    function test(name, fn) {
+      try {
+        const result = fn();
+        if (result.pass) {
+          results.push({ name, pass: true, message: result.message });
+        } else {
+          results.push({ name, pass: false, message: result.message });
+        }
+      } catch (error) {
+        results.push({ name, pass: false, message: error.message });
+      }
+    }
+
+    // Load the standalone file's JS by extracting and evaluating it
+    fetch('cathedral-standalone.html')
+      .then(response => response.text())
+      .then(html => {
+        console.log('Loaded cathedral-standalone.html');
+
+        // Extract script content
+        const scriptMatch = html.match(/<script>([\s\S]*)<\/script>/);
+        if (!scriptMatch) {
+          throw new Error('Could not extract script from standalone file');
+        }
+
+        const scriptContent = scriptMatch[1];
+        console.log('Extracted script content, length:', scriptContent.length);
+
+        // Evaluate the script
+        eval(scriptContent);
+
+        console.log('Script evaluated successfully');
+
+        // Run tests
+        test('SubstrateEngine class exists', () => {
+          if (typeof SubstrateEngine !== 'undefined') {
+            return { pass: true, message: 'SubstrateEngine class defined' };
+          }
+          return { pass: false, message: 'SubstrateEngine class undefined' };
+        });
+
+        test('ObservatoryV3 class exists', () => {
+          if (typeof ObservatoryV3 !== 'undefined') {
+            return { pass: true, message: 'ObservatoryV3 class defined' };
+          }
+          return { pass: false, message: 'ObservatoryV3 class undefined' };
+        });
+
+        test('ConstructionAwareness enhanced', () => {
+          if (typeof ConstructionAwareness !== 'undefined') {
+            const awareness = new ConstructionAwareness(CONSTRUCTION_SUBSTRATE);
+            if (awareness.engine instanceof SubstrateEngine) {
+              return { pass: true, message: 'ConstructionAwareness uses SubstrateEngine' };
+            }
+          }
+          return { pass: false, message: 'ConstructionAwareness not enhanced' };
+        });
+
+        test('Parliament has Observatory v3', () => {
+          const parl = new Parliament();
+          if (parl.observatory instanceof ObservatoryV3) {
+            return { pass: true, message: 'Parliament.observatory is ObservatoryV3 instance' };
+          }
+          return { pass: false, message: 'Parliament.observatory not initialized' };
+        });
+
+        test('Parliament has SubstrateEngine', () => {
+          const parl = new Parliament();
+          if (parl.substrateEngine instanceof SubstrateEngine) {
+            return { pass: true, message: 'Parliament.substrateEngine initialized' };
+          }
+          return { pass: false, message: 'Parliament.substrateEngine not initialized' };
+        });
+
+        test('formatObservatoryV3 function exists', () => {
+          if (typeof formatObservatoryV3 === 'function') {
+            return { pass: true, message: 'formatObservatoryV3 function defined' };
+          }
+          return { pass: false, message: 'formatObservatoryV3 function undefined' };
+        });
+
+        // Display results
+        const passCount = results.filter(t => t.pass).length;
+        const totalCount = results.length;
+
+        let html = `<h2 class="${passCount === totalCount ? 'success' : 'error'}">`;
+        html += `Results: ${passCount}/${totalCount} tests passed`;
+        html += `</h2>`;
+
+        results.forEach(t => {
+          html += `<div class="${t.pass ? 'success' : 'error'}">`;
+          html += `${t.pass ? '✅' : '❌'} ${t.name}: ${t.message}`;
+          html += `</div>`;
+        });
+
+        document.getElementById('test-results').innerHTML = html;
+
+        console.log('Test Results:', { passCount, totalCount, results });
+      })
+      .catch(error => {
+        document.getElementById('test-results').innerHTML = `<div class="error">Test failed: ${error.message}</div>`;
+        console.error('Test error:', error);
+      });
+  </script>
+</body>
+</html>
