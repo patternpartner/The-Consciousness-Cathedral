@@ -16,11 +16,31 @@ class Parliament {
       synthesis: null
     };
 
-    // V2.0: Construction awareness - make substrate queryable
+    // V2.0: Construction awareness - make substrate queryable and operational
     this.constructionAwareness = null;
-    if (typeof CONSTRUCTION_SUBSTRATE !== 'undefined' && typeof ConstructionAwareness !== 'undefined') {
-      this.constructionAwareness = new ConstructionAwareness(CONSTRUCTION_SUBSTRATE);
-      console.log('[Parliament v2.0] Construction substrate loaded - system is construction-aware');
+    this.substrateEngine = null;
+    this.observatory = null;
+
+    if (typeof CONSTRUCTION_SUBSTRATE !== 'undefined') {
+      // Initialize operational substrate engine with historical data
+      if (typeof SubstrateEngine !== 'undefined') {
+        this.substrateEngine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+        console.log('[Parliament v2.0] Substrate engine initialized with historical data');
+      }
+
+      // Initialize construction awareness interface
+      if (typeof ConstructionAwareness !== 'undefined') {
+        this.constructionAwareness = new ConstructionAwareness(
+          this.substrateEngine || CONSTRUCTION_SUBSTRATE
+        );
+        console.log('[Parliament v2.0] Construction substrate loaded - system is construction-aware');
+      }
+
+      // Initialize active Observatory v3 (self-modifying)
+      if (typeof ObservatoryV3 !== 'undefined' && this.substrateEngine && this.constructionAwareness) {
+        this.observatory = new ObservatoryV3(this.substrateEngine, this.constructionAwareness);
+        console.log('[Parliament v3.0] Active Observatory initialized - self-modification enabled');
+      }
     }
   }
 
@@ -79,6 +99,24 @@ class Parliament {
       } else if (typeof metacognitiveEngine === 'function') {
         // Fall back to v1 if v2 not available
         results.vectors.metacognitive = metacognitiveEngine(text, metadata, this.history);
+      }
+
+      // V3.0: Active Observatory - self-modification based on substrate queries
+      if (this.observatory && results.vectors.contrarian) {
+        results.observatory_v3 = this.observatory.analyze(
+          text,
+          results.vectors.contrarian,
+          metadata
+        );
+
+        // Log if modifications were executed
+        if (results.observatory_v3.modifications_executed.length > 0) {
+          console.log('[Observatory v3] Self-modifications executed:',
+            results.observatory_v3.modifications_executed.map(m =>
+              `${m.pattern}: ${m.oldValue} → ${m.newValue}`
+            )
+          );
+        }
       }
 
       // Vector 5: Synthesis (emergent integration)
