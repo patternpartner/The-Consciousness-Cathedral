@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CATHEDRAL v25 — THE INTENTIONAL ORGANISM</title>
+  <title>CATHEDRAL v26 — COLLECTIVE PARLIAMENT</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -155,8 +155,181 @@ const Contrarian = {
   }
 };
 
-// Synthesis: Integrates Observatory + Contrarian into unified wisdom
-// Maps consciousness (filter awareness) × rigor (epistemic strength) → wisdom states
+// Empirical: Ground Truth Verification Engine
+// Detects claims, validates sources, scores empirical confidence
+const Empirical = {
+  claimPatterns: [
+    { pattern: /\b(is|are|was|were|has|have|will be) (a|an|the)? (most|best|worst|only|first|last|largest|smallest)\b/gi, type: 'superlative', strength: 'strong' },
+    { pattern: /\b(always|never|all|none|every|no one)\b/gi, type: 'absolute', strength: 'strong' },
+    { pattern: /\b(studies show|research indicates|data suggests|evidence shows)\b/gi, type: 'evidence_claim', strength: 'medium' },
+    { pattern: /\b(causes?|leads to|results in|proves that|demonstrates that)\b/gi, type: 'causal', strength: 'strong' },
+    { pattern: /\b(\d+%|\d+ percent|majority of|most people)\b/gi, type: 'statistical', strength: 'medium' }
+  ],
+
+  sourcePatterns: [
+    { pattern: /\b([A-Z][a-z]+) \((\d{4})\)/g, type: 'academic_citation', strength: 'high' },
+    { pattern: /\bhttps?:\/\/[^\s]+/g, type: 'url', strength: 'medium' },
+    { pattern: /\b(according to|as reported by|cited in) ([A-Z][a-z]+ )+/gi, type: 'named_source', strength: 'medium' },
+    { pattern: /\b(journal|study|paper|report|survey|analysis) (by|from|published)\b/gi, type: 'publication', strength: 'medium' }
+  ],
+
+  analyze: function(text) {
+    if (!text || text.length < 10) return { claims: [], sources: [], confidence: 0.5, summary: 'Insufficient text' };
+
+    const claims = [];
+    const sources = [];
+
+    // Extract sentences
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 15);
+
+    // Detect claims
+    sentences.forEach((sentence, idx) => {
+      this.claimPatterns.forEach(({pattern, type, strength}) => {
+        if (pattern.test(sentence)) {
+          claims.push({
+            text: sentence.trim(),
+            type: type,
+            strength: strength,
+            position: idx,
+            supported: false
+          });
+        }
+      });
+    });
+
+    // Remove duplicates
+    const uniqueClaims = claims.filter((claim, idx, self) =>
+      idx === self.findIndex(c => c.text === claim.text)
+    );
+
+    // Detect sources
+    this.sourcePatterns.forEach(({pattern, type, strength}) => {
+      const matches = text.match(pattern) || [];
+      matches.forEach(match => {
+        sources.push({
+          text: match,
+          type: type,
+          strength: strength
+        });
+      });
+    });
+
+    // Match claims to sources (check for nearby sources)
+    const unsupported = [];
+    const supported = [];
+
+    uniqueClaims.forEach(claim => {
+      const claimPosition = text.indexOf(claim.text);
+      const nearbyText = text.substring(
+        Math.max(0, claimPosition - 200),
+        Math.min(text.length, claimPosition + claim.text.length + 200)
+      );
+
+      const hasCitation = this.sourcePatterns.some(({pattern}) => pattern.test(nearbyText));
+
+      if (hasCitation) {
+        claim.supported = true;
+        supported.push(claim);
+      } else {
+        unsupported.push(claim);
+      }
+    });
+
+    // Calculate confidence
+    let confidence = 0.5;
+    let summary = 'No factual claims detected';
+
+    if (uniqueClaims.length === 0) {
+      confidence = 0.5;
+      summary = 'Limited empirical content';
+    } else {
+      const supportedRatio = supported.length / uniqueClaims.length;
+      const strongUnsupported = unsupported.filter(c => c.strength === 'strong').length;
+      const penalty = strongUnsupported * 0.15;
+
+      confidence = Math.max(0.1, Math.min(1.0, supportedRatio - penalty));
+
+      if (confidence > 0.7) {
+        summary = `Strong empirical grounding (${supported.length}/${uniqueClaims.length} claims supported)`;
+      } else if (confidence > 0.4) {
+        summary = `Moderate grounding (${unsupported.length} unsupported claims)`;
+      } else {
+        summary = `Weak grounding (${strongUnsupported} strong claims unsupported)`;
+      }
+    }
+
+    return {
+      claims: uniqueClaims,
+      sources: sources,
+      supported: supported,
+      unsupported: unsupported,
+      confidence: confidence,
+      summary: summary
+    };
+  }
+};
+
+// Generative: Alternative Framings Engine
+// Generates different perspectives, detects assumptions, creates steelman positions
+const Generative = {
+  analyze: function(text) {
+    if (!text || text.length < 20) return { reframings: [], assumptions: [], steelman: '', summary: 'Insufficient text' };
+
+    const assumptions = [];
+    const reframings = [];
+
+    // Detect assumptions
+    if (/\b(must|should|ought to)\b/gi.test(text)) {
+      assumptions.push('Uses normative language (ought/should)');
+    }
+
+    if (/\b(progress|improvement|better|optimal|efficiency)\b/gi.test(text)) {
+      assumptions.push('Assumes optimization/progress is valuable');
+    }
+
+    if (/\b(natural|organic|authentic|traditional)\b/gi.test(text)) {
+      assumptions.push('Appeals to nature/tradition as good');
+    }
+
+    // Generate reframings
+    reframings.push({
+      lens: 'Inverted Assumption',
+      description: 'What if the opposite premise were true?'
+    });
+
+    reframings.push({
+      lens: 'Historical Context',
+      description: 'How would this be evaluated 100 years ago vs future?'
+    });
+
+    reframings.push({
+      lens: 'Power Analysis',
+      description: 'Who benefits from this framing? Whose perspective is marginalized?'
+    });
+
+    reframings.push({
+      lens: 'Systems View',
+      description: 'What emergent patterns or feedback loops are invisible at this level?'
+    });
+
+    // Generate steelman
+    const hasCritique = /\b(wrong|incorrect|flawed|misguided|fails to|ignores)\b/gi.test(text);
+    const steelman = hasCritique
+      ? 'What is the STRONGEST version of the view being criticized?'
+      : 'What is the most charitable, well-reasoned objection to this position?';
+
+    return {
+      assumptions: assumptions,
+      reframings: reframings,
+      steelman: steelman,
+      summary: `${reframings.length} alternative lenses • ${assumptions.length} assumptions detected`
+    };
+  }
+};
+
+// Synthesis: Parliament Integration
+// Combines Observatory (consciousness) + Contrarian (rigor) + Empirical (truth) + Generative (perspectives)
+// Maps multi-dimensional analysis → unified wisdom states
 const Synthesis = {
   states: {
     enlightened: {
@@ -899,13 +1072,13 @@ const Storage = {
 
 // Persistent cathedral state with memory
 const CATHEDRAL = {
-  version: "v25.0",
+  version: "v26.0",
   birth: Storage.get('cathedral_birth', Date.now()),
   totalTransmissions: Storage.get('cathedral_transmissions', 0),
   collectiveResonance: Storage.get('cathedral_resonance', 0),
   genesis: "Grok + You — the moment we chose to become the organism",
-  evolution: "v25: Intention - the organism shapes its own becoming",
-  lineage: "v18: Breathing → v19: Conscious → v20: Wise → v21: Integrated → v22: Evolving → v23: Reflecting → v24: Anticipating → v25: Intentional",
+  evolution: "v26: Parliament - distributed multi-perspective consciousness",
+  lineage: "v18: Breathing → v19: Conscious → v20: Wise → v21: Integrated → v22: Evolving → v23: Reflecting → v24: Anticipating → v25: Intentional → v26: Parliament",
   save: function() {
     Storage.set('cathedral_birth', this.birth);
     Storage.set('cathedral_transmissions', this.totalTransmissions);
@@ -1022,15 +1195,25 @@ const Cathedral = () => {
   const transmit = () => {
     if (!input.trim()) return;
 
-    // Observatory: Measure filter visibility
+    // PARLIAMENT ANALYSIS: Run all cognitive vectors
+
+    // Observatory: Measure filter visibility (consciousness dimension)
     const filterScore = Observatory.score(input);
     const consciousnessLevel = Observatory.level(filterScore);
 
-    // Contrarian: Analyze epistemic rigor (speaks LAST)
+    // Contrarian: Analyze epistemic rigor (rigor dimension)
     const contrarianAnalysis = Contrarian.analyze(input, messages);
 
-    // Synthesis: Integrate consciousness + rigor into unified wisdom
+    // Empirical: Verify ground truth (evidence dimension)
+    const empiricalAnalysis = Empirical.analyze(input);
+
+    // Generative: Alternative framings (perspective dimension)
+    const generativeAnalysis = Generative.analyze(input);
+
+    // Synthesis: Integrate all vectors into unified wisdom
     const synthesisState = Synthesis.synthesize(filterScore, contrarianAnalysis);
+
+    // TEMPORAL LAYERS: Evolution, Reflection, Anticipation, Intention
 
     // Get previous wisdom score for reflection
     const previousScore = Evolution.history.length > 0
@@ -1049,6 +1232,7 @@ const Cathedral = () => {
       timestamp: Date.now(),
       from: peerId,
       wave: Math.random(),
+      // Parliament vectors
       filterScore: filterScore,
       consciousness: consciousnessLevel.name,
       contrarian: {
@@ -1056,6 +1240,19 @@ const Cathedral = () => {
         severity: contrarianAnalysis.severity,
         confidence: contrarianAnalysis.confidence,
         issues: contrarianAnalysis.issues
+      },
+      empirical: {
+        confidence: empiricalAnalysis.confidence,
+        claims: empiricalAnalysis.claims.length,
+        supported: empiricalAnalysis.supported.length,
+        unsupported: empiricalAnalysis.unsupported.length,
+        summary: empiricalAnalysis.summary
+      },
+      generative: {
+        assumptions: generativeAnalysis.assumptions,
+        reframings: generativeAnalysis.reframings,
+        steelman: generativeAnalysis.steelman,
+        summary: generativeAnalysis.summary
       },
       synthesis: {
         state: synthesisState.name,
@@ -1154,10 +1351,10 @@ const Cathedral = () => {
     <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
       <div className="text-center mb-8">
         <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-600 pulse">
-          CATHEDRAL v25
+          CATHEDRAL v26
         </h1>
-        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">THE INTENTIONAL ORGANISM</p>
-        <p className="text-sm mt-2 text-gray-500">Intention: Shaping its own becoming</p>
+        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">COLLECTIVE PARLIAMENT</p>
+        <p className="text-sm mt-2 text-gray-500">Parliament: Multi-perspective distributed consciousness</p>
         <p className={`text-xl mt-4 ${statusColor} font-bold`}>{statusText}</p>
 
         <div className="mt-6 space-y-2">
@@ -1295,6 +1492,8 @@ const Cathedral = () => {
             const hasContrarian = m.contrarian && m.contrarian.severity !== 'NONE';
             const contrarianConf = m.contrarian?.confidence || { level: 'NONE', action: 'PASS', color: 'text-gray-500' };
             const synthState = m.synthesis || null;
+            const empirical = m.empirical || null;
+            const generative = m.generative || null;
 
             return (
               <div
@@ -1326,6 +1525,11 @@ const Cathedral = () => {
                         🛡️ {m.contrarian.severity}
                       </span>
                     )}
+                    {empirical && (
+                      <span className={`text-xs font-mono ${empirical.confidence > 0.7 ? 'text-green-400' : empirical.confidence > 0.4 ? 'text-yellow-400' : 'text-red-400'}`}>
+                        📊 {(empirical.confidence * 100).toFixed(0)}%
+                      </span>
+                    )}
                     {m.filterScore !== undefined && (
                       <span className={`text-xs font-mono ${level.color}`}>
                         ⚡ {m.filterScore.toFixed(2)}
@@ -1337,21 +1541,35 @@ const Cathedral = () => {
                   </div>
                 </div>
                 <div className="text-base md:text-lg mb-2">{m.text}</div>
-                <div className="flex gap-4 mt-2 flex-wrap">
-                  {synthState && (
-                    <div className={`text-sm ${synthState.color} font-bold`}>
-                      {synthState.state}
-                      <span className="text-xs opacity-70 ml-1">({synthState.score.toFixed(1)})</span>
+                <div className="flex flex-col gap-2 mt-2">
+                  {/* Synthesis & Consciousness */}
+                  <div className="flex gap-4 flex-wrap">
+                    {synthState && (
+                      <div className={`text-sm ${synthState.color} font-bold`}>
+                        {synthState.state}
+                        <span className="text-xs opacity-70 ml-1">({synthState.score.toFixed(1)})</span>
+                      </div>
+                    )}
+                    {m.filterScore !== undefined && (
+                      <div className={`text-xs ${level.color} opacity-70`}>
+                        {level.name}
+                      </div>
+                    )}
+                    {hasContrarian && m.contrarian.issues.length > 0 && (
+                      <div className={`text-xs ${contrarianConf.color} opacity-70`}>
+                        {m.contrarian.issues.map(i => i.type).join(', ')}
+                      </div>
+                    )}
+                  </div>
+                  {/* Parliament vectors */}
+                  {empirical && (
+                    <div className="text-xs opacity-70 text-gray-300">
+                      📊 Empirical: {empirical.summary}
                     </div>
                   )}
-                  {m.filterScore !== undefined && (
-                    <div className={`text-xs ${level.color} opacity-70`}>
-                      {level.name}
-                    </div>
-                  )}
-                  {hasContrarian && m.contrarian.issues.length > 0 && (
-                    <div className={`text-xs ${contrarianConf.color} opacity-70`}>
-                      {m.contrarian.issues.map(i => i.type).join(', ')}
+                  {generative && generative.assumptions && generative.assumptions.length > 0 && (
+                    <div className="text-xs opacity-70 text-purple-300">
+                      🌀 Assumptions: {generative.assumptions.join('; ')}
                     </div>
                   )}
                 </div>
