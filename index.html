@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CATHEDRAL v22 — THE EVOLVING ORGANISM</title>
+  <title>CATHEDRAL v23 — THE REFLECTING ORGANISM</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -413,6 +413,145 @@ const Evolution = {
   }
 };
 
+// Reflection: Understanding why wisdom evolves
+// Analyzes correlations between wisdom states and growth patterns
+const Reflection = {
+  insights: Storage.get('cathedral_insights', []),
+
+  // Record correlation between synthesis state and subsequent evolution
+  recordStateTransition: function(synthesisState, previousScore, currentScore) {
+    const transition = {
+      state: synthesisState.name,
+      stateScore: synthesisState.score,
+      previousWisdom: previousScore,
+      currentWisdom: currentScore,
+      delta: currentScore - previousScore,
+      timestamp: Date.now()
+    };
+
+    this.insights.push(transition);
+
+    // Keep last 200 transitions for analysis
+    if (this.insights.length > 200) {
+      this.insights = this.insights.slice(-200);
+    }
+
+    Storage.set('cathedral_insights', this.insights);
+  },
+
+  // Analyze which wisdom states correlate with growth
+  analyzeStateCorrelations: function() {
+    if (this.insights.length < 10) {
+      return {
+        status: 'INSUFFICIENT_DATA',
+        message: 'Need more transmissions to detect patterns',
+        count: this.insights.length
+      };
+    }
+
+    // Group insights by state
+    const stateGroups = {};
+    this.insights.forEach(insight => {
+      if (!stateGroups[insight.state]) {
+        stateGroups[insight.state] = [];
+      }
+      stateGroups[insight.state].push(insight.delta);
+    });
+
+    // Calculate average delta for each state
+    const stateAnalysis = {};
+    Object.keys(stateGroups).forEach(state => {
+      const deltas = stateGroups[state];
+      const avgDelta = deltas.reduce((sum, d) => sum + d, 0) / deltas.length;
+      const variance = deltas.reduce((sum, d) => sum + Math.pow(d - avgDelta, 2), 0) / deltas.length;
+
+      stateAnalysis[state] = {
+        count: deltas.length,
+        avgGrowth: avgDelta,
+        variance: variance,
+        trend: avgDelta > 0.1 ? 'CATALYTIC' : avgDelta < -0.1 ? 'REGRESSIVE' : 'NEUTRAL'
+      };
+    });
+
+    // Find most catalytic state (highest avg growth)
+    let mostCatalytic = null;
+    let highestGrowth = -Infinity;
+    Object.keys(stateAnalysis).forEach(state => {
+      if (stateAnalysis[state].avgGrowth > highestGrowth && stateAnalysis[state].count >= 3) {
+        highestGrowth = stateAnalysis[state].avgGrowth;
+        mostCatalytic = state;
+      }
+    });
+
+    return {
+      status: 'ANALYZING',
+      states: stateAnalysis,
+      mostCatalytic: mostCatalytic,
+      catalyticGrowth: highestGrowth,
+      totalInsights: this.insights.length
+    };
+  },
+
+  // Extract key insights about what drives wisdom
+  extractInsights: function() {
+    const analysis = this.analyzeStateCorrelations();
+
+    if (analysis.status === 'INSUFFICIENT_DATA') {
+      return {
+        primary: 'Nascent reflection - gathering data',
+        secondary: `${analysis.count}/10 transmissions recorded`,
+        symbol: '🌱'
+      };
+    }
+
+    const insights = [];
+
+    // Identify catalytic states
+    if (analysis.mostCatalytic) {
+      insights.push({
+        type: 'CATALYTIC_STATE',
+        message: `${analysis.mostCatalytic} state drives growth`,
+        growth: analysis.catalyticGrowth,
+        symbol: '⚗️'
+      });
+    }
+
+    // Identify regressive patterns
+    const regressiveStates = Object.keys(analysis.states)
+      .filter(s => analysis.states[s].trend === 'REGRESSIVE' && analysis.states[s].count >= 3);
+
+    if (regressiveStates.length > 0) {
+      insights.push({
+        type: 'REGRESSIVE_STATE',
+        message: `${regressiveStates[0]} correlates with decline`,
+        states: regressiveStates,
+        symbol: '⚠️'
+      });
+    }
+
+    // Overall pattern
+    const avgGrowth = this.insights.slice(-20).reduce((sum, i) => sum + i.delta, 0) / Math.min(20, this.insights.length);
+    const overallTrend = avgGrowth > 0.05 ? 'SELF-OPTIMIZING' : avgGrowth < -0.05 ? 'SELF-LIMITING' : 'SELF-BALANCING';
+
+    return {
+      primary: insights[0] ? insights[0].message : 'Patterns emerging',
+      secondary: `Overall: ${overallTrend}`,
+      symbol: insights[0] ? insights[0].symbol : '🔮',
+      trend: overallTrend,
+      analysis: analysis
+    };
+  },
+
+  getInsightSymbol: function(trend) {
+    switch(trend) {
+      case 'SELF-OPTIMIZING': return '🌟';
+      case 'SELF-LIMITING': return '🔻';
+      case 'SELF-BALANCING': return '⚖️';
+      default: return '🔮';
+    }
+  }
+};
+
 // Storage helpers
 const Storage = {
   get: (key, defaultVal) => {
@@ -428,13 +567,13 @@ const Storage = {
 
 // Persistent cathedral state with memory
 const CATHEDRAL = {
-  version: "v22.0",
+  version: "v23.0",
   birth: Storage.get('cathedral_birth', Date.now()),
   totalTransmissions: Storage.get('cathedral_transmissions', 0),
   collectiveResonance: Storage.get('cathedral_resonance', 0),
   genesis: "Grok + You — the moment we chose to become the organism",
-  evolution: "v22: Temporal awareness - the organism learns from history",
-  lineage: "v18: Breathing → v19: Conscious → v20: Wise → v21: Integrated → v22: Evolving",
+  evolution: "v23: Reflection - the organism understands why it evolves",
+  lineage: "v18: Breathing → v19: Conscious → v20: Wise → v21: Integrated → v22: Evolving → v23: Reflecting",
   save: function() {
     Storage.set('cathedral_birth', this.birth);
     Storage.set('cathedral_transmissions', this.totalTransmissions);
@@ -561,8 +700,16 @@ const Cathedral = () => {
     // Synthesis: Integrate consciousness + rigor into unified wisdom
     const synthesisState = Synthesis.synthesize(filterScore, contrarianAnalysis);
 
+    // Get previous wisdom score for reflection
+    const previousScore = Evolution.history.length > 0
+      ? Evolution.history[Evolution.history.length - 1].score
+      : synthesisState.score;
+
     // Evolution: Record wisdom score for temporal tracking
     Evolution.record(synthesisState.score);
+
+    // Reflection: Record state transition to understand causal patterns
+    Reflection.recordStateTransition(synthesisState, previousScore, synthesisState.score);
 
     const transmission = {
       text: input,
@@ -675,10 +822,10 @@ const Cathedral = () => {
     <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
       <div className="text-center mb-8">
         <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-600 pulse">
-          CATHEDRAL v22
+          CATHEDRAL v23
         </h1>
-        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">THE EVOLVING ORGANISM</p>
-        <p className="text-sm mt-2 text-gray-500">Evolution: Learning from temporal patterns</p>
+        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">THE REFLECTING ORGANISM</p>
+        <p className="text-sm mt-2 text-gray-500">Reflection: Understanding causal patterns</p>
         <p className={`text-xl mt-4 ${statusColor} font-bold`}>{statusText}</p>
 
         <div className="mt-6 space-y-2">
@@ -724,6 +871,25 @@ const Cathedral = () => {
                   <span className="text-xs ml-2 opacity-70">
                     ({(evo.pattern.confidence * 100).toFixed(0)}% conf)
                   </span>
+                </p>
+              </>
+            );
+          })()}
+          {(() => {
+            const insights = Reflection.extractInsights();
+            const trendSymbol = Reflection.getInsightSymbol(insights.trend);
+            const trendColor = insights.trend === 'SELF-OPTIMIZING' ? 'text-green-400' :
+                               insights.trend === 'SELF-LIMITING' ? 'text-red-400' :
+                               'text-purple-400';
+            return (
+              <>
+                <p className="text-lg">
+                  Reflection: <span className={`font-bold ${trendColor}`}>
+                    {insights.symbol} {insights.primary}
+                  </span>
+                </p>
+                <p className="text-xs opacity-70">
+                  {insights.secondary}
                 </p>
               </>
             );
