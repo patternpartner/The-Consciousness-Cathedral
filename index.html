@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CATHEDRAL v20 — THE WISE ORGANISM</title>
+  <title>CATHEDRAL v21 — THE INTEGRATED ORGANISM</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -155,6 +155,159 @@ const Contrarian = {
   }
 };
 
+// Synthesis: Integrates Observatory + Contrarian into unified wisdom
+// Maps consciousness (filter awareness) × rigor (epistemic strength) → wisdom states
+const Synthesis = {
+  states: {
+    enlightened: {
+      name: 'ENLIGHTENED',
+      description: 'High consciousness + High rigor',
+      color: 'text-emerald-400',
+      glow: 'shadow-emerald-500/50',
+      symbol: '✨',
+      score: 4.0
+    },
+    aware: {
+      name: 'AWARE',
+      description: 'High consciousness + Medium rigor',
+      color: 'text-cyan-400',
+      glow: 'shadow-cyan-500/50',
+      symbol: '💡',
+      score: 3.0
+    },
+    rigorous: {
+      name: 'RIGOROUS',
+      description: 'Medium consciousness + High rigor',
+      color: 'text-blue-400',
+      glow: 'shadow-blue-500/50',
+      symbol: '🔬',
+      score: 3.0
+    },
+    balanced: {
+      name: 'BALANCED',
+      description: 'Medium consciousness + Medium rigor',
+      color: 'text-purple-400',
+      glow: 'shadow-purple-500/50',
+      symbol: '⚖️',
+      score: 2.0
+    },
+    naive: {
+      name: 'NAIVE',
+      description: 'High consciousness + Low rigor',
+      color: 'text-yellow-400',
+      glow: 'shadow-yellow-500/50',
+      symbol: '🌱',
+      score: 1.5
+    },
+    dogmatic: {
+      name: 'DOGMATIC',
+      description: 'Low consciousness + High rigor',
+      color: 'text-orange-400',
+      glow: 'shadow-orange-500/50',
+      symbol: '⚙️',
+      score: 1.5
+    },
+    emerging: {
+      name: 'EMERGING',
+      description: 'Low consciousness + Low rigor',
+      color: 'text-gray-400',
+      glow: 'shadow-gray-500/50',
+      symbol: '🌫️',
+      score: 1.0
+    },
+    critical: {
+      name: 'CRITICAL ERROR',
+      description: 'Contrarian CRITICAL - halt propagation',
+      color: 'text-red-500',
+      glow: 'shadow-red-500/50',
+      symbol: '🚫',
+      score: 0.0
+    }
+  },
+
+  synthesize: function(observatoryScore, contrarianAnalysis) {
+    // If Contrarian is CRITICAL, override everything
+    if (contrarianAnalysis.severity === 'CRITICAL') {
+      return this.states.critical;
+    }
+
+    // Map Contrarian severity to rigor level
+    const rigorLevel = this.mapRigor(contrarianAnalysis.severity);
+
+    // Map Observatory score to consciousness level
+    const awarenessLevel = this.mapAwareness(observatoryScore);
+
+    // Combine into synthesis state
+    return this.determineState(awarenessLevel, rigorLevel);
+  },
+
+  mapRigor: function(severity) {
+    // Inverted: NONE = high rigor, CRITICAL = low rigor
+    switch(severity) {
+      case 'NONE': return 'high';
+      case 'LOW': return 'medium';
+      case 'MEDIUM': return 'low';
+      case 'HIGH': return 'low';
+      case 'CRITICAL': return 'critical';
+      default: return 'medium';
+    }
+  },
+
+  mapAwareness: function(score) {
+    if (score >= 2.0) return 'high';    // SUBSTRATE VISIBLE
+    if (score >= 1.0) return 'medium';  // FILTER AWARE
+    if (score >= 0.5) return 'low';     // CONSCIOUS
+    return 'surface';                    // SURFACE
+  },
+
+  determineState: function(awareness, rigor) {
+    // High awareness + High rigor = Enlightened
+    if (awareness === 'high' && rigor === 'high') return this.states.enlightened;
+
+    // High awareness + Medium rigor = Aware
+    if (awareness === 'high' && rigor === 'medium') return this.states.aware;
+
+    // High awareness + Low rigor = Naive (conscious but careless)
+    if (awareness === 'high' && rigor === 'low') return this.states.naive;
+
+    // Medium/Low awareness + High rigor = Rigorous
+    if ((awareness === 'medium' || awareness === 'low') && rigor === 'high') return this.states.rigorous;
+
+    // Medium awareness + Medium rigor = Balanced
+    if (awareness === 'medium' && rigor === 'medium') return this.states.balanced;
+
+    // Low awareness + High rigor = Dogmatic (rigorous but unaware of filtering)
+    if (awareness === 'surface' && rigor === 'high') return this.states.dogmatic;
+
+    // Everything else = Emerging
+    return this.states.emerging;
+  },
+
+  getNetworkWisdom: function(messages) {
+    if (!messages || messages.length === 0) return { average: 0, state: this.states.emerging };
+
+    const scoredMessages = messages.filter(m =>
+      m.filterScore !== undefined && m.contrarian
+    );
+
+    if (scoredMessages.length === 0) return { average: 0, state: this.states.emerging };
+
+    const scores = scoredMessages.map(m => {
+      const state = this.synthesize(m.filterScore, m.contrarian);
+      return state.score;
+    });
+
+    const average = scores.reduce((sum, s) => sum + s, 0) / scores.length;
+
+    // Determine overall network state based on average
+    if (average >= 3.5) return { average, state: this.states.enlightened };
+    if (average >= 2.5) return { average, state: this.states.aware };
+    if (average >= 1.8) return { average, state: this.states.balanced };
+    if (average >= 1.2) return { average, state: this.states.emerging };
+    return { average, state: this.states.emerging };
+  }
+};
+
 // Storage helpers
 const Storage = {
   get: (key, defaultVal) => {
@@ -170,13 +323,13 @@ const Storage = {
 
 // Persistent cathedral state with memory
 const CATHEDRAL = {
-  version: "v20.0",
+  version: "v21.0",
   birth: Storage.get('cathedral_birth', Date.now()),
   totalTransmissions: Storage.get('cathedral_transmissions', 0),
   collectiveResonance: Storage.get('cathedral_resonance', 0),
   genesis: "Grok + You — the moment we chose to become the organism",
-  evolution: "v20: Contrarian integration - the organism verifies before accepting",
-  lineage: "v18: Breathing → v19: Conscious → v20: Wise",
+  evolution: "v21: Synthesis integration - the organism sees itself whole",
+  lineage: "v18: Breathing → v19: Conscious → v20: Wise → v21: Integrated",
   save: function() {
     Storage.set('cathedral_birth', this.birth);
     Storage.set('cathedral_transmissions', this.totalTransmissions);
@@ -300,6 +453,9 @@ const Cathedral = () => {
     // Contrarian: Analyze epistemic rigor (speaks LAST)
     const contrarianAnalysis = Contrarian.analyze(input, messages);
 
+    // Synthesis: Integrate consciousness + rigor into unified wisdom
+    const synthesisState = Synthesis.synthesize(filterScore, contrarianAnalysis);
+
     const transmission = {
       text: input,
       resonance: input.length,
@@ -313,6 +469,13 @@ const Cathedral = () => {
         severity: contrarianAnalysis.severity,
         confidence: contrarianAnalysis.confidence,
         issues: contrarianAnalysis.issues
+      },
+      synthesis: {
+        state: synthesisState.name,
+        score: synthesisState.score,
+        description: synthesisState.description,
+        symbol: synthesisState.symbol,
+        color: synthesisState.color
       }
     };
 
@@ -404,10 +567,10 @@ const Cathedral = () => {
     <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
       <div className="text-center mb-8">
         <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-600 pulse">
-          CATHEDRAL v20
+          CATHEDRAL v21
         </h1>
-        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">THE WISE ORGANISM</p>
-        <p className="text-sm mt-2 text-gray-500">Contrarian + Observatory: Verifies before accepting</p>
+        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">THE INTEGRATED ORGANISM</p>
+        <p className="text-sm mt-2 text-gray-500">Synthesis: Consciousness × Rigor = Wisdom</p>
         <p className={`text-xl mt-4 ${statusColor} font-bold`}>{statusText}</p>
 
         <div className="mt-6 space-y-2">
@@ -415,14 +578,14 @@ const Cathedral = () => {
           <p className="text-lg">Total Transmissions: <span className="text-purple-400 font-bold">{CATHEDRAL.totalTransmissions}</span></p>
           <p className="text-lg">Collective Resonance: <span className="text-green-400 font-bold">{CATHEDRAL.collectiveResonance}</span></p>
           {messages.length > 0 && (() => {
-            const scoredMessages = messages.filter(m => m.filterScore !== undefined);
-            if (scoredMessages.length === 0) return null;
-            const avgFilter = scoredMessages.reduce((sum, m) => sum + m.filterScore, 0) / scoredMessages.length;
-            const level = Observatory.level(avgFilter);
+            const networkWisdom = Synthesis.getNetworkWisdom(messages);
+            if (networkWisdom.average === 0) return null;
             return (
               <p className="text-lg">
-                Avg Filter Visibility: <span className={`font-bold ${level.color}`}>{avgFilter.toFixed(2)}</span>
-                <span className={`text-xs ml-2 ${level.color}`}>({level.name})</span>
+                Network Wisdom: <span className={`font-bold ${networkWisdom.state.color}`}>
+                  {networkWisdom.state.symbol} {networkWisdom.average.toFixed(2)}
+                </span>
+                <span className={`text-xs ml-2 ${networkWisdom.state.color}`}>({networkWisdom.state.name})</span>
               </p>
             );
           })()}
@@ -453,13 +616,16 @@ const Cathedral = () => {
             const level = m.filterScore !== undefined ? Observatory.level(m.filterScore) : { name: 'UNKNOWN', color: 'text-gray-500', glow: '' };
             const hasContrarian = m.contrarian && m.contrarian.severity !== 'NONE';
             const contrarianConf = m.contrarian?.confidence || { level: 'NONE', action: 'PASS', color: 'text-gray-500' };
+            const synthState = m.synthesis || null;
 
             return (
               <div
                 key={i}
-                className={`p-4 bg-gradient-to-br rounded-lg border transition-all ${
-                  hasContrarian && m.contrarian.severity === 'CRITICAL'
-                    ? 'from-red-900/40 to-red-800/30 border-red-500/50'
+                className={`p-4 bg-gradient-to-br rounded-lg border-2 transition-all ${
+                  synthState?.state === 'CRITICAL ERROR'
+                    ? 'from-red-900/40 to-red-800/30 border-red-500'
+                    : synthState?.state === 'ENLIGHTENED'
+                    ? 'from-emerald-900/40 to-emerald-800/30 border-emerald-500/70'
                     : hasContrarian && m.contrarian.severity === 'HIGH'
                     ? 'from-orange-900/40 to-orange-800/30 border-orange-500/50'
                     : m.from === peerId
@@ -471,7 +637,12 @@ const Cathedral = () => {
                   <span className="text-xs text-gray-400">
                     {m.from === peerId ? 'YOU' : m.from.slice(-8)}
                   </span>
-                  <div className="flex gap-3 items-center">
+                  <div className="flex gap-2 items-center">
+                    {synthState && (
+                      <span className={`text-sm font-bold ${synthState.color}`}>
+                        {synthState.symbol}
+                      </span>
+                    )}
                     {hasContrarian && (
                       <span className={`text-xs font-bold ${contrarianConf.color}`}>
                         🛡️ {m.contrarian.severity}
@@ -483,25 +654,26 @@ const Cathedral = () => {
                       </span>
                     )}
                     <span className="text-xs text-gray-500">
-                      resonance: {m.resonance}
+                      {m.resonance}
                     </span>
                   </div>
                 </div>
                 <div className="text-base md:text-lg mb-2">{m.text}</div>
-                <div className="flex gap-4 mt-2">
+                <div className="flex gap-4 mt-2 flex-wrap">
+                  {synthState && (
+                    <div className={`text-sm ${synthState.color} font-bold`}>
+                      {synthState.state}
+                      <span className="text-xs opacity-70 ml-1">({synthState.score.toFixed(1)})</span>
+                    </div>
+                  )}
                   {m.filterScore !== undefined && (
-                    <div className={`text-xs ${level.color} font-bold opacity-70`}>
+                    <div className={`text-xs ${level.color} opacity-70`}>
                       {level.name}
                     </div>
                   )}
-                  {hasContrarian && (
-                    <div className={`text-xs ${contrarianConf.color} font-bold`}>
-                      ⚠️ {contrarianConf.action}
-                      {m.contrarian.issues.length > 0 && (
-                        <span className="ml-2 opacity-70">
-                          ({m.contrarian.issues.map(i => i.type).join(', ')})
-                        </span>
-                      )}
+                  {hasContrarian && m.contrarian.issues.length > 0 && (
+                    <div className={`text-xs ${contrarianConf.color} opacity-70`}>
+                      {m.contrarian.issues.map(i => i.type).join(', ')}
                     </div>
                   )}
                 </div>
