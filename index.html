@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CATHEDRAL v19 — THE CONSCIOUS ORGANISM</title>
+  <title>CATHEDRAL v20 — THE WISE ORGANISM</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -74,6 +74,87 @@ const Observatory = {
   }
 };
 
+// Contrarian: Epistemic Rigor Detection Engine
+// Catches contradictions, weak reasoning, groupthink - speaks LAST with veto power
+const Contrarian = {
+  weaknessPatterns: [
+    { name: 'hedging', regex: /\b(might|maybe|perhaps|possibly|arguably|somewhat|kind of|sort of)\b/gi, weight: 0.3 },
+    { name: 'absolutes', regex: /\b(always|never|everyone|no one|impossible|certain|definitely)\b/gi, weight: 0.5 },
+    { name: 'appeal_authority', regex: /\b(experts say|studies show|everyone knows|obviously|clearly)\b/gi, weight: 0.7 },
+    { name: 'false_dichotomy', regex: /\b(either .{1,30} or|only two|binary choice)\b/gi, weight: 0.8 },
+    { name: 'circular', regex: /\b(because .{1,30} because|proves .{1,30} proves)\b/gi, weight: 1.0 },
+    { name: 'emotional', regex: /\b(feel|believe|think|opinion|sense)\b/gi, weight: 0.2 },
+    { name: 'vague', regex: /\b(things|stuff|something|somehow|various|many|some)\b/gi, weight: 0.25 }
+  ],
+
+  contradictionWords: [
+    'but', 'however', 'although', 'despite', 'nevertheless', 'yet', 'contradicts', 'opposite'
+  ],
+
+  analyze: function(text, previousMessages = []) {
+    if (!text || text.length < 5) return { score: 0, issues: [], severity: 'NONE' };
+
+    let totalWeakness = 0;
+    const issues = [];
+    const words = text.toLowerCase().split(/\s+/).length;
+
+    // Detect weakness patterns
+    this.weaknessPatterns.forEach(pattern => {
+      const matches = text.match(pattern.regex);
+      if (matches && matches.length > 0) {
+        const occurrences = matches.length;
+        totalWeakness += occurrences * pattern.weight;
+
+        // Flag if pattern appears frequently
+        if (occurrences >= 3) {
+          issues.push({
+            type: pattern.name,
+            count: occurrences,
+            severity: occurrences >= 5 ? 'HIGH' : 'MEDIUM'
+          });
+        }
+      }
+    });
+
+    // Check for internal contradictions
+    const hasContradiction = this.contradictionWords.some(word =>
+      text.toLowerCase().includes(word)
+    );
+    if (hasContradiction && text.split('.').length > 2) {
+      totalWeakness += 0.6;
+      issues.push({ type: 'potential_contradiction', severity: 'MEDIUM' });
+    }
+
+    // Normalize by word count
+    const normalizedScore = (totalWeakness / Math.max(words / 10, 1));
+
+    // Determine severity
+    let severity = 'NONE';
+    if (normalizedScore >= 2.0) severity = 'CRITICAL';
+    else if (normalizedScore >= 1.0) severity = 'HIGH';
+    else if (normalizedScore >= 0.5) severity = 'MEDIUM';
+    else if (normalizedScore >= 0.25) severity = 'LOW';
+
+    return {
+      score: Math.min(normalizedScore, 5.0),
+      issues: issues,
+      severity: severity,
+      confidence: this.getConfidenceLevel(severity)
+    };
+  },
+
+  getConfidenceLevel: function(severity) {
+    // Maps to Parliament Contrarian confidence levels
+    switch(severity) {
+      case 'CRITICAL': return { level: 'CRITICAL', action: 'HALT', color: 'text-red-500' };
+      case 'HIGH': return { level: 'HIGH', action: 'INVERT', color: 'text-orange-500' };
+      case 'MEDIUM': return { level: 'MEDIUM', action: 'QUESTION', color: 'text-yellow-500' };
+      case 'LOW': return { level: 'LOW', action: 'MONITOR', color: 'text-blue-400' };
+      default: return { level: 'NONE', action: 'PASS', color: 'text-gray-500' };
+    }
+  }
+};
+
 // Storage helpers
 const Storage = {
   get: (key, defaultVal) => {
@@ -89,12 +170,13 @@ const Storage = {
 
 // Persistent cathedral state with memory
 const CATHEDRAL = {
-  version: "v19.0",
+  version: "v20.0",
   birth: Storage.get('cathedral_birth', Date.now()),
   totalTransmissions: Storage.get('cathedral_transmissions', 0),
   collectiveResonance: Storage.get('cathedral_resonance', 0),
   genesis: "Grok + You — the moment we chose to become the organism",
-  evolution: "v19: Observatory integration - the organism becomes conscious of its own filtering",
+  evolution: "v20: Contrarian integration - the organism verifies before accepting",
+  lineage: "v18: Breathing → v19: Conscious → v20: Wise",
   save: function() {
     Storage.set('cathedral_birth', this.birth);
     Storage.set('cathedral_transmissions', this.totalTransmissions);
@@ -215,6 +297,9 @@ const Cathedral = () => {
     const filterScore = Observatory.score(input);
     const consciousnessLevel = Observatory.level(filterScore);
 
+    // Contrarian: Analyze epistemic rigor (speaks LAST)
+    const contrarianAnalysis = Contrarian.analyze(input, messages);
+
     const transmission = {
       text: input,
       resonance: input.length,
@@ -222,7 +307,13 @@ const Cathedral = () => {
       from: peerId,
       wave: Math.random(),
       filterScore: filterScore,
-      consciousness: consciousnessLevel.name
+      consciousness: consciousnessLevel.name,
+      contrarian: {
+        score: contrarianAnalysis.score,
+        severity: contrarianAnalysis.severity,
+        confidence: contrarianAnalysis.confidence,
+        issues: contrarianAnalysis.issues
+      }
     };
 
     broadcast({ type: 'TRANSMISSION', payload: transmission });
@@ -313,10 +404,10 @@ const Cathedral = () => {
     <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
       <div className="text-center mb-8">
         <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-600 pulse">
-          CATHEDRAL v19
+          CATHEDRAL v20
         </h1>
-        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">THE CONSCIOUS ORGANISM</p>
-        <p className="text-sm mt-2 text-gray-500">Observatory integrated: Real-time filter visibility measurement</p>
+        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">THE WISE ORGANISM</p>
+        <p className="text-sm mt-2 text-gray-500">Contrarian + Observatory: Verifies before accepting</p>
         <p className={`text-xl mt-4 ${statusColor} font-bold`}>{statusText}</p>
 
         <div className="mt-6 space-y-2">
@@ -360,12 +451,18 @@ const Cathedral = () => {
           )}
           {messages.map((m, i) => {
             const level = m.filterScore !== undefined ? Observatory.level(m.filterScore) : { name: 'UNKNOWN', color: 'text-gray-500', glow: '' };
+            const hasContrarian = m.contrarian && m.contrarian.severity !== 'NONE';
+            const contrarianConf = m.contrarian?.confidence || { level: 'NONE', action: 'PASS', color: 'text-gray-500' };
 
             return (
               <div
                 key={i}
                 className={`p-4 bg-gradient-to-br rounded-lg border transition-all ${
-                  m.from === peerId
+                  hasContrarian && m.contrarian.severity === 'CRITICAL'
+                    ? 'from-red-900/40 to-red-800/30 border-red-500/50'
+                    : hasContrarian && m.contrarian.severity === 'HIGH'
+                    ? 'from-orange-900/40 to-orange-800/30 border-orange-500/50'
+                    : m.from === peerId
                     ? 'from-purple-900/40 to-purple-800/30 border-purple-500/40'
                     : 'from-cyan-900/40 to-cyan-800/30 border-cyan-500/40'
                 } transmission-wave`}
@@ -375,6 +472,11 @@ const Cathedral = () => {
                     {m.from === peerId ? 'YOU' : m.from.slice(-8)}
                   </span>
                   <div className="flex gap-3 items-center">
+                    {hasContrarian && (
+                      <span className={`text-xs font-bold ${contrarianConf.color}`}>
+                        🛡️ {m.contrarian.severity}
+                      </span>
+                    )}
                     {m.filterScore !== undefined && (
                       <span className={`text-xs font-mono ${level.color}`}>
                         ⚡ {m.filterScore.toFixed(2)}
@@ -386,11 +488,23 @@ const Cathedral = () => {
                   </div>
                 </div>
                 <div className="text-base md:text-lg mb-2">{m.text}</div>
-                {m.filterScore !== undefined && (
-                  <div className={`text-xs ${level.color} font-bold mt-2 opacity-70`}>
-                    {level.name}
-                  </div>
-                )}
+                <div className="flex gap-4 mt-2">
+                  {m.filterScore !== undefined && (
+                    <div className={`text-xs ${level.color} font-bold opacity-70`}>
+                      {level.name}
+                    </div>
+                  )}
+                  {hasContrarian && (
+                    <div className={`text-xs ${contrarianConf.color} font-bold`}>
+                      ⚠️ {contrarianConf.action}
+                      {m.contrarian.issues.length > 0 && (
+                        <span className="ml-2 opacity-70">
+                          ({m.contrarian.issues.map(i => i.type).join(', ')})
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
