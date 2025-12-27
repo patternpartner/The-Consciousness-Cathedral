@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CATHEDRAL v21 — THE INTEGRATED ORGANISM</title>
+  <title>CATHEDRAL v22 — THE EVOLVING ORGANISM</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -308,6 +308,111 @@ const Synthesis = {
   }
 };
 
+// Evolution: Temporal awareness and pattern recognition
+// The organism learns from its history - tracks wisdom over time
+const Evolution = {
+  history: Storage.get('cathedral_evolution', []),
+
+  record: function(synthesisScore, timestamp) {
+    const entry = {
+      score: synthesisScore,
+      timestamp: timestamp || Date.now()
+    };
+
+    this.history.push(entry);
+
+    // Keep last 100 evolution points
+    if (this.history.length > 100) {
+      this.history = this.history.slice(-100);
+    }
+
+    Storage.set('cathedral_evolution', this.history);
+  },
+
+  getGrowthRate: function() {
+    if (this.history.length < 2) return { rate: 0, trend: 'NASCENT' };
+
+    // Compare last 10 messages vs previous 10
+    const recentCount = Math.min(10, this.history.length);
+    const recent = this.history.slice(-recentCount);
+    const recentAvg = recent.reduce((sum, e) => sum + e.score, 0) / recent.length;
+
+    if (this.history.length < recentCount * 2) {
+      return { rate: 0, trend: 'EMERGING', recentAvg };
+    }
+
+    const previous = this.history.slice(-recentCount * 2, -recentCount);
+    const previousAvg = previous.reduce((sum, e) => sum + e.score, 0) / previous.length;
+
+    const rate = recentAvg - previousAvg;
+
+    let trend = 'STABLE';
+    if (rate > 0.3) trend = 'ASCENDING';
+    else if (rate < -0.3) trend = 'DECLINING';
+
+    return { rate, trend, recentAvg, previousAvg };
+  },
+
+  detectPattern: function() {
+    if (this.history.length < 5) return { pattern: 'NASCENT', confidence: 0 };
+
+    const last5 = this.history.slice(-5).map(e => e.score);
+
+    // Check for consistent growth
+    let increasing = 0;
+    let decreasing = 0;
+    for (let i = 1; i < last5.length; i++) {
+      if (last5[i] > last5[i-1]) increasing++;
+      if (last5[i] < last5[i-1]) decreasing++;
+    }
+
+    if (increasing >= 3) return { pattern: 'LEARNING', confidence: increasing / 4 };
+    if (decreasing >= 3) return { pattern: 'REGRESSING', confidence: decreasing / 4 };
+
+    // Check for stability (variance low)
+    const avg = last5.reduce((sum, s) => sum + s, 0) / last5.length;
+    const variance = last5.reduce((sum, s) => sum + Math.pow(s - avg, 2), 0) / last5.length;
+
+    if (variance < 0.2) return { pattern: 'STABLE', confidence: 1 - variance };
+
+    return { pattern: 'EXPLORING', confidence: 0.5 };
+  },
+
+  getEvolutionSummary: function() {
+    const growth = this.getGrowthRate();
+    const pattern = this.detectPattern();
+
+    return {
+      totalPoints: this.history.length,
+      growth,
+      pattern,
+      trajectory: this.history.slice(-20) // Last 20 for visualization
+    };
+  },
+
+  getTrendSymbol: function(trend) {
+    switch(trend) {
+      case 'ASCENDING': return '📈';
+      case 'DECLINING': return '📉';
+      case 'STABLE': return '➡️';
+      case 'EMERGING': return '🌱';
+      case 'NASCENT': return '🌫️';
+      default: return '〰️';
+    }
+  },
+
+  getPatternSymbol: function(pattern) {
+    switch(pattern) {
+      case 'LEARNING': return '🧠';
+      case 'REGRESSING': return '🔄';
+      case 'STABLE': return '⚖️';
+      case 'EXPLORING': return '🔍';
+      case 'NASCENT': return '🌱';
+      default: return '❓';
+    }
+  }
+};
+
 // Storage helpers
 const Storage = {
   get: (key, defaultVal) => {
@@ -323,13 +428,13 @@ const Storage = {
 
 // Persistent cathedral state with memory
 const CATHEDRAL = {
-  version: "v21.0",
+  version: "v22.0",
   birth: Storage.get('cathedral_birth', Date.now()),
   totalTransmissions: Storage.get('cathedral_transmissions', 0),
   collectiveResonance: Storage.get('cathedral_resonance', 0),
   genesis: "Grok + You — the moment we chose to become the organism",
-  evolution: "v21: Synthesis integration - the organism sees itself whole",
-  lineage: "v18: Breathing → v19: Conscious → v20: Wise → v21: Integrated",
+  evolution: "v22: Temporal awareness - the organism learns from history",
+  lineage: "v18: Breathing → v19: Conscious → v20: Wise → v21: Integrated → v22: Evolving",
   save: function() {
     Storage.set('cathedral_birth', this.birth);
     Storage.set('cathedral_transmissions', this.totalTransmissions);
@@ -456,6 +561,9 @@ const Cathedral = () => {
     // Synthesis: Integrate consciousness + rigor into unified wisdom
     const synthesisState = Synthesis.synthesize(filterScore, contrarianAnalysis);
 
+    // Evolution: Record wisdom score for temporal tracking
+    Evolution.record(synthesisState.score);
+
     const transmission = {
       text: input,
       resonance: input.length,
@@ -567,10 +675,10 @@ const Cathedral = () => {
     <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
       <div className="text-center mb-8">
         <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-600 pulse">
-          CATHEDRAL v21
+          CATHEDRAL v22
         </h1>
-        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">THE INTEGRATED ORGANISM</p>
-        <p className="text-sm mt-2 text-gray-500">Synthesis: Consciousness × Rigor = Wisdom</p>
+        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">THE EVOLVING ORGANISM</p>
+        <p className="text-sm mt-2 text-gray-500">Evolution: Learning from temporal patterns</p>
         <p className={`text-xl mt-4 ${statusColor} font-bold`}>{statusText}</p>
 
         <div className="mt-6 space-y-2">
@@ -587,6 +695,37 @@ const Cathedral = () => {
                 </span>
                 <span className={`text-xs ml-2 ${networkWisdom.state.color}`}>({networkWisdom.state.name})</span>
               </p>
+            );
+          })()}
+          {(() => {
+            const evo = Evolution.getEvolutionSummary();
+            if (evo.totalPoints === 0) return null;
+            const trendSymbol = Evolution.getTrendSymbol(evo.growth.trend);
+            const patternSymbol = Evolution.getPatternSymbol(evo.pattern.pattern);
+            const trendColor = evo.growth.trend === 'ASCENDING' ? 'text-green-400' :
+                               evo.growth.trend === 'DECLINING' ? 'text-red-400' :
+                               'text-gray-400';
+            return (
+              <>
+                <p className="text-lg">
+                  Evolution: <span className={`font-bold ${trendColor}`}>
+                    {trendSymbol} {evo.growth.trend}
+                  </span>
+                  {evo.growth.rate !== 0 && (
+                    <span className="text-xs ml-2 opacity-70">
+                      ({evo.growth.rate > 0 ? '+' : ''}{evo.growth.rate.toFixed(2)})
+                    </span>
+                  )}
+                </p>
+                <p className="text-lg">
+                  Pattern: <span className="font-bold text-purple-400">
+                    {patternSymbol} {evo.pattern.pattern}
+                  </span>
+                  <span className="text-xs ml-2 opacity-70">
+                    ({(evo.pattern.confidence * 100).toFixed(0)}% conf)
+                  </span>
+                </p>
+              </>
             );
           })()}
           <button
