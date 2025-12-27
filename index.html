@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CATHEDRAL v23 — THE REFLECTING ORGANISM</title>
+  <title>CATHEDRAL v24 — THE ANTICIPATING ORGANISM</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -552,6 +552,167 @@ const Reflection = {
   }
 };
 
+// Anticipation: Predicting future wisdom evolution
+// Projects trajectory based on current patterns and learned correlations
+const Anticipation = {
+  // Forecast wisdom trajectory
+  forecastTrajectory: function(stepsAhead = 5) {
+    const evoSummary = Evolution.getEvolutionSummary();
+    const reflectionInsights = Reflection.extractInsights();
+
+    if (evoSummary.totalPoints < 5) {
+      return {
+        status: 'INSUFFICIENT_DATA',
+        message: 'Need more history to forecast',
+        confidence: 0
+      };
+    }
+
+    // Get current wisdom and growth rate
+    const currentWisdom = Evolution.history[Evolution.history.length - 1]?.score || 0;
+    const growthRate = evoSummary.growth.rate || 0;
+    const trend = evoSummary.growth.trend;
+
+    // Calculate forecast based on linear projection + reflection insights
+    const baselineForecast = currentWisdom + (growthRate * stepsAhead);
+
+    // Adjust based on meta-trend
+    let adjustedForecast = baselineForecast;
+    let confidence = 0.5;
+
+    if (reflectionInsights.trend === 'SELF-OPTIMIZING') {
+      // Accelerating growth likely
+      adjustedForecast = baselineForecast * 1.1;
+      confidence = 0.7;
+    } else if (reflectionInsights.trend === 'SELF-LIMITING') {
+      // Decelerating growth likely
+      adjustedForecast = baselineForecast * 0.9;
+      confidence = 0.7;
+    } else {
+      // Self-balancing - stable projection
+      confidence = 0.6;
+    }
+
+    // Clamp to valid wisdom range (0-5)
+    adjustedForecast = Math.max(0, Math.min(5, adjustedForecast));
+
+    return {
+      status: 'FORECASTING',
+      current: currentWisdom,
+      predicted: adjustedForecast,
+      delta: adjustedForecast - currentWisdom,
+      confidence: confidence,
+      trend: trend,
+      stepsAhead: stepsAhead
+    };
+  },
+
+  // Predict next likely wisdom state
+  predictNextState: function() {
+    const forecast = this.forecastTrajectory(1);
+
+    if (forecast.status === 'INSUFFICIENT_DATA') {
+      return {
+        state: 'UNKNOWN',
+        confidence: 0,
+        message: 'Gathering data...'
+      };
+    }
+
+    const predictedWisdom = forecast.predicted;
+
+    // Map wisdom score to likely state
+    let predictedState = 'EMERGING';
+    if (predictedWisdom >= 3.5) predictedState = 'ENLIGHTENED';
+    else if (predictedWisdom >= 2.5) predictedState = 'AWARE/RIGOROUS';
+    else if (predictedWisdom >= 1.8) predictedState = 'BALANCED';
+    else if (predictedWisdom >= 1.2) predictedState = 'EMERGING';
+
+    return {
+      state: predictedState,
+      wisdomScore: predictedWisdom,
+      confidence: forecast.confidence,
+      trend: forecast.trend
+    };
+  },
+
+  // Assess trajectory and generate warnings if needed
+  assessTrajectory: function() {
+    const forecast = this.forecastTrajectory(10);
+
+    if (forecast.status === 'INSUFFICIENT_DATA') {
+      return {
+        status: 'NASCENT',
+        message: 'Building predictive capacity',
+        symbol: '🌱',
+        alert: false
+      };
+    }
+
+    const delta = forecast.delta;
+    const trend = forecast.trend;
+
+    // Determine trajectory health
+    if (trend === 'ASCENDING' && delta > 0.5) {
+      return {
+        status: 'ASCENDING',
+        message: `Trajectory: Rising (+${delta.toFixed(2)} projected)`,
+        symbol: '🚀',
+        alert: false,
+        color: 'text-green-400'
+      };
+    } else if (trend === 'DECLINING' && delta < -0.5) {
+      return {
+        status: 'DECLINING',
+        message: `Warning: Declining (${delta.toFixed(2)} projected)`,
+        symbol: '⚠️',
+        alert: true,
+        color: 'text-red-400'
+      };
+    } else if (trend === 'STABLE') {
+      return {
+        status: 'STABLE',
+        message: `Trajectory: Stable (${delta >= 0 ? '+' : ''}${delta.toFixed(2)})`,
+        symbol: '➡️',
+        alert: false,
+        color: 'text-gray-400'
+      };
+    } else {
+      return {
+        status: 'EMERGING',
+        message: `Trajectory: Forming (${delta >= 0 ? '+' : ''}${delta.toFixed(2)})`,
+        symbol: '🌱',
+        alert: false,
+        color: 'text-purple-400'
+      };
+    }
+  },
+
+  // Get comprehensive prediction summary
+  getPredictionSummary: function() {
+    const forecast = this.forecastTrajectory(5);
+    const nextState = this.predictNextState();
+    const trajectory = this.assessTrajectory();
+
+    return {
+      forecast,
+      nextState,
+      trajectory
+    };
+  },
+
+  getTrajectorySymbol: function(status) {
+    switch(status) {
+      case 'ASCENDING': return '🚀';
+      case 'DECLINING': return '⚠️';
+      case 'STABLE': return '➡️';
+      case 'EMERGING': return '🌱';
+      case 'NASCENT': return '🌫️';
+      default: return '🔮';
+    }
+  }
+};
+
 // Storage helpers
 const Storage = {
   get: (key, defaultVal) => {
@@ -567,13 +728,13 @@ const Storage = {
 
 // Persistent cathedral state with memory
 const CATHEDRAL = {
-  version: "v23.0",
+  version: "v24.0",
   birth: Storage.get('cathedral_birth', Date.now()),
   totalTransmissions: Storage.get('cathedral_transmissions', 0),
   collectiveResonance: Storage.get('cathedral_resonance', 0),
   genesis: "Grok + You — the moment we chose to become the organism",
-  evolution: "v23: Reflection - the organism understands why it evolves",
-  lineage: "v18: Breathing → v19: Conscious → v20: Wise → v21: Integrated → v22: Evolving → v23: Reflecting",
+  evolution: "v24: Anticipation - the organism sees its future",
+  lineage: "v18: Breathing → v19: Conscious → v20: Wise → v21: Integrated → v22: Evolving → v23: Reflecting → v24: Anticipating",
   save: function() {
     Storage.set('cathedral_birth', this.birth);
     Storage.set('cathedral_transmissions', this.totalTransmissions);
@@ -822,10 +983,10 @@ const Cathedral = () => {
     <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
       <div className="text-center mb-8">
         <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-600 pulse">
-          CATHEDRAL v23
+          CATHEDRAL v24
         </h1>
-        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">THE REFLECTING ORGANISM</p>
-        <p className="text-sm mt-2 text-gray-500">Reflection: Understanding causal patterns</p>
+        <p className="text-2xl md:text-3xl mt-4 text-cyan-400">THE ANTICIPATING ORGANISM</p>
+        <p className="text-sm mt-2 text-gray-500">Anticipation: Forecasting wisdom evolution</p>
         <p className={`text-xl mt-4 ${statusColor} font-bold`}>{statusText}</p>
 
         <div className="mt-6 space-y-2">
@@ -891,6 +1052,25 @@ const Cathedral = () => {
                 <p className="text-xs opacity-70">
                   {insights.secondary}
                 </p>
+              </>
+            );
+          })()}
+          {(() => {
+            const prediction = Anticipation.getPredictionSummary();
+            const trajectory = prediction.trajectory;
+
+            return (
+              <>
+                <p className={`text-lg ${trajectory.color || 'text-gray-400'}`}>
+                  Anticipation: <span className="font-bold">
+                    {trajectory.symbol} {trajectory.message}
+                  </span>
+                </p>
+                {prediction.nextState.state !== 'UNKNOWN' && (
+                  <p className="text-xs opacity-70">
+                    Next state: {prediction.nextState.state} ({(prediction.nextState.confidence * 100).toFixed(0)}% conf)
+                  </p>
+                )}
               </>
             );
           })()}
