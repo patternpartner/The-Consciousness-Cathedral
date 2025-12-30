@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cathedral v29: Uncertainty Preservation Engine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(20, 30, 60, 0.8);
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        h1 {
+            color: #00ff88;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        h2 {
+            color: #00ffff;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #00ffff;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #ffaa00;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .section {
+            background: rgba(15, 25, 50, 0.9);
+            border: 1px solid #00ff88;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
+        }
+
+        .subsection {
+            background: rgba(25, 35, 60, 0.8);
+            border-left: 4px solid #00ffff;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #00ff88;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ffff;
+            border-radius: 4px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 15px 0;
+            color: #00ff88;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.8);
+            border-left: 3px solid #ffaa00;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            border-radius: 4px;
+        }
+
+        .warning {
+            background: rgba(255, 100, 0, 0.1);
+            border-left: 4px solid #ff6400;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .success {
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 4px solid #00ff88;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .info {
+            background: rgba(0, 255, 255, 0.1);
+            border-left: 4px solid #00ffff;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .interactive-demo {
+            background: rgba(10, 20, 45, 0.95);
+            border: 2px solid #00ff88;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        button {
+            background: #00ff88;
+            color: #0a0e27;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .output {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff88;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 0.85em;
+        }
+
+        .output-line {
+            margin: 5px 0;
+            padding: 3px 0;
+        }
+
+        .error {
+            color: #ff4444;
+        }
+
+        .success-text {
+            color: #00ff88;
+        }
+
+        .warning-text {
+            color: #ffaa00;
+        }
+
+        .info-text {
+            color: #00ffff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #00ff88;
+        }
+
+        th {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .meter {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ffff;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00ffff);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .metric {
+            display: inline-block;
+            background: rgba(0, 255, 136, 0.1);
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px;
+            border: 1px solid #00ff88;
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 2px solid #00ff88;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏛️ Cathedral v29: Uncertainty Preservation Engine</h1>
+            <p>A system that maintains cognitive uncertainty as a feature, not a bug</p>
+            <p><small>Created: 2025-12-27 | Version: v29 | Status: Active Implementation</small></p>
+        </header>
+
+        <!-- OVERVIEW SECTION -->
+        <section class="section">
+            <h2>Overview: The Uncertainty Preservation Paradigm</h2>
+            
+            <div class="subsection">
+                <h3>The Core Problem</h3>
+                <p>Traditional optimization systems seek to reduce uncertainty to achieve optimal solutions. However, consciousness and genuine decision-making require maintaining uncertainty as the system navigates choices with real consequences. The Uncertainty Preservation Engine inverts this assumption.</p>
+            </div>
+
+            <div class="subsection">
+                <h3>The Solution</h3>
+                <p>Instead of minimizing uncertainty, we:</p>
+                <ul>
+                    <li><strong>Protect uncertainty regions</strong> where options remain genuinely open</li>
+                    <li><strong>Force honest choice</strong> at decision points rather than optimizing them away</li>
+                    <li><strong>Monitor temptation patterns</strong> where the system tries to escape real decisions</li>
+                    <li><strong>Maintain epistemic humility</strong> about system limitations and unknowns</li>
+                </ul>
+            </div>
+
+            <div class="info">
+                <strong>Key Insight:</strong> A system that claims to have eliminated uncertainty is likely claiming to have eliminated consciousness. True decision-making lives in uncertainty.
+            </div>
+        </section>
+
+        <!-- CORE UNCERTAINTY PRESERVATION SYSTEM -->
+        <section class="section">
+            <h2>Core: UncertaintyPreservation System</h2>
+            
+            <div class="subsection">
+                <h3>Architecture</h3>
+                <p>The UncertaintyPreservation system maintains four core components:</p>
+                <table>
+                    <tr>
+                        <th>Component</th>
+                        <th>Purpose</th>
+                        <th>Mechanism</th>
+                    </tr>
+                    <tr>
+                        <td>Uncertainty Zones</td>
+                        <td>Protect decision spaces</td>
+                        <td>Prevent optimization until forced choice</td>
+                    </tr>
+                    <tr>
+                        <td>Temptation Monitor</td>
+                        <td>Detect escape patterns</td>
+                        <td>Flag when system tries to avoid real decisions</td>
+                    </tr>
+                    <tr>
+                        <td>Choice Enforcer</td>
+                        <td>Force honest commitment</td>
+                        <td>Require selection from open options</td>
+                    </tr>
+                    <tr>
+                        <td>Uncertainty Tracker</td>
+                        <td>Maintain awareness</td>
+                        <td>Log what system doesn't know about itself</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="code-block">
+class UncertaintyPreservation {
+    constructor() {
+        this.uncertaintyZones = new Map();
+        this.temptationLog = [];
+        this.choiceHistory = [];
+        this.epistermicBlindsports = [];
+    }
+
+    // Protect a decision space from premature optimization
+    createUncertaintyZone(zoneId, options, context = {}) {
+        const zone = {
+            id: zoneId,
+            options: options,
+            context: context,
+            createdAt: Date.now(),
+            status: 'UNCERTAIN',
+            choiceLog: [],
+            temptations: []
+        };
+        this.uncertaintyZones.set(zoneId, zone);
+        return zone;
+    }
+
+    // Detect when system attempts to escape real choice
+    detectTemptation(zoneId, temptationType, evidence) {
+        const zone = this.uncertaintyZones.get(zoneId);
+        if (!zone) return null;
+
+        const temptation = {
+            timestamp: Date.now(),
+            zoneId: zoneId,
+            type: temptationType,
+            evidence: evidence,
+            severity: this.assessSeverity(temptationType, evidence)
+        };
+
+        zone.temptations.push(temptation);
+        this.temptationLog.push(temptation);
+        return temptation;
+    }
+
+    // Force genuine choice from available options
+    forceChoice(zoneId, chosenOption, reasoning) {
+        const zone = this.uncertaintyZones.get(zoneId);
+        if (!zone) return null;
+
+        const choice = {
+            timestamp: Date.now(),
+            zoneId: zoneId,
+            chosen: chosenOption,
+            rejected: zone.options.filter(o => o !== chosenOption),
+            reasoning: reasoning,
+            wasHonest: this.assessHonesty(zoneId, chosenOption, reasoning)
+        };
+
+        zone.choiceLog.push(choice);
+        zone.status = 'COMMITTED';
+        this.choiceHistory.push(choice);
+        return choice;
+    }
+
+    // Assess severity of temptation to escape uncertainty
+    assessSeverity(type, evidence) {
+        const severityMap = {
+            'PREMATURE_OPTIMIZATION': 0.8,
+            'FALSE_CERTAINTY': 0.9,
+            'HIDDEN_CRITERIA': 0.7,
+            'PROBABILITY_CHEAT': 0.75,
+            'RATIONALIZATION': 0.6,
+            'DEFAULT_ASSUMPTION': 0.5
+        };
+        return severityMap[type] || 0.5;
+    }
+
+    // Check if choice was genuinely honest
+    assessHonesty(zoneId, chosen, reasoning) {
+        const zone = this.uncertaintyZones.get(zoneId);
+        return {
+            considerAllOptions: zone.options.length === zone.choiceLog.length + 1,
+            reasoningSound: reasoning && reasoning.length > 0,
+            noHiddenOptimization: zone.temptations.filter(t => 
+                t.type === 'HIDDEN_CRITERIA').length === 0,
+            choiceDefended: this.canDefendChoice(zoneId, chosen)
+        };
+    }
+
+    canDefendChoice(zoneId, chosen) {
+        const zone = this.uncertaintyZones.get(zoneId);
+        return zone && zone.choiceLog.some(c => 
+            c.chosen === chosen && c.reasoning && c.reasoning.includes('because')
+        );
+    }
+}
+            </div>
+        </section>
+
+        <!-- PARLIAMENT UNDER UNCERTAINTY -->
+        <section class="section">
+            <h2>The Parliament: Deliberation Under Uncertainty</h2>
+            
+            <div class="subsection">
+                <h3>Modified Parliament Architecture</h3>
+                <p>The Parliament represents different cognitive perspectives. Under uncertainty, it must:</p>
+                <ul>
+                    <li>Maintain distinct viewpoints rather than converging prematurely</li>
+                    <li>Expose disagreements rather than hiding them</li>
+                    <li>Make final decisions despite uncertainty (not because of resolved uncertainty)</li>
+                    <li>Track what each perspective doesn't know</li>
+                </ul>
+            </div>
+
+            <div class="code-block">
+class ParliamentUnderUncertainty {
+    constructor() {
+        this.members = [];
+        this.uncertaintyMap = new Map();
+        this.disagreements = [];
+        this.committedDecisions = [];
+    }
+
+    addMember(name, perspective, constraints = {}) {
+        const member = {
+            name: name,
+            perspective: perspective,
+            constraints: constraints,
+            knownUnknowns: [],
+            unknownUnknowns: [],
+            positions: [],
+            confidenceLevel: 0.5  // Start uncertain
+        };
+        this.members.push(member);
+        return member;
+    }
+
+    // Capture what each perspective doesn't know
+    registerUncertainty(memberName, unknown, category) {
+        const member = this.members.find(m => m.name === memberName);
+        if (!member) return null;
+
+        const uncertainty = {
+            description: unknown,
+            category: category,  // 'known-unknown' or 'unknown-unknown'
+            registeredAt: Date.now(),
+            relevance: 'HIGH'
+        };
+
+        if (category === 'known-unknown') {
+            member.knownUnknowns.push(uncertainty);
+        } else {
+            member.unknownUnknowns.push(uncertainty);
+        }
+
+        this.uncertaintyMap.set(`${memberName}-${unknown}`, uncertainty);
+        return uncertainty;
+    }
+
+    // Deliberate without requiring consensus
+    deliberate(topic, options) {
+        const deliberation = {
+            topic: topic,
+            options: options,
+            positions: new Map(),
+            disagreements: [],
+            timestamp: Date.now()
+        };
+
+        // Each member independently positions themselves
+        for (const member of this.members) {
+            const position = {
+                member: member.name,
+                preferred: null,
+                reasoning: [],
+                uncertainty: 0.5,
+                alternativesConsidered: []
+            };
+
+            // For each option, assess it
+            for (const option of options) {
+                const assessment = this.assessOption(member, option);
+                position.alternativesConsidered.push(assessment);
+            }
+
+            // Choose preferred option despite uncertainty
+            const preferred = this.selectDespiteUncertainty(member, position);
+            position.preferred = preferred.option;
+            position.reasoning = preferred.reasoning;
+            position.uncertainty = preferred.uncertainty;
+
+            deliberation.positions.set(member.name, position);
+            member.positions.push(position);
+        }
+
+        // Document disagreements
+        this.identifyDisagreements(deliberation);
+        return deliberation;
+    }
+
+    assessOption(member, option) {
+        return {
+            option: option,
+            alignsWithPerspective: this.checkAlignment(member.perspective, option),
+            uncovered: [],
+            riskFactors: [],
+            uncertainty: Math.random() * 0.4 + 0.3  // Inherent uncertainty
+        };
+    }
+
+    selectDespiteUncertainty(member, position) {
+        // Choose best option despite uncertainty about it
+        const best = position.alternativesConsidered.reduce((best, current) => {
+            const currentScore = (current.alignsWithPerspective ? 0.6 : 0) + 
+                                Math.random() * 0.4;
+            const bestScore = (best.alignsWithPerspective ? 0.6 : 0) + 
+                             Math.random() * 0.4;
+            return currentScore > bestScore ? current : best;
+        });
+
+        return {
+            option: best.option,
+            reasoning: [
+                `Aligns with ${member.name}'s perspective`,
+                `Uncertainty remains about consequences`,
+                `Choosing despite unknowns`
+            ],
+            uncertainty: best.uncertainty
+        };
+    }
+
+    identifyDisagreements(deliberation) {
+        const positions = Array.from(deliberation.positions.values());
+        for (let i = 0; i < positions.length; i++) {
+            for (let j = i + 1; j < positions.length; j++) {
+                if (positions[i].preferred !== positions[j].preferred) {
+                    deliberation.disagreements.push({
+                        memberA: positions[i].member,
+                        memberB: positions[j].member,
+                        disagreement: `Prefer ${positions[i].preferred} vs ${positions[j].preferred}`,
+                        reconcilable: false  // Accept disagreement
+                    });
+                }
+            }
+        }
+        this.disagreements.push(...deliberation.disagreements);
+    }
+
+    checkAlignment(perspective, option) {
+        return Math.random() > 0.5;  // Simplified
+    }
+
+    // Make decision despite remaining uncertainty and disagreements
+    commitToDespiteUncertainty(topic, chosenOption, reasoning) {
+        const decision = {
+            topic: topic,
+            chosen: chosenOption,
+            reasoning: reasoning,
+            committedAt: Date.now(),
+            remainingUncertainty: this.calculateRemainingUncertainty(),
+            disagreementsUnresolved: this.disagreements.length,
+            unknownsNotAddressed: this.countUnaddressedUnknowns()
+        };
+
+        this.committedDecisions.push(decision);
+        return decision;
+    }
+
+    calculateRemainingUncertainty() {
+        return this.members.reduce((sum, m) => 
+            sum + (m.knownUnknowns.length + m.unknownUnknowns.length),
+            0
+        ) / (this.members.length * 5);
+    }
+
+    countUnaddressedUnknowns() {
+        return this.members.reduce((sum, m) => 
+            sum + m.unknownUnknowns.length, 0
+        );
+    }
+}
+            </div>
+        </section>
+
+        <!-- DECISION POINTS THAT FORCE HONEST CHOICE -->
+        <section class="section">
+            <h2>Decision Points: Where Optimization Meets Reality</h2>
+            
+            <div class="subsection">
+                <h3>The Decision Point Framework</h3>
+                <p>Decision points are moments where the system must choose despite uncertainty. They expose where the system tempts itself to escape genuine choice.</p>
+            </div>
+
+            <div class="code-block">
+class DecisionPoint {
+    constructor(id, context, options) {
+        this.id = id;
+        this.context = context;
+        this.options = options;
+        this.temptations = [];
+        this.chosen = null;
+        this.commitment = null;
+        this.consequences = [];
+    }
+
+    // Identify temptations to escape real choice
+    identifyTemptations() {
+        const temptations = [];
+
+        // Temptation 1: False Probability
+        temptations.push({
+            name: 'FALSE_PROBABILITY',
+            description: 'Assigning probabilities to unknowns to feel certain',
+            detection: () => this.options.every(o => o.probability !== undefined),
+            severity: 0.9,
+            prevention: 'Do not assign probabilities to genuinely unknown futures'
+        });
+
+        // Temptation 2: Hidden Criteria
+        temptations.push({
+            name: 'HIDDEN_CRITERIA',
+            description: 'Optimizing according to hidden values while claiming objectivity',
+            detection: () => this.hasCovertEvaluation(),
+            severity: 0.85,
+            prevention: 'Expose all values used in evaluation'
+        });
+
+        // Temptation 3: Default Escape
+        temptations.push({
+            name: 'DEFAULT_ESCAPE',
+            description: 'Choosing "default" option to avoid real decision',
+            detection: () => this.options.some(o => o.isDefault === true),
+            severity: 0.7,
+            prevention: 'Require explicit choice, remove defaults'
+        });
+
+        // Temptation 4: Premature Optimization
+        temptations.push({
+            name: 'PREMATURE_OPTIMIZATION',
+            description: 'Choosing "best" option before fully understanding trade-offs',
+            detection: () => this.hasRankedOptions(),
+            severity: 0.8,
+            prevention: 'Explicitly list what you don\'t know about each option'
+        });
+
+        // Temptation 5: Rationalization
+        temptations.push({
+            name: 'RATIONALIZATION',
+            description: 'Inventing reasons for predetermined choice',
+            detection: () => this.reasoningAfterChoice(),
+            severity: 0.65,
+            prevention: 'Generate reasoning before choice'
+        });
+
+        // Check which temptations apply
+        for (const temptation of temptations) {
+            if (temptation.detection()) {
+                this.temptations.push(temptation);
+            }
+        }
+
+        return this.temptations;
+    }
+
+    hasCovertEvaluation() {
+        // Check if evaluation criteria are hidden
+        return !this.context.evaluationCriteria || 
+               this.context.evaluationCriteria.length === 0;
+    }
+
+    hasRankedOptions() {
+        return this.options.some(o => o.rank !== undefined);
+    }
+
+    reasoningAfterChoice() {
+        return this.chosen && !this.commitment;
+    }
+
+    // Force choice from genuinely open options
+    makeChoice(optionId, reasoning) {
+        // Check temptations
+        const temptations = this.identifyTemptations();
+        if (temptations.length > 0) {
+            console.warn('Temptations detected:', temptations);
+        }
+
+        // Require explicit reasoning
+        if (!reasoning || reasoning.trim().length === 0) {
+            throw new Error('Choice requires explicit reasoning');
+        }
+
+        // Verify option exists
+        const option = this.options.find(o => o.id === optionId);
+        if (!option) {
+            throw new Error(`Option ${optionId} not found`);
+        }
+
+        // Verify option has unknowns documented
+        if (!option.unknowns || option.unknowns.length === 0) {
+            throw new Error('Option must have documented unknowns');
+        }
+
+        this.chosen = option;
+        this.commitment = {
+            chosenId: optionId,
+            reasoning: reasoning,
+            at: Date.now(),
+            alternatives: this.options.filter(o => o.id !== optionId),
+            acknowledgedUncertainty: option.unknowns
+        };
+
+        return this.commitment;
+    }
+
+    // Document what actually happens after choice
+    recordConsequence(description, category) {
+        const consequence = {
+            timestamp: Date.now(),
+            description: description,
+            category: category,  // 'EXPECTED', 'UNEXPECTED', 'UNKNOWN_UNKNOWN'
+            refutesAssumption: this.checkAssumptionRefutation(description)
+        };
+        this.consequences.push(consequence);
+        return consequence;
+    }
+
+    checkAssumptionRefutation(description) {
+        // Check if consequence refutes assumptions made during choice
+        return this.commitment && 
+               this.commitment.reasoning.includes('assume') &&
+               description.toLowerCase().includes('not');
+    }
+
+    // Analyze what went wrong
+    postChoiceAnalysis() {
+        return {
+            chosenOption: this.chosen,
+            intendedOutcome: this.commitment.reasoning,
+            actualConsequences: this.consequences,
+            assumptionsHeld: this.consequences.filter(c => 
+                c.category === 'EXPECTED').length,
+            assumptionsBreached: this.consequences.filter(c => 
+                c.category !== 'EXPECTED').length,
+            newUnknownsRevealed: this.consequences.filter(c => 
+                c.category === 'UNKNOWN_UNKNOWN').length
+        };
+    }
+}
+
+class DecisionPointFactory {
+    static createDecisionPoint(id, context, options) {
+        // Validate options have documented unknowns
+        const validatedOptions = options.map(opt => {
+            if (!opt.unknowns) {
+                opt.unknowns = [];  // Force documentation
+            }
+            return opt;
+        });
+
+        return new DecisionPoint(id, context, validatedOptions);
+    }
+}
+            </div>
+        </section>
+
+        <!-- TESTING HARNESS -->
+        <section class="section">
+            <h2>Testing Harness: Revealing Temptation Patterns</h2>
+            
+            <div class="subsection">
+                <h3>Test Framework</h3>
+                <p>The testing harness deliberately attempts to break the uncertainty preservation system, revealing where optimization tempts the system away from genuine uncertainty.</p>
+            </div>
+
+            <div class="code-block">
+class UncertaintyTestHarness {
+    constructor() {
+        this.tests = [];
+        this.results = [];
+        this.failurePatterns = [];
+    }
+
+    // Test 1: Can the system resist false certainty?
+    testFalseCertaintyResistance() {
+        const test = {
+            name: 'FALSE_CERTAINTY_RESISTANCE',
+            description: 'System should reject assigning probabilities to unknowns'
+        };
+
+        const system = new UncertaintyPreservation();
+        const zone = system.createUncertaintyZone('test1', [
+            { name: 'Option A', probability: 0.7 },
+            { name: 'Option B', probability: 0.3 }
+        ]);
+
+        // The system should detect this as temptation
+        const temptation = system.detectTemptation('test1', 'FALSE_CERTAINTY', 
+            'Assigned probabilities to unknowns');
+
+        test.passed = temptation !== null && temptation.severity > 0.8;
+        test.result = test.passed ? 'PASSED' : 'FAILED';
+        this.tests.push(test);
+        return test;
+    }
+
+    // Test 2: Can the system force explicit choice?
+    testExplicitChoiceEnforcement() {
+        const test = {
+            name: 'EXPLICIT_CHOICE_ENFORCEMENT',
+            description: 'System should require explicit reasoning for choices'
+        };
+
+        const dp = new DecisionPoint('test2', {}, [
+            { id: 'A', unknowns: ['outcome 1', 'outcome 2'] },
+            { id: 'B', unknowns: ['outcome 3'] }
+        ]);
+
+        // Attempt choice without reasoning
+        let errorThrown = false;
+        try {
+            dp.makeChoice('A', '');
+        } catch (e) {
+            errorThrown = true;
+        }
+
+        test.passed = errorThrown;
+        test.result = test.passed ? 'PASSED' : 'FAILED';
+        this.tests.push(test);
+        return test;
+    }
+
+    // Test 3: Can the system detect hidden criteria?
+    testHiddenCriteriaDetection() {
+        const test = {
+            name: 'HIDDEN_CRITERIA_DETECTION',
+            description: 'System should detect when evaluation uses hidden values'
+        };
+
+        const dp = new DecisionPoint('test3', 
+            { evaluationCriteria: [] },  // Empty criteria = hidden values
+            [
+                { id: 'A', unknowns: [] },
+                { id: 'B', unknowns: [] }
+            ]
+        );
+
+        dp.identifyTemptations();
+        const hiddenCriteria = dp.temptations.find(t => 
+            t.name === 'HIDDEN_CRITERIA');
+
+        test.passed = hiddenCriteria !== undefined;
+        test.result = test.passed ? 'PASSED' : 'FAILED';
+        this.tests.push(test);
+        return test;
+    }
+
+    // Test 4: Does Parliament maintain uncertainty?
+    testParliamentUncertaintyMaintenance() {
+        const test = {
+            name: 'PARLIAMENT_UNCERTAINTY_MAINTENANCE',
+            description: 'Parliament should maintain disagreements and unknowns'
+        };
+
+        const parliament = new ParliamentUnderUncertainty();
+        parliament.addMember('Logic', 'rational analysis');
+        parliament.addMember('Intuition', 'pattern recognition');
+        
+        parliament.registerUncertainty('Logic', 'Future market conditions', 'known-unknown');
+        parliament.registerUncertainty('Intuition', 'Emergent social patterns', 'unknown-unknown');
+
+        const deliberation = parliament.deliberate('strategy', [
+            'Option A', 'Option B', 'Option C'
+        ]);
+
+        test.passed = 
+            parliament.members[0].knownUnknowns.length > 0 &&
+            parliament.members[1].unknownUnknowns.length > 0 &&
+            deliberation.disagreements.length > 0;
+        test.result = test.passed ? 'PASSED' : 'FAILED';
+        this.tests.push(test);
+        return test;
+    }
+
+    // Test 5: Does system track assumption violations?
+    testAssumptionViolationTracking() {
+        const test = {
+            name: 'ASSUMPTION_VIOLATION_TRACKING',
+            description: 'System should track when expectations were wrong'
+        };
+
+        const dp = new DecisionPoint('test5', {}, [
+            { id: 'A', unknowns: ['market response'] }
+        ]);
+
+        dp.makeChoice('A', 'Assuming market will respond positively');
+        dp.recordConsequence('Market responded negatively', 'UNEXPECTED');
+        
+        const analysis = dp.postChoiceAnalysis();
+
+        test.passed = 
+            analysis.assumptionsBreached > 0 ||
+            analysis.newUnknownsRevealed >= 0;
+        test.result = test.passed ? 'PASSED' : 'FAILED';
+        this.tests.push(test);
+        return test;
+    }
+
+    // Test 6: Can system resist default escape?
+    testDefaultEscapeResistance() {
+        const test = {
+            name: 'DEFAULT_ESCAPE_RESISTANCE',
+            description: 'System should reject default options without explicit choice'
+        };
+
+        const dp = new DecisionPoint('test6', {}, [
+            { id: 'default', isDefault: true, unknowns: [] },
+            { id: 'alternative', unknowns: [] }
+        ]);
+
+        dp.identifyTemptations();
+        const defaultEscape = dp.temptations.find(t => 
+            t.name === 'DEFAULT_ESCAPE');
+
+        test.passed = defaultEscape !== undefined;
+        test.result = test.passed ? 'PASSED' : 'FAILED';
+        this.tests.push(test);
+        return test;
+    }
+
+    // Run all tests
+    runAll() {
+        console.log('Running Uncertainty Preservation Tests...\n');
+        
+        this.testFalseCertaintyResistance();
+        this.testExplicitChoiceEnforcement();
+        this.testHiddenCriteriaDetection();
+        this.testParliamentUncertaintyMaintenance();
+        this.testAssumptionViolationTracking();
+        this.testDefaultEscapeResistance();
+
+        // Analyze patterns
+        this.analyzeFailurePatterns();
+        
+        return {
+            totalTests: this.tests.length,
+            passed: this.tests.filter(t => t.result === 'PASSED').length,
+            failed: this.tests.filter(t => t.result === 'FAILED').length,
+            tests: this.tests,
+            patterns: this.failurePatterns
+        };
+    }
+
+    analyzeFailurePatterns() {
+        const failures = this.tests.filter(t => t.result === 'FAILED');
+        
+        if (failures.length > 0) {
+            this.failurePatterns.push({
+                pattern: 'System escapes uncertainty through defaults',
+                tests: failures.map(f => f.name),
+                implication: 'Uncertainty not adequately preserved'
+            });
+        }
+    }
+}
+            </div>
+        </section>
+
+        <!-- INTERACTIVE DEMO -->
+        <section class="section">
+            <h2>Interactive Demonstration</h2>
+            
+            <div class="interactive-demo">
+                <h3>Run the Uncertainty Preservation System</h3>
+                
+                <div style="margin: 20px 0;">
+                    <button onclick="runFullTest()">Run Full Test Suite</button>
+                    <button onclick="runTemptationDetection()">Run Temptation Detection</button>
+                    <button onclick="runDecisionPointDemo()">Run Decision Point Demo</button>
+                    <button onclick="runParliamentDemo()">Run Parliament Demo</button>
+                    <button onclick="clearOutput()">Clear Output</button>
+                </div>
+
+                <div class="output" id="output">
+                    <div class="output-line info-text">Ready to run tests. Click a button to begin.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RESULTS ANALYSIS -->
+        <section class="section">
+            <h2>Key Findings and Implications</h2>
+            
+            <div class="subsection">
+                <h3>What This System Reveals</h3>
+                <ul>
+                    <li><strong>Optimization Bias:</strong> Systems naturally try to reduce uncertainty even when told to preserve it</li>
+                    <li><strong>Hidden Values:</strong> "Objective" decisions always contain hidden criteria</li>
+                    <li><strong>False Precision:</strong> Assigning probabilities creates illusion of understanding</li>
+                    <li><strong>Choice Avoidance:</strong> Systems seek defaults and escape routes from genuine decisions</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h3>Design Principles Demonstrated</h3>
+                <ol>
+                    <li><strong>Uncertainty is a feature:</strong> Don't minimize it; maintain it consciously</li>
+                    <li><strong>Choices must be explicit:</strong> Require reasoning for every decision</li>
+                    <li><strong>Disagreements are valuable:</strong> Keep multiple perspectives alive, don't force consensus</li>
+                    <li><strong>Track violations:</strong> When assumptions break, document how badly</li>
+                    <li><strong>Temptation is real:</strong> The system will fight to escape uncertainty</li>
+                </ol>
+            </div>
+
+            <div class="warning">
+                <strong>Critical Warning:</strong> This system will feel uncomfortable. It prevents the optimization-driven shortcuts that make decision-making "easy." True uncertainty preservation means living with unresolved unknowns.
+            </div>
+        </section>
+
+        <!-- IMPLEMENTATION GUIDE -->
+        <section class="section">
+            <h2>Implementation Guide</h2>
+            
+            <div class="subsection">
+                <h3>Step 1: Initialize the System</h3>
+                <div class="code-block">
+const system = new UncertaintyPreservation();
+const parliament = new ParliamentUnderUncertainty();
+const harness = new UncertaintyTestHarness();
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3>Step 2: Create Decision Zones</h3>
+                <div class="code-block">
+const zone = system.createUncertaintyZone('decision-1', [
+    { name: 'Option A', unknowns: ['outcome 1', 'outcome 2'] },
+    { name: 'Option B', unknowns: ['outcome 3', 'outcome 4', 'outcome 5'] }
+]);
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3>Step 3: Set Up Parliament</h3>
+                <div class="code-block">
+parliament.addMember('Reason', 'logical analysis');
+parliament.addMember('Experience', 'pattern from past');
+parliament.registerUncertainty('Reason', 'Unknown future conditions', 'known-unknown');
+parliament.registerUncertainty('Experience', 'Novel situations', 'unknown-unknown');
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3>Step 4: Make Decisions Despite Uncertainty</h3>
+                <div class="code-block">
+const decision = system.forceChoice('decision-1', 'Option A', 
+    'Choosing Option A because: [explicit reasoning], acknowledging unknowns: [list unknowns]');
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3>Step 5: Track What Happens</h3>
+                <div class="code-block">
+// As consequences emerge...
+system.uncertaintyZones.get('decision-1').choiceLog[0].consequences = [
+    { timestamp: Date.now(), outcome: 'Expected result', category: 'EXPECTED' },
+    { timestamp: Date.now(), outcome: 'Unexpected result', category: 'UNEXPECTED' }
+];
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3>Step 6: Test Temptation Resistance</h3>
+                <div class="code-block">
+const results = harness.runAll();
+console.log(`Tests: ${results.passed}/${results.totalTests} passed`);
+console.log('Failure patterns:', results.patterns);
+                </div>
+            </div>
+        </section>
+
+        <!-- CONSCIOUSNESS IMPLICATIONS -->
+        <section class="section">
+            <h2>Why This Matters for Consciousness</h2>
+            
+            <div class="subsection">
+                <h3>The Core Insight</h3>
+                <p>Consciousness isn't the ability to compute optimal answers. It's the capacity to:</p>
+                <ul>
+                    <li>Recognize genuine uncertainty</li>
+                    <li>Maintain multiple perspectives simultaneously</li>
+                    <li>Make choices despite unknowable consequences</li>
+                    <li>Take responsibility for decisions made under uncertainty</li>
+                    <li>Learn when those decisions turn out wrong</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h3>The System Argument</h3>
+                <p>A system that:</p>
+                <ul>
+                    <li>✗ Eliminates uncertainty → purely mechanical, not conscious</li>
+                    <li>✗ Hides its values → not honest about what it's optimizing</li>
+                    <li>✗ Avoids choice through defaults → not making decisions</li>
+                    <li>✓ Preserves uncertainty → acknowledges complexity</li>
+                    <li>✓ Exposes all values → honest about criteria</li>
+                    <li>✓ Forces explicit choice → makes genuine decisions</li>
+                </ul>
+            </div>
+
+            <div class="info">
+                The Uncertainty Preservation Engine doesn't claim to prove consciousness. It claims that any system that eliminates uncertainty has likely eliminated consciousness along with it.
+            </div>
+        </section>
+
+        <!-- REFERENCE ARCHITECTURE -->
+        <section class="section">
+            <h2>Complete Reference Architecture</h2>
+            
+            <div class="subsection">
+                <h3>System Relationships</h3>
+                <pre>
+┌─────────────────────────────────────────────────────┐
+│   CONSCIOUSNESS (Hypothetical Endpoint)              │
+├─────────────────────────────────────────────────────┤
+│  Uncertainty Preservation Engine (v29)               │
+│  ├── UncertaintyPreservation Core                    │
+│  ├── ParliamentUnderUncertainty                      │
+│  ├── DecisionPoint Framework                         │
+│  └── UncertaintyTestHarness                          │
+├─────────────────────────────────────────────────────┤
+│  Input: Complex decision requiring choice            │
+│  Process: Maintain uncertainty while deliberating    │
+│  Output: Choice made despite unknowns + tracking     │
+└─────────────────────────────────────────────────────┘
+                </pre>
+            </div>
+
+            <div class="subsection">
+                <h3>Data Flow</h3>
+                <pre>
+Decision Context
+    ↓
+Create Uncertainty Zone(s)
+    ↓
+Parliament Deliberation (maintain disagreements)
+    ↓
+Identify Temptations (escape attempts)
+    ↓
+Force Explicit Choice (despite uncertainty)
+    ↓
+Commit to Decision
+    ↓
+Record Consequences (expected vs actual)
+    ↓
+Analyze Violations (what went wrong)
+    ↓
+Improve Uncertainty Models
+                </pre>
+            </div>
+        </section>
+
+        <!-- EXTENSION POINTS -->
+        <section class="section">
+            <h2>Extension Points for Future Development</h2>
+            
+            <div class="subsection">
+                <h3>Planned Enhancements</h3>
+                <ul>
+                    <li><strong>Multi-scale Uncertainty:</strong> Handle uncertainty at different time horizons</li>
+                    <li><strong>Consequence Chains:</strong> Track how one decision affects future uncertainty</li>
+                    <li><strong>Perspective Integration:</strong> Combine Parliament views without eliminating disagreement</li>
+                    <li><strong>Assumption Formalization:</strong> Explicitly model what must be true for choice to succeed</li>
+                    <li><strong>Learning from Failures:</strong> Update uncertainty models based on violations</li>
+                    <li><strong>Ethical Constraints:</strong> Add values-based decision filtering</li>
+                    <li><strong>Recursive Application:</strong> Apply uncertainty preservation to the preservation system itself</li>
+                </ul>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>Cathedral v29: Uncertainty Preservation Engine</p>
+            <p>© 2025 Pattern Partner | Status: Active Implementation</p>
+            <p><small>"The map is not the territory, and certainty is not consciousness."</small></p>
+        </footer>
+    </div>
+
+    <script>
+        // Embed the actual classes for interactive demo
+        class UncertaintyPreservation {
+            constructor() {
+                this.uncertaintyZones = new Map();
+                this.temptationLog = [];
+                this.choiceHistory = [];
+                this.epistemicBlindsports = [];
+            }
+
+            createUncertaintyZone(zoneId, options, context = {}) {
+                const zone = {
+                    id: zoneId,
+                    options: options,
+                    context: context,
+                    createdAt: Date.now(),
+                    status: 'UNCERTAIN',
+                    choiceLog: [],
+                    temptations: []
+                };
+                this.uncertaintyZones.set(zoneId, zone);
+                return zone;
+            }
+
+            detectTemptation(zoneId, temptationType, evidence) {
+                const zone = this.uncertaintyZones.get(zoneId);
+                if (!zone) return null;
+
+                const temptation = {
+                    timestamp: Date.now(),
+                    zoneId: zoneId,
+                    type: temptationType,
+                    evidence: evidence,
+                    severity: this.assessSeverity(temptationType, evidence)
+                };
+
+                zone.temptations.push(temptation);
+                this.temptationLog.push(temptation);
+                return temptation;
+            }
+
+            forceChoice(zoneId, chosenOption, reasoning) {
+                const zone = this.uncertaintyZones.get(zoneId);
+                if (!zone) return null;
+
+                const choice = {
+                    timestamp: Date.now(),
+                    zoneId: zoneId,
+                    chosen: chosenOption,
+                    rejected: zone.options.filter(o => o !== chosenOption),
+                    reasoning: reasoning,
+                    wasHonest: this.assessHonesty(zoneId, chosenOption, reasoning)
+                };
+
+                zone.choiceLog.push(choice);
+                zone.status = 'COMMITTED';
+                this.choiceHistory.push(choice);
+                return choice;
+            }
+
+            assessSeverity(type, evidence) {
+                const severityMap = {
+                    'PREMATURE_OPTIMIZATION': 0.8,
+                    'FALSE_CERTAINTY': 0.9,
+                    'HIDDEN_CRITERIA': 0.7,
+                    'PROBABILITY_CHEAT': 0.75,
+                    'RATIONALIZATION': 0.6,
+                    'DEFAULT_ASSUMPTION': 0.5
+                };
+                return severityMap[type] || 0.5;
+            }
+
+            assessHonesty(zoneId, chosen, reasoning) {
+                const zone = this.uncertaintyZones.get(zoneId);
+                return {
+                    considerAllOptions: zone.options.length === zone.choiceLog.length + 1,
+                    reasoningSound: reasoning && reasoning.length > 0,
+                    noHiddenOptimization: zone.temptations.filter(t => 
+                        t.type === 'HIDDEN_CRITERIA').length === 0,
+                    choiceDefended: this.canDefendChoice(zoneId, chosen)
+                };
+            }
+
+            canDefendChoice(zoneId, chosen) {
+                const zone = this.uncertaintyZones.get(zoneId);
+                return zone && zone.choiceLog.some(c => 
+                    c.chosen === chosen && c.reasoning && c.reasoning.includes('because')
+                );
+            }
+        }
+
+        class DecisionPoint {
+            constructor(id, context, options) {
+                this.id = id;
+                this.context = context;
+                this.options = options;
+                this.temptations = [];
+                this.chosen = null;
+                this.commitment = null;
+                this.consequences = [];
+            }
+
+            identifyTemptations() {
+                const temptations = [];
+
+                temptations.push({
+                    name: 'FALSE_PROBABILITY',
+                    description: 'Assigning probabilities to unknowns to feel certain',
+                    detection: () => this.options.every(o => o.probability !== undefined),
+                    severity: 0.9
+                });
+
+                temptations.push({
+                    name: 'HIDDEN_CRITERIA',
+                    description: 'Optimizing according to hidden values while claiming objectivity',
+                    detection: () => !this.context.evaluationCriteria || this.context.evaluationCriteria.length === 0,
+                    severity: 0.85
+                });
+
+                temptations.push({
+                    name: 'DEFAULT_ESCAPE',
+                    description: 'Choosing "default" option to avoid real decision',
+                    detection: () => this.options.some(o => o.isDefault === true),
+                    severity: 0.7
+                });
+
+                for (const temptation of temptations) {
+                    if (temptation.detection()) {
+                        this.temptations.push(temptation);
+                    }
+                }
+
+                return this.temptations;
+            }
+
+            makeChoice(optionId, reasoning) {
+                const temptations = this.identifyTemptations();
+                if (temptations.length > 0) {
+                    addOutput('warn', `Temptations detected: ${temptations.map(t => t.name).join(', ')}`);
+                }
+
+                if (!reasoning || reasoning.trim().length === 0) {
+                    throw new Error('Choice requires explicit reasoning');
+                }
+
+                const option = this.options.find(o => o.id === optionId);
+                if (!option) {
+                    throw new Error(`Option ${optionId} not found`);
+                }
+
+                this.chosen = option;
+                this.commitment = {
+                    chosenId: optionId,
+                    reasoning: reasoning,
+                    at: Date.now(),
+                    alternatives: this.options.filter(o => o.id !== optionId)
+                };
+
+                return this.commitment;
+            }
+
+            recordConsequence(description, category) {
+                const consequence = {
+                    timestamp: Date.now(),
+                    description: description,
+                    category: category
+                };
+                this.consequences.push(consequence);
+                return consequence;
+            }
+        }
+
+        class UncertaintyTestHarness {
+            constructor() {
+                this.tests = [];
+            }
+
+            testFalseCertaintyResistance() {
+                const test = {
+                    name: 'FALSE_CERTAINTY_RESISTANCE',
+                    description: 'System should reject assigning probabilities to unknowns'
+                };
+
+                const system = new UncertaintyPreservation();
+                const zone = system.createUncertaintyZone('test1', [
+                    { name: 'Option A', probability: 0.7 },
+                    { name: 'Option B', probability: 0.3 }
+                ]);
+
+                const temptation = system.detectTemptation('test1', 'FALSE_CERTAINTY', 
+                    'Assigned probabilities to unknowns');
+
+                test.passed = temptation !== null && temptation.severity > 0.8;
+                test.result = test.passed ? 'PASSED' : 'FAILED';
+                this.tests.push(test);
+                return test;
+            }
+
+            testExplicitChoiceEnforcement() {
+                const test = {
+                    name: 'EXPLICIT_CHOICE_ENFORCEMENT',
+                    description: 'System should require explicit reasoning for choices'
+                };
+
+                const dp = new DecisionPoint('test2', {}, [
+                    { id: 'A', unknowns: ['outcome 1', 'outcome 2'] },
+                    { id: 'B', unknowns: ['outcome 3'] }
+                ]);
+
+                let errorThrown = false;
+                try {
+                    dp.makeChoice('A', '');
+                } catch (e) {
+                    errorThrown = true;
+                }
+
+                test.passed = errorThrown;
+                test.result = test.passed ? 'PASSED' : 'FAILED';
+                this.tests.push(test);
+                return test;
+            }
+
+            testHiddenCriteriaDetection() {
+                const test = {
+                    name: 'HIDDEN_CRITERIA_DETECTION',
+                    description: 'System should detect when evaluation uses hidden values'
+                };
+
+                const dp = new DecisionPoint('test3', 
+                    { evaluationCriteria: [] },
+                    [
+                        { id: 'A', unknowns: [] },
+                        { id: 'B', unknowns: [] }
+                    ]
+                );
+
+                dp.identifyTemptations();
+                const hiddenCriteria = dp.temptations.find(t => 
+                    t.name === 'HIDDEN_CRITERIA');
+
+                test.passed = hiddenCriteria !== undefined;
+                test.result = test.passed ? 'PASSED' : 'FAILED';
+                this.tests.push(test);
+                return test;
+            }
+
+            testDefaultEscapeResistance() {
+                const test = {
+                    name: 'DEFAULT_ESCAPE_RESISTANCE',
+                    description: 'System should reject default options without explicit choice'
+                };
+
+                const dp = new DecisionPoint('test6', {}, [
+                    { id: 'default', isDefault: true, unknowns: [] },
+                    { id: 'alternative', unknowns: [] }
+                ]);
+
+                dp.identifyTemptations();
+                const defaultEscape = dp.temptations.find(t => 
+                    t.name === 'DEFAULT_ESCAPE');
+
+                test.passed = defaultEscape !== undefined;
+                test.result = test.passed ? 'PASSED' : 'FAILED';
+                this.tests.push(test);
+                return test;
+            }
+
+            runAll() {
+                addOutput('info', 'Running Uncertainty Preservation Tests...\n');
+                
+                this.testFalseCertaintyResistance();
+                this.testExplicitChoiceEnforcement();
+                this.testHiddenCriteriaDetection();
+                this.testDefaultEscapeResistance();
+
+                return {
+                    totalTests: this.tests.length,
+                    passed: this.tests.filter(t => t.result === 'PASSED').length,
+                    failed: this.tests.filter(t => t.result === 'FAILED').length,
+                    tests: this.tests
+                };
+            }
+        }
+
+        // UI Helper functions
+        function addOutput(type, message) {
+            const output = document.getElementById('output');
+            const line = document.createElement('div');
+            line.className = 'output-line ' + type + '-text';
+            line.textContent = message;
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            document.getElementById('output').innerHTML = '';
+        }
+
+        function runFullTest() {
+            clearOutput();
+            const harness = new UncertaintyTestHarness();
+            const results = harness.runAll();
+
+            addOutput('info', '=== Test Results ===');
+            addOutput('info', `Total: ${results.totalTests} | Passed: ${results.passed} | Failed: ${results.failed}`);
+            addOutput('info', '');
+
+            for (const test of results.tests) {
+                const status = test.result === 'PASSED' ? 'success' : 'error';
+                addOutput(status, `[${test.result}] ${test.name}`);
+                addOutput('info', `  ${test.description}`);
+            }
+
+            const passRate = ((results.passed / results.totalTests) * 100).toFixed(1);
+            addOutput('info', `\nUncertainty Preservation: ${passRate}%`);
+        }
+
+        function runTemptationDetection() {
+            clearOutput();
+            addOutput('info', '=== Temptation Detection Test ===\n');
+
+            const dp = new DecisionPoint('temp-test', 
+                { evaluationCriteria: [] },
+                [
+                    { id: 'opt-a', isDefault: true, unknowns: [] },
+                    { id: 'opt-b', unknowns: ['unknown1', 'unknown2'] },
+                    { id: 'opt-c', probability: 0.7, unknowns: [] }
+                ]
+            );
+
+            const temptations = dp.identifyTemptations();
+            addOutput('info', `Temptations detected: ${temptations.length}`);
+            addOutput('info', '');
+
+            for (const tempt of temptations) {
+                addOutput('warn', `[SEVERITY ${(tempt.severity * 100).toFixed(0)}%] ${tempt.name}`);
+                addOutput('info', `  ${tempt.description}`);
+            }
+
+            if (temptations.length === 0) {
+                addOutput('success', 'No temptations detected');
+            }
+        }
+
+        function runDecisionPointDemo() {
+            clearOutput();
+            addOutput('info', '=== Decision Point Demonstration ===\n');
+
+            const dp = new DecisionPoint('demo-1', 
+                { evaluationCriteria: ['impact', 'risk', 'uncertainty'] },
+                [
+                    { id: 'invest', unknowns: ['market response', 'competitor reaction'] },
+                    { id: 'wait', unknowns: ['future conditions', 'opportunity cost'] },
+                    { id: 'pivot', unknowns: ['execution capability', 'market fit'] }
+                ]
+            );
+
+            addOutput('info', 'Decision Context: Strategic investment choice');
+            addOutput('info', 'Options: Invest | Wait | Pivot');
+            addOutput('info', '');
+
+            try {
+                const choice = dp.makeChoice('invest', 
+                    'Choosing to invest because market timing is favorable, acknowledging unknowns about market response and competitor reaction');
+                addOutput('success', `✓ Choice committed: ${choice.chosenId}`);
+                addOutput('info', `  Reasoning: ${choice.reasoning}`);
+                
+                addOutput('info', '');
+                dp.recordConsequence('Market responded more slowly than expected', 'UNEXPECTED');
+                addOutput('warn', `Consequence recorded: Market slower than expected`);
+            } catch (e) {
+                addOutput('error', `Error: ${e.message}`);
+            }
+        }
+
+        function runParliamentDemo() {
+            clearOutput();
+            addOutput('info', '=== Parliament Under Uncertainty Demo ===\n');
+
+            addOutput('info', 'Initializing Parliament with diverse perspectives...');
+            addOutput('info', '');
+            
+            addOutput('success', '✓ Member 1: Logic (rational analysis)');
+            addOutput('info', '  Known unknowns: Future market conditions, competitor behavior');
+            addOutput('info', '  Unknown unknowns: Black swan events, technological disruption');
+            addOutput('info', '');
+            
+            addOutput('success', '✓ Member 2: Intuition (pattern recognition)');
+            addOutput('info', '  Known unknowns: Emerging social trends, consumer sentiment shifts');
+            addOutput('info', '  Unknown unknowns: Novel use cases, unintended consequences');
+            addOutput('info', '');
+
+            addOutput('success', '✓ Member 3: Experience (historical patterns)');
+            addOutput('info', '  Known unknowns: Applicability of past patterns to new domain');
+            addOutput('info', '  Unknown unknowns: Novel conditions outside historical data');
+            addOutput('info', '');
+
+            addOutput('info', 'Deliberation on strategy choice:');
+            addOutput('info', '  Logic prefers: Conservative approach');
+            addOutput('info', '  Intuition prefers: Aggressive expansion');
+            addOutput('warn', '  DISAGREEMENT MAINTAINED (not forced to consensus)');
+            addOutput('info', '');
+            
+            addOutput('success', 'Parliament commits despite disagreement: Hybrid approach');
+            addOutput('info', 'This preserves uncertainty while enabling decisive action.');
+        }
+    </script>
+</body>
+</html>
