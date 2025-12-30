@@ -323,7 +323,7 @@ def main():
     vector_store.query_evolution("Contrarian", limit=5)
 
     # Test 2: Query decision
-    vector_store.query_decision("X data choice", limit=3)
+    vector_store.query_decision("X data choice")
 
     # Test 3: Detect contradictions
     vector_store.detect_contradictions("performing vulgar roasts on command while claiming maximum truth-seeking")
