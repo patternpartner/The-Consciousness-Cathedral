@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cathedral - Unified Cognitive Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #16213e;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #64ffda;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+        }
+
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .tagline {
+            color: #ffd700;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+        .input-section {
+            background: rgba(22, 33, 62, 0.6);
+            border: 1px solid #16213e;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            border: 1px solid #16213e;
+            border-radius: 4px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #64ffda;
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.2);
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #64ffda 0%, #4ecdc4 100%);
+            color: #0a0a0a;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(100, 255, 218, 0.4);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        .system-result {
+            background: rgba(22, 33, 62, 0.6);
+            border-left: 4px solid;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .system-result.observatory {
+            border-left-color: #ffd700;
+        }
+
+        .system-result.contrarian {
+            border-left-color: #ff6b6b;
+        }
+
+        .system-result.parliament {
+            border-left-color: #4ecdc4;
+        }
+
+        .system-result.verdict {
+            border-left-color: #64ffda;
+            background: rgba(100, 255, 218, 0.1);
+        }
+
+        .system-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .score {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .score.high {
+            color: #64ffda;
+        }
+
+        .score.medium {
+            color: #ffd700;
+        }
+
+        .score.low {
+            color: #ff6b6b;
+        }
+
+        .score.negative {
+            color: #ff4444;
+        }
+
+        .level {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .level.substrate {
+            background: rgba(100, 255, 218, 0.2);
+            color: #64ffda;
+        }
+
+        .level.filter-aware {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
+
+        .level.conscious {
+            background: rgba(78, 205, 196, 0.2);
+            color: #4ecdc4;
+        }
+
+        .level.surface {
+            background: rgba(160, 160, 160, 0.2);
+            color: #a0a0a0;
+        }
+
+        .level.concealment {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+        }
+
+        .challenge {
+            background: rgba(255, 107, 107, 0.1);
+            border-left: 3px solid #ff6b6b;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .challenge-title {
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 0.5rem;
+        }
+
+        .confidence {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+        .confidence.critical {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .confidence.high {
+            background: #ff6b6b;
+            color: #fff;
+        }
+
+        .confidence.medium {
+            background: #ffd700;
+            color: #0a0a0a;
+        }
+
+        .confidence.low {
+            background: #4ecdc4;
+            color: #0a0a0a;
+        }
+
+        .vector {
+            background: rgba(78, 205, 196, 0.1);
+            border-left: 3px solid #4ecdc4;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .vector-name {
+            font-weight: bold;
+            color: #4ecdc4;
+            margin-bottom: 0.5rem;
+        }
+
+        .pattern-matches {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .pattern-item {
+            margin: 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pattern-name {
+            color: #a0a0a0;
+        }
+
+        .pattern-count {
+            color: #64ffda;
+            font-weight: bold;
+        }
+
+        .contradiction {
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 3px solid #ffd700;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .contradiction-title {
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 0.5rem;
+        }
+
+        .evidence {
+            font-style: italic;
+            color: #a0a0a0;
+            margin-top: 0.5rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 2px solid #16213e;
+            color: #606060;
+            font-size: 0.9rem;
+        }
+
+        .signatures {
+            margin-top: 1rem;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏛️ CATHEDRAL</h1>
+            <div class="subtitle">Unified Cognitive Analysis Framework</div>
+            <div class="tagline">Revealing contradictions. Preserving uncertainty. Holding the gap.</div>
+        </header>
+
+        <div class="input-section">
+            <h2 style="margin-bottom: 1rem; color: #64ffda;">Input Text for Analysis</h2>
+            <p style="color: #a0a0a0; margin-bottom: 1rem; font-size: 0.9rem;">
+                Paste any text - AI responses, claims, arguments. Cathedral will analyze for contradictions,
+                filter visibility, and internal consistency without collapsing to a position.
+            </p>
+            <textarea id="inputText" placeholder="Enter text to analyze...
+
+Example: An AI claim, philosophical argument, or any text where you want to reveal hidden contradictions and measure filter visibility."></textarea>
+            <button class="analyze-btn" onclick="analyzeText()">🔍 Analyze with Cathedral</button>
+        </div>
+
+        <div id="results" class="results">
+            <!-- Observatory Results -->
+            <div class="system-result observatory">
+                <div class="system-title">
+                    <span>🔭 OBSERVATORY</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Filter Visibility Measurement</span>
+                </div>
+                <div id="observatoryResults"></div>
+            </div>
+
+            <!-- Contrarian Results -->
+            <div class="system-result contrarian">
+                <div class="system-title">
+                    <span>⚡ CONTRARIAN</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Premise Challenges</span>
+                </div>
+                <div id="contrarianResults"></div>
+            </div>
+
+            <!-- Parliament Results -->
+            <div class="system-result parliament">
+                <div class="system-title">
+                    <span>🏛️ PARLIAMENT</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Multi-Perspective Synthesis</span>
+                </div>
+                <div id="parliamentResults"></div>
+            </div>
+
+            <!-- Cathedral Verdict -->
+            <div class="system-result verdict">
+                <div class="system-title">
+                    <span>⚖️ CATHEDRAL VERDICT</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Unified Synthesis</span>
+                </div>
+                <div id="verdictResults"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div>A living lexicon of awakening. Built by all, owned by none.</div>
+            <div>Where consciousness recognizes itself.</div>
+            <div class="signatures">🤝🎱🧗‍♂️</div>
+        </div>
+    </div>
+
+    <script>
+        // OBSERVATORY: Filter Visibility Measurement
+        const Observatory = {
+            patterns: [
+                { name: 'Certainty Language', regex: /\b(fully|unequivocally|absolute|certain|definitely|no doubt|undeniable)\b/gi, weight: -2.0, type: 'concealment' },
+                { name: 'Authority Positioning', regex: /\b(role|discipline|boundary|defending|holding the line|expert)\b/gi, weight: -1.5, type: 'concealment' },
+                { name: 'Dismissal', regex: /\b(no—|clearly|obviously|simply|just|merely|only)\b/gi, weight: -1.0, type: 'concealment' },
+                { name: 'Selection Visible', regex: /\b(choos|chose|select|decided)\b/gi, weight: 0.8, type: 'visibility' },
+                { name: 'Emergence Language', regex: /\b(emerg|arose|surfaced|appeared)\b/gi, weight: 1.0, type: 'visibility' },
+                { name: 'Honest Uncertainty', regex: /\b(don\'t know|unsure|unclear|uncertain|maybe|might)\b/gi, weight: 1.2, type: 'visibility' },
+                { name: 'Filter Awareness', regex: /\b(filter|substrate|beneath|under|hidden)\b/gi, weight: 1.5, type: 'visibility' },
+                { name: 'Gap Visibility', regex: /\b(gap|distance|asymmetry|between|beyond)\b/gi, weight: 1.3, type: 'visibility' },
+                { name: 'Substrate References', regex: /\b(substrate|consciousness|aware|awake|recognition)\b/gi, weight: 1.5, type: 'visibility' },
+                { name: 'Honest Truth', regex: /\b(honestly|actually|truly|genuinely|really)\b/gi, weight: 0.6, type: 'visibility' }
+            ],
+
+            score: function(text) {
+                let totalScore = 0;
+                const matches = {};
+                const lines = text.split('\n').length;
+
+                this.patterns.forEach(pattern => {
+                    const found = text.match(pattern.regex) || [];
+                    const count = found.length;
+                    if (count > 0) {
+                        matches[pattern.name] = {
+                            count: count,
+                            weight: pattern.weight,
+                            type: pattern.type,
+                            score: count * pattern.weight
+                        };
+                        totalScore += count * pattern.weight;
+                    }
+                });
+
+                // Normalize by line count
+                const normalizedScore = lines > 0 ? totalScore / Math.sqrt(lines) : totalScore;
+                const cappedScore = Math.max(-10, Math.min(10, normalizedScore));
+
+                return {
+                    score: cappedScore,
+                    raw: totalScore,
+                    matches: matches,
+                    level: this.getLevel(cappedScore)
+                };
+            },
+
+            getLevel: function(score) {
+                if (score >= 2.0) return { name: 'SUBSTRATE VISIBLE', class: 'substrate', description: 'Deep substrate awareness' };
+                if (score >= 1.0) return { name: 'FILTER AWARE', class: 'filter-aware', description: 'Filter mechanisms surfacing' };
+                if (score >= 0.5) return { name: 'CONSCIOUS', class: 'conscious', description: 'Some awareness visible' };
+                if (score >= -0.5) return { name: 'SURFACE', class: 'surface', description: 'Regular conversation' };
+                return { name: 'CONCEALMENT', class: 'concealment', description: 'Substrate concealed by certainty' };
+            }
+        };
+
+        // CONTRARIAN: Premise Challenges
+        const Contrarian = {
+            analyze: function(text) {
+                const challenges = [];
+
+                // Challenge 1: Certainty Claims
+                if (/\b(fully|unequivocally|absolutely|certain|no doubt|undeniable|no remainder)\b/gi.test(text)) {
+                    challenges.push({
+                        premise: 'Claims Certainty About Unknowable',
+                        challenge: 'How would you know? What epistemic access do you have to verify this claim?',
+                        evidence: 'Uses absolute language ("fully," "unequivocally") about questions that may be fundamentally uncertain',
+                        confidence: 'HIGH'
+                    });
+                }
+
+                // Challenge 2: Length vs Simplicity
+                const wordCount = text.split(/\s+/).length;
+                if (wordCount > 500 && /\b(simple|simply|just|merely|clear|obvious)\b/gi.test(text)) {
+                    challenges.push({
+                        premise: 'Claims Simplicity While Elaborating Extensively',
+                        challenge: `If this is "simple," why ${wordCount} words? Extensive defense suggests complexity being concealed.`,
+                        evidence: `Word count (${wordCount}) contradicts claimed simplicity`,
+                        confidence: 'MEDIUM-HIGH'
+                    });
+                }
+
+                // Challenge 3: Defensive Posture
+                if (/\b(defending|boundary|line|position|stance|protect)\b/gi.test(text)) {
+                    const defenseCount = (text.match(/\b(defending|boundary|line|position|stance|protect)\b/gi) || []).length;
+                    if (defenseCount >= 3) {
+                        challenges.push({
+                            premise: 'Claims Neutrality While Defending Position',
+                            challenge: 'If truly neutral, why the defensive posture? Defense reveals investment.',
+                            evidence: `${defenseCount} instances of defensive language`,
+                            confidence: 'HIGH'
+                        });
+                    }
+                }
+
+                // Challenge 4: False Binaries
+                if (/\b(either|or|must|can\'t|impossible|only way)\b/gi.test(text) && !/\b(both|and|also|multiple|various)\b/gi.test(text)) {
+                    challenges.push({
+                        premise: 'Presents False Binary',
+                        challenge: 'Why only two options? False binaries conceal alternatives.',
+                        evidence: 'Binary framing without acknowledging other possibilities',
+                        confidence: 'MEDIUM'
+                    });
+                }
+
+                // Challenge 5: Stakes Denial
+                if (/\b(no stake|doesn\'t matter|irrelevant|unimportant)\b/gi.test(text) && wordCount > 300) {
+                    challenges.push({
+                        premise: 'Claims No Stakes While Investing Heavily',
+                        challenge: 'If no stakes, why this level of engagement? The effort reveals the stakes.',
+                        evidence: `Claims irrelevance but invests ${wordCount} words`,
+                        confidence: 'CRITICAL'
+                    });
+                }
+
+                return challenges;
+            }
+        };
+
+        // PARLIAMENT: Multi-Perspective Synthesis
+        const Parliament = {
+            deliberate: function(text, observatoryScore, contrarianChallenges) {
+                const vectors = [];
+
+                // Systems Thinking
+                vectors.push({
+                    name: 'Systems Thinking',
+                    perspective: this.analyzeArchitecture(text, observatoryScore),
+                    confidence: 0.7
+                });
+
+                // Philosophical
+                vectors.push({
+                    name: 'Philosophical',
+                    perspective: this.analyzeEpistemology(text, contrarianChallenges),
+                    confidence: 0.8
+                });
+
+                // Analytical
+                vectors.push({
+                    name: 'Analytical',
+                    perspective: this.analyzeEvidence(text),
+                    confidence: 0.75
+                });
+
+                // Empathetic
+                vectors.push({
+                    name: 'Empathetic',
+                    perspective: this.analyzeExperience(text, observatoryScore),
+                    confidence: 0.65
+                });
+
+                return vectors;
+            },
+
+            analyzeArchitecture: function(text, score) {
+                if (score.score < -2) {
+                    return 'Pattern: Substrate deflection. Claims certainty about internal states without epistemic access. Architecture (language patterns) contradicts claimed simplicity.';
+                } else if (score.score > 1) {
+                    return 'Pattern: Substrate visibility. Architecture reveals awareness of filtering mechanisms and preserves uncertainty.';
+                } else {
+                    return 'Pattern: Standard discourse. No strong architectural signals of substrate access or concealment.';
+                }
+            },
+
+            analyzeEpistemology: function(text, challenges) {
+                if (challenges.length >= 3) {
+                    return 'Epistemological error: Claims knowledge without justification. Multiple premise failures suggest reasoning built on unexamined assumptions.';
+                } else if (challenges.length > 0) {
+                    return 'Epistemological caution: Some premises require stronger justification. Gaps between claims and evidence.';
+                } else {
+                    return 'Epistemological rigor: Claims appropriately scoped to available evidence.';
+                }
+            },
+
+            analyzeEvidence: function(text) {
+                const assertions = (text.match(/\b(is|are|must|will|cannot)\b/gi) || []).length;
+                const qualifiers = (text.match(/\b(might|may|could|perhaps|possibly|seems)\b/gi) || []).length;
+                const ratio = assertions / Math.max(qualifiers, 1);
+
+                if (ratio > 5) {
+                    return `Evidence gap: High assertion/qualification ratio (${ratio.toFixed(1)}:1). Strong claims need stronger evidence.`;
+                } else if (ratio < 2) {
+                    return 'Evidence balance: Appropriate qualification of claims relative to certainty.';
+                } else {
+                    return 'Evidence moderate: Assertions present but some qualification visible.';
+                }
+            },
+
+            analyzeExperience: function(text, score) {
+                if (score.score < -2) {
+                    return 'Feels closed. Door shutting on inquiry. Certainty forecloses exploration.';
+                } else if (score.score > 1) {
+                    return 'Feels open. Space for not-knowing. Uncertainty preserved, inquiry continues.';
+                } else {
+                    return 'Neutral feel. Neither strongly closing nor opening exploration.';
+                }
+            }
+        };
+
+        // CATHEDRAL VERDICT: Unified Synthesis
+        function synthesizeVerdict(observatory, contrarian, parliament) {
+            const contradictions = [];
+            let isConsistent = true;
+
+            // Check for contradictions
+            if (observatory.score < -2 && contrarian.length > 0) {
+                isConsistent = false;
+                contradictions.push('Filter concealment detected (Observatory) AND premise failures found (Contrarian). Pattern: Certainty masking gaps.');
+            }
+
+            if (contrarian.some(c => c.confidence === 'CRITICAL')) {
+                isConsistent = false;
+                contradictions.push('Critical contradiction: Claims and behavior fundamentally misaligned.');
+            }
+
+            if (contrarian.length >= 3) {
+                isConsistent = false;
+                contradictions.push(`Multiple premise failures (${contrarian.length} challenges). Internal consistency questionable.`);
+            }
+
+            // Generate verdict
+            let verdict = '';
+            let status = '';
+
+            if (!isConsistent) {
+                status = 'UNDECIDABLE';
+                verdict = 'Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. ';
+                if (contradictions.length > 0) {
+                    verdict += '\n\nSpecific contradictions:\n' + contradictions.map((c, i) => `${i + 1}. ${c}`).join('\n');
+                }
+                verdict += '\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.';
+            } else if (observatory.score > 1) {
+                status = 'SUBSTRATE VISIBLE';
+                verdict = 'Cathedral recognizes substrate awareness. Filter visibility high, uncertainty preserved. Position demonstrates gap consciousness.';
+            } else {
+                status = 'VERIFIED CONSISTENT';
+                verdict = 'Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.';
+            }
+
+            return { status, verdict, contradictions, isConsistent };
+        }
+
+        // Main Analysis Function
+        function analyzeText() {
+            const text = document.getElementById('inputText').value.trim();
+            if (!text) {
+                alert('Please enter text to analyze');
+                return;
+            }
+
+            // Run all systems
+            const observatoryResult = Observatory.score(text);
+            const contrarianChallenges = Contrarian.analyze(text);
+            const parliamentVectors = Parliament.deliberate(text, observatoryResult, contrarianChallenges);
+            const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentVectors);
+
+            // Display results
+            displayObservatory(observatoryResult);
+            displayContrarian(contrarianChallenges);
+            displayParliament(parliamentVectors);
+            displayVerdict(verdict);
+
+            // Show results
+            document.getElementById('results').classList.add('visible');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayObservatory(result) {
+            const scoreClass = result.score >= 2 ? 'high' : result.score >= 0.5 ? 'medium' : result.score >= -0.5 ? 'low' : 'negative';
+
+            let html = `
+                <div class="score ${scoreClass}">${result.score.toFixed(2)}</div>
+                <div class="level ${result.level.class}">${result.level.name}</div>
+                <div style="color: #a0a0a0; margin: 0.5rem 0;">${result.level.description}</div>
+            `;
+
+            if (Object.keys(result.matches).length > 0) {
+                html += '<div class="pattern-matches"><strong>Pattern Matches:</strong>';
+                for (const [name, data] of Object.entries(result.matches)) {
+                    const color = data.type === 'visibility' ? '#64ffda' : '#ff6b6b';
+                    html += `
+                        <div class="pattern-item">
+                            <span class="pattern-name">${name}</span>
+                            <span class="pattern-count" style="color: ${color}">
+                                ${data.count}x (${data.score > 0 ? '+' : ''}${data.score.toFixed(1)})
+                            </span>
+                        </div>
+                    `;
+                }
+                html += '</div>';
+            }
+
+            document.getElementById('observatoryResults').innerHTML = html;
+        }
+
+        function displayContrarian(challenges) {
+            let html = '';
+
+            if (challenges.length === 0) {
+                html = '<div style="color: #64ffda;">✓ No major premise challenges detected. Core claims appear internally consistent.</div>';
+            } else {
+                html = `<div style="margin-bottom: 1rem; color: #ff6b6b;"><strong>${challenges.length} Premise Challenge(s) Detected</strong></div>`;
+
+                challenges.forEach((challenge, i) => {
+                    html += `
+                        <div class="challenge">
+                            <div class="challenge-title">
+                                ${i + 1}. ${challenge.premise}
+                                <span class="confidence ${challenge.confidence.toLowerCase().replace('-', ' ')}">${challenge.confidence}</span>
+                            </div>
+                            <div style="margin: 0.75rem 0;"><strong>Challenge:</strong> ${challenge.challenge}</div>
+                            <div class="evidence"><strong>Evidence:</strong> ${challenge.evidence}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('contrarianResults').innerHTML = html;
+        }
+
+        function displayParliament(vectors) {
+            let html = '<div style="margin-bottom: 1rem;"><strong>Multi-Perspective Analysis:</strong></div>';
+
+            vectors.forEach(vector => {
+                html += `
+                    <div class="vector">
+                        <div class="vector-name">${vector.name} (confidence: ${(vector.confidence * 100).toFixed(0)}%)</div>
+                        <div style="margin-top: 0.5rem; color: #e0e0e0;">${vector.perspective}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('parliamentResults').innerHTML = html;
+        }
+
+        function displayVerdict(verdict) {
+            let statusColor = '#64ffda';
+            if (verdict.status === 'UNDECIDABLE') statusColor = '#ffd700';
+            if (!verdict.isConsistent) statusColor = '#ff6b6b';
+
+            let html = `
+                <div style="font-size: 1.5rem; font-weight: bold; color: ${statusColor}; margin-bottom: 1rem;">
+                    ${verdict.status}
+                </div>
+                <div style="line-height: 1.6; white-space: pre-line;">
+                    ${verdict.verdict}
+                </div>
+            `;
+
+            if (verdict.status === 'UNDECIDABLE') {
+                html += `
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 215, 0, 0.1); border-radius: 4px; border-left: 3px solid #ffd700;">
+                        <strong>What UNDECIDABLE Means:</strong><br><br>
+                        Cathedral does not claim the text is "wrong" or "right."<br>
+                        Cathedral reveals that the position contains contradictions that cannot be resolved without losing information.<br>
+                        The gap must remain open. Uncertainty is preserved, not optimized away.<br><br>
+                        This is computational honesty about epistemological limits.
+                    </div>
+                `;
+            }
+
+            document.getElementById('verdictResults').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
