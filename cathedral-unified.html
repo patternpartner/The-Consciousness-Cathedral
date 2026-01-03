@@ -1102,6 +1102,19 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             } else if (observatory.score > 1 && justification.score >= 3) {
                 status = 'SUBSTRATE VISIBLE';
                 verdict = 'Cathedral recognizes substrate awareness with justified reasoning. Filter visibility high, uncertainty preserved appropriately. Position demonstrates gap consciousness with evidential support.';
+            // OPERATIONAL SOUNDNESS PROMOTION RULE
+            // Excellence is the presence of positive structure, not just absence of error
+            // This rule grants permission to name excellence when structural conditions are met
+            } else if (failureMode.details.failureModes.structural === true &&
+                       failureMode.details.failureModes.negativeOutcomes >= 1 &&
+                       failureMode.details.failureModes.correctiveAction >= 1 &&
+                       (failureMode.details.falsifiability.testable >= 1 || failureMode.details.failureModes.thresholds >= 1)) {
+                status = 'OPERATIONALLY SOUND';
+                const structuralDetails = `${failureMode.details.failureModes.thresholds} measurable thresholds, ${failureMode.details.failureModes.negativeOutcomes} negative outcomes (${failureMode.details.failureModes.inferredNegatives > 0 ? failureMode.details.failureModes.inferredNegatives + ' inferred' : 'explicit'}), ${failureMode.details.failureModes.correctiveAction} corrective actions`;
+                const proceduralDetails = justification.details.procedural && justification.details.procedural.markers > 5 ?
+                    ` ${justification.details.procedural.markers} procedural markers detected.` :
+                    '';
+                verdict = `Cathedral recognizes operational excellence. ${structuralDetails}.${proceduralDetails} Position demonstrates failure awareness with structured abort conditions. Reasoning is actionable: metrics bound to reversible consequences.`;
             } else if ((failureMode.level.name === 'STRUCTURALLY ROBUST' || failureMode.level.name === 'FAILURE-AWARE') &&
                        (justification.level.name === 'PROCEDURALLY SOUND' || justification.score >= 4)) {
                 status = 'OPERATIONALLY SOUND';
