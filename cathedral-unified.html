@@ -824,7 +824,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // Structural Failure Mode Inference Rule:
                 // IF (thresholds >= 1) AND (negative outcomes present) AND (corrective action present)
                 // THEN: Explicit failure modes = TRUE (you designed one, even if you didn't name it)
-                const hasStructuralFailureModes = (measurableThresholds >= 1 && negativeOutcomes > 0 && correctiveAction > 0);
+                const hasInferredFailureModes = (measurableThresholds >= 1 && negativeOutcomes > 0 && correctiveAction > 0 && failureModes === 0);
+
+                // Failure Mode Binding Rule:
+                // IF (named failure modes >= 1) AND (thresholds >= 1) AND (corrective actions >= 1)
+                // THEN: Explicit failure enumeration with controls (robust engineering)
+                // This is different from inference - this is binding named failures to explicit controls
+                const hasExplicitFailureBinding = (failureModes >= 1 && measurableThresholds >= 1 && correctiveAction >= 1);
+
+                // Combined structural detection: either inferred OR explicitly bound
+                const hasStructuralFailureModes = hasInferredFailureModes || hasExplicitFailureBinding;
                 const structuralScore = hasStructuralFailureModes ? 2 : 0;
 
                 // Promote structural failure modes into explicit count for downstream logic
@@ -835,6 +844,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     explicit: failureModes,
                     effectiveExplicit: effectiveExplicitFailures,
                     structural: hasStructuralFailureModes,
+                    inferred: hasInferredFailureModes,
+                    bound: hasExplicitFailureBinding,
                     thresholds: measurableThresholds,
                     negativeOutcomes: negativeOutcomes,
                     explicitNegatives: explicitNegatives,
@@ -881,7 +892,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const robustness = (cleanedText.match(/\b(robust|resilient|fault tolerant|degrades gracefully|redundant|backup)\b/gi) || []).length;
 
                 // Structural robustness: corrective actions = reversibility = not brittle
-                const structuralRobustness = (correctiveAction > 1 && measurableThresholds > 2) ? 1 : 0;
+                // Also: explicit failure binding = robust engineering (named failures + metrics + controls)
+                const structuralRobustness = ((correctiveAction > 1 && measurableThresholds > 2) || hasExplicitFailureBinding) ? 1 : 0;
 
                 results.brittleness = {
                     singlePoints: brittleness,
@@ -1441,17 +1453,27 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             // Structural Robustness Bonus (if present)
             if (result.details.failureModes.structural) {
-                const semanticNote = result.details.failureModes.inferredNegatives > 0 ?
-                    `Semantic inference: thresholds that trigger reversal are definitionally negative outcomes` :
-                    `You didn't say "failure mode", but you designed one`;
+                let title, note;
+                if (result.details.failureModes.bound) {
+                    title = '✓ Explicit Failure Mode Binding';
+                    note = `Robust engineering: ${result.details.failureModes.explicit} named failure(s) bound to ${result.details.failureModes.thresholds} threshold(s) with ${result.details.failureModes.correctiveAction} corrective action(s)`;
+                } else if (result.details.failureModes.inferred) {
+                    title = '✓ Structural Failure Mode Inferred';
+                    note = result.details.failureModes.inferredNegatives > 0 ?
+                        'Semantic inference: thresholds that trigger reversal are definitionally negative outcomes' :
+                        'You didn\'t say "failure mode", but you designed one';
+                } else {
+                    title = '✓ Structural Failure Awareness';
+                    note = 'Failure modes and controls detected';
+                }
                 html += `
                     <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(100, 255, 218, 0.1); border-radius: 3px; border-left: 3px solid #64ffda;">
-                        <strong style="color: #64ffda;">✓ Structural Failure Mode Inferred</strong>
+                        <strong style="color: #64ffda;">${title}</strong>
                         <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.25rem;">
-                            ${semanticNote}
+                            ${note}
                         </div>
                         <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.25rem;">
-                            ${result.details.failureModes.thresholds} threshold(s) + ${result.details.failureModes.negativeOutcomes} outcome(s) + ${result.details.failureModes.correctiveAction} action(s) = abort criteria
+                            ${result.details.failureModes.thresholds} threshold(s) + ${result.details.failureModes.negativeOutcomes} outcome(s) + ${result.details.failureModes.correctiveAction} action(s) = ${result.details.failureModes.bound ? 'monitored controls' : 'abort criteria'}
                         </div>
                     </div>
                 `;
@@ -1723,11 +1745,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += `  Corrective Actions: ${failureMode.details.failureModes.correctiveAction}\n`;
             report += `  Structural Detection: ${failureMode.details.failureModes.structural ? 'YES' : 'NO'}\n`;
             if (failureMode.details.failureModes.structural) {
-                const semanticNote = failureMode.details.failureModes.inferredNegatives > 0 ?
-                    'Semantic inference: thresholds that trigger reversal are definitionally negative outcomes' :
-                    'You didn\'t say "failure mode", but you designed one';
-                report += `  ✓ Structural Failure Mode Inferred: ${semanticNote}\n`;
-                report += `    ${failureMode.details.failureModes.thresholds} threshold(s) + ${failureMode.details.failureModes.negativeOutcomes} outcome(s) + ${failureMode.details.failureModes.correctiveAction} action(s) = abort criteria\n`;
+                if (failureMode.details.failureModes.bound) {
+                    report += `  ✓ Explicit Failure Mode Binding: Robust engineering detected\n`;
+                    report += `    ${failureMode.details.failureModes.explicit} named failure(s) bound to ${failureMode.details.failureModes.thresholds} threshold(s) with ${failureMode.details.failureModes.correctiveAction} corrective action(s)\n`;
+                } else if (failureMode.details.failureModes.inferred) {
+                    const semanticNote = failureMode.details.failureModes.inferredNegatives > 0 ?
+                        'Semantic inference: thresholds that trigger reversal are definitionally negative outcomes' :
+                        'You didn\'t say "failure mode", but you designed one';
+                    report += `  ✓ Structural Failure Mode Inferred: ${semanticNote}\n`;
+                    report += `    ${failureMode.details.failureModes.thresholds} threshold(s) + ${failureMode.details.failureModes.negativeOutcomes} outcome(s) + ${failureMode.details.failureModes.correctiveAction} action(s) = abort criteria\n`;
+                }
             }
             report += `  Score Contribution: ${failureMode.details.failureModes.score > 0 ? '+' : ''}${failureMode.details.failureModes.score}\n\n`;
 
