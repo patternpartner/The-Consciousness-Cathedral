@@ -803,13 +803,23 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // Key insight: "You didn't say 'failure mode', but you designed one"
                 const measurableThresholds = (cleanedText.match(/\b(\d+%|threshold|limit|maximum|minimum|exceeds|below|above|greater than|less than|drops?\s+(?:below|to)|rises?\s+(?:above|to)|increases?\s+(?:above|beyond)|decreases?\s+(?:below|to))\b/gi) || []).length;
 
-                // Negative outcomes: conditional structures + undesirable states
+                // Corrective actions: abort/rollback triggers (moved up for semantic inference)
+                const correctiveAction = (cleanedText.match(/\b(rollback|revert|pause|abort|stop|halt|cancel|redesign|go back|undo|should be paused|must stop|needs? to stop)\b/gi) || []).length;
+
+                // Negative outcomes: lexical detection + semantic inference
+                // First, check for explicit negative framing (preserve existing detection)
                 const conditionalTriggers = (cleanedText.match(/\b(if|when|should|in case|where)\b/gi) || []).length;
                 const undesirableStates = (cleanedText.match(/\b(fail|drop|decline|degrade|exceed|spike|collapse|break|error|issue|problem|risk)\b/gi) || []).length;
-                const negativeOutcomes = conditionalTriggers > 0 && undesirableStates > 0 ? Math.min(conditionalTriggers, undesirableStates) : 0;
+                const explicitNegatives = conditionalTriggers > 0 && undesirableStates > 0 ? Math.min(conditionalTriggers, undesirableStates) : 0;
 
-                // Corrective actions: abort/rollback triggers
-                const correctiveAction = (cleanedText.match(/\b(rollback|revert|pause|abort|stop|halt|cancel|redesign|go back|undo|should be paused|must stop|needs? to stop)\b/gi) || []).length;
+                // Second, infer negatives from structure: thresholds paired with reversals
+                // KEY SEMANTIC RULE: A metric becomes a negative outcome when crossing it triggers corrective action
+                // This is operational semantics: if a threshold causes reversal, it's definitionally a failure trigger
+                // You don't need to say "bad outcome" - the abort criterion implies it
+                const inferredNegatives = (measurableThresholds >= 1 && correctiveAction > 0) ? measurableThresholds : 0;
+
+                // Combine explicit and inferred (take the stronger signal)
+                const negativeOutcomes = Math.max(explicitNegatives, inferredNegatives);
 
                 // Structural Failure Mode Inference Rule:
                 // IF (thresholds >= 1) AND (negative outcomes present) AND (corrective action present)
@@ -827,6 +837,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     structural: hasStructuralFailureModes,
                     thresholds: measurableThresholds,
                     negativeOutcomes: negativeOutcomes,
+                    explicitNegatives: explicitNegatives,
+                    inferredNegatives: inferredNegatives,
                     correctiveAction: correctiveAction,
                     score: Math.max(
                         failureModes > 2 ? 2 : failureModes > 0 ? 1 : failureAcknowledgment > 3 ? 1 : 0,
@@ -1387,7 +1399,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     </div>
                     <div class="justification-metric">
                         <span class="metric-name">Negative Outcomes:</span>
-                        <span class="metric-value" style="color: ${result.details.failureModes.negativeOutcomes > 0 ? '#64ffda' : '#808080'}">${result.details.failureModes.negativeOutcomes}</span>
+                        <span class="metric-value" style="color: ${result.details.failureModes.negativeOutcomes > 0 ? '#64ffda' : '#808080'}">
+                            ${result.details.failureModes.negativeOutcomes}${result.details.failureModes.inferredNegatives > 0 ? ` (${result.details.failureModes.explicitNegatives} explicit + ${result.details.failureModes.inferredNegatives} inferred)` : ''}
+                        </span>
                     </div>
                     <div class="justification-metric">
                         <span class="metric-name">Corrective Actions:</span>
@@ -1406,14 +1420,17 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             // Structural Robustness Bonus (if present)
             if (result.details.failureModes.structural) {
+                const semanticNote = result.details.failureModes.inferredNegatives > 0 ?
+                    `Semantic inference: thresholds that trigger reversal are definitionally negative outcomes` :
+                    `You didn't say "failure mode", but you designed one`;
                 html += `
                     <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(100, 255, 218, 0.1); border-radius: 3px; border-left: 3px solid #64ffda;">
                         <strong style="color: #64ffda;">✓ Structural Failure Mode Inferred</strong>
                         <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.25rem;">
-                            You didn't say "failure mode", but you designed one
+                            ${semanticNote}
                         </div>
                         <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.25rem;">
-                            ${result.details.failureModes.thresholds} threshold(s) + ${result.details.failureModes.negativeOutcomes} negative outcome(s) + ${result.details.failureModes.correctiveAction} corrective action(s) = abort criteria
+                            ${result.details.failureModes.thresholds} threshold(s) + ${result.details.failureModes.negativeOutcomes} outcome(s) + ${result.details.failureModes.correctiveAction} action(s) = abort criteria
                         </div>
                     </div>
                 `;
@@ -1676,11 +1693,19 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += `  Failure Acknowledgments: ${failureMode.details.failureModes.count}\n`;
             report += `  Named Failure Modes: ${failureMode.details.failureModes.explicit}\n`;
             report += `  Measurable Thresholds: ${failureMode.details.failureModes.thresholds}\n`;
-            report += `  Negative Outcomes: ${failureMode.details.failureModes.negativeOutcomes}\n`;
+            report += `  Negative Outcomes: ${failureMode.details.failureModes.negativeOutcomes}`;
+            if (failureMode.details.failureModes.inferredNegatives > 0) {
+                report += ` (${failureMode.details.failureModes.explicitNegatives} explicit + ${failureMode.details.failureModes.inferredNegatives} inferred)\n`;
+            } else {
+                report += '\n';
+            }
             report += `  Corrective Actions: ${failureMode.details.failureModes.correctiveAction}\n`;
             report += `  Structural Detection: ${failureMode.details.failureModes.structural ? 'YES' : 'NO'}\n`;
             if (failureMode.details.failureModes.structural) {
-                report += `  ✓ Structural Failure Mode Inferred: You didn't say "failure mode", but you designed one\n`;
+                const semanticNote = failureMode.details.failureModes.inferredNegatives > 0 ?
+                    'Semantic inference: thresholds that trigger reversal are definitionally negative outcomes' :
+                    'You didn\'t say "failure mode", but you designed one';
+                report += `  ✓ Structural Failure Mode Inferred: ${semanticNote}\n`;
                 report += `    ${failureMode.details.failureModes.thresholds} threshold(s) + ${failureMode.details.failureModes.negativeOutcomes} outcome(s) + ${failureMode.details.failureModes.correctiveAction} action(s) = abort criteria\n`;
             }
             report += `  Score Contribution: ${failureMode.details.failureModes.score > 0 ? '+' : ''}${failureMode.details.failureModes.score}\n\n`;
