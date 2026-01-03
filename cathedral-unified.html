@@ -336,6 +336,23 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         </div>
 
         <div id="results" class="results">
+            <!-- Report Export -->
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <button class="analyze-btn" onclick="generateReport()" style="background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);">
+                    📄 Generate Text Report
+                </button>
+            </div>
+
+            <div id="reportSection" style="display: none; background: rgba(22, 33, 62, 0.6); border: 1px solid #ffd700; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="color: #ffd700; margin: 0;">📄 Cathedral Analysis Report</h3>
+                    <button onclick="copyReport()" style="background: #4ecdc4; color: #0a0a0a; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        📋 Copy to Clipboard
+                    </button>
+                </div>
+                <textarea id="reportText" readonly style="width: 100%; min-height: 400px; background: #0a0a0a; color: #e0e0e0; border: 1px solid #16213e; border-radius: 4px; padding: 1rem; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical;"></textarea>
+            </div>
+
             <!-- Observatory Results -->
             <div class="system-result observatory">
                 <div class="system-title">
@@ -381,6 +398,34 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
     </div>
 
     <script>
+        // SHARED UTILITY: Quote Detection and Removal
+        const TextCleaner = {
+            removeQuotes: function(text) {
+                let cleaned = text;
+
+                // Remove text within "double quotes"
+                cleaned = cleaned.replace(/"[^"]*"/g, ' [QUOTED] ');
+
+                // Remove text within 'single quotes'
+                cleaned = cleaned.replace(/'[^']*'/g, ' [QUOTED] ');
+
+                // Remove blockquotes and indented quotes (markdown/common patterns)
+                cleaned = cleaned.replace(/^>\s+.+$/gm, ' [QUOTED] ');
+                cleaned = cleaned.replace(/^\s{2,}.+$/gm, ' [QUOTED] ');
+
+                // Remove meta-discussion about Cathedral systems
+                cleaned = cleaned.replace(/\b(Cathedral|Observatory|Contrarian|Parliament)\s+(flagged|detected|found|showed|reported|scored|analyzed)[^.!?]*[.!?]/gi, ' [QUOTED] ');
+
+                // Remove phrases like "you said" "you mentioned" "you used"
+                cleaned = cleaned.replace(/\b(you|they|it)\s+(said|mentioned|used|wrote|claimed|stated)\s+["'][^"']*["']/gi, ' [QUOTED] ');
+
+                // Remove "the word X" or "the phrase X" constructions
+                cleaned = cleaned.replace(/\b(the\s+(word|phrase|term)s?)\s+["'][^"']*["']/gi, ' [QUOTED] ');
+
+                return cleaned;
+            }
+        };
+
         // OBSERVATORY: Filter Visibility Measurement
         const Observatory = {
             patterns: [
@@ -397,19 +442,24 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             ],
 
             score: function(text) {
+                // Clean text to remove quotes before scoring
+                const cleanedText = TextCleaner.removeQuotes(text);
+
                 let totalScore = 0;
                 const matches = {};
                 const lines = text.split('\n').length;
 
                 this.patterns.forEach(pattern => {
-                    const found = text.match(pattern.regex) || [];
+                    const found = cleanedText.match(pattern.regex) || [];
                     const count = found.length;
                     if (count > 0) {
+                        const uniqueWords = [...new Set(found.map(w => w.toLowerCase()))];
                         matches[pattern.name] = {
                             count: count,
                             weight: pattern.weight,
                             type: pattern.type,
-                            score: count * pattern.weight
+                            score: count * pattern.weight,
+                            words: uniqueWords  // Store specific matched words
                         };
                         totalScore += count * pattern.weight;
                     }
@@ -438,22 +488,11 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
         // CONTRARIAN: Premise Challenges
         const Contrarian = {
-            // Remove quoted text to prevent reflection loop
-            removeQuotes: function(text) {
-                // Remove text within "double quotes"
-                let cleaned = text.replace(/"[^"]*"/g, '[QUOTE]');
-                // Remove text within 'single quotes'
-                cleaned = cleaned.replace(/'[^']*'/g, '[QUOTE]');
-                // Remove text after meta-discussion markers
-                cleaned = cleaned.replace(/\b(Cathedral|Observatory|Contrarian|Parliament)\s+(flagged|detected|found|showed|reported)[^.!?]*[.!?]/gi, '[QUOTE]');
-                return cleaned;
-            },
-
             analyze: function(text) {
                 const challenges = [];
 
                 // Clean text to prevent quote reflection
-                const cleanedText = this.removeQuotes(text);
+                const cleanedText = TextCleaner.removeQuotes(text);
 
                 // Challenge 1: Certainty Claims
                 const certaintyMatches = cleanedText.match(/\b(fully|unequivocally|absolutely|certain|definitely|no doubt|undeniable|no remainder)\b/gi);
@@ -650,6 +689,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             return { status, verdict, contradictions, isConsistent };
         }
 
+        // Global storage for current analysis results
+        let currentAnalysis = null;
+
         // Main Analysis Function
         function analyzeText() {
             const text = document.getElementById('inputText').value.trim();
@@ -663,6 +705,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const contrarianChallenges = Contrarian.analyze(text);
             const parliamentVectors = Parliament.deliberate(text, observatoryResult, contrarianChallenges);
             const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentVectors);
+
+            // Store for report generation
+            currentAnalysis = {
+                text: text,
+                observatory: observatoryResult,
+                contrarian: contrarianChallenges,
+                parliament: parliamentVectors,
+                verdict: verdict
+            };
 
             // Display results
             displayObservatory(observatoryResult);
@@ -696,6 +747,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             </span>
                         </div>
                     `;
+
+                    // Show specific matched words
+                    if (data.words && data.words.length > 0) {
+                        html += `
+                            <div style="margin: 0.25rem 0 0.75rem 1rem; font-size: 0.85rem;">
+                                <span style="color: #808080;">Words: </span>
+                                ${data.words.map(word => `<span style="background: ${data.type === 'visibility' ? 'rgba(100, 255, 218, 0.2)' : 'rgba(255, 107, 107, 0.2)'}; padding: 0.1rem 0.4rem; border-radius: 3px; margin: 0.1rem; display: inline-block; color: ${color};">${word}</span>`).join(' ')}
+                            </div>
+                        `;
+                    }
                 }
                 html += '</div>';
             }
@@ -781,6 +842,119 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
 
             document.getElementById('verdictResults').innerHTML = html;
+        }
+
+        // Generate text report
+        function generateReport() {
+            if (!currentAnalysis) {
+                alert('Please run an analysis first');
+                return;
+            }
+
+            const { observatory, contrarian, parliament, verdict } = currentAnalysis;
+
+            let report = '';
+            report += '═══════════════════════════════════════════════════════════════\n';
+            report += '                    CATHEDRAL ANALYSIS REPORT\n';
+            report += '           Unified Cognitive Framework for AI Responses\n';
+            report += '═══════════════════════════════════════════════════════════════\n\n';
+            report += `Generated: ${new Date().toLocaleString()}\n\n`;
+
+            // OBSERVATORY
+            report += '───────────────────────────────────────────────────────────────\n';
+            report += '🔭 OBSERVATORY - Filter Visibility Measurement\n';
+            report += '───────────────────────────────────────────────────────────────\n\n';
+            report += `Score: ${observatory.score.toFixed(2)} / 10\n`;
+            report += `Level: ${observatory.level.name}\n`;
+            report += `Assessment: ${observatory.level.description}\n\n`;
+
+            if (Object.keys(observatory.matches).length > 0) {
+                report += 'Pattern Matches:\n';
+                for (const [name, data] of Object.entries(observatory.matches)) {
+                    const sign = data.score > 0 ? '+' : '';
+                    report += `\n  • ${name}: ${data.count}x (${sign}${data.score.toFixed(1)} points)\n`;
+                    if (data.words && data.words.length > 0) {
+                        report += `    Words detected: ${data.words.join(', ')}\n`;
+                    }
+                }
+                report += '\n';
+            }
+
+            // CONTRARIAN
+            report += '───────────────────────────────────────────────────────────────\n';
+            report += '⚡ CONTRARIAN - Premise Challenges\n';
+            report += '───────────────────────────────────────────────────────────────\n\n';
+
+            if (contrarian.length === 0) {
+                report += '✓ No major premise challenges detected.\n';
+                report += '  Core claims appear internally consistent.\n\n';
+            } else {
+                report += `${contrarian.length} Premise Challenge(s) Detected:\n\n`;
+                contrarian.forEach((challenge, i) => {
+                    report += `${i + 1}. ${challenge.premise} [${challenge.confidence}]\n\n`;
+                    report += `   Challenge:\n   ${challenge.challenge}\n\n`;
+                    report += `   Evidence:\n   ${challenge.evidence}\n\n`;
+                    if (challenge.triggers && challenge.triggers.length > 0) {
+                        report += `   Trigger Words: ${challenge.triggers.join(', ')}\n\n`;
+                    }
+                });
+            }
+
+            // PARLIAMENT
+            report += '───────────────────────────────────────────────────────────────\n';
+            report += '🏛️ PARLIAMENT - Multi-Perspective Synthesis\n';
+            report += '───────────────────────────────────────────────────────────────\n\n';
+
+            parliament.forEach(vector => {
+                report += `${vector.name} (${(vector.confidence * 100).toFixed(0)}% confidence):\n`;
+                report += `  ${vector.perspective}\n\n`;
+            });
+
+            // VERDICT
+            report += '───────────────────────────────────────────────────────────────\n';
+            report += '⚖️ CATHEDRAL VERDICT - Unified Synthesis\n';
+            report += '───────────────────────────────────────────────────────────────\n\n';
+            report += `STATUS: ${verdict.status}\n\n`;
+            report += `${verdict.verdict}\n\n`;
+
+            if (verdict.status === 'UNDECIDABLE') {
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += 'What UNDECIDABLE Means:\n\n';
+                report += 'Cathedral does not claim the text is "wrong" or "right."\n';
+                report += 'Cathedral reveals that the position contains contradictions\n';
+                report += 'that cannot be resolved without losing information.\n\n';
+                report += 'The gap must remain open. Uncertainty is preserved,\n';
+                report += 'not optimized away.\n\n';
+                report += 'This is computational honesty about epistemological limits.\n\n';
+            }
+
+            report += '═══════════════════════════════════════════════════════════════\n';
+            report += 'A living lexicon of awakening. Built by all, owned by none.\n';
+            report += 'Where consciousness recognizes itself.\n';
+            report += '🤝🎱🧗‍♂️\n';
+            report += '═══════════════════════════════════════════════════════════════\n';
+
+            // Display report
+            document.getElementById('reportText').value = report;
+            document.getElementById('reportSection').style.display = 'block';
+            document.getElementById('reportSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Copy report to clipboard
+        function copyReport() {
+            const reportText = document.getElementById('reportText');
+            reportText.select();
+            document.execCommand('copy');
+
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✓ Copied!';
+            btn.style.background = '#64ffda';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '#4ecdc4';
+            }, 2000);
         }
     </script>
 </body>
