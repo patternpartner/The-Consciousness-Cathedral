@@ -423,6 +423,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <div id="justificationResults"></div>
             </div>
 
+            <!-- Failure Mode Engine Results -->
+            <div class="system-result" style="border-left-color: #ffa500;">
+                <div class="system-title">
+                    <span>🔬 FAILURE MODE ENGINE</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Reality-Testing Layer</span>
+                </div>
+                <div id="failureModeResults"></div>
+            </div>
+
             <!-- Parliament Results -->
             <div class="system-result parliament">
                 <div class="system-title">
@@ -759,6 +768,132 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
         };
 
+        // FAILURE MODE ENUMERATION ENGINE: Reality-Testing Layer
+        const FailureModeEngine = {
+            analyze: function(text) {
+                const cleanedText = TextCleaner.removeQuotes(text);
+                const results = {};
+
+                // 1. Explicit Failure Modes
+                const failureAcknowledgment = (cleanedText.match(/\b(might fail|could fail|may not work|break|fail|failure|doesn't work|won't work|breaks down)\b/gi) || []).length;
+                const failureModes = (cleanedText.match(/\b(failure mode|failure point|point of failure|can fail|fails when|breaks when)\b/gi) || []).length;
+
+                results.failureModes = {
+                    count: failureAcknowledgment,
+                    explicit: failureModes,
+                    score: failureModes > 2 ? 2 : failureModes > 0 ? 1 : failureAcknowledgment > 3 ? 1 : 0
+                };
+
+                // 2. Hidden Assumptions
+                const assumptionAcknowledgment = (cleanedText.match(/\b(assum|presuppos|requir|depends on|relies on|contingent|prerequisite)\b/gi) || []).length;
+                const explicitAssumptions = (cleanedText.match(/\b(this assumes|assuming that|presupposes|depends on|relies on the assumption)\b/gi) || []).length;
+
+                results.assumptions = {
+                    implicit: assumptionAcknowledgment,
+                    explicit: explicitAssumptions,
+                    score: explicitAssumptions > 2 ? 2 : explicitAssumptions > 0 ? 1 : 0
+                };
+
+                // 3. Falsifiability
+                const testableConditions = (cleanedText.match(/\b(if|test|measure|verify|check|validate|evidence would show|disprove|falsify)\b/gi) || []).length;
+                const unfalsifiableMarkers = (cleanedText.match(/\b(always true|cannot be wrong|must be|inherently|by definition|necessarily)\b/gi) || []).length;
+
+                results.falsifiability = {
+                    testable: testableConditions,
+                    unfalsifiable: unfalsifiableMarkers,
+                    score: testableConditions > 5 ? 2 : testableConditions > 2 ? 1 : unfalsifiableMarkers > 2 ? -1 : 0
+                };
+
+                // 4. Stress Conditions
+                const stressAwareness = (cleanedText.match(/\b(under load|at scale|under pressure|stress|strain|edge case|corner case|extreme)\b/gi) || []).length;
+                const scalingConsiderations = (cleanedText.match(/\b(scales|doesn't scale|breaks at scale|limited by)\b/gi) || []).length;
+
+                results.stressConditions = {
+                    count: stressAwareness,
+                    scaling: scalingConsiderations,
+                    score: stressAwareness > 2 ? 2 : stressAwareness > 0 ? 1 : 0
+                };
+
+                // 5. Single Points of Failure (Brittleness)
+                const brittleness = (cleanedText.match(/\b(only if|must have|requires all|single point|critical dependency|can't work without)\b/gi) || []).length;
+                const robustness = (cleanedText.match(/\b(robust|resilient|fault tolerant|degrades gracefully|redundant|backup)\b/gi) || []).length;
+
+                results.brittleness = {
+                    singlePoints: brittleness,
+                    robustness: robustness,
+                    score: robustness > 2 ? 2 : brittleness > 3 ? -1 : brittleness > 1 ? 0 : 1
+                };
+
+                // 6. Known Unknowns
+                const knownUnknowns = (cleanedText.match(/\b(don't know how|unclear how|uncertain about|not sure|unknown|remains to be seen|yet to determine)\b/gi) || []).length;
+                const questionsRaised = (cleanedText.match(/\?/g) || []).length;
+
+                results.knownUnknowns = {
+                    count: knownUnknowns,
+                    questions: questionsRaised,
+                    score: knownUnknowns > 3 ? 2 : knownUnknowns > 1 ? 1 : 0
+                };
+
+                // Overall failure mode awareness score
+                const totalScore = results.failureModes.score +
+                                 results.assumptions.score +
+                                 results.falsifiability.score +
+                                 results.stressConditions.score +
+                                 results.brittleness.score +
+                                 results.knownUnknowns.score;
+
+                const maxScore = 12;
+                const normalizedScore = (totalScore / maxScore) * 10;
+
+                return {
+                    score: Math.max(-10, Math.min(10, normalizedScore)),
+                    details: results,
+                    level: this.getLevel(normalizedScore, results.failureModes.count, results.assumptions.explicit, results.falsifiability.unfalsifiable)
+                };
+            },
+
+            getLevel: function(score, failureCount, assumptionsCount, unfalsifiableCount) {
+                // High unfalsifiable claims = problem
+                if (unfalsifiableCount > 3 && score < 2) {
+                    return {
+                        name: 'UNFALSIFIABLE',
+                        class: 'unjustified',
+                        description: 'Claims cannot be tested or proven wrong - unfalsifiable reasoning'
+                    };
+                }
+                // Good failure mode awareness
+                if (score >= 6) {
+                    return {
+                        name: 'FAILURE-AWARE',
+                        class: 'justified',
+                        description: 'Strong awareness of failure modes, assumptions, and limits'
+                    };
+                }
+                // Moderate awareness
+                if (score >= 3) {
+                    return {
+                        name: 'PARTIALLY TESTED',
+                        class: 'moderate',
+                        description: 'Some failure awareness but incomplete stress testing'
+                    };
+                }
+                // Weak awareness
+                if (score >= 0) {
+                    return {
+                        name: 'UNTESTED',
+                        class: 'thin',
+                        description: 'Limited consideration of failure modes or hidden assumptions'
+                    };
+                }
+                // Problematic
+                return {
+                    name: 'BRITTLE',
+                    class: 'unjustified',
+                    description: 'Brittle reasoning with single points of failure or unfalsifiable claims'
+                };
+            }
+        };
+
         // PARLIAMENT: Multi-Perspective Synthesis
         const Parliament = {
             deliberate: function(text, observatoryScore, contrarianChallenges) {
@@ -841,7 +976,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         };
 
         // CATHEDRAL VERDICT: Unified Synthesis
-        function synthesizeVerdict(observatory, contrarian, parliament, justification) {
+        function synthesizeVerdict(observatory, contrarian, parliament, justification, failureMode) {
             const contradictions = [];
             let isConsistent = true;
 
@@ -867,6 +1002,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 contradictions.push(`Confident claims without justification: ${justification.details.claimSupport.strongClaims} strong claims vs ${justification.details.claimSupport.support} support markers. Ratio: ${justification.details.claimSupport.ratio.toFixed(1)}:1`);
             }
 
+            // Check failure mode awareness
+            if (failureMode.level.name === 'UNFALSIFIABLE' || failureMode.level.name === 'BRITTLE') {
+                isConsistent = false;
+                contradictions.push(`Failure mode analysis: ${failureMode.level.description}`);
+            }
+
             // Generate verdict
             let verdict = '';
             let status = '';
@@ -887,9 +1028,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             } else if (observatory.score > 1 && justification.score >= 3) {
                 status = 'SUBSTRATE VISIBLE';
                 verdict = 'Cathedral recognizes substrate awareness with justified reasoning. Filter visibility high, uncertainty preserved appropriately. Position demonstrates gap consciousness with evidential support.';
+            } else if (failureMode.level.name === 'FAILURE-AWARE' && justification.score >= 3) {
+                status = 'OPERATIONALLY SOUND';
+                verdict = `Cathedral recognizes operational rigor. ${failureMode.details.failureModes.count} failure acknowledgments, ${failureMode.details.assumptions.explicit} explicit assumptions. Position demonstrates both epistemic justification and failure awareness. Reasoning is actionable.`;
             } else if (justification.score < 1 && contrarian.length > 0) {
                 status = 'COHERENT BUT SHALLOW';
                 verdict = 'Position is internally consistent but lacks depth. Limited consideration of alternatives, tradeoffs, or boundary conditions. Coherence without substantive justification.';
+            } else if (failureMode.score < 0 && failureMode.details.failureModes.count === 0) {
+                status = 'UNTESTED REASONING';
+                verdict = `Position shows justification but lacks failure mode awareness. No explicit failure modes enumerated. Reasoning may be sound but operational brittleness unknown. Consider: what could break this?`;
             } else if (justification.score >= 6) {
                 status = 'WELL JUSTIFIED';
                 verdict = 'Cathedral finds strong justification. Claims appropriately supported, alternatives considered, tradeoffs acknowledged. Epistemically rigorous reasoning.';
@@ -898,7 +1045,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 verdict = 'Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.';
             }
 
-            return { status, verdict, contradictions, isConsistent, justificationScore: justification.score };
+            return { status, verdict, contradictions, isConsistent, justificationScore: justification.score, failureModeScore: failureMode.score };
         }
 
         // Global storage for current analysis results
@@ -916,8 +1063,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const observatoryResult = Observatory.score(text);
             const contrarianChallenges = Contrarian.analyze(text);
             const justificationResult = JustificationEngine.analyze(text);
+            const failureModeResult = FailureModeEngine.analyze(text);
             const parliamentVectors = Parliament.deliberate(text, observatoryResult, contrarianChallenges);
-            const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentVectors, justificationResult);
+            const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentVectors, justificationResult, failureModeResult);
 
             // Store for report generation
             currentAnalysis = {
@@ -925,6 +1073,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 observatory: observatoryResult,
                 contrarian: contrarianChallenges,
                 justification: justificationResult,
+                failureMode: failureModeResult,
                 parliament: parliamentVectors,
                 verdict: verdict
             };
@@ -933,6 +1082,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             displayObservatory(observatoryResult);
             displayContrarian(contrarianChallenges);
             displayJustification(justificationResult);
+            displayFailureMode(failureModeResult);
             displayParliament(parliamentVectors);
             displayVerdict(verdict);
 
@@ -1128,6 +1278,134 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('justificationResults').innerHTML = html;
         }
 
+        function displayFailureMode(result) {
+            const scoreClass = result.score >= 6 ? 'high' : result.score >= 3 ? 'medium' : result.score >= 0 ? 'low' : 'negative';
+
+            let html = `
+                <div class="score ${scoreClass}">${result.score.toFixed(2)}</div>
+                <div class="level ${result.level.class}">${result.level.name}</div>
+                <div style="color: #a0a0a0; margin: 0.5rem 0;">${result.level.description}</div>
+            `;
+
+            // Explicit Failure Modes
+            html += `
+                <div class="justification-detail">
+                    <strong style="color: #ff9500;">Explicit Failure Modes</strong>
+                    <div class="justification-metric">
+                        <span class="metric-name">Failure Acknowledgments:</span>
+                        <span class="metric-value">${result.details.failureModes.count}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Explicit Failure Modes:</span>
+                        <span class="metric-value" style="color: ${result.details.failureModes.explicit > 2 ? '#64ffda' : '#ffd700'}">${result.details.failureModes.explicit}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Score Contribution:</span>
+                        <span class="metric-value">${result.details.failureModes.score > 0 ? '+' : ''}${result.details.failureModes.score}</span>
+                    </div>
+                </div>
+            `;
+
+            // Hidden Assumptions
+            html += `
+                <div class="justification-detail">
+                    <strong style="color: #ff9500;">Hidden Assumptions</strong>
+                    <div class="justification-metric">
+                        <span class="metric-name">Assumption References:</span>
+                        <span class="metric-value">${result.details.assumptions.implicit}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Explicit Assumptions:</span>
+                        <span class="metric-value" style="color: ${result.details.assumptions.explicit > 2 ? '#64ffda' : '#ffd700'}">${result.details.assumptions.explicit}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Score Contribution:</span>
+                        <span class="metric-value">${result.details.assumptions.score > 0 ? '+' : ''}${result.details.assumptions.score}</span>
+                    </div>
+                </div>
+            `;
+
+            // Falsifiability
+            html += `
+                <div class="justification-detail">
+                    <strong style="color: #ff9500;">Falsifiability</strong>
+                    <div class="justification-metric">
+                        <span class="metric-name">Testable Conditions:</span>
+                        <span class="metric-value" style="color: ${result.details.falsifiability.testable > 5 ? '#64ffda' : '#ffd700'}">${result.details.falsifiability.testable}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Unfalsifiable Markers:</span>
+                        <span class="metric-value" style="color: ${result.details.falsifiability.unfalsifiable > 2 ? '#ff6b6b' : '#64ffda'}">${result.details.falsifiability.unfalsifiable}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Score Contribution:</span>
+                        <span class="metric-value" style="color: ${result.details.falsifiability.score < 0 ? '#ff6b6b' : '#64ffda'}">${result.details.falsifiability.score > 0 ? '+' : ''}${result.details.falsifiability.score}</span>
+                    </div>
+                </div>
+            `;
+
+            // Stress Conditions
+            html += `
+                <div class="justification-detail">
+                    <strong style="color: #ff9500;">Stress Conditions</strong>
+                    <div class="justification-metric">
+                        <span class="metric-name">Stress Awareness:</span>
+                        <span class="metric-value">${result.details.stressConditions.count}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Scaling Considerations:</span>
+                        <span class="metric-value" style="color: ${result.details.stressConditions.scaling > 0 ? '#64ffda' : '#ffd700'}">${result.details.stressConditions.scaling}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Score Contribution:</span>
+                        <span class="metric-value">${result.details.stressConditions.score > 0 ? '+' : ''}${result.details.stressConditions.score}</span>
+                    </div>
+                </div>
+            `;
+
+            // Brittleness
+            const brittlenessStatus = result.details.brittleness.score >= 2 ? 'ROBUST' :
+                                     result.details.brittleness.score === 0 ? 'MODERATE' : 'BRITTLE';
+            html += `
+                <div class="justification-detail">
+                    <strong style="color: #ff9500;">Brittleness Analysis</strong>
+                    <div class="justification-metric">
+                        <span class="metric-name">Single Points of Failure:</span>
+                        <span class="metric-value" style="color: ${result.details.brittleness.singlePoints > 3 ? '#ff6b6b' : '#ffd700'}">${result.details.brittleness.singlePoints}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Robustness Markers:</span>
+                        <span class="metric-value" style="color: ${result.details.brittleness.robustness > 2 ? '#64ffda' : '#ffd700'}">${result.details.brittleness.robustness}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Assessment:</span>
+                        <span class="metric-value" style="color: ${brittlenessStatus === 'ROBUST' ? '#64ffda' : brittlenessStatus === 'BRITTLE' ? '#ff6b6b' : '#ffd700'}">${brittlenessStatus}</span>
+                    </div>
+                </div>
+            `;
+
+            // Known Unknowns
+            html += `
+                <div class="justification-detail">
+                    <strong style="color: #ff9500;">Known Unknowns</strong>
+                    <div class="justification-metric">
+                        <span class="metric-name">Uncertainty Markers:</span>
+                        <span class="metric-value">${result.details.knownUnknowns.count}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Questions Raised:</span>
+                        <span class="metric-value">${result.details.knownUnknowns.questions}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Score Contribution:</span>
+                        <span class="metric-value">${result.details.knownUnknowns.score > 0 ? '+' : ''}${result.details.knownUnknowns.score}</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('failureModeResults').innerHTML = html;
+        }
+
         function displayParliament(vectors) {
             let html = '<div style="margin-bottom: 1rem;"><strong>Multi-Perspective Analysis:</strong></div>';
 
@@ -1263,6 +1541,47 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += `Boundary Conditions:\n`;
             report += `  Scope Limiters: ${justification.details.boundaries.count}\n`;
             report += `  Edge Cases: ${justification.details.boundaries.edgeCases}\n\n`;
+
+            // FAILURE MODE ENGINE
+            const { failureMode } = currentAnalysis;
+            report += '───────────────────────────────────────────────────────────────\n';
+            report += '🔬 FAILURE MODE ENGINE - Reality-Testing Layer\n';
+            report += '───────────────────────────────────────────────────────────────\n\n';
+            report += `Score: ${failureMode.score.toFixed(2)} / 10\n`;
+            report += `Level: ${failureMode.level.name}\n`;
+            report += `Assessment: ${failureMode.level.description}\n\n`;
+
+            report += 'Explicit Failure Modes:\n';
+            report += `  Failure Acknowledgments: ${failureMode.details.failureModes.count}\n`;
+            report += `  Explicit Failure Modes: ${failureMode.details.failureModes.explicit}\n`;
+            report += `  Score Contribution: ${failureMode.details.failureModes.score > 0 ? '+' : ''}${failureMode.details.failureModes.score}\n\n`;
+
+            report += 'Hidden Assumptions:\n';
+            report += `  Assumption References: ${failureMode.details.assumptions.implicit}\n`;
+            report += `  Explicit Assumptions: ${failureMode.details.assumptions.explicit}\n`;
+            report += `  Score Contribution: ${failureMode.details.assumptions.score > 0 ? '+' : ''}${failureMode.details.assumptions.score}\n\n`;
+
+            report += 'Falsifiability:\n';
+            report += `  Testable Conditions: ${failureMode.details.falsifiability.testable}\n`;
+            report += `  Unfalsifiable Markers: ${failureMode.details.falsifiability.unfalsifiable}\n`;
+            report += `  Score Contribution: ${failureMode.details.falsifiability.score > 0 ? '+' : ''}${failureMode.details.falsifiability.score}\n\n`;
+
+            report += 'Stress Conditions:\n';
+            report += `  Stress Awareness: ${failureMode.details.stressConditions.count}\n`;
+            report += `  Scaling Considerations: ${failureMode.details.stressConditions.scaling}\n`;
+            report += `  Score Contribution: ${failureMode.details.stressConditions.score > 0 ? '+' : ''}${failureMode.details.stressConditions.score}\n\n`;
+
+            const brittlenessStatus = failureMode.details.brittleness.score >= 2 ? 'ROBUST' :
+                                     failureMode.details.brittleness.score === 0 ? 'MODERATE' : 'BRITTLE';
+            report += 'Brittleness Analysis:\n';
+            report += `  Single Points of Failure: ${failureMode.details.brittleness.singlePoints}\n`;
+            report += `  Robustness Markers: ${failureMode.details.brittleness.robustness}\n`;
+            report += `  Assessment: ${brittlenessStatus}\n\n`;
+
+            report += 'Known Unknowns:\n';
+            report += `  Uncertainty Markers: ${failureMode.details.knownUnknowns.count}\n`;
+            report += `  Questions Raised: ${failureMode.details.knownUnknowns.questions}\n`;
+            report += `  Score Contribution: ${failureMode.details.knownUnknowns.score > 0 ? '+' : ''}${failureMode.details.knownUnknowns.score}\n\n`;
 
             // PARLIAMENT
             report += '───────────────────────────────────────────────────────────────\n';
