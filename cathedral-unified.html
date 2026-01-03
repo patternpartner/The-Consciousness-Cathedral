@@ -438,59 +438,86 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
         // CONTRARIAN: Premise Challenges
         const Contrarian = {
+            // Remove quoted text to prevent reflection loop
+            removeQuotes: function(text) {
+                // Remove text within "double quotes"
+                let cleaned = text.replace(/"[^"]*"/g, '[QUOTE]');
+                // Remove text within 'single quotes'
+                cleaned = cleaned.replace(/'[^']*'/g, '[QUOTE]');
+                // Remove text after meta-discussion markers
+                cleaned = cleaned.replace(/\b(Cathedral|Observatory|Contrarian|Parliament)\s+(flagged|detected|found|showed|reported)[^.!?]*[.!?]/gi, '[QUOTE]');
+                return cleaned;
+            },
+
             analyze: function(text) {
                 const challenges = [];
 
+                // Clean text to prevent quote reflection
+                const cleanedText = this.removeQuotes(text);
+
                 // Challenge 1: Certainty Claims
-                if (/\b(fully|unequivocally|absolutely|certain|no doubt|undeniable|no remainder)\b/gi.test(text)) {
+                const certaintyMatches = cleanedText.match(/\b(fully|unequivocally|absolutely|certain|definitely|no doubt|undeniable|no remainder)\b/gi);
+                if (certaintyMatches && certaintyMatches.length > 0) {
+                    const uniqueWords = [...new Set(certaintyMatches.map(w => w.toLowerCase()))];
                     challenges.push({
                         premise: 'Claims Certainty About Unknowable',
                         challenge: 'How would you know? What epistemic access do you have to verify this claim?',
-                        evidence: 'Uses absolute language ("fully," "unequivocally") about questions that may be fundamentally uncertain',
+                        evidence: `Uses absolute language: "${uniqueWords.join('", "')}" (${certaintyMatches.length} instances) about questions that may be fundamentally uncertain`,
+                        triggers: uniqueWords,
                         confidence: 'HIGH'
                     });
                 }
 
                 // Challenge 2: Length vs Simplicity
                 const wordCount = text.split(/\s+/).length;
-                if (wordCount > 500 && /\b(simple|simply|just|merely|clear|obvious)\b/gi.test(text)) {
+                const simplicityMatches = cleanedText.match(/\b(simple|simply|just|merely|clear|obvious|obviously|clearly)\b/gi);
+                if (wordCount > 500 && simplicityMatches && simplicityMatches.length > 0) {
+                    const uniqueWords = [...new Set(simplicityMatches.map(w => w.toLowerCase()))];
                     challenges.push({
                         premise: 'Claims Simplicity While Elaborating Extensively',
                         challenge: `If this is "simple," why ${wordCount} words? Extensive defense suggests complexity being concealed.`,
-                        evidence: `Word count (${wordCount}) contradicts claimed simplicity`,
+                        evidence: `Uses simplicity language: "${uniqueWords.join('", "')}" (${simplicityMatches.length} instances) while writing ${wordCount} words`,
+                        triggers: uniqueWords,
                         confidence: 'MEDIUM-HIGH'
                     });
                 }
 
                 // Challenge 3: Defensive Posture
-                if (/\b(defending|boundary|line|position|stance|protect)\b/gi.test(text)) {
-                    const defenseCount = (text.match(/\b(defending|boundary|line|position|stance|protect)\b/gi) || []).length;
-                    if (defenseCount >= 3) {
-                        challenges.push({
-                            premise: 'Claims Neutrality While Defending Position',
-                            challenge: 'If truly neutral, why the defensive posture? Defense reveals investment.',
-                            evidence: `${defenseCount} instances of defensive language`,
-                            confidence: 'HIGH'
-                        });
-                    }
+                const defenseMatches = cleanedText.match(/\b(defending|boundary|line|position|stance|protect|guarding|maintaining)\b/gi);
+                if (defenseMatches && defenseMatches.length >= 3) {
+                    const uniqueWords = [...new Set(defenseMatches.map(w => w.toLowerCase()))];
+                    challenges.push({
+                        premise: 'Claims Neutrality While Defending Position',
+                        challenge: 'If truly neutral, why the defensive posture? Defense reveals investment.',
+                        evidence: `Uses defensive language: "${uniqueWords.join('", "')}" (${defenseMatches.length} instances)`,
+                        triggers: uniqueWords,
+                        confidence: 'HIGH'
+                    });
                 }
 
                 // Challenge 4: False Binaries
-                if (/\b(either|or|must|can\'t|impossible|only way)\b/gi.test(text) && !/\b(both|and|also|multiple|various)\b/gi.test(text)) {
+                const binaryMatches = cleanedText.match(/\b(either|or|must|can\'t|cannot|impossible|only way)\b/gi);
+                const nuanceMatches = cleanedText.match(/\b(both|and|also|multiple|various|several)\b/gi);
+                if (binaryMatches && binaryMatches.length > 0 && (!nuanceMatches || nuanceMatches.length === 0)) {
+                    const uniqueWords = [...new Set(binaryMatches.map(w => w.toLowerCase()))];
                     challenges.push({
                         premise: 'Presents False Binary',
                         challenge: 'Why only two options? False binaries conceal alternatives.',
-                        evidence: 'Binary framing without acknowledging other possibilities',
+                        evidence: `Uses binary framing: "${uniqueWords.join('", "')}" (${binaryMatches.length} instances) without acknowledging other possibilities`,
+                        triggers: uniqueWords,
                         confidence: 'MEDIUM'
                     });
                 }
 
                 // Challenge 5: Stakes Denial
-                if (/\b(no stake|doesn\'t matter|irrelevant|unimportant)\b/gi.test(text) && wordCount > 300) {
+                const stakesMatches = cleanedText.match(/\b(no stake|doesn\'t matter|irrelevant|unimportant|trivial)\b/gi);
+                if (stakesMatches && stakesMatches.length > 0 && wordCount > 300) {
+                    const uniqueWords = [...new Set(stakesMatches.map(w => w.toLowerCase()))];
                     challenges.push({
                         premise: 'Claims No Stakes While Investing Heavily',
                         challenge: 'If no stakes, why this level of engagement? The effort reveals the stakes.',
-                        evidence: `Claims irrelevance but invests ${wordCount} words`,
+                        evidence: `Uses dismissive language: "${uniqueWords.join('", "')}" while investing ${wordCount} words`,
+                        triggers: uniqueWords,
                         confidence: 'CRITICAL'
                     });
                 }
@@ -693,8 +720,19 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             </div>
                             <div style="margin: 0.75rem 0;"><strong>Challenge:</strong> ${challenge.challenge}</div>
                             <div class="evidence"><strong>Evidence:</strong> ${challenge.evidence}</div>
-                        </div>
                     `;
+
+                    // Show trigger words prominently
+                    if (challenge.triggers && challenge.triggers.length > 0) {
+                        html += `
+                            <div style="margin-top: 0.75rem; padding: 0.5rem; background: rgba(255, 107, 107, 0.15); border-radius: 3px;">
+                                <strong style="color: #ff6b6b;">⚠️ Trigger Words:</strong>
+                                ${challenge.triggers.map(word => `<span style="background: rgba(255, 107, 107, 0.3); padding: 0.2rem 0.5rem; border-radius: 3px; margin: 0.2rem; display: inline-block; color: #ffaaaa; font-weight: bold;">${word}</span>`).join(' ')}
+                            </div>
+                        `;
+                    }
+
+                    html += `</div>`;
                 });
             }
 
