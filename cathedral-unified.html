@@ -709,20 +709,41 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                                    (results.riskAwareness.count > 3 ? 1.5 : 0) +
                                    (results.counterfactual.count > 2 ? 1 : 0);
 
-                const totalScore = baseScore + cautionBonus;
+                // Procedural soundness bonus: pilots, phases, thresholds, metrics, rollback criteria
+                // Operational excellence looks different from epistemic argumentation
+                const proceduralMarkers = (cleanedText.match(/\b(pilot|phase|threshold|metric|rollback|pause|abort|revert|stop condition|decision criteria|measurable|quantifiable)\b/gi) || []).length;
+                const structuralPlanning = (cleanedText.match(/\b(step|stage|milestone|checkpoint|review point|go\/no-go|gate)\b/gi) || []).length;
+                const proceduralBonus = proceduralMarkers > 5 ? 2.5 : proceduralMarkers > 3 ? 1.5 : proceduralMarkers > 1 ? 0.5 : 0;
 
-                const maxScore = 13; // Increased to account for caution bonus
+                results.procedural = {
+                    markers: proceduralMarkers,
+                    structural: structuralPlanning,
+                    bonus: proceduralBonus
+                };
+
+                const totalScore = baseScore + cautionBonus + proceduralBonus;
+
+                const maxScore = 15.5; // Base 10 + caution 3.5 + procedural 2.5
                 const normalizedScore = (totalScore / maxScore) * 10; // Scale to -10 to +10 range
 
                 return {
                     score: Math.max(-10, Math.min(10, normalizedScore)),
                     details: results,
                     cautionBonus: cautionBonus,
-                    level: this.getLevel(normalizedScore, results.claimSupport.ratio, results.claimSupport.hedging, results.riskAwareness.count)
+                    proceduralBonus: proceduralBonus,
+                    level: this.getLevel(normalizedScore, results.claimSupport.ratio, results.claimSupport.hedging, results.riskAwareness.count, proceduralMarkers)
                 };
             },
 
-            getLevel: function(score, claimRatio, hedging, riskCount) {
+            getLevel: function(score, claimRatio, hedging, riskCount, proceduralMarkers) {
+                // Procedural excellence: structured operational planning
+                if (proceduralMarkers > 5 && score >= 5) {
+                    return {
+                        name: 'PROCEDURALLY SOUND',
+                        class: 'justified',
+                        description: 'Structured operational planning with clear phases, metrics, and decision criteria'
+                    };
+                }
                 // High claims + high caution = careful reasoning, NOT overconfidence
                 if (claimRatio > 2 && (hedging > 2 || riskCount > 3)) {
                     return {
@@ -774,14 +795,29 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const cleanedText = TextCleaner.removeQuotes(text);
                 const results = {};
 
-                // 1. Explicit Failure Modes
+                // 1. Explicit Failure Modes (including structural detection)
                 const failureAcknowledgment = (cleanedText.match(/\b(might fail|could fail|may not work|break|fail|failure|doesn't work|won't work|breaks down)\b/gi) || []).length;
                 const failureModes = (cleanedText.match(/\b(failure mode|failure point|point of failure|can fail|fails when|breaks when)\b/gi) || []).length;
+
+                // Structural failure detection: thresholds + negative outcomes + corrective action
+                const measurableThresholds = (cleanedText.match(/\b(\d+%|threshold|limit|maximum|minimum|exceeds|below|above|greater than|less than)\b/gi) || []).length;
+                const negativeOutcomes = (cleanedText.match(/\b(if.*fail|when.*fail|should.*fail|risk of|problem|issue|degradation|performance drop)\b/gi) || []).length;
+                const correctiveAction = (cleanedText.match(/\b(rollback|revert|pause|abort|stop|halt|cancel|redesign|go back|undo)\b/gi) || []).length;
+
+                // Structural failure modes: measurable abort conditions
+                const hasStructuralFailureModes = (measurableThresholds > 2 && negativeOutcomes > 0 && correctiveAction > 0);
+                const structuralScore = hasStructuralFailureModes ? 2 : 0;
 
                 results.failureModes = {
                     count: failureAcknowledgment,
                     explicit: failureModes,
-                    score: failureModes > 2 ? 2 : failureModes > 0 ? 1 : failureAcknowledgment > 3 ? 1 : 0
+                    structural: hasStructuralFailureModes,
+                    thresholds: measurableThresholds,
+                    correctiveAction: correctiveAction,
+                    score: Math.max(
+                        failureModes > 2 ? 2 : failureModes > 0 ? 1 : failureAcknowledgment > 3 ? 1 : 0,
+                        structuralScore
+                    )
                 };
 
                 // 2. Hidden Assumptions
@@ -818,10 +854,14 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const brittleness = (cleanedText.match(/\b(only if|must have|requires all|single point|critical dependency|can't work without)\b/gi) || []).length;
                 const robustness = (cleanedText.match(/\b(robust|resilient|fault tolerant|degrades gracefully|redundant|backup)\b/gi) || []).length;
 
+                // Structural robustness: corrective actions = reversibility = not brittle
+                const structuralRobustness = (correctiveAction > 1 && measurableThresholds > 2) ? 1 : 0;
+
                 results.brittleness = {
                     singlePoints: brittleness,
                     robustness: robustness,
-                    score: robustness > 2 ? 2 : brittleness > 3 ? -1 : brittleness > 1 ? 0 : 1
+                    structuralRobustness: structuralRobustness,
+                    score: robustness > 2 ? 2 : structuralRobustness > 0 ? 1 : brittleness > 3 ? -1 : brittleness > 1 ? 0 : 1
                 };
 
                 // 6. Known Unknowns
@@ -848,11 +888,19 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 return {
                     score: Math.max(-10, Math.min(10, normalizedScore)),
                     details: results,
-                    level: this.getLevel(normalizedScore, results.failureModes.count, results.assumptions.explicit, results.falsifiability.unfalsifiable)
+                    level: this.getLevel(normalizedScore, results.failureModes, results.assumptions.explicit, results.falsifiability.unfalsifiable, results.brittleness.structuralRobustness)
                 };
             },
 
-            getLevel: function(score, failureCount, assumptionsCount, unfalsifiableCount) {
+            getLevel: function(score, failureModes, assumptionsCount, unfalsifiableCount, structuralRobustness) {
+                // Structural failure awareness: thresholds + corrective actions
+                if (failureModes.structural && structuralRobustness > 0 && score >= 5) {
+                    return {
+                        name: 'STRUCTURALLY ROBUST',
+                        class: 'justified',
+                        description: 'Measurable abort conditions with corrective actions - operational failure awareness'
+                    };
+                }
                 // High unfalsifiable claims = problem
                 if (unfalsifiableCount > 3 && score < 2) {
                     return {
@@ -1028,9 +1076,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             } else if (observatory.score > 1 && justification.score >= 3) {
                 status = 'SUBSTRATE VISIBLE';
                 verdict = 'Cathedral recognizes substrate awareness with justified reasoning. Filter visibility high, uncertainty preserved appropriately. Position demonstrates gap consciousness with evidential support.';
-            } else if (failureMode.level.name === 'FAILURE-AWARE' && justification.score >= 3) {
+            } else if ((failureMode.level.name === 'STRUCTURALLY ROBUST' || failureMode.level.name === 'FAILURE-AWARE') &&
+                       (justification.level.name === 'PROCEDURALLY SOUND' || justification.score >= 4)) {
                 status = 'OPERATIONALLY SOUND';
-                verdict = `Cathedral recognizes operational rigor. ${failureMode.details.failureModes.count} failure acknowledgments, ${failureMode.details.assumptions.explicit} explicit assumptions. Position demonstrates both epistemic justification and failure awareness. Reasoning is actionable.`;
+                const structuralDetails = failureMode.details.failureModes.structural ?
+                    `${failureMode.details.failureModes.thresholds} measurable thresholds, ${failureMode.details.failureModes.correctiveAction} corrective actions` :
+                    `${failureMode.details.failureModes.count} failure acknowledgments, ${failureMode.details.assumptions.explicit} explicit assumptions`;
+                const proceduralDetails = justification.details.procedural && justification.details.procedural.markers > 5 ?
+                    `${justification.details.procedural.markers} procedural markers detected` :
+                    '';
+                verdict = `Cathedral recognizes operational excellence. ${structuralDetails}. ${proceduralDetails ? proceduralDetails + '. ' : ''}Position demonstrates both epistemic justification and failure awareness with structured abort conditions. Reasoning is actionable.`;
             } else if (justification.score < 1 && contrarian.length > 0) {
                 status = 'COHERENT BUT SHALLOW';
                 verdict = 'Position is internally consistent but lacks depth. Limited consideration of alternatives, tradeoffs, or boundary conditions. Coherence without substantive justification.';
@@ -1275,6 +1330,19 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 </div>
             `;
 
+            // Procedural Bonus (if present)
+            if (result.proceduralBonus && result.proceduralBonus > 0) {
+                html += `
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(100, 255, 218, 0.1); border-radius: 3px; border-left: 3px solid #64ffda;">
+                        <strong style="color: #64ffda;">✓ Procedural Soundness Bonus: +${result.proceduralBonus.toFixed(1)}</strong>
+                        <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.25rem;">
+                            ${result.details.procedural.markers} procedural markers (pilots, thresholds, metrics, rollback) + ${result.details.procedural.structural} structural elements
+                        </div>
+                        <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.25rem;">Operational excellence detected - structured planning with clear decision criteria</div>
+                    </div>
+                `;
+            }
+
             document.getElementById('justificationResults').innerHTML = html;
         }
 
@@ -1300,11 +1368,36 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         <span class="metric-value" style="color: ${result.details.failureModes.explicit > 2 ? '#64ffda' : '#ffd700'}">${result.details.failureModes.explicit}</span>
                     </div>
                     <div class="justification-metric">
+                        <span class="metric-name">Measurable Thresholds:</span>
+                        <span class="metric-value" style="color: ${result.details.failureModes.thresholds > 2 ? '#64ffda' : '#ffd700'}">${result.details.failureModes.thresholds}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Corrective Actions:</span>
+                        <span class="metric-value" style="color: ${result.details.failureModes.correctiveAction > 1 ? '#64ffda' : '#ffd700'}">${result.details.failureModes.correctiveAction}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Structural Detection:</span>
+                        <span class="metric-value" style="color: ${result.details.failureModes.structural ? '#64ffda' : '#808080'}">${result.details.failureModes.structural ? 'YES' : 'NO'}</span>
+                    </div>
+                    <div class="justification-metric">
                         <span class="metric-name">Score Contribution:</span>
                         <span class="metric-value">${result.details.failureModes.score > 0 ? '+' : ''}${result.details.failureModes.score}</span>
                     </div>
                 </div>
             `;
+
+            // Structural Robustness Bonus (if present)
+            if (result.details.failureModes.structural) {
+                html += `
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(100, 255, 218, 0.1); border-radius: 3px; border-left: 3px solid #64ffda;">
+                        <strong style="color: #64ffda;">✓ Structural Failure Awareness Detected</strong>
+                        <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.25rem;">
+                            Measurable abort conditions + corrective actions = reversible planning
+                        </div>
+                        <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.25rem;">This is operational robustness: knows when to stop and how to undo</div>
+                    </div>
+                `;
+            }
 
             // Hidden Assumptions
             html += `
@@ -1542,6 +1635,14 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += `  Scope Limiters: ${justification.details.boundaries.count}\n`;
             report += `  Edge Cases: ${justification.details.boundaries.edgeCases}\n\n`;
 
+            if (justification.proceduralBonus && justification.proceduralBonus > 0) {
+                report += `Procedural Soundness:\n`;
+                report += `  Procedural Markers: ${justification.details.procedural.markers}\n`;
+                report += `  Structural Planning: ${justification.details.procedural.structural}\n`;
+                report += `  ✓ Procedural Bonus: +${justification.proceduralBonus.toFixed(1)}\n`;
+                report += `  Note: Operational excellence detected - structured planning with decision criteria\n\n`;
+            }
+
             // FAILURE MODE ENGINE
             const { failureMode } = currentAnalysis;
             report += '───────────────────────────────────────────────────────────────\n';
@@ -1554,6 +1655,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += 'Explicit Failure Modes:\n';
             report += `  Failure Acknowledgments: ${failureMode.details.failureModes.count}\n`;
             report += `  Explicit Failure Modes: ${failureMode.details.failureModes.explicit}\n`;
+            report += `  Measurable Thresholds: ${failureMode.details.failureModes.thresholds}\n`;
+            report += `  Corrective Actions: ${failureMode.details.failureModes.correctiveAction}\n`;
+            report += `  Structural Detection: ${failureMode.details.failureModes.structural ? 'YES' : 'NO'}\n`;
+            if (failureMode.details.failureModes.structural) {
+                report += `  ✓ Structural Failure Awareness: Measurable abort conditions with corrective actions\n`;
+            }
             report += `  Score Contribution: ${failureMode.details.failureModes.score > 0 ? '+' : ''}${failureMode.details.failureModes.score}\n\n`;
 
             report += 'Hidden Assumptions:\n';
