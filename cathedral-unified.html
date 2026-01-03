@@ -797,11 +797,33 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
                 // 1. Explicit Failure Modes (including structural detection)
                 const failureAcknowledgment = (cleanedText.match(/\b(might fail|could fail|may not work|break|fail|failure|doesn't work|won't work|breaks down)\b/gi) || []).length;
-                const failureModes = (cleanedText.match(/\b(failure mode|failure point|point of failure|can fail|fails when|breaks when)\b/gi) || []).length;
+                let failureModes = (cleanedText.match(/\b(failure mode|failure point|point of failure|can fail|fails when|breaks when)\b/gi) || []).length;
+
+                // FAILURE MODE LIST EXTRACTION
+                // Detect enumerated lists: "Failure modes include X, Y, and Z"
+                // This is structural parsing, not token spotting
+                const failureModeListMatch = cleanedText.match(/(?:failure modes?|known failures?|failure points?)(?:\s+include|\s*:|\s+are)\s+([^.!?]+)/gi);
+                if (failureModeListMatch && failureModeListMatch.length > 0) {
+                    failureModeListMatch.forEach(match => {
+                        // Count comma-separated items (accounting for "and" before last item)
+                        const listContent = match.replace(/^(?:failure modes?|known failures?|failure points?)(?:\s+include|\s*:|\s+are)\s+/gi, '');
+                        const items = listContent.split(/,|\sand\s/).filter(item => item.trim().length > 3);
+                        failureModes += items.length;
+                    });
+                }
 
                 // Structural failure mode inference: thresholds + conditions + actions
                 // Key insight: "You didn't say 'failure mode', but you designed one"
-                const measurableThresholds = (cleanedText.match(/\b(\d+%|threshold|limit|maximum|minimum|exceeds|below|above|greater than|less than|drops?\s+(?:below|to)|rises?\s+(?:above|to)|increases?\s+(?:above|beyond)|decreases?\s+(?:below|to))\b/gi) || []).length;
+                let measurableThresholds = (cleanedText.match(/\b(\d+%|threshold|limit|maximum|minimum|exceeds|below|above|greater than|less than|drops?\s+(?:below|to)|rises?\s+(?:above|to)|increases?\s+(?:above|beyond)|decreases?\s+(?:below|to))\b/gi) || []).length;
+
+                // THRESHOLD LIST EXTRACTION
+                // Detect numeric + conditional patterns: "incident rates exceed 0.2 per 1,000 flights"
+                // Pattern: number + unit/percentage + conditional verb
+                const numericThresholdPattern = /(?:exceed[s]?|above|below|(?:drop|fall)s?\s+(?:below|to)|rise[s]?\s+(?:above|to))\s+(\d+(?:\.\d+)?)\s*(?:%|percent|per\s+[\d,]+)/gi;
+                const numericThresholds = cleanedText.match(numericThresholdPattern);
+                if (numericThresholds) {
+                    measurableThresholds += numericThresholds.length;
+                }
 
                 // Corrective actions: abort/rollback triggers (moved up for semantic inference)
                 const correctiveAction = (cleanedText.match(/\b(rollback|revert|pause|abort|stop|halt|cancel|redesign|go back|undo|should be paused|must stop|needs? to stop)\b/gi) || []).length;
