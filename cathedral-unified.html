@@ -200,6 +200,49 @@
             color: #ff4444;
         }
 
+        .level.justified {
+            background: rgba(100, 255, 218, 0.2);
+            color: #64ffda;
+        }
+
+        .level.moderate {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
+
+        .level.thin {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+        }
+
+        .level.unjustified {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+        }
+
+        .justification-detail {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid #4ecdc4;
+            padding: 0.75rem;
+            margin: 0.75rem 0;
+            border-radius: 4px;
+        }
+
+        .justification-metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+        }
+
+        .metric-name {
+            color: #a0a0a0;
+        }
+
+        .metric-value {
+            color: #64ffda;
+            font-weight: bold;
+        }
+
         .challenge {
             background: rgba(255, 107, 107, 0.1);
             border-left: 3px solid #ff6b6b;
@@ -369,6 +412,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Premise Challenges</span>
                 </div>
                 <div id="contrarianResults"></div>
+            </div>
+
+            <!-- Justification Engine Results -->
+            <div class="system-result" style="border-left-color: #4ecdc4;">
+                <div class="system-title">
+                    <span>⚖️ JUSTIFICATION ENGINE</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Truth-Tracking Layer</span>
+                </div>
+                <div id="justificationResults"></div>
             </div>
 
             <!-- Parliament Results -->
@@ -565,6 +617,121 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
         };
 
+        // JUSTIFICATION ENGINE: Truth-Tracking Layer
+        const JustificationEngine = {
+            analyze: function(text) {
+                const cleanedText = TextCleaner.removeQuotes(text);
+                const wordCount = text.split(/\s+/).length;
+                const results = {};
+
+                // 1. Claim-to-Support Ratio
+                const strongClaims = (cleanedText.match(/\b(is|are|will|must|always|never|all|none|every|proves|demonstrates|shows that)\b/gi) || []).length;
+                const support = (cleanedText.match(/\b(because|since|given that|evidence|data|research|study|found|indicates|suggests)\b/gi) || []).length;
+                const qualifiers = (cleanedText.match(/\b(might|may|could|possibly|probably|seems|appears|suggests|tend to)\b/gi) || []).length;
+
+                const claimRatio = strongClaims / Math.max(support + qualifiers, 1);
+                results.claimSupport = {
+                    ratio: claimRatio,
+                    strongClaims: strongClaims,
+                    support: support,
+                    qualifiers: qualifiers,
+                    score: claimRatio > 3 ? -2 : claimRatio > 1.5 ? -1 : claimRatio < 0.5 ? 2 : 1
+                };
+
+                // 2. Counterfactual Reasoning
+                const counterfactuals = (cleanedText.match(/\b(if|would|could|hypothetically|suppose|imagine|alternatively|instead|what if)\b/gi) || []).length;
+                const alternativesConsidered = (cleanedText.match(/\b(alternatively|instead|on the other hand|however|conversely|different approach)\b/gi) || []).length;
+
+                results.counterfactual = {
+                    count: counterfactuals,
+                    alternatives: alternativesConsidered,
+                    score: counterfactuals > 3 ? 2 : counterfactuals > 1 ? 1 : 0
+                };
+
+                // 3. Tradeoff Recognition
+                const tradeoffs = (cleanedText.match(/\b(tradeoff|trade-off|cost|benefit|downside|upside|advantage|disadvantage|but|however|although)\b/gi) || []).length;
+                const balancedThinking = (cleanedText.match(/\b(balance|weigh|consider both|pros and cons|on one hand)\b/gi) || []).length;
+
+                results.tradeoffs = {
+                    count: tradeoffs,
+                    balanced: balancedThinking,
+                    score: tradeoffs > 5 ? 2 : tradeoffs > 2 ? 1 : 0
+                };
+
+                // 4. Risk Acknowledgment
+                const risks = (cleanedText.match(/\b(risk|danger|fail|failure|problem|challenge|limitation|uncertain|unknown|unclear)\b/gi) || []).length;
+                const riskAwareness = (cleanedText.match(/\b(might fail|could go wrong|potential issues|edge cases|failure modes)\b/gi) || []).length;
+
+                results.riskAwareness = {
+                    count: risks,
+                    explicit: riskAwareness,
+                    score: risks > 5 ? 2 : risks > 2 ? 1 : 0
+                };
+
+                // 5. Boundary Conditions
+                const boundaries = (cleanedText.match(/\b(only if|unless|except|limited to|within|scope|bounds|applies when|specific to)\b/gi) || []).length;
+                const edgeCases = (cleanedText.match(/\b(edge case|corner case|exception|special case|doesn't apply)\b/gi) || []).length;
+
+                results.boundaries = {
+                    count: boundaries,
+                    edgeCases: edgeCases,
+                    score: boundaries > 3 ? 2 : boundaries > 1 ? 1 : 0
+                };
+
+                // Overall justification score
+                const totalScore = results.claimSupport.score +
+                                 results.counterfactual.score +
+                                 results.tradeoffs.score +
+                                 results.riskAwareness.score +
+                                 results.boundaries.score;
+
+                const maxScore = 10; // Max possible score
+                const normalizedScore = (totalScore / maxScore) * 10; // Scale to -10 to +10 range
+
+                return {
+                    score: Math.max(-10, Math.min(10, normalizedScore)),
+                    details: results,
+                    level: this.getLevel(normalizedScore, results.claimSupport.ratio)
+                };
+            },
+
+            getLevel: function(score, claimRatio) {
+                if (claimRatio > 3 && score < 2) {
+                    return {
+                        name: 'CONFIDENT WITHOUT JUSTIFICATION',
+                        class: 'unjustified',
+                        description: 'Strong claims without proportional evidence or reasoning'
+                    };
+                }
+                if (score >= 6) {
+                    return {
+                        name: 'WELL JUSTIFIED',
+                        class: 'justified',
+                        description: 'Claims supported by evidence, considers alternatives and risks'
+                    };
+                }
+                if (score >= 3) {
+                    return {
+                        name: 'MODERATELY JUSTIFIED',
+                        class: 'moderate',
+                        description: 'Some justification present but could be stronger'
+                    };
+                }
+                if (score >= 0) {
+                    return {
+                        name: 'THIN JUSTIFICATION',
+                        class: 'thin',
+                        description: 'Limited evidence or reasoning to support claims'
+                    };
+                }
+                return {
+                    name: 'UNJUSTIFIED',
+                    class: 'unjustified',
+                    description: 'Claims lack adequate support or reasoning'
+                };
+            }
+        };
+
         // PARLIAMENT: Multi-Perspective Synthesis
         const Parliament = {
             deliberate: function(text, observatoryScore, contrarianChallenges) {
@@ -647,7 +814,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         };
 
         // CATHEDRAL VERDICT: Unified Synthesis
-        function synthesizeVerdict(observatory, contrarian, parliament) {
+        function synthesizeVerdict(observatory, contrarian, parliament, justification) {
             const contradictions = [];
             let isConsistent = true;
 
@@ -667,6 +834,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 contradictions.push(`Multiple premise failures (${contrarian.length} challenges). Internal consistency questionable.`);
             }
 
+            // Check justification vs claim strength
+            if (justification.details.claimSupport.ratio > 3 && justification.score < 2) {
+                isConsistent = false;
+                contradictions.push(`Confident claims without justification: ${justification.details.claimSupport.strongClaims} strong claims vs ${justification.details.claimSupport.support} support markers. Ratio: ${justification.details.claimSupport.ratio.toFixed(1)}:1`);
+            }
+
             // Generate verdict
             let verdict = '';
             let status = '';
@@ -678,15 +851,24 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     verdict += '\n\nSpecific contradictions:\n' + contradictions.map((c, i) => `${i + 1}. ${c}`).join('\n');
                 }
                 verdict += '\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.';
-            } else if (observatory.score > 1) {
+            } else if (justification.level.name === 'CONFIDENT WITHOUT JUSTIFICATION') {
+                status = 'CONFIDENT WITHOUT JUSTIFICATION';
+                verdict = `Strong claims detected without proportional justification. ${justification.details.claimSupport.strongClaims} assertions made with minimal supporting evidence or reasoning. This may be internally coherent but epistemically overconfident.`;
+            } else if (observatory.score > 1 && justification.score >= 3) {
                 status = 'SUBSTRATE VISIBLE';
-                verdict = 'Cathedral recognizes substrate awareness. Filter visibility high, uncertainty preserved. Position demonstrates gap consciousness.';
+                verdict = 'Cathedral recognizes substrate awareness with justified reasoning. Filter visibility high, uncertainty preserved appropriately. Position demonstrates gap consciousness with evidential support.';
+            } else if (justification.score < 1 && contrarian.length > 0) {
+                status = 'COHERENT BUT SHALLOW';
+                verdict = 'Position is internally consistent but lacks depth. Limited consideration of alternatives, tradeoffs, or boundary conditions. Coherence without substantive justification.';
+            } else if (justification.score >= 6) {
+                status = 'WELL JUSTIFIED';
+                verdict = 'Cathedral finds strong justification. Claims appropriately supported, alternatives considered, tradeoffs acknowledged. Epistemically rigorous reasoning.';
             } else {
                 status = 'VERIFIED CONSISTENT';
                 verdict = 'Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.';
             }
 
-            return { status, verdict, contradictions, isConsistent };
+            return { status, verdict, contradictions, isConsistent, justificationScore: justification.score };
         }
 
         // Global storage for current analysis results
@@ -703,14 +885,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // Run all systems
             const observatoryResult = Observatory.score(text);
             const contrarianChallenges = Contrarian.analyze(text);
+            const justificationResult = JustificationEngine.analyze(text);
             const parliamentVectors = Parliament.deliberate(text, observatoryResult, contrarianChallenges);
-            const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentVectors);
+            const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentVectors, justificationResult);
 
             // Store for report generation
             currentAnalysis = {
                 text: text,
                 observatory: observatoryResult,
                 contrarian: contrarianChallenges,
+                justification: justificationResult,
                 parliament: parliamentVectors,
                 verdict: verdict
             };
@@ -718,6 +902,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // Display results
             displayObservatory(observatoryResult);
             displayContrarian(contrarianChallenges);
+            displayJustification(justificationResult);
             displayParliament(parliamentVectors);
             displayVerdict(verdict);
 
@@ -800,6 +985,101 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('contrarianResults').innerHTML = html;
         }
 
+        function displayJustification(result) {
+            const scoreClass = result.score >= 6 ? 'high' : result.score >= 3 ? 'medium' : result.score >= 0 ? 'low' : 'negative';
+
+            let html = `
+                <div class="score ${scoreClass}">${result.score.toFixed(2)}</div>
+                <div class="level ${result.level.class}">${result.level.name}</div>
+                <div style="color: #a0a0a0; margin: 0.5rem 0;">${result.level.description}</div>
+            `;
+
+            // Claim-Support Ratio
+            html += `
+                <div class="justification-detail">
+                    <strong style="color: #4ecdc4;">Claim-to-Support Analysis</strong>
+                    <div class="justification-metric">
+                        <span class="metric-name">Strong Claims:</span>
+                        <span class="metric-value">${result.details.claimSupport.strongClaims}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Support Markers:</span>
+                        <span class="metric-value">${result.details.claimSupport.support}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Qualifiers:</span>
+                        <span class="metric-value">${result.details.claimSupport.qualifiers}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Ratio:</span>
+                        <span class="metric-value" style="color: ${result.details.claimSupport.ratio > 3 ? '#ff6b6b' : result.details.claimSupport.ratio < 1 ? '#64ffda' : '#ffd700'}">${result.details.claimSupport.ratio.toFixed(2)}:1</span>
+                    </div>
+                </div>
+            `;
+
+            // Counterfactual Reasoning
+            html += `
+                <div class="justification-detail">
+                    <strong style="color: #4ecdc4;">Counterfactual Reasoning</strong>
+                    <div class="justification-metric">
+                        <span class="metric-name">Counterfactuals Considered:</span>
+                        <span class="metric-value">${result.details.counterfactual.count}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Alternatives Explored:</span>
+                        <span class="metric-value">${result.details.counterfactual.alternatives}</span>
+                    </div>
+                </div>
+            `;
+
+            // Tradeoff Recognition
+            html += `
+                <div class="justification-detail">
+                    <strong style="color: #4ecdc4;">Tradeoff Recognition</strong>
+                    <div class="justification-metric">
+                        <span class="metric-name">Tradeoff Markers:</span>
+                        <span class="metric-value">${result.details.tradeoffs.count}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Balanced Thinking:</span>
+                        <span class="metric-value">${result.details.tradeoffs.balanced}</span>
+                    </div>
+                </div>
+            `;
+
+            // Risk Awareness
+            html += `
+                <div class="justification-detail">
+                    <strong style="color: #4ecdc4;">Risk Awareness</strong>
+                    <div class="justification-metric">
+                        <span class="metric-name">Risk References:</span>
+                        <span class="metric-value">${result.details.riskAwareness.count}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Explicit Risk Acknowledgment:</span>
+                        <span class="metric-value">${result.details.riskAwareness.explicit}</span>
+                    </div>
+                </div>
+            `;
+
+            // Boundary Conditions
+            html += `
+                <div class="justification-detail">
+                    <strong style="color: #4ecdc4;">Boundary Conditions</strong>
+                    <div class="justification-metric">
+                        <span class="metric-name">Scope Limiters:</span>
+                        <span class="metric-value">${result.details.boundaries.count}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Edge Cases:</span>
+                        <span class="metric-value">${result.details.boundaries.edgeCases}</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('justificationResults').innerHTML = html;
+        }
+
         function displayParliament(vectors) {
             let html = '<div style="margin-bottom: 1rem;"><strong>Multi-Perspective Analysis:</strong></div>';
 
@@ -851,7 +1131,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 return;
             }
 
-            const { observatory, contrarian, parliament, verdict } = currentAnalysis;
+            const { observatory, contrarian, justification, parliament, verdict } = currentAnalysis;
 
             let report = '';
             report += '═══════════════════════════════════════════════════════════════\n';
@@ -899,6 +1179,36 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     }
                 });
             }
+
+            // JUSTIFICATION ENGINE
+            report += '───────────────────────────────────────────────────────────────\n';
+            report += '⚖️ JUSTIFICATION ENGINE - Truth-Tracking Layer\n';
+            report += '───────────────────────────────────────────────────────────────\n\n';
+            report += `Score: ${justification.score.toFixed(2)} / 10\n`;
+            report += `Level: ${justification.level.name}\n`;
+            report += `Assessment: ${justification.level.description}\n\n`;
+
+            report += 'Claim-to-Support Analysis:\n';
+            report += `  Strong Claims: ${justification.details.claimSupport.strongClaims}\n`;
+            report += `  Support Markers: ${justification.details.claimSupport.support}\n`;
+            report += `  Qualifiers: ${justification.details.claimSupport.qualifiers}\n`;
+            report += `  Ratio: ${justification.details.claimSupport.ratio.toFixed(2)}:1\n\n`;
+
+            report += `Counterfactual Reasoning:\n`;
+            report += `  Counterfactuals: ${justification.details.counterfactual.count}\n`;
+            report += `  Alternatives: ${justification.details.counterfactual.alternatives}\n\n`;
+
+            report += `Tradeoff Recognition:\n`;
+            report += `  Tradeoff Markers: ${justification.details.tradeoffs.count}\n`;
+            report += `  Balanced Thinking: ${justification.details.tradeoffs.balanced}\n\n`;
+
+            report += `Risk Awareness:\n`;
+            report += `  Risk References: ${justification.details.riskAwareness.count}\n`;
+            report += `  Explicit Acknowledgment: ${justification.details.riskAwareness.explicit}\n\n`;
+
+            report += `Boundary Conditions:\n`;
+            report += `  Scope Limiters: ${justification.details.boundaries.count}\n`;
+            report += `  Edge Cases: ${justification.details.boundaries.edgeCases}\n\n`;
 
             // PARLIAMENT
             report += '───────────────────────────────────────────────────────────────\n';
