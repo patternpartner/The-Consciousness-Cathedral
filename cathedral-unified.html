@@ -799,20 +799,34 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const failureAcknowledgment = (cleanedText.match(/\b(might fail|could fail|may not work|break|fail|failure|doesn't work|won't work|breaks down)\b/gi) || []).length;
                 const failureModes = (cleanedText.match(/\b(failure mode|failure point|point of failure|can fail|fails when|breaks when)\b/gi) || []).length;
 
-                // Structural failure detection: thresholds + negative outcomes + corrective action
-                const measurableThresholds = (cleanedText.match(/\b(\d+%|threshold|limit|maximum|minimum|exceeds|below|above|greater than|less than)\b/gi) || []).length;
-                const negativeOutcomes = (cleanedText.match(/\b(if.*fail|when.*fail|should.*fail|risk of|problem|issue|degradation|performance drop)\b/gi) || []).length;
-                const correctiveAction = (cleanedText.match(/\b(rollback|revert|pause|abort|stop|halt|cancel|redesign|go back|undo)\b/gi) || []).length;
+                // Structural failure mode inference: thresholds + conditions + actions
+                // Key insight: "You didn't say 'failure mode', but you designed one"
+                const measurableThresholds = (cleanedText.match(/\b(\d+%|threshold|limit|maximum|minimum|exceeds|below|above|greater than|less than|drops?\s+(?:below|to)|rises?\s+(?:above|to)|increases?\s+(?:above|beyond)|decreases?\s+(?:below|to))\b/gi) || []).length;
 
-                // Structural failure modes: measurable abort conditions
-                const hasStructuralFailureModes = (measurableThresholds > 2 && negativeOutcomes > 0 && correctiveAction > 0);
+                // Negative outcomes: conditional structures + undesirable states
+                const conditionalTriggers = (cleanedText.match(/\b(if|when|should|in case|where)\b/gi) || []).length;
+                const undesirableStates = (cleanedText.match(/\b(fail|drop|decline|degrade|exceed|spike|collapse|break|error|issue|problem|risk)\b/gi) || []).length;
+                const negativeOutcomes = conditionalTriggers > 0 && undesirableStates > 0 ? Math.min(conditionalTriggers, undesirableStates) : 0;
+
+                // Corrective actions: abort/rollback triggers
+                const correctiveAction = (cleanedText.match(/\b(rollback|revert|pause|abort|stop|halt|cancel|redesign|go back|undo|should be paused|must stop|needs? to stop)\b/gi) || []).length;
+
+                // Structural Failure Mode Inference Rule:
+                // IF (thresholds >= 1) AND (negative outcomes present) AND (corrective action present)
+                // THEN: Explicit failure modes = TRUE (you designed one, even if you didn't name it)
+                const hasStructuralFailureModes = (measurableThresholds >= 1 && negativeOutcomes > 0 && correctiveAction > 0);
                 const structuralScore = hasStructuralFailureModes ? 2 : 0;
+
+                // Promote structural failure modes into explicit count for downstream logic
+                const effectiveExplicitFailures = hasStructuralFailureModes ? Math.max(failureModes, 1) : failureModes;
 
                 results.failureModes = {
                     count: failureAcknowledgment,
                     explicit: failureModes,
+                    effectiveExplicit: effectiveExplicitFailures,
                     structural: hasStructuralFailureModes,
                     thresholds: measurableThresholds,
+                    negativeOutcomes: negativeOutcomes,
                     correctiveAction: correctiveAction,
                     score: Math.max(
                         failureModes > 2 ? 2 : failureModes > 0 ? 1 : failureAcknowledgment > 3 ? 1 : 0,
@@ -1364,16 +1378,20 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         <span class="metric-value">${result.details.failureModes.count}</span>
                     </div>
                     <div class="justification-metric">
-                        <span class="metric-name">Explicit Failure Modes:</span>
-                        <span class="metric-value" style="color: ${result.details.failureModes.explicit > 2 ? '#64ffda' : '#ffd700'}">${result.details.failureModes.explicit}</span>
+                        <span class="metric-name">Named Failure Modes:</span>
+                        <span class="metric-value" style="color: ${result.details.failureModes.explicit > 0 ? '#64ffda' : '#808080'}">${result.details.failureModes.explicit}</span>
                     </div>
                     <div class="justification-metric">
                         <span class="metric-name">Measurable Thresholds:</span>
-                        <span class="metric-value" style="color: ${result.details.failureModes.thresholds > 2 ? '#64ffda' : '#ffd700'}">${result.details.failureModes.thresholds}</span>
+                        <span class="metric-value" style="color: ${result.details.failureModes.thresholds >= 1 ? '#64ffda' : '#808080'}">${result.details.failureModes.thresholds}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Negative Outcomes:</span>
+                        <span class="metric-value" style="color: ${result.details.failureModes.negativeOutcomes > 0 ? '#64ffda' : '#808080'}">${result.details.failureModes.negativeOutcomes}</span>
                     </div>
                     <div class="justification-metric">
                         <span class="metric-name">Corrective Actions:</span>
-                        <span class="metric-value" style="color: ${result.details.failureModes.correctiveAction > 1 ? '#64ffda' : '#ffd700'}">${result.details.failureModes.correctiveAction}</span>
+                        <span class="metric-value" style="color: ${result.details.failureModes.correctiveAction > 0 ? '#64ffda' : '#808080'}">${result.details.failureModes.correctiveAction}</span>
                     </div>
                     <div class="justification-metric">
                         <span class="metric-name">Structural Detection:</span>
@@ -1390,11 +1408,13 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             if (result.details.failureModes.structural) {
                 html += `
                     <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(100, 255, 218, 0.1); border-radius: 3px; border-left: 3px solid #64ffda;">
-                        <strong style="color: #64ffda;">✓ Structural Failure Awareness Detected</strong>
+                        <strong style="color: #64ffda;">✓ Structural Failure Mode Inferred</strong>
                         <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.25rem;">
-                            Measurable abort conditions + corrective actions = reversible planning
+                            You didn't say "failure mode", but you designed one
                         </div>
-                        <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.25rem;">This is operational robustness: knows when to stop and how to undo</div>
+                        <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.25rem;">
+                            ${result.details.failureModes.thresholds} threshold(s) + ${result.details.failureModes.negativeOutcomes} negative outcome(s) + ${result.details.failureModes.correctiveAction} corrective action(s) = abort criteria
+                        </div>
                     </div>
                 `;
             }
@@ -1654,12 +1674,14 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             report += 'Explicit Failure Modes:\n';
             report += `  Failure Acknowledgments: ${failureMode.details.failureModes.count}\n`;
-            report += `  Explicit Failure Modes: ${failureMode.details.failureModes.explicit}\n`;
+            report += `  Named Failure Modes: ${failureMode.details.failureModes.explicit}\n`;
             report += `  Measurable Thresholds: ${failureMode.details.failureModes.thresholds}\n`;
+            report += `  Negative Outcomes: ${failureMode.details.failureModes.negativeOutcomes}\n`;
             report += `  Corrective Actions: ${failureMode.details.failureModes.correctiveAction}\n`;
             report += `  Structural Detection: ${failureMode.details.failureModes.structural ? 'YES' : 'NO'}\n`;
             if (failureMode.details.failureModes.structural) {
-                report += `  ✓ Structural Failure Awareness: Measurable abort conditions with corrective actions\n`;
+                report += `  ✓ Structural Failure Mode Inferred: You didn't say "failure mode", but you designed one\n`;
+                report += `    ${failureMode.details.failureModes.thresholds} threshold(s) + ${failureMode.details.failureModes.negativeOutcomes} outcome(s) + ${failureMode.details.failureModes.correctiveAction} action(s) = abort criteria\n`;
             }
             report += `  Score Contribution: ${failureMode.details.failureModes.score > 0 ? '+' : ''}${failureMode.details.failureModes.score}\n\n`;
 
