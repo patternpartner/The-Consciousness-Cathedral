@@ -1134,6 +1134,14 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             } else if (justification.score >= 6) {
                 status = 'WELL JUSTIFIED';
                 verdict = 'Cathedral finds strong justification. Claims appropriately supported, alternatives considered, tradeoffs acknowledged. Epistemically rigorous reasoning.';
+            // PERFORMATIVE EPISTEMOLOGY REJECTION RULE
+            // Rejects content-empty reasoning: hedging without substance, humility without commitment
+            // This is not contradictory (passes consistency checks) but is non-actionable
+            } else if ((justification.level.name === 'UNJUSTIFIED' || justification.score < 0) &&
+                       (failureMode.level.name === 'UNTESTED' || failureMode.level.name === 'BRITTLE') &&
+                       (justification.details.claimSupport.strongClaims >= 1 || justification.details.claimSupport.hedging >= 2)) {
+                status = 'NON-ACTIONABLE';
+                verdict = `Position exhibits performative epistemology: ${justification.details.claimSupport.hedging > 0 ? 'epistemic hedging' : 'claims'} without substantive support or failure awareness. ${justification.details.claimSupport.strongClaims} claim(s), ${justification.details.claimSupport.support} support markers, ${failureMode.details.failureModes.count} failure modes. This is not reasoning you can act on. Humility without substance is indistinguishable from absence of thought.`;
             } else {
                 status = 'VERIFIED CONSISTENT';
                 verdict = 'Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.';
