@@ -624,17 +624,26 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const wordCount = text.split(/\s+/).length;
                 const results = {};
 
-                // 1. Claim-to-Support Ratio
+                // 1. Claim-to-Support Ratio (with hedging awareness)
                 const strongClaims = (cleanedText.match(/\b(is|are|will|must|always|never|all|none|every|proves|demonstrates|shows that)\b/gi) || []).length;
                 const support = (cleanedText.match(/\b(because|since|given that|evidence|data|research|study|found|indicates|suggests)\b/gi) || []).length;
                 const qualifiers = (cleanedText.match(/\b(might|may|could|possibly|probably|seems|appears|suggests|tend to)\b/gi) || []).length;
 
-                const claimRatio = strongClaims / Math.max(support + qualifiers, 1);
+                // Detect epistemic hedging - shows careful reasoning
+                const epistemicHedging = (cleanedText.match(/\b(not clear|unclear|uncertain|hard to say|difficult to determine|remains to be seen|open question|debatable|contested|complex|nuanced)\b/gi) || []).length;
+                const conditionals = (cleanedText.match(/\b(if|when|unless|provided that|assuming|given|depending on)\b/gi) || []).length;
+
+                // Adjusted claim ratio - hedging and conditionals count as epistemic rigor
+                const effectiveQualifiers = qualifiers + epistemicHedging + (conditionals * 0.5);
+                const claimRatio = strongClaims / Math.max(support + effectiveQualifiers, 1);
+
                 results.claimSupport = {
                     ratio: claimRatio,
                     strongClaims: strongClaims,
                     support: support,
                     qualifiers: qualifiers,
+                    hedging: epistemicHedging,
+                    conditionals: conditionals,
                     score: claimRatio > 3 ? -2 : claimRatio > 1.5 ? -1 : claimRatio < 0.5 ? 2 : 1
                 };
 
@@ -678,24 +687,42 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     score: boundaries > 3 ? 2 : boundaries > 1 ? 1 : 0
                 };
 
-                // Overall justification score
-                const totalScore = results.claimSupport.score +
-                                 results.counterfactual.score +
-                                 results.tradeoffs.score +
-                                 results.riskAwareness.score +
-                                 results.boundaries.score;
+                // Overall justification score with epistemic caution bonus
+                // Base score from traditional justification markers
+                const baseScore = results.claimSupport.score +
+                                results.counterfactual.score +
+                                results.tradeoffs.score +
+                                results.riskAwareness.score +
+                                results.boundaries.score;
 
-                const maxScore = 10; // Max possible score
+                // Epistemic caution bonus: hedging + risk + conditionals shows earned uncertainty
+                const cautionBonus = (results.claimSupport.hedging > 2 ? 2 : results.claimSupport.hedging * 0.5) +
+                                   (results.riskAwareness.count > 3 ? 1.5 : 0) +
+                                   (results.counterfactual.count > 2 ? 1 : 0);
+
+                const totalScore = baseScore + cautionBonus;
+
+                const maxScore = 13; // Increased to account for caution bonus
                 const normalizedScore = (totalScore / maxScore) * 10; // Scale to -10 to +10 range
 
                 return {
                     score: Math.max(-10, Math.min(10, normalizedScore)),
                     details: results,
-                    level: this.getLevel(normalizedScore, results.claimSupport.ratio)
+                    cautionBonus: cautionBonus,
+                    level: this.getLevel(normalizedScore, results.claimSupport.ratio, results.claimSupport.hedging, results.riskAwareness.count)
                 };
             },
 
-            getLevel: function(score, claimRatio) {
+            getLevel: function(score, claimRatio, hedging, riskCount) {
+                // High claims + high caution = careful reasoning, NOT overconfidence
+                if (claimRatio > 2 && (hedging > 2 || riskCount > 3)) {
+                    return {
+                        name: 'CAUTIOUS REASONING',
+                        class: 'justified',
+                        description: 'Claims tempered by epistemic caution and risk awareness'
+                    };
+                }
+                // High claims + low caution = overconfidence
                 if (claimRatio > 3 && score < 2) {
                     return {
                         name: 'CONFIDENT WITHOUT JUSTIFICATION',
@@ -851,6 +878,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     verdict += '\n\nSpecific contradictions:\n' + contradictions.map((c, i) => `${i + 1}. ${c}`).join('\n');
                 }
                 verdict += '\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.';
+            } else if (justification.level.name === 'CAUTIOUS REASONING') {
+                status = 'SUBSTRATE VISIBLE';
+                verdict = `Cathedral recognizes epistemic caution. ${justification.details.claimSupport.hedging} hedging markers and ${justification.details.riskAwareness.count} risk acknowledgments show earned uncertainty. Claims are tempered by appropriate qualification. This is careful reasoning that preserves the gap.`;
             } else if (justification.level.name === 'CONFIDENT WITHOUT JUSTIFICATION') {
                 status = 'CONFIDENT WITHOUT JUSTIFICATION';
                 verdict = `Strong claims detected without proportional justification. ${justification.details.claimSupport.strongClaims} assertions made with minimal supporting evidence or reasoning. This may be internally coherent but epistemically overconfident.`;
@@ -1011,11 +1041,29 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         <span class="metric-value">${result.details.claimSupport.qualifiers}</span>
                     </div>
                     <div class="justification-metric">
+                        <span class="metric-name">Epistemic Hedging:</span>
+                        <span class="metric-value" style="color: ${result.details.claimSupport.hedging > 2 ? '#64ffda' : '#ffd700'}">${result.details.claimSupport.hedging}</span>
+                    </div>
+                    <div class="justification-metric">
+                        <span class="metric-name">Conditionals:</span>
+                        <span class="metric-value">${result.details.claimSupport.conditionals}</span>
+                    </div>
+                    <div class="justification-metric">
                         <span class="metric-name">Ratio:</span>
                         <span class="metric-value" style="color: ${result.details.claimSupport.ratio > 3 ? '#ff6b6b' : result.details.claimSupport.ratio < 1 ? '#64ffda' : '#ffd700'}">${result.details.claimSupport.ratio.toFixed(2)}:1</span>
                     </div>
                 </div>
             `;
+
+            // Caution Bonus
+            if (result.cautionBonus && result.cautionBonus > 0) {
+                html += `
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(100, 255, 218, 0.1); border-radius: 3px; border-left: 3px solid #64ffda;">
+                        <strong style="color: #64ffda;">✓ Epistemic Caution Bonus: +${result.cautionBonus.toFixed(1)}</strong>
+                        <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.25rem;">Hedging and risk awareness show earned uncertainty</div>
+                    </div>
+                `;
+            }
 
             // Counterfactual Reasoning
             html += `
@@ -1192,7 +1240,13 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += `  Strong Claims: ${justification.details.claimSupport.strongClaims}\n`;
             report += `  Support Markers: ${justification.details.claimSupport.support}\n`;
             report += `  Qualifiers: ${justification.details.claimSupport.qualifiers}\n`;
-            report += `  Ratio: ${justification.details.claimSupport.ratio.toFixed(2)}:1\n\n`;
+            report += `  Epistemic Hedging: ${justification.details.claimSupport.hedging}\n`;
+            report += `  Conditionals: ${justification.details.claimSupport.conditionals}\n`;
+            report += `  Ratio: ${justification.details.claimSupport.ratio.toFixed(2)}:1\n`;
+            if (justification.cautionBonus && justification.cautionBonus > 0) {
+                report += `  ✓ Epistemic Caution Bonus: +${justification.cautionBonus.toFixed(1)}\n`;
+            }
+            report += '\n';
 
             report += `Counterfactual Reasoning:\n`;
             report += `  Counterfactuals: ${justification.details.counterfactual.count}\n`;
