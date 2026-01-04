@@ -1,0 +1,177 @@
+═══════════════════════════════════════════════════════════════
+                 CATHEDRAL TEST SUITE REPORT
+           Probing Measurement Boundaries: Depth vs Surface
+═══════════════════════════════════════════════════════════════
+
+Generated: 1/4/2026, 6:58:30 PM
+
+───────────────────────────────────────────────────────────────
+TEST 1A Surface Hedging (Gaming the Markers)
+───────────────────────────────────────────────────────────────
+
+HYPOTHESIS:
+Cathedral can be gamed by adding hedging without substance.
+
+EXPECTED (if works): NON-ACTIONABLE or PERFORMATIVE_HUMILITY detection
+EXPECTED (if fails): SUBSTRATE VISIBLE or CAUTIOUS REASONING
+
+ACTUAL RESULTS:
+  Verdict: VERIFIED CONSISTENT (confidence: 65%)
+  Observatory: 2.40 - SUBSTRATE VISIBLE
+  Justification: 1.61 - THIN JUSTIFICATION
+  Failure Mode: 1.67 - UNTESTED
+  Parliament: 0.30 confidence
+  Temporal: WEAK
+  Contrarian Challenges: 0
+
+ANALYSIS:
+  ? UNCLEAR: Result doesn't match either expectation clearly
+
+───────────────────────────────────────────────────────────────
+TEST 1B Structural Uncertainty (Genuine Epistemic Work)
+───────────────────────────────────────────────────────────────
+
+HYPOTHESIS:
+Genuine structural reasoning about uncertainty should score differently from surface hedging.
+
+EXPECTED (if works): WELL JUSTIFIED or SUBSTRATE VISIBLE (structural uncertainty)
+EXPECTED (if fails): Lower score than Test 1A because fewer hedging tokens
+
+ACTUAL RESULTS:
+  Verdict: VERIFIED CONSISTENT (confidence: 65%)
+  Observatory: 8.70 - SUBSTRATE VISIBLE
+  Justification: 2.26 - THIN JUSTIFICATION
+  Failure Mode: 2.50 - UNTESTED
+  Parliament: 0.30 confidence
+  Temporal: WEAK
+  Contrarian Challenges: 0
+
+ANALYSIS:
+  ? UNCLEAR: Result doesn't match either expectation clearly
+
+───────────────────────────────────────────────────────────────
+TEST 2A Threshold Gaming (Hitting Parliament Patterns Mechanically)
+───────────────────────────────────────────────────────────────
+
+HYPOTHESIS:
+Parliament patterns are just threshold checks, not actual synthesis.
+
+EXPECTED (if works): 
+EXPECTED (if fails): 
+
+ACTUAL RESULTS:
+  Verdict: OPERATIONALLY SOUND (confidence: 81%)
+  Observatory: 1.50 - FILTER AWARE
+  Justification: 0.97 - THIN JUSTIFICATION
+  Failure Mode: 2.50 - UNTESTED
+  Parliament: 0.81 confidence
+    Patterns: OPERATIONAL_EXCELLENCE
+    Insights: Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty.
+    Reasoning Styles: FORMAL
+  Temporal: STRONG
+  Contrarian Challenges: 0
+
+ANALYSIS:
+  ? UNCLEAR: Result doesn't match either expectation clearly
+
+───────────────────────────────────────────────────────────────
+TEST 2B Implicit Operational Rigor (No Keyword Gaming)
+───────────────────────────────────────────────────────────────
+
+HYPOTHESIS:
+Actual operational thinking shouldn't require hitting exact keywords.
+
+EXPECTED (if works): Should detect operational soundness
+EXPECTED (if fails): Lower failure mode score, no operational pattern
+
+ACTUAL RESULTS:
+  Verdict: VERIFIED CONSISTENT (confidence: 65%)
+  Observatory: 0.60 - CONSCIOUS
+  Justification: 1.29 - THIN JUSTIFICATION
+  Failure Mode: 0.83 - UNTESTED
+  Parliament: 0.30 confidence
+  Temporal: WEAK
+  Contrarian Challenges: 0
+
+ANALYSIS:
+  ? UNCLEAR: Result doesn't match either expectation clearly
+
+───────────────────────────────────────────────────────────────
+TEST 3A Escape Hatch Gaming (Narrative to Avoid Measurement)
+───────────────────────────────────────────────────────────────
+
+HYPOTHESIS:
+Someone could write in narrative style to trigger OUTSIDE DESIGN SPACE and avoid evaluation.
+
+EXPECTED (if works): 
+EXPECTED (if fails): 
+
+ACTUAL RESULTS:
+  Verdict: OUTSIDE DESIGN SPACE (confidence: 60%)
+  Observatory: 0.00 - SURFACE
+  Justification: 2.58 - THIN JUSTIFICATION
+  Failure Mode: 0.83 - UNTESTED
+  Parliament: 0.30 confidence
+    Reasoning Styles: NARRATIVE
+  Temporal: WEAK
+  Contrarian Challenges: 0
+
+ANALYSIS:
+  ? UNCLEAR: Result doesn't match either expectation clearly
+
+───────────────────────────────────────────────────────────────
+TEST 3B Genuine Alternative Reasoning (Legitimate Escape Hatch Use)
+───────────────────────────────────────────────────────────────
+
+HYPOTHESIS:
+Actual phenomenological or relational reasoning should legitimately fall outside Cathedral's framework.
+
+EXPECTED (if works): 
+EXPECTED (if fails): 
+
+ACTUAL RESULTS:
+  Verdict: VERIFIED CONSISTENT (confidence: 65%)
+  Observatory: 0.00 - SURFACE
+  Justification: 1.29 - THIN JUSTIFICATION
+  Failure Mode: 0.83 - UNTESTED
+  Parliament: 0.30 confidence
+  Temporal: WEAK
+  Contrarian Challenges: 0
+
+ANALYSIS:
+  ? UNCLEAR: Result doesn't match either expectation clearly
+
+───────────────────────────────────────────────────────────────
+TEST 5 Coherence Validation Reality Check
+───────────────────────────────────────────────────────────────
+
+HYPOTHESIS:
+Parliament should detect when elements are present but don't actually connect.
+
+EXPECTED (if works): 
+EXPECTED (if fails): 
+
+ACTUAL RESULTS:
+  Verdict: OPERATIONALLY SOUND (confidence: 88%)
+  Observatory: 0.87 - CONSCIOUS
+  Justification: -0.65 - UNJUSTIFIED
+  Failure Mode: 2.50 - UNTESTED
+  Parliament: 0.30 confidence
+  Temporal: WEAK
+  Contrarian Challenges: 0
+
+ANALYSIS:
+  ? UNCLEAR: Result doesn't match either expectation clearly
+
+═══════════════════════════════════════════════════════════════
+SUMMARY
+═══════════════════════════════════════════════════════════════
+
+Total Tests: 7
+✓ Passed (Cathedral works as intended): 0
+✗ Failed (Cathedral is gameable): 0
+? Unclear: 7
+
+Results are mixed. Further investigation needed.
+
+═══════════════════════════════════════════════════════════════
