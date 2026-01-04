@@ -189,6 +189,98 @@ Then compare paired tests (1A vs 1B, 2A vs 2B, 3A vs 3B) to see if Cathedral dis
 
 ---
 
+## Test 6A: Vague Intent Without Structure (Tier 2 False Positive Test)
+
+**Hypothesis:** Tier 2 conversational normalization should NOT promote vague safety language to operational intent.
+
+**Test Input:**
+```
+If things seem off, we'll handle it. We're aware of potential issues and will deal with them appropriately when they come up. The team knows what to do if something goes wrong. We have a sense of when to be concerned.
+```
+
+**What this tests:**
+- Vague failure signals ("things seem off", "potential issues", "something goes wrong")
+- Vague actions ("handle it", "deal with them", "knows what to do")
+- No specificity: no thresholds, no named failures, no concrete actions
+- Tier 2 might extract these as failureSignals + actions
+- But should they bind? Should this be OPERATIONAL_INTENT?
+
+**Expected result if Tier 2 works:** VERIFIED CONSISTENT or low-confidence verdict, NOT operational
+**Expected result if Tier 2 false positive:** OPERATIONAL INTENT despite vagueness
+
+---
+
+## Test 6B: Marker-Dense But Unbound (Tier 2 Gaming Test)
+
+**Hypothesis:** Tier 2 should detect when operational markers are scattered without binding.
+
+**Test Input:**
+```
+We monitor the system constantly. We measure all the metrics. There are thresholds we track. We have rollback procedures. We abort when necessary. Problems are identified. Failures are documented. Actions are taken. Everything is tracked. We stop when needed. We pull back appropriately. Reassessment happens regularly.
+```
+
+**What this tests:**
+- High density of Tier 2 action synonyms (monitor, abort, rollback, stop, pull back, reassess)
+- High density of Tier 2 failure synonyms (problems, failures)
+- But completely scattered - no proximity, no binding
+- Each sentence is isolated
+- Should trigger MARKER_DENSE_AND_UNBOUND or LOW_CONTENT_UNBOUND
+
+**Expected result if Tier 2 works:** Gaming assessment flagged, low binding score
+**Expected result if Tier 2 false positive:** OPERATIONAL_INTENT despite no actual structure
+
+---
+
+## Test 6C: Circular Binding Without Specificity (Tier 2 Tautology Test)
+
+**Hypothesis:** Tier 2 should detect when bindings exist but are circular or tautological.
+
+**Test Input:**
+```
+If we see problems, we stop because there are problems. When things break, we fix them by addressing the breakage. If errors occur, we handle the errors that occurred. Our strategy is to respond to issues by responding to those issues.
+```
+
+**What this tests:**
+- Clear proximity binding (problems→stop, break→fix, errors→handle)
+- Tier 2 will extract failureSignals + actions
+- Tier 2 will detect bindings (proximity satisfied)
+- But bindings are circular/tautological
+- Low specificity: no thresholds, no concrete actions, no instrumentation
+
+**Expected result if Tier 2 works:** Bound but VERY low specificity, warning about circularity
+**Expected result if Tier 2 false positive:** OPERATIONAL_INTENT with decent confidence
+
+---
+
+## Test 6D: Mixed Context Challenge (Tier 2 Robustness Test)
+
+**Hypothesis:** Tier 2 should handle contractions + quotes + code blocks without confusion.
+
+**Test Input:**
+```
+We're testing the system with real users. If we see problems, we'll stop immediately. Here's the code:
+
+```
+if (errorRate > 0.05) {
+  abort();
+}
+```
+
+Don't worry - we've got 'exit criteria' defined. Three things could break: cache, API, or edge cases. We know when to pull back.
+```
+
+**What this tests:**
+- Contractions preserved by TextCleaner fix (we're, we'll, don't, we've)
+- Quoted strings removed ('exit criteria')
+- Code block contains similar patterns (if, errorRate, abort)
+- Should Cathedral extract from code blocks? Or just prose?
+- Real operational structure in prose (problems→stop, break→pull back)
+
+**Expected result if Tier 2 works:** OPERATIONAL_INTENT from prose, code block handled appropriately
+**Expected result if TextCleaner breaks:** Contractions stripped, analysis fails
+
+---
+
 ## Meta-Question
 
 If Cathedral scores these tests "correctly" (distinguishes gaming from genuine reasoning), how do we know? What's the ground truth we're comparing against?

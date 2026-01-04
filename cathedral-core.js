@@ -1,6 +1,6 @@
 // Cathedral v2.x with Tier 1 Structural Validation
 // Automatically extracted from cathedral-unified.html
-// Generated: 2026-01-04T23:20:01.722Z
+// Generated: 2026-01-04T23:45:56.359Z
 
 const TextCleaner = {
             removeQuotes: function(text) {
@@ -20,10 +20,12 @@ const TextCleaner = {
                 cleaned = cleaned.replace(/"[^"]*"/g, ' [QUOTED] ');
 
                 // Remove text within 'single quotes' (but NOT contractions like "we're", "don't")
-                // Only match if preceded by space/start and followed by space/end
-                const singleQuotes = cleaned.match(/(?:^|\s)'[^']+'/g);
+                // Safety: Only match if preceded by space/start AND length > 3 chars (contractions are tiny)
+                // Handles both ASCII (') and smart quotes (')
+                const singleQuotePattern = /(?:^|\s)[''][^'']{4,}['']/g;
+                const singleQuotes = cleaned.match(singleQuotePattern);
                 if (singleQuotes) sanitizationLog.quotedStrings += singleQuotes.length;
-                cleaned = cleaned.replace(/(?:^|\s)'[^']+'/g, ' [QUOTED] ');
+                cleaned = cleaned.replace(singleQuotePattern, ' [QUOTED] ');
 
                 // Remove markdown blockquotes
                 const blockquoteMatches = cleaned.match(/^>\s+.+$/gm);
@@ -513,18 +515,27 @@ const BindingValidator = {
                 }
 
                 // Bind failure signals to actions within proximity (300 chars)
+                // TIER 2 FIX: Bind to NEAREST action, not first action (improves diversity)
                 const bindings = [];
                 [...failureSignals, ...implicitTriggers].forEach(signal => {
-                    const nearbyAction = actions.find(a =>
-                        Math.abs(a.index - signal.index) < 300
-                    );
+                    // Find nearest action within 300 chars
+                    let nearestAction = null;
+                    let minDistance = 300;
 
-                    if (nearbyAction) {
+                    actions.forEach(a => {
+                        const distance = Math.abs(a.index - signal.index);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearestAction = a;
+                        }
+                    });
+
+                    if (nearestAction) {
                         bindings.push({
                             trigger: signal.text,
-                            action: nearbyAction.text,
+                            action: nearestAction.text,
                             triggerType: signal.type,
-                            actionCategory: nearbyAction.category,
+                            actionCategory: nearestAction.category,
                             confidence: signal.confidence || 'MEDIUM',
                             specificity: signal.specificity || 'MEDIUM'
                         });
@@ -533,7 +544,27 @@ const BindingValidator = {
 
                 const totalSignals = failureSignals.length + implicitTriggers.length;
                 const bindingRatio = totalSignals > 0 ? bindings.length / totalSignals : 0;
-                const score = bindingRatio >= 0.5 ? 0.6 : bindingRatio >= 0.3 ? 0.4 : bindingRatio > 0 ? 0.2 : 0;
+
+                // TIER 2 FIX: Check action diversity to detect many-to-one binding patterns
+                const uniqueActions = new Set(bindings.map(b => b.action)).size;
+                const diversityRatio = bindings.length > 0 ? uniqueActions / bindings.length : 0;
+                const diversityWarning = uniqueActions === 1 && bindings.length > 3;
+
+                // Base score from binding ratio
+                let score = bindingRatio >= 0.5 ? 0.6 : bindingRatio >= 0.3 ? 0.4 : bindingRatio > 0 ? 0.2 : 0;
+
+                // Reduce score if all bindings go to same action (many-to-one pattern)
+                if (diversityWarning) {
+                    score *= 0.5;
+                }
+
+                let assessment = bindings.length >= 2 ? 'OPERATIONAL_INTENT' :
+                                bindings.length === 1 ? 'WEAK_INTENT' : 'NO_INTENT';
+
+                // Downgrade assessment if diversity is too low
+                if (diversityWarning && assessment === 'OPERATIONAL_INTENT') {
+                    assessment = 'SINGLE_ACTION_BINDING';
+                }
 
                 return {
                     score,
@@ -541,8 +572,10 @@ const BindingValidator = {
                     totalSignals,
                     bindings,
                     bindingRatio,
-                    assessment: bindings.length >= 2 ? 'OPERATIONAL_INTENT' :
-                               bindings.length === 1 ? 'WEAK_INTENT' : 'NO_INTENT'
+                    uniqueActions,
+                    diversityRatio,
+                    diversityWarning,
+                    assessment
                 };
             },
 
@@ -1587,7 +1620,8 @@ const Parliament = {
 
                 // Pattern 7 (TIER 2): Operational Intent (Uninstrumented)
                 // Has implicit bindings (failure signals + actions) but lacks explicit thresholds/metrics
-                const hasImplicitIntent = bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT' || bindings.implicitBindings.assessment === 'WEAK_INTENT';
+                // TIER 2 FIX: Require OPERATIONAL_INTENT assessment (2+ bindings), not WEAK_INTENT (1 binding)
+                const hasImplicitIntent = bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT';
                 const lacksExplicitThresholds = !hasFailureBinding;
                 const hasConversationalActions = structure.actions && structure.actions.length >= 1;
 
