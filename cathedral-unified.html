@@ -281,6 +281,11 @@
             color: #0a0a0a;
         }
 
+        .confidence.mediumhigh {
+            background: #ffaa00;
+            color: #0a0a0a;
+        }
+
         .confidence.low {
             background: #4ecdc4;
             color: #0a0a0a;
@@ -1164,7 +1169,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // Check if detected elements actually relate to each other
 
                 // Check if failure modes connect to thresholds
-                const namedFailures = failureMode.details.failureModes.named || 0;
+                const namedFailures = failureMode.details.failureModes.explicit || 0;
                 const thresholds = failureMode.details.failureModes.thresholds || 0;
                 const correctiveActions = failureMode.details.failureModes.correctiveAction || 0;
 
@@ -1716,7 +1721,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         <div class="challenge">
                             <div class="challenge-title">
                                 ${i + 1}. ${challenge.premise}
-                                <span class="confidence ${challenge.confidence.toLowerCase().replace('-', ' ')}">${challenge.confidence}</span>
+                                <span class="confidence ${challenge.confidence.toLowerCase().replace(/[^a-z]/g,'')}">${challenge.confidence}</span>
                             </div>
                             <div style="margin: 0.75rem 0;"><strong>Challenge:</strong> ${challenge.challenge}</div>
                             <div class="evidence"><strong>Evidence:</strong> ${challenge.evidence}</div>
@@ -2387,13 +2392,44 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             // PARLIAMENT
             report += '───────────────────────────────────────────────────────────────\n';
-            report += '🏛️ PARLIAMENT - Multi-Perspective Synthesis\n';
+            report += '🏛️ PARLIAMENT - Cross-Cutting Pattern Synthesis\n';
             report += '───────────────────────────────────────────────────────────────\n\n';
 
-            parliament.forEach(vector => {
-                report += `${vector.name} (${(vector.confidence * 100).toFixed(0)}% confidence):\n`;
-                report += `  ${vector.perspective}\n\n`;
-            });
+            report += `Parliament Confidence: ${(parliament.confidence * 100).toFixed(0)}%\n\n`;
+
+            if (parliament.patterns && parliament.patterns.length > 0) {
+                report += 'Detected Patterns:\n';
+                parliament.patterns.forEach((p, i) => {
+                    report += `\n  ${i + 1}. ${p.name.replace(/_/g, ' ')}\n`;
+                    report += `     ${p.description}\n`;
+                    report += `     Confidence: ${(p.confidence * 100).toFixed(0)}%\n`;
+                    report += `     Dimensions: ${Object.entries(p.dimensions).map(([k,v]) =>
+                        `${k}=${typeof v === 'number' ? v.toFixed(2) : v}`
+                    ).join(', ')}\n`;
+                });
+                report += '\n';
+            } else {
+                report += 'Detected Patterns: none\n\n';
+            }
+
+            if (parliament.emergentInsights && parliament.emergentInsights.length > 0) {
+                report += 'Emergent Insights:\n';
+                parliament.emergentInsights.forEach((ins, i) => {
+                    report += `\n  ${i + 1}. ${ins.insight}\n`;
+                    report += `     Implication: ${ins.implication}\n`;
+                    report += `     Confidence: ${(ins.confidence * 100).toFixed(0)}%\n`;
+                });
+                report += '\n';
+            }
+
+            if (parliament.coherenceIssues && parliament.coherenceIssues.length > 0) {
+                report += 'Coherence Issues:\n';
+                parliament.coherenceIssues.forEach((issue, i) => {
+                    report += `\n  ${i + 1}. [${issue.severity}] ${issue.issue}\n`;
+                    report += `     ${issue.detail}\n`;
+                });
+                report += '\n';
+            }
 
             // VERDICT
             report += '───────────────────────────────────────────────────────────────\n';
