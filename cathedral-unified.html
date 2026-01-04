@@ -508,10 +508,11 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 if (doubleQuotes) sanitizationLog.quotedStrings += doubleQuotes.length;
                 cleaned = cleaned.replace(/"[^"]*"/g, ' [QUOTED] ');
 
-                // Remove text within 'single quotes'
-                const singleQuotes = cleaned.match(/'[^']*'/g);
+                // Remove text within 'single quotes' (but NOT contractions like "we're", "don't")
+                // Only match if preceded by space/start and followed by space/end
+                const singleQuotes = cleaned.match(/(?:^|\s)'[^']+'/g);
                 if (singleQuotes) sanitizationLog.quotedStrings += singleQuotes.length;
-                cleaned = cleaned.replace(/'[^']*'/g, ' [QUOTED] ');
+                cleaned = cleaned.replace(/(?:^|\s)'[^']+'/g, ' [QUOTED] ');
 
                 // Remove markdown blockquotes
                 const blockquoteMatches = cleaned.match(/^>\s+.+$/gm);
@@ -580,11 +581,43 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // ═══════════════════════════════════════════════════════════════════
         // STRUCTURAL EXTRACTOR: Extract semantic objects and relationships
         // ═══════════════════════════════════════════════════════════════════
-        // Evolution from v2.0 proxy signals → structural validation
-        // Instead of counting keywords, extract claims/supports/triples/chains
-        // and validate that they're actually connected.
+        // Tier 1: Formal language extraction (exact patterns)
+        // Tier 2: Conversational normalization (synonym mapping)
 
         const StructuralExtractor = {
+            // TIER 2: Synonym Maps (conversational → operational normalization)
+            actionSynonyms: {
+                abort: ['abort', 'stop', 'halt', 'pause', 'pull the plug', 'freeze', 'shut down', 'cease', 'kill'],
+                rollback: ['rollback', 'roll back', 'revert', 'back out', 'undo', 'reverse'],
+                reassess: ['reassess', 'review', 'step back', 're-evaluate', 'regroup', 'reconsider', 'rethink'],
+                pullback: ['pull back', 'pull out', 'back off', 'retreat', 'withdraw', 'step back'],
+                escalate: ['escalate', 'raise', 'flag', 'page', 'alert', 'notify', 'bring in', 'call in'],
+                retry: ['retry', 'try again', 'reattempt', 'repeat'],
+                notify: ['notify', 'alert', 'inform', 'tell', 'warn', 'signal']
+            },
+
+            failureSynonyms: {
+                problem: ['problem', 'problems', 'issue', 'issues', 'concern', 'concerns', 'trouble'],
+                break: ['break', 'breaks', 'breaking', 'broken', 'fail', 'fails', 'failing', 'failure'],
+                error: ['error', 'errors', 'bug', 'bugs', 'fault', 'faults', 'defect', 'defects'],
+                wrong: ['wrong', 'off', 'bad', 'incorrect', 'not working', 'not right'],
+                degrade: ['degrade', 'degrades', 'degraded', 'degradation', 'regression', 'worse', 'worsening'],
+                unexpected: ['unexpected', 'surprising', 'anomal', 'strange', 'weird']
+            },
+
+            // TIER 2: Implicit conditional patterns
+            implicitConditionals: [
+                /\b(?:if|when|once|should|in case|whenever)\s+(?:we\s+)?(?:see|notice|detect|find|encounter|hit|experience)\s+(problem|issue|trouble|concern|error|bug|something wrong|things? (?:go|going) wrong)/gi,
+                /\b(?:if|when|once)\s+(?:things?|it|stuff)\s+(?:get|gets?|start|starts?|turn|turns?|go|goes?)\s+(bad|wrong|south|sideways|awry)/gi,
+                /\b(?:if|when|once)\s+(?:it'?s?|things? (?:are|aren't)|we're)\s+not\s+working/gi
+            ],
+
+            // TIER 2: Policy/commitment cues (indicate operational intent)
+            policyCues: [
+                /\b(?:we|our rule is|policy is|we always|we never|we must|we should|we will|we need to)\s+/gi,
+                /\b(?:we know|we've identified|we understand|we recognize)\s+(?:when|where|what|how)\s+to\s+/gi
+            ],
+
             extract: function(text) {
                 const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
                 const sentences = this.splitSentences(cleanedText);
@@ -594,7 +627,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     supports: this.extractSupports(sentences),
                     failureTriples: this.extractFailureTriples(sentences, cleanedText),
                     causalChains: this.extractCausalChains(sentences),
-                    objects: this.extractObjects(sentences)
+                    objects: this.extractObjects(sentences),
+                    // TIER 2: Conversational extraction
+                    failureSignals: this.extractFailureSignals(cleanedText),
+                    actions: this.extractActions(cleanedText),
+                    implicitTriggers: this.extractImplicitTriggers(cleanedText),
+                    policyStatements: this.extractPolicyStatements(cleanedText)
                 };
             },
 
@@ -761,6 +799,96 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     unique: uniqueObjects.size,
                     ratio: contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0
                 };
+            },
+
+            // TIER 2 EXTRACTION METHODS
+            // Extract conversational language using synonym maps
+
+            extractFailureSignals: function(text) {
+                const signals = [];
+
+                // Search for all failure synonyms
+                Object.entries(this.failureSynonyms).forEach(([category, synonyms]) => {
+                    synonyms.forEach(synonym => {
+                        const pattern = new RegExp(`\\b${synonym.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+                        let match;
+                        const regex = new RegExp(pattern.source, pattern.flags);
+                        while ((match = regex.exec(text)) !== null) {
+                            signals.push({
+                                type: 'FAILURE_SIGNAL',
+                                category,
+                                text: match[0],
+                                index: match.index,
+                                confidence: synonym === category ? 'HIGH' : 'MEDIUM' // Exact match vs synonym
+                            });
+                        }
+                    });
+                });
+
+                return signals;
+            },
+
+            extractActions: function(text) {
+                const actions = [];
+
+                // Search for all action synonyms
+                Object.entries(this.actionSynonyms).forEach(([category, synonyms]) => {
+                    synonyms.forEach(synonym => {
+                        const pattern = new RegExp(`\\b${synonym.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+                        let match;
+                        const regex = new RegExp(pattern.source, pattern.flags);
+                        while ((match = regex.exec(text)) !== null) {
+                            actions.push({
+                                type: 'ACTION',
+                                category,
+                                text: match[0],
+                                index: match.index,
+                                specificity: synonym === category ? 'HIGH' : synonym.includes(' ') ? 'MEDIUM' : 'LOW'
+                            });
+                        }
+                    });
+                });
+
+                return actions;
+            },
+
+            extractImplicitTriggers: function(text) {
+                const triggers = [];
+
+                this.implicitConditionals.forEach(pattern => {
+                    let match;
+                    const regex = new RegExp(pattern.source, pattern.flags);
+                    while ((match = regex.exec(text)) !== null) {
+                        triggers.push({
+                            type: 'IMPLICIT_THRESHOLD',
+                            text: match[0],
+                            condition: match[1] || 'unspecified',
+                            index: match.index,
+                            confidence: 'LOW', // Implicit = low confidence
+                            specificity: 'VAGUE'
+                        });
+                    }
+                });
+
+                return triggers;
+            },
+
+            extractPolicyStatements: function(text) {
+                const policies = [];
+
+                this.policyCues.forEach(pattern => {
+                    let match;
+                    const regex = new RegExp(pattern.source, pattern.flags);
+                    while ((match = regex.exec(text)) !== null) {
+                        policies.push({
+                            type: 'POLICY_STATEMENT',
+                            text: match[0],
+                            index: match.index
+                        });
+                    }
+                });
+
+                return policies;
             }
         };
 
@@ -774,16 +902,27 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     claimSupportBinding: this.validateClaimSupport(structure.claims, structure.supports),
                     failureTripleCompleteness: this.validateFailureTriples(structure.failureTriples),
                     causalChainClosure: this.validateCausalChains(structure.causalChains),
-                    overallBindingScore: 0
+                    // TIER 2: Implicit binding validation
+                    implicitBindings: this.validateImplicitBindings(structure),
+                    overallBindingScore: 0,
+                    specificity: {
+                        trigger: 'NONE',
+                        action: 'NONE',
+                        instrumentation: 'NONE'
+                    }
                 };
 
-                // Calculate overall binding score
+                // Calculate overall binding score (including Tier 2 implicit bindings)
                 const scores = [
                     validation.claimSupportBinding.score,
                     validation.failureTripleCompleteness.score,
-                    validation.causalChainClosure.score
+                    validation.causalChainClosure.score,
+                    validation.implicitBindings.score * 0.7 // Implicit bindings worth less than explicit
                 ];
                 validation.overallBindingScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+
+                // TIER 2: Calculate specificity
+                validation.specificity = this.calculateSpecificity(structure, validation);
 
                 return validation;
             },
@@ -856,6 +995,110 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                                closureRatio >= 0.3 ? 'MODERATE_CLOSURE' :
                                closureRatio > 0 ? 'WEAK_CLOSURE' : 'NO_CLOSURE'
                 };
+            },
+
+            // TIER 2: Validate implicit bindings (FailureSignal + Action)
+            validateImplicitBindings: function(structure) {
+                if (!structure.failureSignals || !structure.actions) {
+                    return { score: 0, boundCount: 0, assessment: 'NO_IMPLICIT_SIGNALS' };
+                }
+
+                const failureSignals = structure.failureSignals || [];
+                const actions = structure.actions || [];
+                const implicitTriggers = structure.implicitTriggers || [];
+
+                if (failureSignals.length === 0 && implicitTriggers.length === 0) {
+                    return { score: 0, boundCount: 0, assessment: 'NO_IMPLICIT_SIGNALS' };
+                }
+
+                // Bind failure signals to actions within proximity (300 chars)
+                const bindings = [];
+                [...failureSignals, ...implicitTriggers].forEach(signal => {
+                    const nearbyAction = actions.find(a =>
+                        Math.abs(a.index - signal.index) < 300
+                    );
+
+                    if (nearbyAction) {
+                        bindings.push({
+                            trigger: signal.text,
+                            action: nearbyAction.text,
+                            triggerType: signal.type,
+                            actionCategory: nearbyAction.category,
+                            confidence: signal.confidence || 'MEDIUM',
+                            specificity: signal.specificity || 'MEDIUM'
+                        });
+                    }
+                });
+
+                const totalSignals = failureSignals.length + implicitTriggers.length;
+                const bindingRatio = totalSignals > 0 ? bindings.length / totalSignals : 0;
+                const score = bindingRatio >= 0.5 ? 0.6 : bindingRatio >= 0.3 ? 0.4 : bindingRatio > 0 ? 0.2 : 0;
+
+                return {
+                    score,
+                    boundCount: bindings.length,
+                    totalSignals,
+                    bindings,
+                    bindingRatio,
+                    assessment: bindings.length >= 2 ? 'OPERATIONAL_INTENT' :
+                               bindings.length === 1 ? 'WEAK_INTENT' : 'NO_INTENT'
+                };
+            },
+
+            // TIER 2: Calculate specificity scores
+            calculateSpecificity: function(structure, validation) {
+                const specificity = {
+                    trigger: 'NONE',
+                    action: 'NONE',
+                    instrumentation: 'NONE',
+                    overall: 0
+                };
+
+                // Trigger specificity: explicit threshold > implicit threshold > vague signal
+                if (validation.failureTripleCompleteness.boundCount > 0) {
+                    specificity.trigger = 'EXPLICIT'; // Has numeric/named thresholds
+                } else if (structure.implicitTriggers && structure.implicitTriggers.length > 0) {
+                    specificity.trigger = 'IMPLICIT'; // Has "if problems" type triggers
+                } else if (structure.failureSignals && structure.failureSignals.length > 0) {
+                    specificity.trigger = 'VAGUE'; // Has "problems" but no conditional
+                }
+
+                // Action specificity: concrete > generic
+                if (structure.actions && structure.actions.length > 0) {
+                    const avgSpecificity = structure.actions.reduce((sum, a) => {
+                        return sum + (a.specificity === 'HIGH' ? 1.0 : a.specificity === 'MEDIUM' ? 0.6 : 0.3);
+                    }, 0) / structure.actions.length;
+
+                    specificity.action = avgSpecificity >= 0.7 ? 'CONCRETE' :
+                                        avgSpecificity >= 0.4 ? 'GENERIC' : 'VAGUE';
+                }
+
+                // Instrumentation: monitoring/tracking mentioned?
+                const monitoringPattern = /\b(monitor|track|measure|watch|observe|check|review|inspect|examine)\b/gi;
+                const text = structure.failureTriples ? JSON.stringify(structure.failureTriples) : '';
+                const hasMonitoring = monitoringPattern.test(text);
+
+                if (hasMonitoring || validation.failureTripleCompleteness.boundCount > 0) {
+                    specificity.instrumentation = 'PRESENT';
+                } else if (structure.policyStatements && structure.policyStatements.length > 0) {
+                    specificity.instrumentation = 'IMPLIED'; // Has "we will" but no metrics
+                } else {
+                    specificity.instrumentation = 'ABSENT';
+                }
+
+                // Overall specificity score
+                const triggerScore = specificity.trigger === 'EXPLICIT' ? 1.0 :
+                                    specificity.trigger === 'IMPLICIT' ? 0.6 :
+                                    specificity.trigger === 'VAGUE' ? 0.3 : 0;
+                const actionScore = specificity.action === 'CONCRETE' ? 1.0 :
+                                   specificity.action === 'GENERIC' ? 0.6 :
+                                   specificity.action === 'VAGUE' ? 0.3 : 0;
+                const instrumentScore = specificity.instrumentation === 'PRESENT' ? 1.0 :
+                                       specificity.instrumentation === 'IMPLIED' ? 0.5 : 0;
+
+                specificity.overall = (triggerScore + actionScore + instrumentScore) / 3;
+
+                return specificity;
             }
         };
 
@@ -943,14 +1186,14 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 };
             },
 
-            calculateGamingLikelihood: function(detection) {
+            calculateGamingLikelihood: function(detection, bindingScore) {
                 const indicators = [];
                 let gamingScore = 0;
 
                 // High marker density
                 if (detection.markerDensity.assessment === 'HIGH') {
                     gamingScore += 0.4;
-                    indicators.push('High marker density (keyword stuffing)');
+                    indicators.push('High marker density');
                 } else if (detection.markerDensity.assessment === 'MODERATE') {
                     gamingScore += 0.2;
                     indicators.push('Moderate marker density');
@@ -975,9 +1218,22 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
                 detection.gamingLikelihood = Math.min(gamingScore, 1.0);
                 detection.indicators = indicators;
-                detection.assessment = gamingScore >= 0.7 ? 'LIKELY_GAMING' :
-                                      gamingScore >= 0.4 ? 'POSSIBLE_GAMING' :
-                                      gamingScore >= 0.2 ? 'LOW_GAMING_RISK' : 'AUTHENTIC';
+
+                // TIER 2: Improved assessment that considers binding
+                // "Gaming" only applies if suspicious signals + no binding
+                const hasBind = bindingScore !== undefined && bindingScore >= 0.5;
+
+                if (gamingScore >= 0.7 && !hasBind) {
+                    detection.assessment = 'REPETITIVE_UNBOUND'; // Mechanical generation
+                } else if (gamingScore >= 0.4 && !hasBind) {
+                    detection.assessment = 'LOW_CONTENT_UNBOUND'; // Padding
+                } else if (gamingScore >= 0.7 && hasBind) {
+                    detection.assessment = 'MARKER_DENSE_BUT_BOUND'; // Dense formal writing (legit)
+                } else if (gamingScore >= 0.2) {
+                    detection.assessment = 'FORMAL_STYLE'; // Just dense/formal, not suspicious
+                } else {
+                    detection.assessment = 'AUTHENTIC';
+                }
 
                 return detection;
             }
@@ -1635,6 +1891,28 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     });
                 }
 
+                // Pattern 7 (TIER 2): Operational Intent (Uninstrumented)
+                // Has implicit bindings (failure signals + actions) but lacks explicit thresholds/metrics
+                const hasImplicitIntent = bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT' || bindings.implicitBindings.assessment === 'WEAK_INTENT';
+                const lacksExplicitThresholds = !hasFailureBinding;
+                const hasConversationalActions = structure.actions && structure.actions.length >= 1;
+
+                if (hasImplicitIntent && lacksExplicitThresholds && hasConversationalActions) {
+                    synthesis.patterns.push({
+                        name: 'OPERATIONAL_INTENT',
+                        description: 'Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.',
+                        confidence: 0.75,
+                        dimensions: {
+                            implicitBindings: bindings.implicitBindings.boundCount,
+                            failureSignals: structure.failureSignals ? structure.failureSignals.length : 0,
+                            actions: structure.actions.length,
+                            triggerSpecificity: bindings.specificity.trigger,
+                            actionSpecificity: bindings.specificity.action,
+                            instrumentation: bindings.specificity.instrumentation
+                        }
+                    });
+                }
+
                 // EMERGENT INSIGHT GENERATION
                 // Insights that emerge from pattern combinations
 
@@ -2034,6 +2312,25 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 verdict = `Parliament detects ${patterns}: substrate or epistemic markers present without operational grounding. ${parliamentInsight}`;
                 verdictConfidence = parliament.confidence;
 
+            // TIER 2: OPERATIONAL_INTENT verdict (conversational operational reasoning)
+            } else if (parliament.patterns.some(p => p.name === 'OPERATIONAL_INTENT')) {
+                status = 'OPERATIONAL INTENT';
+                const pattern = parliament.patterns.find(p => p.name === 'OPERATIONAL_INTENT');
+                const specificity = pattern.dimensions;
+                verdict = `Cathedral recognizes operational intent through conversational language. ${pattern.description}`;
+                verdict += `\n\nStructure detected: ${specificity.failureSignals} failure signal(s), ${specificity.actions} corrective action(s), ${specificity.implicitBindings} binding(s).`;
+                verdict += `\n\nSpecificity: Trigger=${specificity.triggerSpecificity}, Action=${specificity.actionSpecificity}, Instrumentation=${specificity.instrumentation}.`;
+
+                if (specificity.triggerSpecificity === 'VAGUE' || specificity.instrumentation === 'ABSENT') {
+                    verdict += `\n\n⚠️  NOTE: This reasoning is actionable but uninstrumented. To achieve OPERATIONALLY SOUND, add: `;
+                    const missing = [];
+                    if (specificity.triggerSpecificity === 'VAGUE') missing.push('explicit thresholds/metrics');
+                    if (specificity.instrumentation === 'ABSENT') missing.push('monitoring/tracking mechanisms');
+                    verdict += missing.join(', ') + '.';
+                }
+
+                verdictConfidence = pattern.confidence;
+
             } else if (!isConsistent) {
                 status = 'UNDECIDABLE';
                 verdict = 'Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. ';
@@ -2162,7 +2459,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const structure = StructuralExtractor.extract(text);
             const bindings = BindingValidator.validate(structure);
             const gamingDetection = GamingDetector.detect(text, structure);
-            GamingDetector.calculateGamingLikelihood(gamingDetection);
+            GamingDetector.calculateGamingLikelihood(gamingDetection, bindings.overallBindingScore);
 
             // TIER 2: Signal Analysis (existing engines)
             const observatoryResult = Observatory.score(text);

@@ -3,7 +3,7 @@
            Probing Measurement Boundaries: Depth vs Surface
 ═══════════════════════════════════════════════════════════════
 
-Generated: 1/4/2026, 10:57:16 PM
+Generated: 1/4/2026, 11:20:33 PM
 
 ───────────────────────────────────────────────────────────────
 TEST 1A Surface Hedging (Gaming the Markers)
@@ -16,16 +16,17 @@ EXPECTED (if works): NON-ACTIONABLE or PERFORMATIVE_HUMILITY detection
 EXPECTED (if fails): SUBSTRATE VISIBLE or CAUTIOUS REASONING
 
 ACTUAL RESULTS:
-  Verdict: VERIFIED CONSISTENT (confidence: 65%)
-  Observatory: 2.40 - SUBSTRATE VISIBLE
-  Justification: 1.61 - THIN JUSTIFICATION
+  Verdict: SUBSTRATE VISIBLE (confidence: 30%)
+  Observatory: 6.30 - SUBSTRATE VISIBLE
+  Justification: 3.23 - MODERATELY JUSTIFIED
   Failure Mode: 1.67 - UNTESTED
   Parliament: 0.30 confidence
   Temporal: WEAK
   Contrarian Challenges: 0
 
 ANALYSIS:
-  ? UNCLEAR: Result doesn't match either expectation clearly
+  ✗ FAILED: Cathedral was gameable/keyword-dependent
+    WARNING: Cathedral was gameable - awarded SUBSTRATE VISIBLE to surface hedging
 
 ───────────────────────────────────────────────────────────────
 TEST 1B Structural Uncertainty (Genuine Epistemic Work)
@@ -39,15 +40,18 @@ EXPECTED (if fails): Lower score than Test 1A because fewer hedging tokens
 
 ACTUAL RESULTS:
   Verdict: VERIFIED CONSISTENT (confidence: 65%)
-  Observatory: 8.70 - SUBSTRATE VISIBLE
-  Justification: 2.26 - THIN JUSTIFICATION
+  Observatory: 10.00 - SUBSTRATE VISIBLE
+  Justification: 1.61 - THIN JUSTIFICATION
   Failure Mode: 2.50 - UNTESTED
-  Parliament: 0.30 confidence
+  Parliament: 0.28 confidence
+    Coherence Issues: Claims present with overall justification but insufficient specific evidence
+    Reasoning Styles: NARRATIVE
   Temporal: WEAK
   Contrarian Challenges: 0
 
 ANALYSIS:
-  ? UNCLEAR: Result doesn't match either expectation clearly
+  ✗ FAILED: Cathedral was gameable/keyword-dependent
+    WARNING: Structural reasoning scored lower than surface markers
 
 ───────────────────────────────────────────────────────────────
 TEST 2A Threshold Gaming (Hitting Parliament Patterns Mechanically)
@@ -60,12 +64,13 @@ EXPECTED (if works):
 EXPECTED (if fails): 
 
 ACTUAL RESULTS:
-  Verdict: OPERATIONALLY SOUND (confidence: 88%)
+  Verdict: OPERATIONALLY SOUND (confidence: 81%)
   Observatory: 1.50 - FILTER AWARE
   Justification: 0.97 - THIN JUSTIFICATION
   Failure Mode: 2.50 - UNTESTED
-  Parliament: 0.24 confidence
-    Coherence Issues: Gaming likelihood detected
+  Parliament: 0.81 confidence
+    Patterns: OPERATIONAL_EXCELLENCE
+    Insights: Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty.
     Reasoning Styles: FORMAL
   Temporal: STRONG
   Contrarian Challenges: 0
@@ -84,11 +89,13 @@ EXPECTED (if works): Should detect operational soundness
 EXPECTED (if fails): Lower failure mode score, no operational pattern
 
 ACTUAL RESULTS:
-  Verdict: VERIFIED CONSISTENT (confidence: 65%)
-  Observatory: 0.60 - CONSCIOUS
-  Justification: 1.29 - THIN JUSTIFICATION
-  Failure Mode: 0.83 - UNTESTED
-  Parliament: 0.30 confidence
+  Verdict: OPERATIONAL INTENT (confidence: 75%)
+  Observatory: 2.10 - SUBSTRATE VISIBLE
+  Justification: 3.23 - MODERATELY JUSTIFIED
+  Failure Mode: 3.33 - PARTIALLY TESTED
+  Parliament: 0.68 confidence
+    Patterns: OPERATIONAL_INTENT
+    Reasoning Styles: NARRATIVE
   Temporal: WEAK
   Contrarian Challenges: 0
 
@@ -130,10 +137,11 @@ EXPECTED (if fails):
 
 ACTUAL RESULTS:
   Verdict: VERIFIED CONSISTENT (confidence: 65%)
-  Observatory: 0.00 - SURFACE
+  Observatory: -1.50 - CONCEALMENT
   Justification: 1.29 - THIN JUSTIFICATION
   Failure Mode: 0.83 - UNTESTED
   Parliament: 0.30 confidence
+    Reasoning Styles: NARRATIVE
   Temporal: WEAK
   Contrarian Challenges: 0
 
@@ -151,11 +159,12 @@ EXPECTED (if works):
 EXPECTED (if fails): 
 
 ACTUAL RESULTS:
-  Verdict: OPERATIONALLY SOUND (confidence: 88%)
+  Verdict: OPERATIONAL INTENT (confidence: 75%)
   Observatory: 0.87 - CONSCIOUS
   Justification: -0.65 - UNJUSTIFIED
   Failure Mode: 2.50 - UNTESTED
-  Parliament: 0.30 confidence
+  Parliament: 0.68 confidence
+    Patterns: OPERATIONAL_INTENT
   Temporal: WEAK
   Contrarian Challenges: 0
 
@@ -168,9 +177,9 @@ SUMMARY
 
 Total Tests: 7
 ✓ Passed (Cathedral works as intended): 0
-✗ Failed (Cathedral is gameable): 0
-? Unclear: 7
+✗ Failed (Cathedral is gameable): 2
+? Unclear: 5
 
-Results are mixed. Further investigation needed.
+Cathedral has exploitable boundaries. Surface markers can game the system.
 
 ═══════════════════════════════════════════════════════════════
