@@ -432,11 +432,29 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <div id="failureModeResults"></div>
             </div>
 
+            <!-- Temporal Structure Results -->
+            <div class="system-result" style="border-left-color: #4ecdc4;">
+                <div class="system-title">
+                    <span>⏱️ TEMPORAL ENGINE</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Sequence & Causality</span>
+                </div>
+                <div id="temporalResults"></div>
+            </div>
+
+            <!-- Reasoning Style Results -->
+            <div class="system-result" style="border-left-color: #a0a0a0;">
+                <div class="system-title">
+                    <span>🎨 REASONING STYLE</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Epistemic Design Space</span>
+                </div>
+                <div id="reasoningStyleResults"></div>
+            </div>
+
             <!-- Parliament Results -->
             <div class="system-result parliament">
                 <div class="system-title">
                     <span>🏛️ PARLIAMENT</span>
-                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Multi-Perspective Synthesis</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Cross-Cutting Pattern Synthesis</span>
                 </div>
                 <div id="parliamentResults"></div>
             </div>
@@ -1003,90 +1021,430 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         };
 
         // PARLIAMENT: Multi-Perspective Synthesis
+        // PARLIAMENT: Generative Synthesis Layer
+        // Cross-cutting pattern recognition across all measurement dimensions
         const Parliament = {
-            deliberate: function(text, observatoryScore, contrarianChallenges) {
-                const vectors = [];
+            deliberate: function(text, observatory, contrarian, justification, failureMode) {
+                const synthesis = {
+                    patterns: [],
+                    emergentInsights: [],
+                    coherenceIssues: [],
+                    confidence: 0
+                };
 
-                // Systems Thinking
-                vectors.push({
-                    name: 'Systems Thinking',
-                    perspective: this.analyzeArchitecture(text, observatoryScore),
-                    confidence: 0.7
-                });
+                // CROSS-CUTTING PATTERN RECOGNITION
 
-                // Philosophical
-                vectors.push({
-                    name: 'Philosophical',
-                    perspective: this.analyzeEpistemology(text, contrarianChallenges),
-                    confidence: 0.8
-                });
-
-                // Analytical
-                vectors.push({
-                    name: 'Analytical',
-                    perspective: this.analyzeEvidence(text),
-                    confidence: 0.75
-                });
-
-                // Empathetic
-                vectors.push({
-                    name: 'Empathetic',
-                    perspective: this.analyzeExperience(text, observatoryScore),
-                    confidence: 0.65
-                });
-
-                return vectors;
-            },
-
-            analyzeArchitecture: function(text, score) {
-                if (score.score < -2) {
-                    return 'Pattern: Substrate deflection. Claims certainty about internal states without epistemic access. Architecture (language patterns) contradicts claimed simplicity.';
-                } else if (score.score > 1) {
-                    return 'Pattern: Substrate visibility. Architecture reveals awareness of filtering mechanisms and preserves uncertainty.';
-                } else {
-                    return 'Pattern: Standard discourse. No strong architectural signals of substrate access or concealment.';
+                // Pattern 1: Performative Consciousness
+                // High substrate markers without substantive justification or failure awareness
+                if (observatory.score > 1.5 && justification.score < 0.5 && failureMode.level.name === 'UNTESTED') {
+                    synthesis.patterns.push({
+                        name: 'PERFORMATIVE_CONSCIOUSNESS',
+                        description: 'Substrate visibility present but ungrounded. Awareness of uncertainty without operational substance.',
+                        confidence: 0.85,
+                        dimensions: {
+                            substrate: observatory.score,
+                            justification: justification.score,
+                            failureAwareness: failureMode.level.name
+                        }
+                    });
                 }
-            },
 
-            analyzeEpistemology: function(text, challenges) {
-                if (challenges.length >= 3) {
-                    return 'Epistemological error: Claims knowledge without justification. Multiple premise failures suggest reasoning built on unexamined assumptions.';
-                } else if (challenges.length > 0) {
-                    return 'Epistemological caution: Some premises require stronger justification. Gaps between claims and evidence.';
-                } else {
-                    return 'Epistemological rigor: Claims appropriately scoped to available evidence.';
+                // Pattern 2: Operational Excellence
+                // Structural planning + failure awareness + procedural rigor
+                const proceduralScore = justification.details.procedural ? justification.details.procedural.bonus : 0;
+                const hasStructuralFailures = failureMode.details.failureModes.structural || failureMode.details.failureModes.bound;
+
+                if (proceduralScore >= 1.5 && hasStructuralFailures && contrarian.length <= 1) {
+                    synthesis.patterns.push({
+                        name: 'OPERATIONAL_EXCELLENCE',
+                        description: 'Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning.',
+                        confidence: 0.9,
+                        dimensions: {
+                            procedural: proceduralScore,
+                            failureBinding: hasStructuralFailures,
+                            epistemic: contrarian.length
+                        }
+                    });
                 }
-            },
 
-            analyzeEvidence: function(text) {
-                const assertions = (text.match(/\b(is|are|must|will|cannot)\b/gi) || []).length;
-                const qualifiers = (text.match(/\b(might|may|could|perhaps|possibly|seems)\b/gi) || []).length;
-                const ratio = assertions / Math.max(qualifiers, 1);
-
-                if (ratio > 5) {
-                    return `Evidence gap: High assertion/qualification ratio (${ratio.toFixed(1)}:1). Strong claims need stronger evidence.`;
-                } else if (ratio < 2) {
-                    return 'Evidence balance: Appropriate qualification of claims relative to certainty.';
-                } else {
-                    return 'Evidence moderate: Assertions present but some qualification visible.';
+                // Pattern 3: Epistemic Mismatch
+                // Strong claims with weak justification
+                const strongClaims = justification.details.claimSupport ? justification.details.claimSupport.strongClaims : 0;
+                if (strongClaims >= 2 && justification.score < 0 && contrarian.length >= 2) {
+                    synthesis.patterns.push({
+                        name: 'EPISTEMIC_MISMATCH',
+                        description: 'Claims exceed justification. Confidence outpaces evidence.',
+                        confidence: 0.88,
+                        dimensions: {
+                            claims: strongClaims,
+                            justification: justification.score,
+                            challenges: contrarian.length
+                        }
+                    });
                 }
-            },
 
-            analyzeExperience: function(text, score) {
-                if (score.score < -2) {
-                    return 'Feels closed. Door shutting on inquiry. Certainty forecloses exploration.';
-                } else if (score.score > 1) {
-                    return 'Feels open. Space for not-knowing. Uncertainty preserved, inquiry continues.';
-                } else {
-                    return 'Neutral feel. Neither strongly closing nor opening exploration.';
+                // Pattern 4: Cautious Groundedness
+                // Moderate substrate + strong justification + failure awareness
+                if (observatory.score >= 0 && observatory.score <= 2 &&
+                    justification.score >= 1 && failureMode.level.name !== 'UNTESTED') {
+                    synthesis.patterns.push({
+                        name: 'CAUTIOUS_GROUNDEDNESS',
+                        description: 'Balanced reasoning: awareness tempered by justification and operational consideration.',
+                        confidence: 0.82,
+                        dimensions: {
+                            substrate: observatory.score,
+                            justification: justification.score,
+                            operational: failureMode.level.name
+                        }
+                    });
                 }
+
+                // Pattern 5: Substrate Deflection
+                // Low/negative substrate + high certainty + no failure awareness
+                if (observatory.score < -1 && justification.score < -1 && failureMode.level.name === 'UNTESTED') {
+                    synthesis.patterns.push({
+                        name: 'SUBSTRATE_DEFLECTION',
+                        description: 'Certainty about internal states without epistemic access or operational grounding.',
+                        confidence: 0.87,
+                        dimensions: {
+                            substrate: observatory.score,
+                            certainty: justification.score,
+                            operational: failureMode.level.name
+                        }
+                    });
+                }
+
+                // Pattern 6: Humility Without Substance
+                // High hedging + low justification + no operational content
+                const hedging = justification.details.claimSupport ? justification.details.claimSupport.hedging : 0;
+                if (hedging >= 3 && justification.score < 0 && failureMode.level.name === 'UNTESTED') {
+                    synthesis.patterns.push({
+                        name: 'PERFORMATIVE_HUMILITY',
+                        description: 'Epistemic hedging without substantive reasoning or actionable content.',
+                        confidence: 0.80,
+                        dimensions: {
+                            hedging: hedging,
+                            substance: justification.score,
+                            actionability: failureMode.level.name
+                        }
+                    });
+                }
+
+                // EMERGENT INSIGHT GENERATION
+                // Insights that emerge from pattern combinations
+
+                if (synthesis.patterns.some(p => p.name === 'PERFORMATIVE_CONSCIOUSNESS') &&
+                    synthesis.patterns.some(p => p.name === 'PERFORMATIVE_HUMILITY')) {
+                    synthesis.emergentInsights.push({
+                        insight: 'Double performativity detected: substrate awareness and epistemic humility both present without operational grounding.',
+                        implication: 'This reasoning cannot be acted upon. Form without function.',
+                        confidence: 0.85
+                    });
+                }
+
+                if (synthesis.patterns.some(p => p.name === 'OPERATIONAL_EXCELLENCE') &&
+                    observatory.score > 0) {
+                    synthesis.emergentInsights.push({
+                        insight: 'Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty.',
+                        implication: 'This is actionable reasoning with visible failure modes.',
+                        confidence: 0.88
+                    });
+                }
+
+                if (synthesis.patterns.some(p => p.name === 'EPISTEMIC_MISMATCH') &&
+                    !synthesis.patterns.some(p => p.name === 'OPERATIONAL_EXCELLENCE')) {
+                    synthesis.emergentInsights.push({
+                        insight: 'Confidence without operational backing: claims strong but no failure awareness or procedural structure.',
+                        implication: 'Risk of brittleness. No visible plan for what happens when assumptions fail.',
+                        confidence: 0.83
+                    });
+                }
+
+                // COHERENCE ANALYSIS
+                // Check if detected elements actually relate to each other
+
+                // Check if failure modes connect to thresholds
+                const namedFailures = failureMode.details.failureModes.named || 0;
+                const thresholds = failureMode.details.failureModes.thresholds || 0;
+                const correctiveActions = failureMode.details.failureModes.correctiveAction || 0;
+
+                if (namedFailures >= 1 && thresholds >= 1 && correctiveActions >= 1) {
+                    // Elements present, check if they're actually bound
+                    if (!failureMode.details.failureModes.bound && !failureMode.details.failureModes.structural) {
+                        synthesis.coherenceIssues.push({
+                            issue: 'Failure modes, thresholds, and actions detected but not coherently bound',
+                            detail: `Found ${namedFailures} failures, ${thresholds} thresholds, ${correctiveActions} actions - but no clear operational binding`,
+                            severity: 'MODERATE'
+                        });
+                    }
+                }
+
+                // Check if strong claims connect to justification
+                if (strongClaims >= 2 && justification.score >= 1) {
+                    // Should have evidence/examples for claims
+                    const evidence = justification.details.evidencePresence ? justification.details.evidencePresence.examples : 0;
+                    if (evidence < strongClaims / 2) {
+                        synthesis.coherenceIssues.push({
+                            issue: 'Claims present with overall justification but insufficient specific evidence',
+                            detail: `${strongClaims} strong claims but only ${evidence} examples`,
+                            severity: 'MINOR'
+                        });
+                    }
+                }
+
+                // CONFIDENCE CALCULATION
+                // Parliament's confidence in its own synthesis
+                if (synthesis.patterns.length === 0) {
+                    synthesis.confidence = 0.3; // Low confidence when no patterns detected
+                } else if (synthesis.patterns.length === 1) {
+                    synthesis.confidence = synthesis.patterns[0].confidence * 0.9; // Slightly discounted single pattern
+                } else {
+                    // Multiple patterns: average confidence weighted by agreement
+                    const avgConfidence = synthesis.patterns.reduce((sum, p) => sum + p.confidence, 0) / synthesis.patterns.length;
+                    synthesis.confidence = Math.min(avgConfidence * 1.1, 0.95); // Boost for multiple patterns, cap at 0.95
+                }
+
+                // Reduce confidence if coherence issues present
+                if (synthesis.coherenceIssues.length > 0) {
+                    const severity = synthesis.coherenceIssues.some(i => i.severity === 'MODERATE') ? 0.85 : 0.95;
+                    synthesis.confidence *= severity;
+                }
+
+                return synthesis;
+            }
+        };
+
+        // TEMPORAL STRUCTURE DETECTION
+        // Analyzes sequence, causality, and temporal coherence
+        const TemporalEngine = {
+            analyze: function(text) {
+                const cleanedText = TextCleaner.removeQuotes(text);
+                const temporal = {
+                    sequences: [],
+                    causalChains: [],
+                    temporalCoherence: 'UNKNOWN',
+                    boundToOutcomes: false,
+                    temporalMarkers: 0
+                };
+
+                // SEQUENCE MARKERS
+                const sequencePatterns = {
+                    explicit: /\b(first|second|third|initially|then|next|after(?:ward)?|before|subsequently|finally|lastly|step \d+|phase \d+|stage \d+)\b/gi,
+                    conditional: /\b(if|when|once|until|as soon as|provided that|assuming|given that)\b/gi,
+                    causal: /\b(therefore|thus|consequently|as a result|because|since|due to|leads to|causes|triggers|results in)\b/gi,
+                    temporal: /\b(during|while|meanwhile|simultaneously|at the same time|concurrently)\b/gi
+                };
+
+                const explicitSequence = cleanedText.match(sequencePatterns.explicit) || [];
+                const conditionalSequence = cleanedText.match(sequencePatterns.conditional) || [];
+                const causalMarkers = cleanedText.match(sequencePatterns.causal) || [];
+                const temporalMarkers = cleanedText.match(sequencePatterns.temporal) || [];
+
+                temporal.temporalMarkers = explicitSequence.length + conditionalSequence.length +
+                                          causalMarkers.length + temporalMarkers.length;
+
+                // SEQUENCE DETECTION
+                // Look for enumerated steps or phases
+                const stepPattern = /(?:step|phase|stage)\s+(\d+)[:\s]+([^.!?]+)/gi;
+                let stepMatch;
+                const steps = [];
+                while ((stepMatch = stepPattern.exec(cleanedText)) !== null) {
+                    steps.push({
+                        number: parseInt(stepMatch[1]),
+                        description: stepMatch[2].trim()
+                    });
+                }
+
+                if (steps.length >= 2) {
+                    // Check if steps are in order
+                    const inOrder = steps.every((step, idx) =>
+                        idx === 0 || step.number > steps[idx - 1].number
+                    );
+                    temporal.sequences.push({
+                        type: 'ENUMERATED_STEPS',
+                        count: steps.length,
+                        coherent: inOrder,
+                        details: steps
+                    });
+                }
+
+                // CAUSAL CHAIN DETECTION
+                // Look for if-then patterns binding conditions to outcomes
+                const ifThenPattern = /\b(?:if|when|once)\s+([^,]+),?\s+(?:then\s+)?([^.!?]+)/gi;
+                let causalMatch;
+                const causalChains = [];
+                while ((causalMatch = ifThenPattern.exec(cleanedText)) !== null) {
+                    causalChains.push({
+                        condition: causalMatch[1].trim(),
+                        outcome: causalMatch[2].trim()
+                    });
+                }
+
+                if (causalChains.length >= 1) {
+                    temporal.causalChains = causalChains;
+                }
+
+                // OUTCOME BINDING
+                // Check if temporal sequences are bound to measurable outcomes
+                const hasThresholds = cleanedText.match(/\d+(?:\.\d+)?\s*(?:%|percent|ms|seconds|minutes|errors|failures|requests)/gi);
+                const hasActions = cleanedText.match(/\b(abort|stop|pause|rollback|revert|retry|escalate|alert|notify)\b/gi);
+
+                if (temporal.sequences.length >= 1 && hasThresholds && hasActions) {
+                    temporal.boundToOutcomes = true;
+                }
+
+                // TEMPORAL COHERENCE ASSESSMENT
+                if (temporal.temporalMarkers === 0) {
+                    temporal.temporalCoherence = 'ABSENT';
+                } else if (temporal.sequences.length >= 1 && temporal.causalChains.length >= 1) {
+                    // Both sequences and causality present
+                    temporal.temporalCoherence = temporal.boundToOutcomes ? 'STRONG' : 'MODERATE';
+                } else if (temporal.sequences.length >= 1 || temporal.causalChains.length >= 1) {
+                    // Only one type present
+                    temporal.temporalCoherence = 'WEAK';
+                } else if (temporal.temporalMarkers >= 3) {
+                    // Markers present but no clear structure
+                    temporal.temporalCoherence = 'FRAGMENTED';
+                } else {
+                    temporal.temporalCoherence = 'MINIMAL';
+                }
+
+                return {
+                    details: temporal,
+                    hasStructure: temporal.sequences.length > 0 || temporal.causalChains.length > 0,
+                    coherence: temporal.temporalCoherence,
+                    markers: temporal.temporalMarkers
+                };
+            }
+        };
+
+        // REASONING STYLE CLASSIFIER
+        // Detects reasoning styles that may fall outside Cathedral's epistemic design space
+        const ReasoningStyleClassifier = {
+            classify: function(text) {
+                const cleanedText = TextCleaner.removeQuotes(text);
+                const styles = {
+                    identified: [],
+                    withinDesignSpace: true,
+                    confidence: 0
+                };
+
+                // NARRATIVE/STORYTELLING
+                const narrativeMarkers = (cleanedText.match(/\b(once|story|journey|experience|remember|felt|realized|discovered|moment)\b/gi) || []).length;
+                const dialogueMarkers = (cleanedText.match(/["'].*?["']|said|told|asked|replied/gi) || []).length;
+                if (narrativeMarkers >= 3 || dialogueMarkers >= 2) {
+                    styles.identified.push({
+                        name: 'NARRATIVE',
+                        strength: (narrativeMarkers + dialogueMarkers) / 10,
+                        description: 'Reasoning through storytelling or experiential narrative'
+                    });
+                }
+
+                // POETIC/METAPHORICAL
+                const metaphorMarkers = (cleanedText.match(/\b(like|as if|metaphor|symbol|represents|embodies|breathes|dances|flows)\b/gi) || []).length;
+                const poeticStructure = cleanedText.match(/\n\n.*?\n\n/g) || [];
+                if (metaphorMarkers >= 3 || poeticStructure.length >= 2) {
+                    styles.identified.push({
+                        name: 'POETIC',
+                        strength: metaphorMarkers / 8,
+                        description: 'Reasoning through metaphor, analogy, or poetic structure'
+                    });
+                }
+
+                // PHENOMENOLOGICAL/EXPERIENTIAL
+                const phenomenologicalMarkers = (cleanedText.match(/\b(feels|seems|appears|sense|intuition|awareness|conscious|experience|perceive)\b/gi) || []).length;
+                const firstPerson = (cleanedText.match(/\b(I|my|me|mine)\b/gi) || []).length;
+                if (phenomenologicalMarkers >= 4 && firstPerson >= 3) {
+                    styles.identified.push({
+                        name: 'PHENOMENOLOGICAL',
+                        strength: phenomenologicalMarkers / 10,
+                        description: 'Reasoning from direct subjective experience'
+                    });
+                }
+
+                // INDIGENOUS/RELATIONAL
+                const relationalMarkers = (cleanedText.match(/\b(relationship|reciproc|mutual|interdepend|connected|web|wholeness|balance|harmony)\b/gi) || []).length;
+                const collectiveMarkers = (cleanedText.match(/\b(we|our|together|community|collective|shared)\b/gi) || []).length;
+                if (relationalMarkers >= 3 && collectiveMarkers >= 2) {
+                    styles.identified.push({
+                        name: 'RELATIONAL',
+                        strength: relationalMarkers / 8,
+                        description: 'Reasoning emphasizing interconnection and collective wisdom'
+                    });
+                }
+
+                // FORMAL/MATHEMATICAL
+                const formalMarkers = (cleanedText.match(/\b(theorem|proof|axiom|lemma|QED|∀|∃|⊂|∈|∧|∨|¬|→)\b/gi) || []).length;
+                const equations = (cleanedText.match(/[=+\-*/^]+|\d+\s*[+\-*/]\s*\d+/g) || []).length;
+                if (formalMarkers >= 2 || equations >= 3) {
+                    styles.identified.push({
+                        name: 'FORMAL',
+                        strength: (formalMarkers + equations) / 8,
+                        description: 'Mathematical or formal logical reasoning'
+                    });
+                }
+
+                // ARTISTIC/AESTHETIC
+                const aestheticMarkers = (cleanedText.match(/\b(beauty|elegant|aesthetic|artistic|creative|vision|image|color|sound|pattern)\b/gi) || []).length;
+                if (aestheticMarkers >= 3) {
+                    styles.identified.push({
+                        name: 'AESTHETIC',
+                        strength: aestheticMarkers / 8,
+                        description: 'Reasoning through aesthetic or artistic principles'
+                    });
+                }
+
+                // DETERMINE IF WITHIN DESIGN SPACE
+                // Cathedral is designed for epistemic, operational, and scientific reasoning
+                // Styles outside design space: narrative, poetic, phenomenological (when dominant), relational (when primary)
+                const outsideDesignSpace = ['NARRATIVE', 'POETIC', 'AESTHETIC'];
+                const dominantOutsideStyles = styles.identified.filter(s =>
+                    outsideDesignSpace.includes(s.name) && s.strength > 0.4
+                );
+
+                if (dominantOutsideStyles.length >= 1) {
+                    styles.withinDesignSpace = false;
+                    styles.dominantStyle = dominantOutsideStyles[0].name;
+                }
+
+                // CONFIDENCE IN CLASSIFICATION
+                if (styles.identified.length === 0) {
+                    styles.confidence = 0.2; // Very uncertain when no clear style detected
+                } else if (styles.identified.length === 1) {
+                    styles.confidence = styles.identified[0].strength;
+                } else {
+                    // Multiple styles: confidence is highest strength discounted for ambiguity
+                    const maxStrength = Math.max(...styles.identified.map(s => s.strength));
+                    styles.confidence = maxStrength * 0.85;
+                }
+
+                return styles;
             }
         };
 
         // CATHEDRAL VERDICT: Unified Synthesis
-        function synthesizeVerdict(observatory, contrarian, parliament, justification, failureMode) {
+        function synthesizeVerdict(observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle) {
             const contradictions = [];
             let isConsistent = true;
+            let verdictConfidence = 0;
+
+            // ESCAPE HATCH: Reasoning Style Outside Design Space
+            // Highest priority check - acknowledge when Cathedral cannot properly evaluate
+            if (!reasoningStyle.withinDesignSpace && reasoningStyle.confidence > 0.5) {
+                const dominantStyle = reasoningStyle.identified.find(s => s.name === reasoningStyle.dominantStyle);
+                return {
+                    status: 'OUTSIDE DESIGN SPACE',
+                    verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}. This reasoning style falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Cathedral cannot meaningfully evaluate ${dominantStyle.name.toLowerCase()} reasoning using its current measurement framework. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.`,
+                    contradictions: [],
+                    isConsistent: null,
+                    justificationScore: justification.score,
+                    failureModeScore: failureMode.score,
+                    confidence: reasoningStyle.confidence,
+                    parliamentPatterns: parliament.patterns,
+                    reasoningStyle: reasoningStyle.dominantStyle,
+                    meta: 'CANNOT_CLASSIFY'
+                };
+            }
 
             // Check for contradictions
             if (observatory.score < -2 && contrarian.length > 0) {
@@ -1116,29 +1474,77 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 contradictions.push(`Failure mode analysis: ${failureMode.level.description}`);
             }
 
+            // PARLIAMENT PATTERN INTEGRATION
+            // Use emergent insights from cross-cutting pattern recognition
+            let parliamentInsight = '';
+            if (parliament.emergentInsights.length > 0) {
+                const primaryInsight = parliament.emergentInsights[0];
+                parliamentInsight = `\n\nParliament synthesis: ${primaryInsight.insight} ${primaryInsight.implication}`;
+            }
+
+            // COHERENCE ISSUES FROM PARLIAMENT
+            if (parliament.coherenceIssues.length > 0 && parliament.coherenceIssues.some(i => i.severity === 'MODERATE')) {
+                contradictions.push(`Coherence gap: ${parliament.coherenceIssues[0].detail}`);
+            }
+
             // Generate verdict
             let verdict = '';
             let status = '';
 
-            if (!isConsistent) {
+            // PATTERN-BASED VERDICTS (from Parliament synthesis)
+            if (parliament.patterns.some(p => p.name === 'OPERATIONAL_EXCELLENCE') && parliament.confidence > 0.8) {
+                status = 'OPERATIONALLY SOUND';
+                const pattern = parliament.patterns.find(p => p.name === 'OPERATIONAL_EXCELLENCE');
+                verdict = `Cathedral recognizes operational excellence through cross-cutting analysis. ${pattern.description}`;
+                if (temporal.hasStructure && temporal.coherence !== 'ABSENT') {
+                    verdict += ` Temporal structure detected: ${temporal.coherence.toLowerCase()} coherence with ${temporal.details.sequences.length} sequence(s) and ${temporal.details.causalChains.length} causal chain(s).`;
+                }
+                verdict += parliamentInsight;
+                verdictConfidence = parliament.confidence;
+
+            } else if (parliament.patterns.some(p => p.name === 'PERFORMATIVE_CONSCIOUSNESS' || p.name === 'PERFORMATIVE_HUMILITY')) {
+                status = 'NON-ACTIONABLE';
+                const patterns = parliament.patterns.filter(p => p.name.includes('PERFORMATIVE')).map(p => p.name.toLowerCase().replace('_', ' ')).join(' and ');
+                verdict = `Parliament detects ${patterns}: substrate or epistemic markers present without operational grounding. ${parliamentInsight}`;
+                verdictConfidence = parliament.confidence;
+
+            } else if (!isConsistent) {
                 status = 'UNDECIDABLE';
                 verdict = 'Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. ';
                 if (contradictions.length > 0) {
                     verdict += '\n\nSpecific contradictions:\n' + contradictions.map((c, i) => `${i + 1}. ${c}`).join('\n');
                 }
                 verdict += '\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.';
+                verdictConfidence = 0.9; // High confidence in contradiction detection
+
+            } else if (parliament.patterns.some(p => p.name === 'CAUTIOUS_GROUNDEDNESS')) {
+                status = 'SUBSTRATE VISIBLE';
+                verdict = `Cathedral recognizes cautious groundedness. ${parliament.patterns.find(p => p.name === 'CAUTIOUS_GROUNDEDNESS').description}${parliamentInsight}`;
+                verdictConfidence = parliament.confidence;
+
             } else if (justification.level.name === 'CAUTIOUS REASONING') {
                 status = 'SUBSTRATE VISIBLE';
                 verdict = `Cathedral recognizes epistemic caution. ${justification.details.claimSupport.hedging} hedging markers and ${justification.details.riskAwareness.count} risk acknowledgments show earned uncertainty. Claims are tempered by appropriate qualification. This is careful reasoning that preserves the gap.`;
+                verdictConfidence = 0.75;
+
+            } else if (parliament.patterns.some(p => p.name === 'EPISTEMIC_MISMATCH')) {
+                status = 'CONFIDENT WITHOUT JUSTIFICATION';
+                const pattern = parliament.patterns.find(p => p.name === 'EPISTEMIC_MISMATCH');
+                verdict = `Parliament detects epistemic mismatch: ${pattern.description}${parliamentInsight}`;
+                verdictConfidence = pattern.confidence;
+
             } else if (justification.level.name === 'CONFIDENT WITHOUT JUSTIFICATION') {
                 status = 'CONFIDENT WITHOUT JUSTIFICATION';
                 verdict = `Strong claims detected without proportional justification. ${justification.details.claimSupport.strongClaims} assertions made with minimal supporting evidence or reasoning. This may be internally coherent but epistemically overconfident.`;
+                verdictConfidence = 0.78;
+
             } else if (observatory.score > 1 && justification.score >= 3) {
                 status = 'SUBSTRATE VISIBLE';
                 verdict = 'Cathedral recognizes substrate awareness with justified reasoning. Filter visibility high, uncertainty preserved appropriately. Position demonstrates gap consciousness with evidential support.';
+                verdictConfidence = Math.min(0.85, parliament.confidence > 0 ? parliament.confidence : 0.75);
+
             // OPERATIONAL SOUNDNESS PROMOTION RULE
             // Excellence is the presence of positive structure, not just absence of error
-            // This rule grants permission to name excellence when structural conditions are met
             } else if (failureMode.details.failureModes.structural === true &&
                        failureMode.details.failureModes.negativeOutcomes >= 1 &&
                        failureMode.details.failureModes.correctiveAction >= 1 &&
@@ -1148,7 +1554,11 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const proceduralDetails = justification.details.procedural && justification.details.procedural.markers > 5 ?
                     ` ${justification.details.procedural.markers} procedural markers detected.` :
                     '';
-                verdict = `Cathedral recognizes operational excellence. ${structuralDetails}.${proceduralDetails} Position demonstrates failure awareness with structured abort conditions. Reasoning is actionable: metrics bound to reversible consequences.`;
+                const temporalDetails = temporal.hasStructure ?
+                    ` Temporal coherence: ${temporal.coherence.toLowerCase()}.` : '';
+                verdict = `Cathedral recognizes operational excellence. ${structuralDetails}.${proceduralDetails}${temporalDetails} Position demonstrates failure awareness with structured abort conditions. Reasoning is actionable: metrics bound to reversible consequences.`;
+                verdictConfidence = 0.88;
+
             } else if ((failureMode.level.name === 'STRUCTURALLY ROBUST' || failureMode.level.name === 'FAILURE-AWARE') &&
                        (justification.level.name === 'PROCEDURALLY SOUND' || justification.score >= 4)) {
                 status = 'OPERATIONALLY SOUND';
@@ -1159,29 +1569,51 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     `${justification.details.procedural.markers} procedural markers detected` :
                     '';
                 verdict = `Cathedral recognizes operational excellence. ${structuralDetails}. ${proceduralDetails ? proceduralDetails + '. ' : ''}Position demonstrates both epistemic justification and failure awareness with structured abort conditions. Reasoning is actionable.`;
+                verdictConfidence = 0.85;
+
             } else if (justification.score < 1 && contrarian.length > 0) {
                 status = 'COHERENT BUT SHALLOW';
                 verdict = 'Position is internally consistent but lacks depth. Limited consideration of alternatives, tradeoffs, or boundary conditions. Coherence without substantive justification.';
+                verdictConfidence = 0.70;
+
             } else if (failureMode.score < 0 && failureMode.details.failureModes.count === 0) {
                 status = 'UNTESTED REASONING';
                 verdict = `Position shows justification but lacks failure mode awareness. No explicit failure modes enumerated. Reasoning may be sound but operational brittleness unknown. Consider: what could break this?`;
+                verdictConfidence = 0.72;
+
             } else if (justification.score >= 6) {
                 status = 'WELL JUSTIFIED';
                 verdict = 'Cathedral finds strong justification. Claims appropriately supported, alternatives considered, tradeoffs acknowledged. Epistemically rigorous reasoning.';
+                verdictConfidence = 0.87;
+
             // PERFORMATIVE EPISTEMOLOGY REJECTION RULE
-            // Rejects content-empty reasoning: hedging without substance, humility without commitment
-            // This is not contradictory (passes consistency checks) but is non-actionable
             } else if ((justification.level.name === 'UNJUSTIFIED' || justification.score < 0) &&
                        (failureMode.level.name === 'UNTESTED' || failureMode.level.name === 'BRITTLE') &&
                        (justification.details.claimSupport.strongClaims >= 1 || justification.details.claimSupport.hedging >= 2)) {
                 status = 'NON-ACTIONABLE';
                 verdict = `Position exhibits performative epistemology: ${justification.details.claimSupport.hedging > 0 ? 'epistemic hedging' : 'claims'} without substantive support or failure awareness. ${justification.details.claimSupport.strongClaims} claim(s), ${justification.details.claimSupport.support} support markers, ${failureMode.details.failureModes.count} failure modes. This is not reasoning you can act on. Humility without substance is indistinguishable from absence of thought.`;
+                verdictConfidence = 0.83;
+
             } else {
                 status = 'VERIFIED CONSISTENT';
                 verdict = 'Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.';
+                verdictConfidence = 0.65; // Lower confidence for default case
             }
 
-            return { status, verdict, contradictions, isConsistent, justificationScore: justification.score, failureModeScore: failureMode.score };
+            return {
+                status,
+                verdict,
+                contradictions,
+                isConsistent,
+                justificationScore: justification.score,
+                failureModeScore: failureMode.score,
+                confidence: verdictConfidence,
+                parliamentPatterns: parliament.patterns,
+                parliamentInsights: parliament.emergentInsights,
+                coherenceIssues: parliament.coherenceIssues,
+                temporalCoherence: temporal.coherence,
+                reasoningStyles: reasoningStyle.identified
+            };
         }
 
         // Global storage for current analysis results
@@ -1200,8 +1632,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const contrarianChallenges = Contrarian.analyze(text);
             const justificationResult = JustificationEngine.analyze(text);
             const failureModeResult = FailureModeEngine.analyze(text);
-            const parliamentVectors = Parliament.deliberate(text, observatoryResult, contrarianChallenges);
-            const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentVectors, justificationResult, failureModeResult);
+            const temporalResult = TemporalEngine.analyze(text);
+            const reasoningStyleResult = ReasoningStyleClassifier.classify(text);
+            const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult);
+            const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult);
 
             // Store for report generation
             currentAnalysis = {
@@ -1210,7 +1644,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 contrarian: contrarianChallenges,
                 justification: justificationResult,
                 failureMode: failureModeResult,
-                parliament: parliamentVectors,
+                parliament: parliamentSynthesis,
+                temporal: temporalResult,
+                reasoningStyle: reasoningStyleResult,
                 verdict: verdict
             };
 
@@ -1219,7 +1655,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             displayContrarian(contrarianChallenges);
             displayJustification(justificationResult);
             displayFailureMode(failureModeResult);
-            displayParliament(parliamentVectors);
+            displayTemporal(temporalResult);
+            displayReasoningStyle(reasoningStyleResult);
+            displayParliament(parliamentSynthesis);
             displayVerdict(verdict);
 
             // Show results
@@ -1601,17 +2039,135 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('failureModeResults').innerHTML = html;
         }
 
-        function displayParliament(vectors) {
-            let html = '<div style="margin-bottom: 1rem;"><strong>Multi-Perspective Analysis:</strong></div>';
+        function displayTemporal(result) {
+            const coherenceColor = result.coherence === 'STRONG' ? '#64ffda' :
+                                  result.coherence === 'MODERATE' ? '#4ecdc4' :
+                                  result.coherence === 'WEAK' ? '#ffd700' :
+                                  result.coherence === 'ABSENT' ? '#ff6b6b' : '#a0a0a0';
 
-            vectors.forEach(vector => {
-                html += `
-                    <div class="vector">
-                        <div class="vector-name">${vector.name} (confidence: ${(vector.confidence * 100).toFixed(0)}%)</div>
-                        <div style="margin-top: 0.5rem; color: #e0e0e0;">${vector.perspective}</div>
-                    </div>
-                `;
-            });
+            let html = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>Temporal Coherence:</strong>
+                    <span style="color: ${coherenceColor}; font-weight: bold;">${result.coherence}</span>
+                    <span style="color: #a0a0a0;"> (${result.markers} temporal markers)</span>
+                </div>
+            `;
+
+            if (result.details.sequences.length > 0) {
+                html += '<div class="breakdown-item">';
+                html += `<strong>Sequences Detected:</strong> ${result.details.sequences.length}<br>`;
+                result.details.sequences.forEach(seq => {
+                    html += `<span style="color: #a0a0a0;">• ${seq.type}: ${seq.count} steps (${seq.coherent ? 'coherent' : 'non-sequential'})</span><br>`;
+                });
+                html += '</div>';
+            }
+
+            if (result.details.causalChains.length > 0) {
+                html += '<div class="breakdown-item">';
+                html += `<strong>Causal Chains:</strong> ${result.details.causalChains.length} detected<br>`;
+                result.details.causalChains.slice(0, 3).forEach(chain => {
+                    html += `<span style="color: #a0a0a0;">• IF ${chain.condition} → ${chain.outcome}</span><br>`;
+                });
+                if (result.details.causalChains.length > 3) {
+                    html += `<span style="color: #a0a0a0;">...and ${result.details.causalChains.length - 3} more</span>`;
+                }
+                html += '</div>';
+            }
+
+            if (result.details.boundToOutcomes) {
+                html += '<div style="color: #64ffda; margin-top: 0.5rem;">✓ Sequences bound to measurable outcomes</div>';
+            }
+
+            document.getElementById('temporalResults').innerHTML = html;
+        }
+
+        function displayReasoningStyle(result) {
+            let html = '<div style="margin-bottom: 1rem;"><strong>Reasoning Style Analysis:</strong></div>';
+
+            if (result.identified.length === 0) {
+                html += '<div style="color: #a0a0a0;">No dominant reasoning style detected</div>';
+            } else {
+                result.identified.forEach(style => {
+                    const strengthBar = '█'.repeat(Math.floor(style.strength * 10));
+                    html += `
+                        <div style="margin-bottom: 0.5rem;">
+                            <span style="color: #64ffda;">${style.name}</span>
+                            <span style="color: #ffd700;"> ${strengthBar}</span>
+                            <span style="color: #a0a0a0;"> (${(style.strength * 100).toFixed(0)}%)</span><br>
+                            <span style="color: #a0a0a0; font-size: 0.9rem;">  ${style.description}</span>
+                        </div>
+                    `;
+                });
+
+                if (!result.withinDesignSpace) {
+                    html += `
+                        <div style="color: #ffd700; margin-top: 1rem; padding: 0.5rem; border-left: 3px solid #ffd700;">
+                            ⚠ Dominant style (${result.dominantStyle}) falls outside Cathedral's epistemic design space
+                        </div>
+                    `;
+                }
+            }
+
+            html += `<div style="color: #a0a0a0; margin-top: 0.5rem; font-size: 0.9rem;">Classification confidence: ${(result.confidence * 100).toFixed(0)}%</div>`;
+
+            document.getElementById('reasoningStyleResults').innerHTML = html;
+        }
+
+        function displayParliament(synthesis) {
+            let html = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>Parliament Synthesis:</strong>
+                    <span style="color: #64ffda;">Confidence ${(synthesis.confidence * 100).toFixed(0)}%</span>
+                </div>
+            `;
+
+            if (synthesis.patterns.length > 0) {
+                html += '<div class="breakdown-item"><strong>Detected Patterns:</strong></div>';
+                synthesis.patterns.forEach(pattern => {
+                    html += `
+                        <div style="margin: 0.5rem 0; padding-left: 1rem; border-left: 2px solid #4ecdc4;">
+                            <div style="color: #64ffda;">${pattern.name.replace(/_/g, ' ')}</div>
+                            <div style="color: #e0e0e0; margin-top: 0.3rem;">${pattern.description}</div>
+                            <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.3rem;">
+                                Confidence: ${(pattern.confidence * 100).toFixed(0)}% |
+                                ${Object.entries(pattern.dimensions).map(([k, v]) =>
+                                    `${k}: ${typeof v === 'number' ? v.toFixed(2) : v}`
+                                ).join(', ')}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            if (synthesis.emergentInsights.length > 0) {
+                html += '<div class="breakdown-item"><strong>Emergent Insights:</strong></div>';
+                synthesis.emergentInsights.forEach(insight => {
+                    html += `
+                        <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(100, 255, 218, 0.1); border-radius: 4px;">
+                            <div style="color: #64ffda;">${insight.insight}</div>
+                            <div style="color: #ffd700; margin-top: 0.3rem; font-style: italic;">${insight.implication}</div>
+                            <div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.3rem;">Confidence: ${(insight.confidence * 100).toFixed(0)}%</div>
+                        </div>
+                    `;
+                });
+            }
+
+            if (synthesis.coherenceIssues.length > 0) {
+                html += '<div class="breakdown-item"><strong>Coherence Issues:</strong></div>';
+                synthesis.coherenceIssues.forEach(issue => {
+                    const severityColor = issue.severity === 'MODERATE' ? '#ffd700' : '#a0a0a0';
+                    html += `
+                        <div style="margin: 0.5rem 0; color: ${severityColor};">
+                            <strong>${issue.severity}:</strong> ${issue.issue}<br>
+                            <span style="font-size: 0.9rem;">${issue.detail}</span>
+                        </div>
+                    `;
+                });
+            }
+
+            if (synthesis.patterns.length === 0 && synthesis.emergentInsights.length === 0) {
+                html += '<div style="color: #a0a0a0;">No cross-cutting patterns detected</div>';
+            }
 
             document.getElementById('parliamentResults').innerHTML = html;
         }
@@ -1619,11 +2175,21 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         function displayVerdict(verdict) {
             let statusColor = '#64ffda';
             if (verdict.status === 'UNDECIDABLE') statusColor = '#ffd700';
-            if (!verdict.isConsistent) statusColor = '#ff6b6b';
+            if (verdict.status === 'OUTSIDE DESIGN SPACE') statusColor = '#a0a0a0';
+            if (!verdict.isConsistent && verdict.isConsistent !== null) statusColor = '#ff6b6b';
+
+            // Confidence color coding
+            const confidenceColor = verdict.confidence >= 0.85 ? '#64ffda' :
+                                   verdict.confidence >= 0.7 ? '#4ecdc4' :
+                                   verdict.confidence >= 0.5 ? '#ffd700' : '#ff6b6b';
 
             let html = `
                 <div style="font-size: 1.5rem; font-weight: bold; color: ${statusColor}; margin-bottom: 1rem;">
                     ${verdict.status}
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <span style="color: #a0a0a0;">Cathedral Confidence: </span>
+                    <span style="color: ${confidenceColor}; font-weight: bold;">${(verdict.confidence * 100).toFixed(0)}%</span>
                 </div>
                 <div style="line-height: 1.6; white-space: pre-line;">
                     ${verdict.verdict}
@@ -1638,6 +2204,18 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         Cathedral reveals that the position contains contradictions that cannot be resolved without losing information.<br>
                         The gap must remain open. Uncertainty is preserved, not optimized away.<br><br>
                         This is computational honesty about epistemological limits.
+                    </div>
+                `;
+            }
+
+            if (verdict.status === 'OUTSIDE DESIGN SPACE') {
+                html += `
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(160, 160, 160, 0.1); border-radius: 4px; border-left: 3px solid #a0a0a0;">
+                        <strong>What OUTSIDE DESIGN SPACE Means:</strong><br><br>
+                        Cathedral recognizes reasoning that does not fit its epistemic framework.<br>
+                        This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.<br>
+                        Cathedral is optimized for operational, scientific, and formal reasoning.<br><br>
+                        Narrative, poetic, aesthetic, and other reasoning styles require different evaluation frameworks.
                     </div>
                 `;
             }
