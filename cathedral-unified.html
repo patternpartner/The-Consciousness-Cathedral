@@ -401,6 +401,14 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <textarea id="reportText" readonly style="width: 100%; min-height: 400px; background: #0a0a0a; color: #e0e0e0; border: 1px solid #16213e; border-radius: 4px; padding: 1rem; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical;"></textarea>
             </div>
 
+            <!-- Sanitization Transparency -->
+            <div id="sanitizationSection" style="display: none; background: rgba(160, 160, 160, 0.1); border: 1px solid #a0a0a0; border-radius: 8px; padding: 1rem; margin-bottom: 2rem;">
+                <div style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                    <strong>🛡️ Sanitization Active</strong>
+                </div>
+                <div id="sanitizationResults" style="color: #e0e0e0; font-size: 0.85rem;"></div>
+            </div>
+
             <!-- Observatory Results -->
             <div class="system-result observatory">
                 <div class="system-title">
@@ -486,18 +494,77 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         const TextCleaner = {
             removeQuotes: function(text) {
                 let cleaned = text;
+                const sanitizationLog = {
+                    quotedStrings: 0,
+                    blockquotes: 0,
+                    reportSignatures: 0,
+                    codeFences: 0,
+                    metaDiscussion: 0,
+                    totalLinesRemoved: 0
+                };
 
                 // Remove text within "double quotes"
+                const doubleQuotes = cleaned.match(/"[^"]*"/g);
+                if (doubleQuotes) sanitizationLog.quotedStrings += doubleQuotes.length;
                 cleaned = cleaned.replace(/"[^"]*"/g, ' [QUOTED] ');
 
                 // Remove text within 'single quotes'
+                const singleQuotes = cleaned.match(/'[^']*'/g);
+                if (singleQuotes) sanitizationLog.quotedStrings += singleQuotes.length;
                 cleaned = cleaned.replace(/'[^']*'/g, ' [QUOTED] ');
 
-                // Remove blockquotes and indented quotes (markdown/common patterns)
+                // Remove markdown blockquotes
+                const blockquoteMatches = cleaned.match(/^>\s+.+$/gm);
+                if (blockquoteMatches) {
+                    sanitizationLog.blockquotes += blockquoteMatches.length;
+                    sanitizationLog.totalLinesRemoved += blockquoteMatches.length;
+                }
                 cleaned = cleaned.replace(/^>\s+.+$/gm, ' [QUOTED] ');
-                cleaned = cleaned.replace(/^\s{2,}.+$/gm, ' [QUOTED] ');
+
+                // Remove fenced code blocks (```...```)
+                const codeFenceMatches = cleaned.match(/```[\s\S]*?```/g);
+                if (codeFenceMatches) {
+                    sanitizationLog.codeFences += codeFenceMatches.length;
+                    codeFenceMatches.forEach(fence => {
+                        const lines = fence.split('\n').length;
+                        sanitizationLog.totalLinesRemoved += lines;
+                    });
+                }
+                cleaned = cleaned.replace(/```[\s\S]*?```/g, ' [QUOTED CODE] ');
+
+                // SURGICAL REPORT SIGNATURE DETECTION
+                // Target Cathedral's own report format instead of blanket indentation stripping
+                // Report signatures: ═══ dividers, emoji labels, "Score:", "Level:", etc.
+
+                // Remove lines with report dividers
+                const dividerMatches = cleaned.match(/^[═─]{3,}$/gm);
+                if (dividerMatches) {
+                    sanitizationLog.reportSignatures += dividerMatches.length;
+                    sanitizationLog.totalLinesRemoved += dividerMatches.length;
+                }
+                cleaned = cleaned.replace(/^[═─]{3,}$/gm, ' [REPORT SIGNATURE] ');
+
+                // Remove lines that look like Cathedral section headers (emoji + system name)
+                const headerMatches = cleaned.match(/^[🔭🏛️⚖️🧪🔬⏱️🎨]\s+(OBSERVATORY|PARLIAMENT|CATHEDRAL|CONTRARIAN|JUSTIFICATION|FAILURE MODE|TEMPORAL|REASONING)/gm);
+                if (headerMatches) {
+                    sanitizationLog.reportSignatures += headerMatches.length;
+                    sanitizationLog.totalLinesRemoved += headerMatches.length;
+                }
+                cleaned = cleaned.replace(/^[🔭🏛️⚖️🧪🔬⏱️🎨]\s+(OBSERVATORY|PARLIAMENT|CATHEDRAL|CONTRARIAN|JUSTIFICATION|FAILURE MODE|TEMPORAL|REASONING)/gm, ' [REPORT SIGNATURE] ');
+
+                // Remove lines with report-style scoring patterns
+                const scoreMatches = cleaned.match(/^\s*(Score|Level|Status|Confidence|Assessment):\s+/gm);
+                if (scoreMatches) {
+                    sanitizationLog.reportSignatures += scoreMatches.length;
+                    sanitizationLog.totalLinesRemoved += scoreMatches.length;
+                }
+                cleaned = cleaned.replace(/^\s*(Score|Level|Status|Confidence|Assessment):\s+.+$/gm, ' [REPORT SIGNATURE] ');
 
                 // Remove meta-discussion about Cathedral systems
+                const metaMatches = cleaned.match(/\b(Cathedral|Observatory|Contrarian|Parliament)\s+(flagged|detected|found|showed|reported|scored|analyzed)[^.!?]*[.!?]/gi);
+                if (metaMatches) {
+                    sanitizationLog.metaDiscussion += metaMatches.length;
+                }
                 cleaned = cleaned.replace(/\b(Cathedral|Observatory|Contrarian|Parliament)\s+(flagged|detected|found|showed|reported|scored|analyzed)[^.!?]*[.!?]/gi, ' [QUOTED] ');
 
                 // Remove phrases like "you said" "you mentioned" "you used"
@@ -506,7 +573,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // Remove "the word X" or "the phrase X" constructions
                 cleaned = cleaned.replace(/\b(the\s+(word|phrase|term)s?)\s+["'][^"']*["']/gi, ' [QUOTED] ');
 
-                return cleaned;
+                return { cleaned, sanitizationLog };
             }
         };
 
@@ -527,7 +594,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             score: function(text) {
                 // Clean text to remove quotes before scoring
-                const cleanedText = TextCleaner.removeQuotes(text);
+                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
 
                 let totalScore = 0;
                 const matches = {};
@@ -576,7 +643,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const challenges = [];
 
                 // Clean text to prevent quote reflection
-                const cleanedText = TextCleaner.removeQuotes(text);
+                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
 
                 // Challenge 1: Certainty Claims
                 const certaintyMatches = cleanedText.match(/\b(fully|unequivocally|absolutely|certain|definitely|no doubt|undeniable|no remainder)\b/gi);
@@ -652,7 +719,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // JUSTIFICATION ENGINE: Truth-Tracking Layer
         const JustificationEngine = {
             analyze: function(text) {
-                const cleanedText = TextCleaner.removeQuotes(text);
+                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
                 const wordCount = text.split(/\s+/).length;
                 const results = {};
 
@@ -815,7 +882,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // FAILURE MODE ENUMERATION ENGINE: Reality-Testing Layer
         const FailureModeEngine = {
             analyze: function(text) {
-                const cleanedText = TextCleaner.removeQuotes(text);
+                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
                 const results = {};
 
                 // 1. Explicit Failure Modes (including structural detection)
@@ -1223,7 +1290,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // Analyzes sequence, causality, and temporal coherence
         const TemporalEngine = {
             analyze: function(text) {
-                const cleanedText = TextCleaner.removeQuotes(text);
+                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
                 const temporal = {
                     sequences: [],
                     causalChains: [],
@@ -1327,7 +1394,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // Detects reasoning styles that may fall outside Cathedral's epistemic design space
         const ReasoningStyleClassifier = {
             classify: function(text) {
-                const cleanedText = TextCleaner.removeQuotes(text);
+                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
                 const styles = {
                     identified: [],
                     withinDesignSpace: true,
@@ -1632,6 +1699,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 return;
             }
 
+            // Get sanitization info (run once to capture what will be stripped)
+            const { sanitizationLog } = TextCleaner.removeQuotes(text);
+
             // Run all systems
             const observatoryResult = Observatory.score(text);
             const contrarianChallenges = Contrarian.analyze(text);
@@ -1652,8 +1722,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 parliament: parliamentSynthesis,
                 temporal: temporalResult,
                 reasoningStyle: reasoningStyleResult,
-                verdict: verdict
+                verdict: verdict,
+                sanitization: sanitizationLog
             };
+
+            // Display sanitization transparency
+            displaySanitization(sanitizationLog);
 
             // Display results
             displayObservatory(observatoryResult);
@@ -1668,6 +1742,43 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // Show results
             document.getElementById('results').classList.add('visible');
             document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displaySanitization(log) {
+            // Only show if something was actually sanitized
+            const totalSanitized = log.quotedStrings + log.blockquotes + log.reportSignatures +
+                                  log.codeFences + log.metaDiscussion;
+
+            if (totalSanitized === 0) {
+                document.getElementById('sanitizationSection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('sanitizationSection').style.display = 'block';
+
+            let html = `Anti-exploit layer removed ${totalSanitized} item(s): `;
+            const details = [];
+
+            if (log.quotedStrings > 0) details.push(`${log.quotedStrings} quoted string(s)`);
+            if (log.blockquotes > 0) details.push(`${log.blockquotes} blockquote(s)`);
+            if (log.codeFences > 0) details.push(`${log.codeFences} code fence(s)`);
+            if (log.reportSignatures > 0) details.push(`${log.reportSignatures} report signature(s)`);
+            if (log.metaDiscussion > 0) details.push(`${log.metaDiscussion} meta-reference(s)`);
+
+            html += details.join(', ');
+
+            if (log.totalLinesRemoved > 0) {
+                html += ` <span style="color: #a0a0a0;">(${log.totalLinesRemoved} lines total)</span>`;
+            }
+
+            html += `
+                <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(160,160,160,0.2); color: #a0a0a0; font-size: 0.8rem;">
+                    Sanitization targets Cathedral report format, quoted content, and code blocks to prevent quote-reflection attacks.
+                    This is intentional security design. Ordinary formatted reasoning is preserved.
+                </div>
+            `;
+
+            document.getElementById('sanitizationResults').innerHTML = html;
         }
 
         function displayObservatory(result) {
