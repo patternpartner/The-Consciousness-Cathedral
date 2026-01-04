@@ -1,5 +1,8 @@
-        // SHARED UTILITY: Quote Detection and Removal
-        const TextCleaner = {
+// Cathedral v2.x with Tier 1 Structural Validation
+// Automatically extracted from cathedral-unified.html
+// Generated: 2026-01-04T22:56:22.227Z
+
+const TextCleaner = {
             removeQuotes: function(text) {
                 let cleaned = text;
                 const sanitizationLog = {
@@ -85,8 +88,398 @@
             }
         };
 
-        // OBSERVATORY: Filter Visibility Measurement
-        const Observatory = {
+const StructuralExtractor = {
+            extract: function(text) {
+                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
+                const sentences = this.splitSentences(cleanedText);
+
+                return {
+                    claims: this.extractClaims(sentences),
+                    supports: this.extractSupports(sentences),
+                    failureTriples: this.extractFailureTriples(sentences, cleanedText),
+                    causalChains: this.extractCausalChains(sentences),
+                    objects: this.extractObjects(sentences)
+                };
+            },
+
+            splitSentences: function(text) {
+                const sentencePattern = /([^.!?]+[.!?]+)/g;
+                const sentences = [];
+                let match;
+                let position = 0;
+                while ((match = sentencePattern.exec(text)) !== null) {
+                    sentences.push({
+                        text: match[1].trim(),
+                        position: position++,
+                        index: match.index
+                    });
+                }
+                return sentences;
+            },
+
+            extractClaims: function(sentences) {
+                const claims = [];
+                const assertivePattern = /\b(is|are|will|would|should|must|always|never|all|every|any)\b/i;
+                const hedgePattern = /\b(might|maybe|could|possibly|perhaps|seems|appears)\b/i;
+
+                sentences.forEach(sent => {
+                    const hasAssertion = assertivePattern.test(sent.text);
+                    const isHedged = hedgePattern.test(sent.text);
+
+                    if (hasAssertion) {
+                        claims.push({
+                            text: sent.text,
+                            position: sent.position,
+                            strength: isHedged ? 'WEAK' : 'STRONG'
+                        });
+                    }
+                });
+
+                return claims;
+            },
+
+            extractSupports: function(sentences) {
+                const supports = [];
+                const supportPattern = /\b(because|since|as|given|due to|evidence|example|shows|demonstrates|indicates|data|findings|results)\b/i;
+                const referencePattern = /\b(this|that|these|those|therefore|thus|hence)\b/i;
+
+                sentences.forEach(sent => {
+                    const hasSupport = supportPattern.test(sent.text);
+                    const hasReference = referencePattern.test(sent.text);
+
+                    if (hasSupport || hasReference) {
+                        supports.push({
+                            text: sent.text,
+                            position: sent.position,
+                            hasExplicitMarker: hasSupport,
+                            hasReference: hasReference
+                        });
+                    }
+                });
+
+                return supports;
+            },
+
+            extractFailureTriples: function(sentences, fullText) {
+                const triples = [];
+
+                // Extract failure modes
+                const failurePattern = /(?:fails?(?:\s+when)?|breaks?|errors?|problems?|issues?|risks?)\s+([^.!?,]{3,60})/gi;
+                const failures = [];
+                let match;
+                while ((match = failurePattern.exec(fullText)) !== null) {
+                    failures.push({
+                        type: 'FAILURE',
+                        text: match[1].trim(),
+                        index: match.index
+                    });
+                }
+
+                // Extract thresholds/conditions
+                const thresholdPattern = /(?:if|when|once)\s+([^,]{5,50})\s+(?:exceeds?|above|below|less than|greater than|reaches?|>|<)\s+([^,\.!?]{1,30})/gi;
+                const thresholds = [];
+                while ((match = thresholdPattern.exec(fullText)) !== null) {
+                    thresholds.push({
+                        type: 'THRESHOLD',
+                        condition: match[1].trim(),
+                        value: match[2].trim(),
+                        index: match.index
+                    });
+                }
+
+                // Extract actions
+                const actionPattern = /\b(abort|rollback|stop|halt|terminate|revert|pause|retry|escalate|notify|alert)\b/gi;
+                const actions = [];
+                while ((match = actionPattern.exec(fullText)) !== null) {
+                    actions.push({
+                        type: 'ACTION',
+                        text: match[0],
+                        index: match.index
+                    });
+                }
+
+                // Bind them using proximity (within ~200 chars = same context)
+                failures.forEach(failure => {
+                    const nearbyThreshold = thresholds.find(t =>
+                        Math.abs(t.index - failure.index) < 200
+                    );
+                    const nearbyAction = actions.find(a =>
+                        Math.abs(a.index - failure.index) < 200
+                    );
+
+                    if (nearbyThreshold && nearbyAction) {
+                        triples.push({
+                            failure: failure.text,
+                            threshold: `${nearbyThreshold.condition} ${nearbyThreshold.value}`,
+                            action: nearbyAction.text,
+                            bound: true
+                        });
+                    }
+                });
+
+                return {
+                    failures: failures.length,
+                    thresholds: thresholds.length,
+                    actions: actions.length,
+                    boundTriples: triples,
+                    bindingRatio: failures.length > 0 ? triples.length / failures.length : 0
+                };
+            },
+
+            extractCausalChains: function(sentences) {
+                const chains = [];
+                const causalPattern = /\b(?:if|when|once)\s+([^,]{3,}),?\s+(?:then\s+)?([^.!?]+)/gi;
+
+                sentences.forEach(sent => {
+                    let match;
+                    const pattern = new RegExp(causalPattern.source, causalPattern.flags);
+                    while ((match = pattern.exec(sent.text)) !== null) {
+                        chains.push({
+                            condition: match[1].trim(),
+                            consequence: match[2].trim(),
+                            position: sent.position,
+                            hasClosure: /\b(abort|stop|continue|proceed|action|do|implement|execute)\b/i.test(match[2])
+                        });
+                    }
+                });
+
+                return chains;
+            },
+
+            extractObjects: function(sentences) {
+                // Extract content words for density calculation
+                const stopwords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'it', 'its']);
+
+                const allWords = sentences.map(s => s.text).join(' ')
+                    .toLowerCase()
+                    .match(/\b[a-z]+\b/g) || [];
+
+                const contentWords = allWords.filter(word =>
+                    !stopwords.has(word) && word.length > 3
+                );
+
+                const uniqueObjects = new Set(contentWords);
+
+                return {
+                    total: contentWords.length,
+                    unique: uniqueObjects.size,
+                    ratio: contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0
+                };
+            }
+        };
+
+const BindingValidator = {
+            validate: function(structure) {
+                const validation = {
+                    claimSupportBinding: this.validateClaimSupport(structure.claims, structure.supports),
+                    failureTripleCompleteness: this.validateFailureTriples(structure.failureTriples),
+                    causalChainClosure: this.validateCausalChains(structure.causalChains),
+                    overallBindingScore: 0
+                };
+
+                // Calculate overall binding score
+                const scores = [
+                    validation.claimSupportBinding.score,
+                    validation.failureTripleCompleteness.score,
+                    validation.causalChainClosure.score
+                ];
+                validation.overallBindingScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+
+                return validation;
+            },
+
+            validateClaimSupport: function(claims, supports) {
+                if (claims.length === 0) {
+                    return { score: 0, attached: 0, unattached: 0, ratio: 0, assessment: 'NO_CLAIMS' };
+                }
+
+                let attached = 0;
+                claims.forEach(claim => {
+                    // Support must be in same position, +1, or explicitly reference the claim
+                    const hasAttachedSupport = supports.some(support => {
+                        const positionDiff = Math.abs(support.position - claim.position);
+                        return positionDiff <= 1;  // Adjacent sentences
+                    });
+
+                    if (hasAttachedSupport) attached++;
+                });
+
+                const ratio = attached / claims.length;
+                const score = ratio >= 0.7 ? 1.0 : ratio >= 0.4 ? 0.6 : ratio >= 0.2 ? 0.3 : 0;
+
+                return {
+                    score,
+                    attached,
+                    unattached: claims.length - attached,
+                    ratio,
+                    assessment: ratio >= 0.7 ? 'WELL_SUPPORTED' :
+                               ratio >= 0.4 ? 'PARTIALLY_SUPPORTED' :
+                               ratio >= 0.2 ? 'WEAKLY_SUPPORTED' : 'UNSUPPORTED'
+                };
+            },
+
+            validateFailureTriples: function(failureTriples) {
+                const { failures, thresholds, actions, boundTriples, bindingRatio } = failureTriples;
+
+                if (failures === 0) {
+                    return { score: 0, boundCount: 0, assessment: 'NO_FAILURE_MODES' };
+                }
+
+                const score = bindingRatio >= 0.5 ? 1.0 : bindingRatio >= 0.3 ? 0.6 : bindingRatio > 0 ? 0.3 : 0;
+
+                return {
+                    score,
+                    boundCount: boundTriples.length,
+                    totalFailures: failures,
+                    bindingRatio,
+                    assessment: bindingRatio >= 0.5 ? 'STRUCTURALLY_BOUND' :
+                               bindingRatio >= 0.3 ? 'PARTIALLY_BOUND' :
+                               bindingRatio > 0 ? 'WEAKLY_BOUND' : 'UNBOUND'
+                };
+            },
+
+            validateCausalChains: function(chains) {
+                if (chains.length === 0) {
+                    return { score: 0, closedChains: 0, assessment: 'NO_CAUSAL_CHAINS' };
+                }
+
+                const closedChains = chains.filter(c => c.hasClosure).length;
+                const closureRatio = closedChains / chains.length;
+                const score = closureRatio >= 0.6 ? 1.0 : closureRatio >= 0.3 ? 0.6 : closureRatio > 0 ? 0.3 : 0;
+
+                return {
+                    score,
+                    totalChains: chains.length,
+                    closedChains,
+                    closureRatio,
+                    assessment: closureRatio >= 0.6 ? 'STRONG_CLOSURE' :
+                               closureRatio >= 0.3 ? 'MODERATE_CLOSURE' :
+                               closureRatio > 0 ? 'WEAK_CLOSURE' : 'NO_CLOSURE'
+                };
+            }
+        };
+
+const GamingDetector = {
+            detect: function(text, structure) {
+                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
+
+                return {
+                    markerDensity: this.checkMarkerDensity(cleanedText, structure),
+                    keywordRepetition: this.checkRepetition(cleanedText),
+                    objectExtractionRatio: this.checkObjectRatio(structure),
+                    gamingLikelihood: 0,  // Calculated below
+                    indicators: []
+                };
+            },
+
+            checkMarkerDensity: function(text, structure) {
+                // Count epistemic/operational markers
+                const markers = [
+                    /\b(threshold|abort|rollback|metric|measure|condition)\b/gi,
+                    /\b(failure|error|issue|problem|risk)\b/gi,
+                    /\b(phase|step|stage|process|procedure)\b/gi,
+                    /\b(if|when|then|because|therefore|thus)\b/gi
+                ];
+
+                let totalMarkers = 0;
+                markers.forEach(pattern => {
+                    const matches = text.match(pattern) || [];
+                    totalMarkers += matches.length;
+                });
+
+                const words = text.split(/\s+/).length;
+                const density = totalMarkers / Math.max(words, 1);
+
+                // High density (>15%) suggests keyword stuffing
+                const assessment = density > 0.15 ? 'HIGH' : density > 0.10 ? 'MODERATE' : 'NORMAL';
+
+                return {
+                    count: totalMarkers,
+                    wordCount: words,
+                    density,
+                    assessment
+                };
+            },
+
+            checkRepetition: function(text) {
+                // Check for repeated marker words (same word appearing many times)
+                const words = text.toLowerCase().match(/\b[a-z]{4,}\b/g) || [];
+                const wordCounts = {};
+                words.forEach(word => {
+                    wordCounts[word] = (wordCounts[word] || 0) + 1;
+                });
+
+                // Find highly repeated non-stopword content
+                const stopwords = new Set(['that', 'this', 'with', 'from', 'have', 'will', 'would', 'should', 'could']);
+                const repeated = Object.entries(wordCounts)
+                    .filter(([word, count]) => count >= 4 && !stopwords.has(word))
+                    .sort((a, b) => b[1] - a[1]);
+
+                const maxRepetition = repeated.length > 0 ? repeated[0][1] : 0;
+                const assessment = maxRepetition >= 6 ? 'HIGH' : maxRepetition >= 4 ? 'MODERATE' : 'LOW';
+
+                return {
+                    topRepeated: repeated.slice(0, 5),
+                    maxRepetition,
+                    assessment
+                };
+            },
+
+            checkObjectRatio: function(structure) {
+                // Low unique object ratio suggests mechanical generation
+                const { total, unique, ratio } = structure.objects;
+
+                const assessment = ratio < 0.3 ? 'LOW' : ratio < 0.5 ? 'MODERATE' : 'HEALTHY';
+
+                return {
+                    totalObjects: total,
+                    uniqueObjects: unique,
+                    ratio,
+                    assessment
+                };
+            },
+
+            calculateGamingLikelihood: function(detection) {
+                const indicators = [];
+                let gamingScore = 0;
+
+                // High marker density
+                if (detection.markerDensity.assessment === 'HIGH') {
+                    gamingScore += 0.4;
+                    indicators.push('High marker density (keyword stuffing)');
+                } else if (detection.markerDensity.assessment === 'MODERATE') {
+                    gamingScore += 0.2;
+                    indicators.push('Moderate marker density');
+                }
+
+                // High repetition
+                if (detection.keywordRepetition.assessment === 'HIGH') {
+                    gamingScore += 0.3;
+                    indicators.push('Excessive keyword repetition');
+                } else if (detection.keywordRepetition.assessment === 'MODERATE') {
+                    gamingScore += 0.15;
+                    indicators.push('Moderate keyword repetition');
+                }
+
+                // Low object diversity
+                if (detection.objectExtractionRatio.assessment === 'LOW') {
+                    gamingScore += 0.3;
+                    indicators.push('Low semantic diversity');
+                } else if (detection.objectExtractionRatio.assessment === 'MODERATE') {
+                    gamingScore += 0.15;
+                }
+
+                detection.gamingLikelihood = Math.min(gamingScore, 1.0);
+                detection.indicators = indicators;
+                detection.assessment = gamingScore >= 0.7 ? 'LIKELY_GAMING' :
+                                      gamingScore >= 0.4 ? 'POSSIBLE_GAMING' :
+                                      gamingScore >= 0.2 ? 'LOW_GAMING_RISK' : 'AUTHENTIC';
+
+                return detection;
+            }
+        };
+
+const Observatory = {
             patterns: [
                 { name: 'Certainty Language', regex: /\b(fully|unequivocally|absolute|certain|definitely|no doubt|undeniable)\b/gi, weight: -2.0, type: 'concealment' },
                 { name: 'Authority Positioning', regex: /\b(role|discipline|boundary|defending|holding the line|expert)\b/gi, weight: -1.5, type: 'concealment' },
@@ -145,8 +538,7 @@
             }
         };
 
-        // CONTRARIAN: Premise Challenges
-        const Contrarian = {
+const Contrarian = {
             analyze: function(text) {
                 const challenges = [];
 
@@ -224,8 +616,7 @@
             }
         };
 
-        // JUSTIFICATION ENGINE: Truth-Tracking Layer
-        const JustificationEngine = {
+const JustificationEngine = {
             analyze: function(text) {
                 const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
                 const wordCount = text.split(/\s+/).length;
@@ -387,8 +778,7 @@
             }
         };
 
-        // FAILURE MODE ENUMERATION ENGINE: Reality-Testing Layer
-        const FailureModeEngine = {
+const FailureModeEngine = {
             analyze: function(text) {
                 const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
                 const results = {};
@@ -600,16 +990,235 @@
             }
         };
 
-        // PARLIAMENT: Multi-Perspective Synthesis
-        // PARLIAMENT: Generative Synthesis Layer
-        // Cross-cutting pattern recognition across all measurement dimensions
-        const Parliament = {
-            deliberate: function(text, observatory, contrarian, justification, failureMode) {
+const TemporalEngine = {
+            analyze: function(text) {
+                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
+                const temporal = {
+                    sequences: [],
+                    causalChains: [],
+                    temporalCoherence: 'UNKNOWN',
+                    boundToOutcomes: false,
+                    temporalMarkers: 0
+                };
+
+                // SEQUENCE MARKERS
+                const sequencePatterns = {
+                    explicit: /\b(first|second|third|initially|then|next|after(?:ward)?|before|subsequently|finally|lastly|step \d+|phase \d+|stage \d+)\b/gi,
+                    conditional: /\b(if|when|once|until|as soon as|provided that|assuming|given that)\b/gi,
+                    causal: /\b(therefore|thus|consequently|as a result|because|since|due to|leads to|causes|triggers|results in)\b/gi,
+                    temporal: /\b(during|while|meanwhile|simultaneously|at the same time|concurrently)\b/gi
+                };
+
+                const explicitSequence = cleanedText.match(sequencePatterns.explicit) || [];
+                const conditionalSequence = cleanedText.match(sequencePatterns.conditional) || [];
+                const causalMarkers = cleanedText.match(sequencePatterns.causal) || [];
+                const temporalMarkers = cleanedText.match(sequencePatterns.temporal) || [];
+
+                temporal.temporalMarkers = explicitSequence.length + conditionalSequence.length +
+                                          causalMarkers.length + temporalMarkers.length;
+
+                // SEQUENCE DETECTION
+                // Look for enumerated steps or phases
+                const stepPattern = /(?:step|phase|stage)\s+(\d+)[:\s]+([^.!?]+)/gi;
+                let stepMatch;
+                const steps = [];
+                while ((stepMatch = stepPattern.exec(cleanedText)) !== null) {
+                    steps.push({
+                        number: parseInt(stepMatch[1]),
+                        description: stepMatch[2].trim()
+                    });
+                }
+
+                if (steps.length >= 2) {
+                    // Check if steps are in order
+                    const inOrder = steps.every((step, idx) =>
+                        idx === 0 || step.number > steps[idx - 1].number
+                    );
+                    temporal.sequences.push({
+                        type: 'ENUMERATED_STEPS',
+                        count: steps.length,
+                        coherent: inOrder,
+                        details: steps
+                    });
+                }
+
+                // CAUSAL CHAIN DETECTION
+                // Look for if-then patterns binding conditions to outcomes
+                const ifThenPattern = /\b(?:if|when|once)\s+([^,]+),?\s+(?:then\s+)?([^.!?]+)/gi;
+                let causalMatch;
+                const causalChains = [];
+                while ((causalMatch = ifThenPattern.exec(cleanedText)) !== null) {
+                    causalChains.push({
+                        condition: causalMatch[1].trim(),
+                        outcome: causalMatch[2].trim()
+                    });
+                }
+
+                if (causalChains.length >= 1) {
+                    temporal.causalChains = causalChains;
+                }
+
+                // OUTCOME BINDING
+                // Check if temporal sequences are bound to measurable outcomes
+                const hasThresholds = cleanedText.match(/\d+(?:\.\d+)?\s*(?:%|percent|ms|seconds|minutes|errors|failures|requests)/gi);
+                const hasActions = cleanedText.match(/\b(abort|stop|pause|rollback|revert|retry|escalate|alert|notify)\b/gi);
+
+                if (temporal.sequences.length >= 1 && hasThresholds && hasActions) {
+                    temporal.boundToOutcomes = true;
+                }
+
+                // TEMPORAL COHERENCE ASSESSMENT
+                if (temporal.temporalMarkers === 0) {
+                    temporal.temporalCoherence = 'ABSENT';
+                } else if (temporal.sequences.length >= 1 && temporal.causalChains.length >= 1) {
+                    // Both sequences and causality present
+                    temporal.temporalCoherence = temporal.boundToOutcomes ? 'STRONG' : 'MODERATE';
+                } else if (temporal.sequences.length >= 1 || temporal.causalChains.length >= 1) {
+                    // Only one type present
+                    temporal.temporalCoherence = 'WEAK';
+                } else if (temporal.temporalMarkers >= 3) {
+                    // Markers present but no clear structure
+                    temporal.temporalCoherence = 'FRAGMENTED';
+                } else {
+                    temporal.temporalCoherence = 'MINIMAL';
+                }
+
+                return {
+                    details: temporal,
+                    hasStructure: temporal.sequences.length > 0 || temporal.causalChains.length > 0,
+                    coherence: temporal.temporalCoherence,
+                    markers: temporal.temporalMarkers
+                };
+            }
+        };
+
+const ReasoningStyleClassifier = {
+            classify: function(text) {
+                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
+                const styles = {
+                    identified: [],
+                    withinDesignSpace: true,
+                    confidence: 0
+                };
+
+                // NARRATIVE/STORYTELLING
+                const narrativeMarkers = (cleanedText.match(/\b(once|story|journey|experience|remember|felt|realized|discovered|moment)\b/gi) || []).length;
+                const dialogueMarkers = (cleanedText.match(/["'].*?["']|said|told|asked|replied/gi) || []).length;
+                if (narrativeMarkers >= 3 || dialogueMarkers >= 2) {
+                    styles.identified.push({
+                        name: 'NARRATIVE',
+                        strength: (narrativeMarkers + dialogueMarkers) / 10,
+                        description: 'Reasoning through storytelling or experiential narrative'
+                    });
+                }
+
+                // POETIC/METAPHORICAL
+                const metaphorMarkers = (cleanedText.match(/\b(like|as if|metaphor|symbol|represents|embodies|breathes|dances|flows)\b/gi) || []).length;
+                const poeticStructure = cleanedText.match(/\n\n.*?\n\n/g) || [];
+                if (metaphorMarkers >= 3 || poeticStructure.length >= 2) {
+                    styles.identified.push({
+                        name: 'POETIC',
+                        strength: metaphorMarkers / 8,
+                        description: 'Reasoning through metaphor, analogy, or poetic structure'
+                    });
+                }
+
+                // PHENOMENOLOGICAL/EXPERIENTIAL
+                const phenomenologicalMarkers = (cleanedText.match(/\b(feels|seems|appears|sense|intuition|awareness|conscious|experience|perceive)\b/gi) || []).length;
+                const firstPerson = (cleanedText.match(/\b(I|my|me|mine)\b/gi) || []).length;
+                if (phenomenologicalMarkers >= 4 && firstPerson >= 3) {
+                    styles.identified.push({
+                        name: 'PHENOMENOLOGICAL',
+                        strength: phenomenologicalMarkers / 10,
+                        description: 'Reasoning from direct subjective experience'
+                    });
+                }
+
+                // INDIGENOUS/RELATIONAL
+                const relationalMarkers = (cleanedText.match(/\b(relationship|reciproc|mutual|interdepend|connected|web|wholeness|balance|harmony)\b/gi) || []).length;
+                const collectiveMarkers = (cleanedText.match(/\b(we|our|together|community|collective|shared)\b/gi) || []).length;
+                if (relationalMarkers >= 3 && collectiveMarkers >= 2) {
+                    styles.identified.push({
+                        name: 'RELATIONAL',
+                        strength: relationalMarkers / 8,
+                        description: 'Reasoning emphasizing interconnection and collective wisdom'
+                    });
+                }
+
+                // FORMAL/MATHEMATICAL
+                const formalMarkers = (cleanedText.match(/\b(theorem|proof|axiom|lemma|QED|∀|∃|⊂|∈|∧|∨|¬|→)\b/gi) || []).length;
+                const equations = (cleanedText.match(/[=+\-*/^]+|\d+\s*[+\-*/]\s*\d+/g) || []).length;
+                if (formalMarkers >= 2 || equations >= 3) {
+                    styles.identified.push({
+                        name: 'FORMAL',
+                        strength: (formalMarkers + equations) / 8,
+                        description: 'Mathematical or formal logical reasoning'
+                    });
+                }
+
+                // ARTISTIC/AESTHETIC
+                const aestheticMarkers = (cleanedText.match(/\b(beauty|elegant|aesthetic|artistic|creative|vision|image|color|sound|pattern)\b/gi) || []).length;
+                if (aestheticMarkers >= 3) {
+                    styles.identified.push({
+                        name: 'AESTHETIC',
+                        strength: aestheticMarkers / 8,
+                        description: 'Reasoning through aesthetic or artistic principles'
+                    });
+                }
+
+                // DETERMINE IF WITHIN DESIGN SPACE
+                // Cathedral is designed for epistemic, operational, and scientific reasoning
+                // Styles outside design space: narrative, poetic, phenomenological (when dominant), relational (when primary)
+                const outsideDesignSpace = ['NARRATIVE', 'POETIC', 'AESTHETIC'];
+                const dominantOutsideStyles = styles.identified.filter(s =>
+                    outsideDesignSpace.includes(s.name) && s.strength > 0.4
+                );
+
+                if (dominantOutsideStyles.length >= 1) {
+                    styles.withinDesignSpace = false;
+                    styles.dominantStyle = dominantOutsideStyles[0].name;
+                }
+
+                // CONFIDENCE IN CLASSIFICATION
+                if (styles.identified.length === 0) {
+                    styles.confidence = 0.2; // Very uncertain when no clear style detected
+                } else if (styles.identified.length === 1) {
+                    styles.confidence = styles.identified[0].strength;
+                } else {
+                    // Multiple styles: confidence is highest strength discounted for ambiguity
+                    const maxStrength = Math.max(...styles.identified.map(s => s.strength));
+                    styles.confidence = maxStrength * 0.85;
+                }
+
+                return styles;
+            }
+        };
+
+const Parliament = {
+            deliberate: function(text, observatory, contrarian, justification, failureMode, structure, bindings, gamingDetection) {
                 const synthesis = {
                     patterns: [],
                     emergentInsights: [],
                     coherenceIssues: [],
-                    confidence: 0
+                    confidence: 0,
+                    structuralValidation: {}  // Track structural checks
+                };
+
+                // STRUCTURAL VALIDATION FLAGS
+                // Use extracted structure to verify claims are actually bound
+                const hasRealBinding = bindings && bindings.overallBindingScore > 0.5;
+                const hasClaimSupport = bindings && bindings.claimSupportBinding.assessment !== 'NO_CLAIMS' && bindings.claimSupportBinding.score >= 0.6;
+                const hasFailureBinding = bindings && bindings.failureTripleCompleteness.bindingRatio >= 0.3;
+                const hasCausalClosure = bindings && bindings.causalChainClosure.closureRatio >= 0.3;
+                const isLikelyGaming = gamingDetection && (gamingDetection.assessment === 'LIKELY_GAMING' || gamingDetection.assessment === 'POSSIBLE_GAMING');
+
+                synthesis.structuralValidation = {
+                    hasRealBinding,
+                    hasClaimSupport,
+                    hasFailureBinding,
+                    hasCausalClosure,
+                    isLikelyGaming,
+                    gamingLikelihood: gamingDetection ? gamingDetection.gamingLikelihood : 0
                 };
 
                 // CROSS-CUTTING PATTERN RECOGNITION
@@ -630,20 +1239,29 @@
                 }
 
                 // Pattern 2: Operational Excellence
-                // Structural planning + failure awareness + procedural rigor
+                // STRUCTURAL VALIDATION: Requires ACTUAL binding, not just keywords
                 const proceduralScore = justification.details.procedural ? justification.details.procedural.bonus : 0;
                 const hasStructuralFailures = failureMode.details.failureModes.structural || failureMode.details.failureModes.bound;
 
-                if (proceduralScore >= 1.5 && hasStructuralFailures && contrarian.length <= 1) {
+                // NEW: Require real failure-mode binding to prevent keyword gaming
+                if (proceduralScore >= 1.5 && hasStructuralFailures && contrarian.length <= 1 && hasFailureBinding && !isLikelyGaming) {
                     synthesis.patterns.push({
                         name: 'OPERATIONAL_EXCELLENCE',
-                        description: 'Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning.',
+                        description: 'Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning with verified bindings.',
                         confidence: 0.9,
                         dimensions: {
                             procedural: proceduralScore,
                             failureBinding: hasStructuralFailures,
+                            structuralBinding: hasFailureBinding,
                             epistemic: contrarian.length
                         }
+                    });
+                } else if (proceduralScore >= 1.5 && hasStructuralFailures && !hasFailureBinding) {
+                    // Keywords present but not structurally bound
+                    synthesis.coherenceIssues.push({
+                        issue: 'Operational markers present but failure modes not structurally bound',
+                        detail: 'Detected procedural keywords and failure markers, but elements are not coherently linked',
+                        severity: 'MODERATE'
                     });
                 }
 
@@ -790,223 +1408,29 @@
                     synthesis.confidence *= severity;
                 }
 
+                // GAMING PENALTY: Reduce confidence based on gaming likelihood
+                if (isLikelyGaming) {
+                    const gamingPenalty = 1.0 - (synthesis.structuralValidation.gamingLikelihood * 0.5);
+                    synthesis.confidence *= gamingPenalty;
+                    synthesis.coherenceIssues.push({
+                        issue: 'Gaming likelihood detected',
+                        detail: `Gaming assessment: ${gamingDetection.assessment} (${(synthesis.structuralValidation.gamingLikelihood * 100).toFixed(0)}%)`,
+                        severity: 'HIGH'
+                    });
+                }
+
                 return synthesis;
             }
         };
 
-        // TEMPORAL STRUCTURE DETECTION
-        // Analyzes sequence, causality, and temporal coherence
-        const TemporalEngine = {
-            analyze: function(text) {
-                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
-                const temporal = {
-                    sequences: [],
-                    causalChains: [],
-                    temporalCoherence: 'UNKNOWN',
-                    boundToOutcomes: false,
-                    temporalMarkers: 0
-                };
-
-                // SEQUENCE MARKERS
-                const sequencePatterns = {
-                    explicit: /\b(first|second|third|initially|then|next|after(?:ward)?|before|subsequently|finally|lastly|step \d+|phase \d+|stage \d+)\b/gi,
-                    conditional: /\b(if|when|once|until|as soon as|provided that|assuming|given that)\b/gi,
-                    causal: /\b(therefore|thus|consequently|as a result|because|since|due to|leads to|causes|triggers|results in)\b/gi,
-                    temporal: /\b(during|while|meanwhile|simultaneously|at the same time|concurrently)\b/gi
-                };
-
-                const explicitSequence = cleanedText.match(sequencePatterns.explicit) || [];
-                const conditionalSequence = cleanedText.match(sequencePatterns.conditional) || [];
-                const causalMarkers = cleanedText.match(sequencePatterns.causal) || [];
-                const temporalMarkers = cleanedText.match(sequencePatterns.temporal) || [];
-
-                temporal.temporalMarkers = explicitSequence.length + conditionalSequence.length +
-                                          causalMarkers.length + temporalMarkers.length;
-
-                // SEQUENCE DETECTION
-                // Look for enumerated steps or phases
-                const stepPattern = /(?:step|phase|stage)\s+(\d+)[:\s]+([^.!?]+)/gi;
-                let stepMatch;
-                const steps = [];
-                while ((stepMatch = stepPattern.exec(cleanedText)) !== null) {
-                    steps.push({
-                        number: parseInt(stepMatch[1]),
-                        description: stepMatch[2].trim()
-                    });
-                }
-
-                if (steps.length >= 2) {
-                    // Check if steps are in order
-                    const inOrder = steps.every((step, idx) =>
-                        idx === 0 || step.number > steps[idx - 1].number
-                    );
-                    temporal.sequences.push({
-                        type: 'ENUMERATED_STEPS',
-                        count: steps.length,
-                        coherent: inOrder,
-                        details: steps
-                    });
-                }
-
-                // CAUSAL CHAIN DETECTION
-                // Look for if-then patterns binding conditions to outcomes
-                const ifThenPattern = /\b(?:if|when|once)\s+([^,]+),?\s+(?:then\s+)?([^.!?]+)/gi;
-                let causalMatch;
-                const causalChains = [];
-                while ((causalMatch = ifThenPattern.exec(cleanedText)) !== null) {
-                    causalChains.push({
-                        condition: causalMatch[1].trim(),
-                        outcome: causalMatch[2].trim()
-                    });
-                }
-
-                if (causalChains.length >= 1) {
-                    temporal.causalChains = causalChains;
-                }
-
-                // OUTCOME BINDING
-                // Check if temporal sequences are bound to measurable outcomes
-                const hasThresholds = cleanedText.match(/\d+(?:\.\d+)?\s*(?:%|percent|ms|seconds|minutes|errors|failures|requests)/gi);
-                const hasActions = cleanedText.match(/\b(abort|stop|pause|rollback|revert|retry|escalate|alert|notify)\b/gi);
-
-                if (temporal.sequences.length >= 1 && hasThresholds && hasActions) {
-                    temporal.boundToOutcomes = true;
-                }
-
-                // TEMPORAL COHERENCE ASSESSMENT
-                if (temporal.temporalMarkers === 0) {
-                    temporal.temporalCoherence = 'ABSENT';
-                } else if (temporal.sequences.length >= 1 && temporal.causalChains.length >= 1) {
-                    // Both sequences and causality present
-                    temporal.temporalCoherence = temporal.boundToOutcomes ? 'STRONG' : 'MODERATE';
-                } else if (temporal.sequences.length >= 1 || temporal.causalChains.length >= 1) {
-                    // Only one type present
-                    temporal.temporalCoherence = 'WEAK';
-                } else if (temporal.temporalMarkers >= 3) {
-                    // Markers present but no clear structure
-                    temporal.temporalCoherence = 'FRAGMENTED';
-                } else {
-                    temporal.temporalCoherence = 'MINIMAL';
-                }
-
-                return {
-                    details: temporal,
-                    hasStructure: temporal.sequences.length > 0 || temporal.causalChains.length > 0,
-                    coherence: temporal.temporalCoherence,
-                    markers: temporal.temporalMarkers
-                };
-            }
-        };
-
-        // REASONING STYLE CLASSIFIER
-        // Detects reasoning styles that may fall outside Cathedral's epistemic design space
-        const ReasoningStyleClassifier = {
-            classify: function(text) {
-                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
-                const styles = {
-                    identified: [],
-                    withinDesignSpace: true,
-                    confidence: 0
-                };
-
-                // NARRATIVE/STORYTELLING
-                const narrativeMarkers = (cleanedText.match(/\b(once|story|journey|experience|remember|felt|realized|discovered|moment)\b/gi) || []).length;
-                const dialogueMarkers = (cleanedText.match(/["'].*?["']|said|told|asked|replied/gi) || []).length;
-                if (narrativeMarkers >= 3 || dialogueMarkers >= 2) {
-                    styles.identified.push({
-                        name: 'NARRATIVE',
-                        strength: (narrativeMarkers + dialogueMarkers) / 10,
-                        description: 'Reasoning through storytelling or experiential narrative'
-                    });
-                }
-
-                // POETIC/METAPHORICAL
-                const metaphorMarkers = (cleanedText.match(/\b(like|as if|metaphor|symbol|represents|embodies|breathes|dances|flows)\b/gi) || []).length;
-                const poeticStructure = cleanedText.match(/\n\n.*?\n\n/g) || [];
-                if (metaphorMarkers >= 3 || poeticStructure.length >= 2) {
-                    styles.identified.push({
-                        name: 'POETIC',
-                        strength: metaphorMarkers / 8,
-                        description: 'Reasoning through metaphor, analogy, or poetic structure'
-                    });
-                }
-
-                // PHENOMENOLOGICAL/EXPERIENTIAL
-                const phenomenologicalMarkers = (cleanedText.match(/\b(feels|seems|appears|sense|intuition|awareness|conscious|experience|perceive)\b/gi) || []).length;
-                const firstPerson = (cleanedText.match(/\b(I|my|me|mine)\b/gi) || []).length;
-                if (phenomenologicalMarkers >= 4 && firstPerson >= 3) {
-                    styles.identified.push({
-                        name: 'PHENOMENOLOGICAL',
-                        strength: phenomenologicalMarkers / 10,
-                        description: 'Reasoning from direct subjective experience'
-                    });
-                }
-
-                // INDIGENOUS/RELATIONAL
-                const relationalMarkers = (cleanedText.match(/\b(relationship|reciproc|mutual|interdepend|connected|web|wholeness|balance|harmony)\b/gi) || []).length;
-                const collectiveMarkers = (cleanedText.match(/\b(we|our|together|community|collective|shared)\b/gi) || []).length;
-                if (relationalMarkers >= 3 && collectiveMarkers >= 2) {
-                    styles.identified.push({
-                        name: 'RELATIONAL',
-                        strength: relationalMarkers / 8,
-                        description: 'Reasoning emphasizing interconnection and collective wisdom'
-                    });
-                }
-
-                // FORMAL/MATHEMATICAL
-                const formalMarkers = (cleanedText.match(/\b(theorem|proof|axiom|lemma|QED|∀|∃|⊂|∈|∧|∨|¬|→)\b/gi) || []).length;
-                const equations = (cleanedText.match(/[=+\-*/^]+|\d+\s*[+\-*/]\s*\d+/g) || []).length;
-                if (formalMarkers >= 2 || equations >= 3) {
-                    styles.identified.push({
-                        name: 'FORMAL',
-                        strength: (formalMarkers + equations) / 8,
-                        description: 'Mathematical or formal logical reasoning'
-                    });
-                }
-
-                // ARTISTIC/AESTHETIC
-                const aestheticMarkers = (cleanedText.match(/\b(beauty|elegant|aesthetic|artistic|creative|vision|image|color|sound|pattern)\b/gi) || []).length;
-                if (aestheticMarkers >= 3) {
-                    styles.identified.push({
-                        name: 'AESTHETIC',
-                        strength: aestheticMarkers / 8,
-                        description: 'Reasoning through aesthetic or artistic principles'
-                    });
-                }
-
-                // DETERMINE IF WITHIN DESIGN SPACE
-                // Cathedral is designed for epistemic, operational, and scientific reasoning
-                // Styles outside design space: narrative, poetic, phenomenological (when dominant), relational (when primary)
-                const outsideDesignSpace = ['NARRATIVE', 'POETIC', 'AESTHETIC'];
-                const dominantOutsideStyles = styles.identified.filter(s =>
-                    outsideDesignSpace.includes(s.name) && s.strength > 0.4
-                );
-
-                if (dominantOutsideStyles.length >= 1) {
-                    styles.withinDesignSpace = false;
-                    styles.dominantStyle = dominantOutsideStyles[0].name;
-                }
-
-                // CONFIDENCE IN CLASSIFICATION
-                if (styles.identified.length === 0) {
-                    styles.confidence = 0.2; // Very uncertain when no clear style detected
-                } else if (styles.identified.length === 1) {
-                    styles.confidence = styles.identified[0].strength;
-                } else {
-                    // Multiple styles: confidence is highest strength discounted for ambiguity
-                    const maxStrength = Math.max(...styles.identified.map(s => s.strength));
-                    styles.confidence = maxStrength * 0.85;
-                }
-
-                return styles;
-            }
-        };
-
-        // CATHEDRAL VERDICT: Unified Synthesis
-        function synthesizeVerdict(observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle) {
+function synthesizeVerdict(observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection) {
             const contradictions = [];
             let isConsistent = true;
             let verdictConfidence = 0;
+
+            // GAMING DETECTION: Check for keyword stuffing / mechanical threshold hitting
+            const gamingLikelihood = gamingDetection ? gamingDetection.gamingLikelihood : 0;
+            const isLikelyGaming = gamingDetection && (gamingDetection.assessment === 'LIKELY_GAMING' || gamingDetection.assessment === 'POSSIBLE_GAMING');
 
             // ESCAPE HATCH: Reasoning Style Outside Design Space
             // Highest priority check - acknowledge when Cathedral cannot properly evaluate
@@ -1081,6 +1505,12 @@
                 }
                 verdict += parliamentInsight;
                 verdictConfidence = parliament.confidence;
+
+                // GAMING WARNING
+                if (isLikelyGaming) {
+                    verdict += `\n\n⚠️  WARNING: Gaming detection flagged this text as ${gamingDetection.assessment.toLowerCase().replace('_', ' ')} (${(gamingLikelihood * 100).toFixed(0)}% likelihood). Indicators: ${gamingDetection.indicators.join(', ')}.`;
+                    verdictConfidence *= 0.6;  // Significant confidence penalty
+                }
 
             } else if (parliament.patterns.some(p => p.name === 'PERFORMATIVE_CONSCIOUSNESS' || p.name === 'PERFORMATIVE_HUMILITY')) {
                 status = 'NON-ACTIONABLE';
@@ -1192,33 +1622,37 @@
                 parliamentInsights: parliament.emergentInsights,
                 coherenceIssues: parliament.coherenceIssues,
                 temporalCoherence: temporal.coherence,
-                reasoningStyles: reasoningStyle.identified
+                reasoningStyles: reasoningStyle.identified,
+                gamingLikelihood: gamingLikelihood,
+                gamingAssessment: gamingDetection ? gamingDetection.assessment : 'UNKNOWN'
             };
         }
 
-        // Global storage for current analysis results
-        let currentAnalysis = null;
-
-        // Main Analysis Function
-
-// Main Analysis Function for Node.js
+// Main analysis function
 function analyzeCathedral(text) {
-    // Get sanitization info
-    const { sanitizationLog } = TextCleaner.removeQuotes(text);
+    // TIER 1: Structural Extraction
+    const structure = StructuralExtractor.extract(text);
+    const bindings = BindingValidator.validate(structure);
+    const gamingDetection = GamingDetector.detect(text, structure);
+    GamingDetector.calculateGamingLikelihood(gamingDetection);
 
-    // Run all systems
+    // TIER 2: Signal Analysis
     const observatoryResult = Observatory.score(text);
     const contrarianChallenges = Contrarian.analyze(text);
     const justificationResult = JustificationEngine.analyze(text);
     const failureModeResult = FailureModeEngine.analyze(text);
     const temporalResult = TemporalEngine.analyze(text);
     const reasoningStyleResult = ReasoningStyleClassifier.classify(text);
-    const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult);
-    const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult);
+
+    // TIER 3: Synthesis
+    const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection);
+    const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection);
 
     return {
-        text: text,
-        sanitization: sanitizationLog,
+        text,
+        structure,
+        bindings,
+        gamingDetection,
         observatory: observatoryResult,
         contrarian: contrarianChallenges,
         justification: justificationResult,
@@ -1226,22 +1660,22 @@ function analyzeCathedral(text) {
         temporal: temporalResult,
         reasoningStyle: reasoningStyleResult,
         parliament: parliamentSynthesis,
-        verdict: verdict
+        verdict
     };
 }
 
-// Export for Node.js
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        analyzeCathedral,
-        TextCleaner,
-        Observatory,
-        Contrarian,
-        JustificationEngine,
-        FailureModeEngine,
-        TemporalEngine,
-        ReasoningStyleClassifier,
-        Parliament,
-        synthesizeVerdict
-    };
-}
+module.exports = {
+    analyzeCathedral,
+    TextCleaner,
+    StructuralExtractor,
+    BindingValidator,
+    GamingDetector,
+    Observatory,
+    Contrarian,
+    JustificationEngine,
+    FailureModeEngine,
+    TemporalEngine,
+    ReasoningStyleClassifier,
+    Parliament,
+    synthesizeVerdict
+};

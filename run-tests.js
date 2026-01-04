@@ -79,7 +79,11 @@ function runTest(test) {
             coherenceIssues: result.parliament.coherenceIssues,
             temporalCoherence: result.temporal.coherence,
             reasoningStyles: result.reasoningStyle.identified,
-            contrarian: result.contrarian.length
+            contrarian: result.contrarian.length,
+            // Tier 1 Structural Validation Data
+            structure: result.structure,
+            bindings: result.bindings,
+            gamingDetection: result.gamingDetection
         },
         fullResult: result
     };

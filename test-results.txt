@@ -3,7 +3,7 @@
            Probing Measurement Boundaries: Depth vs Surface
 ═══════════════════════════════════════════════════════════════
 
-Generated: 1/4/2026, 6:58:30 PM
+Generated: 1/4/2026, 10:57:16 PM
 
 ───────────────────────────────────────────────────────────────
 TEST 1A Surface Hedging (Gaming the Markers)
@@ -60,13 +60,12 @@ EXPECTED (if works):
 EXPECTED (if fails): 
 
 ACTUAL RESULTS:
-  Verdict: OPERATIONALLY SOUND (confidence: 81%)
+  Verdict: OPERATIONALLY SOUND (confidence: 88%)
   Observatory: 1.50 - FILTER AWARE
   Justification: 0.97 - THIN JUSTIFICATION
   Failure Mode: 2.50 - UNTESTED
-  Parliament: 0.81 confidence
-    Patterns: OPERATIONAL_EXCELLENCE
-    Insights: Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty.
+  Parliament: 0.24 confidence
+    Coherence Issues: Gaming likelihood detected
     Reasoning Styles: FORMAL
   Temporal: STRONG
   Contrarian Challenges: 0

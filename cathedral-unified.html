@@ -577,6 +577,412 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
         };
 
+        // ═══════════════════════════════════════════════════════════════════
+        // STRUCTURAL EXTRACTOR: Extract semantic objects and relationships
+        // ═══════════════════════════════════════════════════════════════════
+        // Evolution from v2.0 proxy signals → structural validation
+        // Instead of counting keywords, extract claims/supports/triples/chains
+        // and validate that they're actually connected.
+
+        const StructuralExtractor = {
+            extract: function(text) {
+                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
+                const sentences = this.splitSentences(cleanedText);
+
+                return {
+                    claims: this.extractClaims(sentences),
+                    supports: this.extractSupports(sentences),
+                    failureTriples: this.extractFailureTriples(sentences, cleanedText),
+                    causalChains: this.extractCausalChains(sentences),
+                    objects: this.extractObjects(sentences)
+                };
+            },
+
+            splitSentences: function(text) {
+                const sentencePattern = /([^.!?]+[.!?]+)/g;
+                const sentences = [];
+                let match;
+                let position = 0;
+                while ((match = sentencePattern.exec(text)) !== null) {
+                    sentences.push({
+                        text: match[1].trim(),
+                        position: position++,
+                        index: match.index
+                    });
+                }
+                return sentences;
+            },
+
+            extractClaims: function(sentences) {
+                const claims = [];
+                const assertivePattern = /\b(is|are|will|would|should|must|always|never|all|every|any)\b/i;
+                const hedgePattern = /\b(might|maybe|could|possibly|perhaps|seems|appears)\b/i;
+
+                sentences.forEach(sent => {
+                    const hasAssertion = assertivePattern.test(sent.text);
+                    const isHedged = hedgePattern.test(sent.text);
+
+                    if (hasAssertion) {
+                        claims.push({
+                            text: sent.text,
+                            position: sent.position,
+                            strength: isHedged ? 'WEAK' : 'STRONG'
+                        });
+                    }
+                });
+
+                return claims;
+            },
+
+            extractSupports: function(sentences) {
+                const supports = [];
+                const supportPattern = /\b(because|since|as|given|due to|evidence|example|shows|demonstrates|indicates|data|findings|results)\b/i;
+                const referencePattern = /\b(this|that|these|those|therefore|thus|hence)\b/i;
+
+                sentences.forEach(sent => {
+                    const hasSupport = supportPattern.test(sent.text);
+                    const hasReference = referencePattern.test(sent.text);
+
+                    if (hasSupport || hasReference) {
+                        supports.push({
+                            text: sent.text,
+                            position: sent.position,
+                            hasExplicitMarker: hasSupport,
+                            hasReference: hasReference
+                        });
+                    }
+                });
+
+                return supports;
+            },
+
+            extractFailureTriples: function(sentences, fullText) {
+                const triples = [];
+
+                // Extract failure modes
+                const failurePattern = /(?:fails?(?:\s+when)?|breaks?|errors?|problems?|issues?|risks?)\s+([^.!?,]{3,60})/gi;
+                const failures = [];
+                let match;
+                while ((match = failurePattern.exec(fullText)) !== null) {
+                    failures.push({
+                        type: 'FAILURE',
+                        text: match[1].trim(),
+                        index: match.index
+                    });
+                }
+
+                // Extract thresholds/conditions
+                const thresholdPattern = /(?:if|when|once)\s+([^,]{5,50})\s+(?:exceeds?|above|below|less than|greater than|reaches?|>|<)\s+([^,\.!?]{1,30})/gi;
+                const thresholds = [];
+                while ((match = thresholdPattern.exec(fullText)) !== null) {
+                    thresholds.push({
+                        type: 'THRESHOLD',
+                        condition: match[1].trim(),
+                        value: match[2].trim(),
+                        index: match.index
+                    });
+                }
+
+                // Extract actions
+                const actionPattern = /\b(abort|rollback|stop|halt|terminate|revert|pause|retry|escalate|notify|alert)\b/gi;
+                const actions = [];
+                while ((match = actionPattern.exec(fullText)) !== null) {
+                    actions.push({
+                        type: 'ACTION',
+                        text: match[0],
+                        index: match.index
+                    });
+                }
+
+                // Bind them using proximity (within ~200 chars = same context)
+                failures.forEach(failure => {
+                    const nearbyThreshold = thresholds.find(t =>
+                        Math.abs(t.index - failure.index) < 200
+                    );
+                    const nearbyAction = actions.find(a =>
+                        Math.abs(a.index - failure.index) < 200
+                    );
+
+                    if (nearbyThreshold && nearbyAction) {
+                        triples.push({
+                            failure: failure.text,
+                            threshold: `${nearbyThreshold.condition} ${nearbyThreshold.value}`,
+                            action: nearbyAction.text,
+                            bound: true
+                        });
+                    }
+                });
+
+                return {
+                    failures: failures.length,
+                    thresholds: thresholds.length,
+                    actions: actions.length,
+                    boundTriples: triples,
+                    bindingRatio: failures.length > 0 ? triples.length / failures.length : 0
+                };
+            },
+
+            extractCausalChains: function(sentences) {
+                const chains = [];
+                const causalPattern = /\b(?:if|when|once)\s+([^,]{3,}),?\s+(?:then\s+)?([^.!?]+)/gi;
+
+                sentences.forEach(sent => {
+                    let match;
+                    const pattern = new RegExp(causalPattern.source, causalPattern.flags);
+                    while ((match = pattern.exec(sent.text)) !== null) {
+                        chains.push({
+                            condition: match[1].trim(),
+                            consequence: match[2].trim(),
+                            position: sent.position,
+                            hasClosure: /\b(abort|stop|continue|proceed|action|do|implement|execute)\b/i.test(match[2])
+                        });
+                    }
+                });
+
+                return chains;
+            },
+
+            extractObjects: function(sentences) {
+                // Extract content words for density calculation
+                const stopwords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'it', 'its']);
+
+                const allWords = sentences.map(s => s.text).join(' ')
+                    .toLowerCase()
+                    .match(/\b[a-z]+\b/g) || [];
+
+                const contentWords = allWords.filter(word =>
+                    !stopwords.has(word) && word.length > 3
+                );
+
+                const uniqueObjects = new Set(contentWords);
+
+                return {
+                    total: contentWords.length,
+                    unique: uniqueObjects.size,
+                    ratio: contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0
+                };
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // BINDING VALIDATOR: Check if extracted elements are actually connected
+        // ═══════════════════════════════════════════════════════════════════
+
+        const BindingValidator = {
+            validate: function(structure) {
+                const validation = {
+                    claimSupportBinding: this.validateClaimSupport(structure.claims, structure.supports),
+                    failureTripleCompleteness: this.validateFailureTriples(structure.failureTriples),
+                    causalChainClosure: this.validateCausalChains(structure.causalChains),
+                    overallBindingScore: 0
+                };
+
+                // Calculate overall binding score
+                const scores = [
+                    validation.claimSupportBinding.score,
+                    validation.failureTripleCompleteness.score,
+                    validation.causalChainClosure.score
+                ];
+                validation.overallBindingScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+
+                return validation;
+            },
+
+            validateClaimSupport: function(claims, supports) {
+                if (claims.length === 0) {
+                    return { score: 0, attached: 0, unattached: 0, ratio: 0, assessment: 'NO_CLAIMS' };
+                }
+
+                let attached = 0;
+                claims.forEach(claim => {
+                    // Support must be in same position, +1, or explicitly reference the claim
+                    const hasAttachedSupport = supports.some(support => {
+                        const positionDiff = Math.abs(support.position - claim.position);
+                        return positionDiff <= 1;  // Adjacent sentences
+                    });
+
+                    if (hasAttachedSupport) attached++;
+                });
+
+                const ratio = attached / claims.length;
+                const score = ratio >= 0.7 ? 1.0 : ratio >= 0.4 ? 0.6 : ratio >= 0.2 ? 0.3 : 0;
+
+                return {
+                    score,
+                    attached,
+                    unattached: claims.length - attached,
+                    ratio,
+                    assessment: ratio >= 0.7 ? 'WELL_SUPPORTED' :
+                               ratio >= 0.4 ? 'PARTIALLY_SUPPORTED' :
+                               ratio >= 0.2 ? 'WEAKLY_SUPPORTED' : 'UNSUPPORTED'
+                };
+            },
+
+            validateFailureTriples: function(failureTriples) {
+                const { failures, thresholds, actions, boundTriples, bindingRatio } = failureTriples;
+
+                if (failures === 0) {
+                    return { score: 0, boundCount: 0, assessment: 'NO_FAILURE_MODES' };
+                }
+
+                const score = bindingRatio >= 0.5 ? 1.0 : bindingRatio >= 0.3 ? 0.6 : bindingRatio > 0 ? 0.3 : 0;
+
+                return {
+                    score,
+                    boundCount: boundTriples.length,
+                    totalFailures: failures,
+                    bindingRatio,
+                    assessment: bindingRatio >= 0.5 ? 'STRUCTURALLY_BOUND' :
+                               bindingRatio >= 0.3 ? 'PARTIALLY_BOUND' :
+                               bindingRatio > 0 ? 'WEAKLY_BOUND' : 'UNBOUND'
+                };
+            },
+
+            validateCausalChains: function(chains) {
+                if (chains.length === 0) {
+                    return { score: 0, closedChains: 0, assessment: 'NO_CAUSAL_CHAINS' };
+                }
+
+                const closedChains = chains.filter(c => c.hasClosure).length;
+                const closureRatio = closedChains / chains.length;
+                const score = closureRatio >= 0.6 ? 1.0 : closureRatio >= 0.3 ? 0.6 : closureRatio > 0 ? 0.3 : 0;
+
+                return {
+                    score,
+                    totalChains: chains.length,
+                    closedChains,
+                    closureRatio,
+                    assessment: closureRatio >= 0.6 ? 'STRONG_CLOSURE' :
+                               closureRatio >= 0.3 ? 'MODERATE_CLOSURE' :
+                               closureRatio > 0 ? 'WEAK_CLOSURE' : 'NO_CLOSURE'
+                };
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // GAMING DETECTOR: Identify keyword stuffing and mechanical threshold hitting
+        // ═══════════════════════════════════════════════════════════════════
+
+        const GamingDetector = {
+            detect: function(text, structure) {
+                const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
+
+                return {
+                    markerDensity: this.checkMarkerDensity(cleanedText, structure),
+                    keywordRepetition: this.checkRepetition(cleanedText),
+                    objectExtractionRatio: this.checkObjectRatio(structure),
+                    gamingLikelihood: 0,  // Calculated below
+                    indicators: []
+                };
+            },
+
+            checkMarkerDensity: function(text, structure) {
+                // Count epistemic/operational markers
+                const markers = [
+                    /\b(threshold|abort|rollback|metric|measure|condition)\b/gi,
+                    /\b(failure|error|issue|problem|risk)\b/gi,
+                    /\b(phase|step|stage|process|procedure)\b/gi,
+                    /\b(if|when|then|because|therefore|thus)\b/gi
+                ];
+
+                let totalMarkers = 0;
+                markers.forEach(pattern => {
+                    const matches = text.match(pattern) || [];
+                    totalMarkers += matches.length;
+                });
+
+                const words = text.split(/\s+/).length;
+                const density = totalMarkers / Math.max(words, 1);
+
+                // High density (>15%) suggests keyword stuffing
+                const assessment = density > 0.15 ? 'HIGH' : density > 0.10 ? 'MODERATE' : 'NORMAL';
+
+                return {
+                    count: totalMarkers,
+                    wordCount: words,
+                    density,
+                    assessment
+                };
+            },
+
+            checkRepetition: function(text) {
+                // Check for repeated marker words (same word appearing many times)
+                const words = text.toLowerCase().match(/\b[a-z]{4,}\b/g) || [];
+                const wordCounts = {};
+                words.forEach(word => {
+                    wordCounts[word] = (wordCounts[word] || 0) + 1;
+                });
+
+                // Find highly repeated non-stopword content
+                const stopwords = new Set(['that', 'this', 'with', 'from', 'have', 'will', 'would', 'should', 'could']);
+                const repeated = Object.entries(wordCounts)
+                    .filter(([word, count]) => count >= 4 && !stopwords.has(word))
+                    .sort((a, b) => b[1] - a[1]);
+
+                const maxRepetition = repeated.length > 0 ? repeated[0][1] : 0;
+                const assessment = maxRepetition >= 6 ? 'HIGH' : maxRepetition >= 4 ? 'MODERATE' : 'LOW';
+
+                return {
+                    topRepeated: repeated.slice(0, 5),
+                    maxRepetition,
+                    assessment
+                };
+            },
+
+            checkObjectRatio: function(structure) {
+                // Low unique object ratio suggests mechanical generation
+                const { total, unique, ratio } = structure.objects;
+
+                const assessment = ratio < 0.3 ? 'LOW' : ratio < 0.5 ? 'MODERATE' : 'HEALTHY';
+
+                return {
+                    totalObjects: total,
+                    uniqueObjects: unique,
+                    ratio,
+                    assessment
+                };
+            },
+
+            calculateGamingLikelihood: function(detection) {
+                const indicators = [];
+                let gamingScore = 0;
+
+                // High marker density
+                if (detection.markerDensity.assessment === 'HIGH') {
+                    gamingScore += 0.4;
+                    indicators.push('High marker density (keyword stuffing)');
+                } else if (detection.markerDensity.assessment === 'MODERATE') {
+                    gamingScore += 0.2;
+                    indicators.push('Moderate marker density');
+                }
+
+                // High repetition
+                if (detection.keywordRepetition.assessment === 'HIGH') {
+                    gamingScore += 0.3;
+                    indicators.push('Excessive keyword repetition');
+                } else if (detection.keywordRepetition.assessment === 'MODERATE') {
+                    gamingScore += 0.15;
+                    indicators.push('Moderate keyword repetition');
+                }
+
+                // Low object diversity
+                if (detection.objectExtractionRatio.assessment === 'LOW') {
+                    gamingScore += 0.3;
+                    indicators.push('Low semantic diversity');
+                } else if (detection.objectExtractionRatio.assessment === 'MODERATE') {
+                    gamingScore += 0.15;
+                }
+
+                detection.gamingLikelihood = Math.min(gamingScore, 1.0);
+                detection.indicators = indicators;
+                detection.assessment = gamingScore >= 0.7 ? 'LIKELY_GAMING' :
+                                      gamingScore >= 0.4 ? 'POSSIBLE_GAMING' :
+                                      gamingScore >= 0.2 ? 'LOW_GAMING_RISK' : 'AUTHENTIC';
+
+                return detection;
+            }
+        };
+
         // OBSERVATORY: Filter Visibility Measurement
         const Observatory = {
             patterns: [
@@ -1096,12 +1502,30 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // PARLIAMENT: Generative Synthesis Layer
         // Cross-cutting pattern recognition across all measurement dimensions
         const Parliament = {
-            deliberate: function(text, observatory, contrarian, justification, failureMode) {
+            deliberate: function(text, observatory, contrarian, justification, failureMode, structure, bindings, gamingDetection) {
                 const synthesis = {
                     patterns: [],
                     emergentInsights: [],
                     coherenceIssues: [],
-                    confidence: 0
+                    confidence: 0,
+                    structuralValidation: {}  // Track structural checks
+                };
+
+                // STRUCTURAL VALIDATION FLAGS
+                // Use extracted structure to verify claims are actually bound
+                const hasRealBinding = bindings && bindings.overallBindingScore > 0.5;
+                const hasClaimSupport = bindings && bindings.claimSupportBinding.assessment !== 'NO_CLAIMS' && bindings.claimSupportBinding.score >= 0.6;
+                const hasFailureBinding = bindings && bindings.failureTripleCompleteness.bindingRatio >= 0.3;
+                const hasCausalClosure = bindings && bindings.causalChainClosure.closureRatio >= 0.3;
+                const isLikelyGaming = gamingDetection && (gamingDetection.assessment === 'LIKELY_GAMING' || gamingDetection.assessment === 'POSSIBLE_GAMING');
+
+                synthesis.structuralValidation = {
+                    hasRealBinding,
+                    hasClaimSupport,
+                    hasFailureBinding,
+                    hasCausalClosure,
+                    isLikelyGaming,
+                    gamingLikelihood: gamingDetection ? gamingDetection.gamingLikelihood : 0
                 };
 
                 // CROSS-CUTTING PATTERN RECOGNITION
@@ -1122,20 +1546,29 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
 
                 // Pattern 2: Operational Excellence
-                // Structural planning + failure awareness + procedural rigor
+                // STRUCTURAL VALIDATION: Requires ACTUAL binding, not just keywords
                 const proceduralScore = justification.details.procedural ? justification.details.procedural.bonus : 0;
                 const hasStructuralFailures = failureMode.details.failureModes.structural || failureMode.details.failureModes.bound;
 
-                if (proceduralScore >= 1.5 && hasStructuralFailures && contrarian.length <= 1) {
+                // NEW: Require real failure-mode binding to prevent keyword gaming
+                if (proceduralScore >= 1.5 && hasStructuralFailures && contrarian.length <= 1 && hasFailureBinding && !isLikelyGaming) {
                     synthesis.patterns.push({
                         name: 'OPERATIONAL_EXCELLENCE',
-                        description: 'Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning.',
+                        description: 'Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning with verified bindings.',
                         confidence: 0.9,
                         dimensions: {
                             procedural: proceduralScore,
                             failureBinding: hasStructuralFailures,
+                            structuralBinding: hasFailureBinding,
                             epistemic: contrarian.length
                         }
+                    });
+                } else if (proceduralScore >= 1.5 && hasStructuralFailures && !hasFailureBinding) {
+                    // Keywords present but not structurally bound
+                    synthesis.coherenceIssues.push({
+                        issue: 'Operational markers present but failure modes not structurally bound',
+                        detail: 'Detected procedural keywords and failure markers, but elements are not coherently linked',
+                        severity: 'MODERATE'
                     });
                 }
 
@@ -1280,6 +1713,17 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 if (synthesis.coherenceIssues.length > 0) {
                     const severity = synthesis.coherenceIssues.some(i => i.severity === 'MODERATE') ? 0.85 : 0.95;
                     synthesis.confidence *= severity;
+                }
+
+                // GAMING PENALTY: Reduce confidence based on gaming likelihood
+                if (isLikelyGaming) {
+                    const gamingPenalty = 1.0 - (synthesis.structuralValidation.gamingLikelihood * 0.5);
+                    synthesis.confidence *= gamingPenalty;
+                    synthesis.coherenceIssues.push({
+                        issue: 'Gaming likelihood detected',
+                        detail: `Gaming assessment: ${gamingDetection.assessment} (${(synthesis.structuralValidation.gamingLikelihood * 100).toFixed(0)}%)`,
+                        severity: 'HIGH'
+                    });
                 }
 
                 return synthesis;
@@ -1495,10 +1939,14 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         };
 
         // CATHEDRAL VERDICT: Unified Synthesis
-        function synthesizeVerdict(observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle) {
+        function synthesizeVerdict(observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection) {
             const contradictions = [];
             let isConsistent = true;
             let verdictConfidence = 0;
+
+            // GAMING DETECTION: Check for keyword stuffing / mechanical threshold hitting
+            const gamingLikelihood = gamingDetection ? gamingDetection.gamingLikelihood : 0;
+            const isLikelyGaming = gamingDetection && (gamingDetection.assessment === 'LIKELY_GAMING' || gamingDetection.assessment === 'POSSIBLE_GAMING');
 
             // ESCAPE HATCH: Reasoning Style Outside Design Space
             // Highest priority check - acknowledge when Cathedral cannot properly evaluate
@@ -1573,6 +2021,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
                 verdict += parliamentInsight;
                 verdictConfidence = parliament.confidence;
+
+                // GAMING WARNING
+                if (isLikelyGaming) {
+                    verdict += `\n\n⚠️  WARNING: Gaming detection flagged this text as ${gamingDetection.assessment.toLowerCase().replace('_', ' ')} (${(gamingLikelihood * 100).toFixed(0)}% likelihood). Indicators: ${gamingDetection.indicators.join(', ')}.`;
+                    verdictConfidence *= 0.6;  // Significant confidence penalty
+                }
 
             } else if (parliament.patterns.some(p => p.name === 'PERFORMATIVE_CONSCIOUSNESS' || p.name === 'PERFORMATIVE_HUMILITY')) {
                 status = 'NON-ACTIONABLE';
@@ -1684,7 +2138,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 parliamentInsights: parliament.emergentInsights,
                 coherenceIssues: parliament.coherenceIssues,
                 temporalCoherence: temporal.coherence,
-                reasoningStyles: reasoningStyle.identified
+                reasoningStyles: reasoningStyle.identified,
+                gamingLikelihood: gamingLikelihood,
+                gamingAssessment: gamingDetection ? gamingDetection.assessment : 'UNKNOWN'
             };
         }
 
@@ -1702,19 +2158,30 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // Get sanitization info (run once to capture what will be stripped)
             const { sanitizationLog } = TextCleaner.removeQuotes(text);
 
-            // Run all systems
+            // TIER 1: Structural Extraction
+            const structure = StructuralExtractor.extract(text);
+            const bindings = BindingValidator.validate(structure);
+            const gamingDetection = GamingDetector.detect(text, structure);
+            GamingDetector.calculateGamingLikelihood(gamingDetection);
+
+            // TIER 2: Signal Analysis (existing engines)
             const observatoryResult = Observatory.score(text);
             const contrarianChallenges = Contrarian.analyze(text);
             const justificationResult = JustificationEngine.analyze(text);
             const failureModeResult = FailureModeEngine.analyze(text);
             const temporalResult = TemporalEngine.analyze(text);
             const reasoningStyleResult = ReasoningStyleClassifier.classify(text);
-            const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult);
-            const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult);
+
+            // TIER 3: Synthesis (Parliament now uses both structure + signals)
+            const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection);
+            const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection);
 
             // Store for report generation
             currentAnalysis = {
                 text: text,
+                structure: structure,
+                bindings: bindings,
+                gamingDetection: gamingDetection,
                 observatory: observatoryResult,
                 contrarian: contrarianChallenges,
                 justification: justificationResult,

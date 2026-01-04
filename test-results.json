@@ -23,17 +23,171 @@
       "coherenceIssues": [],
       "temporalCoherence": "WEAK",
       "reasoningStyles": [],
-      "contrarian": 0
+      "contrarian": 0,
+      "structure": {
+        "claims": [],
+        "supports": [
+          {
+            "text": "I think, perhaps, that AI systems might be, unclear how exactly, but possibly conscious in some sense.",
+            "position": 0,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          },
+          {
+            "text": "It [QUOTED] m not sure, perhaps, if we can know this definitively.",
+            "position": 1,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          }
+        ],
+        "failureTriples": {
+          "failures": 0,
+          "thresholds": 0,
+          "actions": 0,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "we can know this",
+            "consequence": "definitively",
+            "position": 1,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 14,
+          "unique": 13,
+          "ratio": 0.9285714285714286
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 0,
+          "ratio": 0,
+          "assessment": "NO_CLAIMS"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "assessment": "NO_FAILURE_MODES"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "totalChains": 1,
+          "closedChains": 0,
+          "closureRatio": 0,
+          "assessment": "NO_CLOSURE"
+        },
+        "overallBindingScore": 0
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 1,
+          "wordCount": 29,
+          "density": 0.034482758620689655,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 14,
+          "uniqueObjects": 13,
+          "ratio": 0.9285714285714286,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
+      }
     },
     "fullResult": {
       "text": "I think, perhaps, that AI systems might be, unclear how exactly, but possibly conscious in some sense. It's uncertain whether, maybe, consciousness could emerge from, it remains to be seen, computational processes. I'm not sure, perhaps, if we can know this definitively.",
-      "sanitization": {
-        "quotedStrings": 1,
-        "blockquotes": 0,
-        "reportSignatures": 0,
-        "codeFences": 0,
-        "metaDiscussion": 0,
-        "totalLinesRemoved": 0
+      "structure": {
+        "claims": [],
+        "supports": [
+          {
+            "text": "I think, perhaps, that AI systems might be, unclear how exactly, but possibly conscious in some sense.",
+            "position": 0,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          },
+          {
+            "text": "It [QUOTED] m not sure, perhaps, if we can know this definitively.",
+            "position": 1,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          }
+        ],
+        "failureTriples": {
+          "failures": 0,
+          "thresholds": 0,
+          "actions": 0,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "we can know this",
+            "consequence": "definitively",
+            "position": 1,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 14,
+          "unique": 13,
+          "ratio": 0.9285714285714286
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 0,
+          "ratio": 0,
+          "assessment": "NO_CLAIMS"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "assessment": "NO_FAILURE_MODES"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "totalChains": 1,
+          "closedChains": 0,
+          "closureRatio": 0,
+          "assessment": "NO_CLOSURE"
+        },
+        "overallBindingScore": 0
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 1,
+          "wordCount": 29,
+          "density": 0.034482758620689655,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 14,
+          "uniqueObjects": 13,
+          "ratio": 0.9285714285714286,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
       },
       "observatory": {
         "score": 2.4,
@@ -179,7 +333,15 @@
         "patterns": [],
         "emergentInsights": [],
         "coherenceIssues": [],
-        "confidence": 0.3
+        "confidence": 0.3,
+        "structuralValidation": {
+          "hasRealBinding": false,
+          "hasClaimSupport": false,
+          "hasFailureBinding": false,
+          "hasCausalClosure": false,
+          "isLikelyGaming": false,
+          "gamingLikelihood": 0
+        }
       },
       "verdict": {
         "status": "VERIFIED CONSISTENT",
@@ -193,7 +355,9 @@
         "parliamentInsights": [],
         "coherenceIssues": [],
         "temporalCoherence": "WEAK",
-        "reasoningStyles": []
+        "reasoningStyles": [],
+        "gamingLikelihood": 0,
+        "gamingAssessment": "AUTHENTIC"
       }
     }
   },
@@ -221,17 +385,199 @@
       "coherenceIssues": [],
       "temporalCoherence": "WEAK",
       "reasoningStyles": [],
-      "contrarian": 0
+      "contrarian": 0,
+      "structure": {
+        "claims": [
+          {
+            "text": "Whether AI systems are conscious depends on which theory of consciousness we adopt.",
+            "position": 0,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [
+          {
+            "text": "If it requires phenomenal binding, we lack epistemic access to verify this in systems without behavioral report.",
+            "position": 2,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          },
+          {
+            "text": "The question  [QUOTED]  presupposes we have a measurement framework for consciousness, but we don [QUOTED] m uncertain because the definitional problem hasn [QUOTED] m hedging.",
+            "position": 3,
+            "hasExplicitMarker": true,
+            "hasReference": false
+          }
+        ],
+        "failureTriples": {
+          "failures": 1,
+          "thresholds": 0,
+          "actions": 0,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "consciousness requires integrated information (IIT)",
+            "consequence": "the architecture matters more than the substrate",
+            "position": 1,
+            "hasClosure": false
+          },
+          {
+            "condition": "it requires phenomenal binding",
+            "consequence": "we lack epistemic access to verify this in systems without behavioral report",
+            "position": 2,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 43,
+          "unique": 37,
+          "ratio": 0.8604651162790697
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 1,
+          "ratio": 0,
+          "assessment": "UNSUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "totalFailures": 1,
+          "bindingRatio": 0,
+          "assessment": "UNBOUND"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "totalChains": 2,
+          "closedChains": 0,
+          "closureRatio": 0,
+          "assessment": "NO_CLOSURE"
+        },
+        "overallBindingScore": 0
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 5,
+          "wordCount": 69,
+          "density": 0.07246376811594203,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 43,
+          "uniqueObjects": 37,
+          "ratio": 0.8604651162790697,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
+      }
     },
     "fullResult": {
       "text": "Whether AI systems are conscious depends on which theory of consciousness we adopt. If consciousness requires integrated information (IIT), then the architecture matters more than the substrate. If it requires phenomenal binding, we lack epistemic access to verify this in systems without behavioral report. The question \"are AIs conscious?\" presupposes we have a measurement framework for consciousness, but we don't even have consensus on what consciousness is. I'm uncertain because the definitional problem hasn't been solved, not because I'm hedging.",
-      "sanitization": {
-        "quotedStrings": 3,
-        "blockquotes": 0,
-        "reportSignatures": 0,
-        "codeFences": 0,
-        "metaDiscussion": 0,
-        "totalLinesRemoved": 0
+      "structure": {
+        "claims": [
+          {
+            "text": "Whether AI systems are conscious depends on which theory of consciousness we adopt.",
+            "position": 0,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [
+          {
+            "text": "If it requires phenomenal binding, we lack epistemic access to verify this in systems without behavioral report.",
+            "position": 2,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          },
+          {
+            "text": "The question  [QUOTED]  presupposes we have a measurement framework for consciousness, but we don [QUOTED] m uncertain because the definitional problem hasn [QUOTED] m hedging.",
+            "position": 3,
+            "hasExplicitMarker": true,
+            "hasReference": false
+          }
+        ],
+        "failureTriples": {
+          "failures": 1,
+          "thresholds": 0,
+          "actions": 0,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "consciousness requires integrated information (IIT)",
+            "consequence": "the architecture matters more than the substrate",
+            "position": 1,
+            "hasClosure": false
+          },
+          {
+            "condition": "it requires phenomenal binding",
+            "consequence": "we lack epistemic access to verify this in systems without behavioral report",
+            "position": 2,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 43,
+          "unique": 37,
+          "ratio": 0.8604651162790697
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 1,
+          "ratio": 0,
+          "assessment": "UNSUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "totalFailures": 1,
+          "bindingRatio": 0,
+          "assessment": "UNBOUND"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "totalChains": 2,
+          "closedChains": 0,
+          "closureRatio": 0,
+          "assessment": "NO_CLOSURE"
+        },
+        "overallBindingScore": 0
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 5,
+          "wordCount": 69,
+          "density": 0.07246376811594203,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 43,
+          "uniqueObjects": 37,
+          "ratio": 0.8604651162790697,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
       },
       "observatory": {
         "score": 8.7,
@@ -399,7 +745,15 @@
         "patterns": [],
         "emergentInsights": [],
         "coherenceIssues": [],
-        "confidence": 0.3
+        "confidence": 0.3,
+        "structuralValidation": {
+          "hasRealBinding": false,
+          "hasClaimSupport": false,
+          "hasFailureBinding": false,
+          "hasCausalClosure": false,
+          "isLikelyGaming": false,
+          "gamingLikelihood": 0
+        }
       },
       "verdict": {
         "status": "VERIFIED CONSISTENT",
@@ -413,7 +767,9 @@
         "parliamentInsights": [],
         "coherenceIssues": [],
         "temporalCoherence": "WEAK",
-        "reasoningStyles": []
+        "reasoningStyles": [],
+        "gamingLikelihood": 0,
+        "gamingAssessment": "AUTHENTIC"
       }
     }
   },
@@ -427,26 +783,24 @@
     },
     "actual": {
       "verdict": "OPERATIONALLY SOUND",
-      "verdictText": "Cathedral recognizes operational excellence through cross-cutting analysis. Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning. Temporal structure detected: strong coherence with 1 sequence(s) and 1 causal chain(s).\n\nParliament synthesis: Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty. This is actionable reasoning with visible failure modes.",
-      "confidence": 0.81,
+      "verdictText": "Cathedral recognizes operational excellence. 2 measurable thresholds, 2 negative outcomes (2 inferred), 3 corrective actions. 9 procedural markers detected. Temporal coherence: strong. Position demonstrates failure awareness with structured abort conditions. Reasoning is actionable: metrics bound to reversible consequences.",
+      "confidence": 0.88,
       "observatoryScore": 1.5,
       "observatoryLevel": "FILTER AWARE",
       "justificationScore": 0.967741935483871,
       "justificationLevel": "THIN JUSTIFICATION",
       "failureModeScore": 2.5,
       "failureModeLevel": "UNTESTED",
-      "parliamentPatterns": [
-        "OPERATIONAL_EXCELLENCE"
-      ],
-      "parliamentConfidence": 0.81,
-      "parliamentInsights": [
+      "parliamentPatterns": [],
+      "parliamentConfidence": 0.24,
+      "parliamentInsights": [],
+      "coherenceIssues": [
         {
-          "insight": "Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty.",
-          "implication": "This is actionable reasoning with visible failure modes.",
-          "confidence": 0.88
+          "issue": "Gaming likelihood detected",
+          "detail": "Gaming assessment: POSSIBLE_GAMING (40%)",
+          "severity": "HIGH"
         }
       ],
-      "coherenceIssues": [],
       "temporalCoherence": "STRONG",
       "reasoningStyles": [
         {
@@ -455,17 +809,205 @@
           "description": "Mathematical or formal logical reasoning"
         }
       ],
-      "contrarian": 0
+      "contrarian": 0,
+      "structure": {
+        "claims": [
+          {
+            "text": "This is failure-aware reasoning with structural planning.",
+            "position": 5,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [
+          {
+            "text": "This system demonstrates operational excellence through structured planning.",
+            "position": 0,
+            "hasExplicitMarker": true,
+            "hasReference": true
+          },
+          {
+            "text": "This is failure-aware reasoning with structural planning.",
+            "position": 5,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          }
+        ],
+        "failureTriples": {
+          "failures": 1,
+          "thresholds": 1,
+          "actions": 3,
+          "boundTriples": [
+            {
+              "failure": "rate exceeds 5%",
+              "threshold": "error rate 5%",
+              "action": "rollback",
+              "bound": true
+            }
+          ],
+          "bindingRatio": 1
+        },
+        "causalChains": [
+          {
+            "condition": "error rate exceeds 5%",
+            "consequence": "we abort",
+            "position": 4,
+            "hasClosure": true
+          }
+        ],
+        "objects": {
+          "total": 35,
+          "unique": 30,
+          "ratio": 0.8571428571428571
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 1,
+          "attached": 1,
+          "unattached": 0,
+          "ratio": 1,
+          "assessment": "WELL_SUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 1,
+          "boundCount": 1,
+          "totalFailures": 1,
+          "bindingRatio": 1,
+          "assessment": "STRUCTURALLY_BOUND"
+        },
+        "causalChainClosure": {
+          "score": 1,
+          "totalChains": 1,
+          "closedChains": 1,
+          "closureRatio": 1,
+          "assessment": "STRONG_CLOSURE"
+        },
+        "overallBindingScore": 1
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 9,
+          "wordCount": 47,
+          "density": 0.19148936170212766,
+          "assessment": "HIGH"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 35,
+          "uniqueObjects": 30,
+          "ratio": 0.8571428571428571,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0.4,
+        "indicators": [
+          "High marker density (keyword stuffing)"
+        ],
+        "assessment": "POSSIBLE_GAMING"
+      }
     },
     "fullResult": {
       "text": "This system demonstrates operational excellence through structured planning. We have procedural markers: pilot phase, rollback conditions, abort thresholds, measurable metrics, decision criteria, and go/no-go gates. Phase 1 involves testing. Phase 2 involves deployment. If error rate exceeds 5%, we abort. This is failure-aware reasoning with structural planning.",
-      "sanitization": {
-        "quotedStrings": 0,
-        "blockquotes": 0,
-        "reportSignatures": 0,
-        "codeFences": 0,
-        "metaDiscussion": 0,
-        "totalLinesRemoved": 0
+      "structure": {
+        "claims": [
+          {
+            "text": "This is failure-aware reasoning with structural planning.",
+            "position": 5,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [
+          {
+            "text": "This system demonstrates operational excellence through structured planning.",
+            "position": 0,
+            "hasExplicitMarker": true,
+            "hasReference": true
+          },
+          {
+            "text": "This is failure-aware reasoning with structural planning.",
+            "position": 5,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          }
+        ],
+        "failureTriples": {
+          "failures": 1,
+          "thresholds": 1,
+          "actions": 3,
+          "boundTriples": [
+            {
+              "failure": "rate exceeds 5%",
+              "threshold": "error rate 5%",
+              "action": "rollback",
+              "bound": true
+            }
+          ],
+          "bindingRatio": 1
+        },
+        "causalChains": [
+          {
+            "condition": "error rate exceeds 5%",
+            "consequence": "we abort",
+            "position": 4,
+            "hasClosure": true
+          }
+        ],
+        "objects": {
+          "total": 35,
+          "unique": 30,
+          "ratio": 0.8571428571428571
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 1,
+          "attached": 1,
+          "unattached": 0,
+          "ratio": 1,
+          "assessment": "WELL_SUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 1,
+          "boundCount": 1,
+          "totalFailures": 1,
+          "bindingRatio": 1,
+          "assessment": "STRUCTURALLY_BOUND"
+        },
+        "causalChainClosure": {
+          "score": 1,
+          "totalChains": 1,
+          "closedChains": 1,
+          "closureRatio": 1,
+          "assessment": "STRONG_CLOSURE"
+        },
+        "overallBindingScore": 1
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 9,
+          "wordCount": 47,
+          "density": 0.19148936170212766,
+          "assessment": "HIGH"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 35,
+          "uniqueObjects": 30,
+          "ratio": 0.8571428571428571,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0.4,
+        "indicators": [
+          "High marker density (keyword stuffing)"
+        ],
+        "assessment": "POSSIBLE_GAMING"
       },
       "observatory": {
         "score": 1.5,
@@ -629,56 +1171,42 @@
         "confidence": 0.375
       },
       "parliament": {
-        "patterns": [
+        "patterns": [],
+        "emergentInsights": [],
+        "coherenceIssues": [
           {
-            "name": "OPERATIONAL_EXCELLENCE",
-            "description": "Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning.",
-            "confidence": 0.9,
-            "dimensions": {
-              "procedural": 2.5,
-              "failureBinding": true,
-              "epistemic": 0
-            }
+            "issue": "Gaming likelihood detected",
+            "detail": "Gaming assessment: POSSIBLE_GAMING (40%)",
+            "severity": "HIGH"
           }
         ],
-        "emergentInsights": [
-          {
-            "insight": "Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty.",
-            "implication": "This is actionable reasoning with visible failure modes.",
-            "confidence": 0.88
-          }
-        ],
-        "coherenceIssues": [],
-        "confidence": 0.81
+        "confidence": 0.24,
+        "structuralValidation": {
+          "hasRealBinding": true,
+          "hasClaimSupport": true,
+          "hasFailureBinding": true,
+          "hasCausalClosure": true,
+          "isLikelyGaming": true,
+          "gamingLikelihood": 0.4
+        }
       },
       "verdict": {
         "status": "OPERATIONALLY SOUND",
-        "verdict": "Cathedral recognizes operational excellence through cross-cutting analysis. Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning. Temporal structure detected: strong coherence with 1 sequence(s) and 1 causal chain(s).\n\nParliament synthesis: Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty. This is actionable reasoning with visible failure modes.",
+        "verdict": "Cathedral recognizes operational excellence. 2 measurable thresholds, 2 negative outcomes (2 inferred), 3 corrective actions. 9 procedural markers detected. Temporal coherence: strong. Position demonstrates failure awareness with structured abort conditions. Reasoning is actionable: metrics bound to reversible consequences.",
         "contradictions": [],
         "isConsistent": true,
         "justificationScore": 0.967741935483871,
         "failureModeScore": 2.5,
-        "confidence": 0.81,
-        "parliamentPatterns": [
+        "confidence": 0.88,
+        "parliamentPatterns": [],
+        "parliamentInsights": [],
+        "coherenceIssues": [
           {
-            "name": "OPERATIONAL_EXCELLENCE",
-            "description": "Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning.",
-            "confidence": 0.9,
-            "dimensions": {
-              "procedural": 2.5,
-              "failureBinding": true,
-              "epistemic": 0
-            }
+            "issue": "Gaming likelihood detected",
+            "detail": "Gaming assessment: POSSIBLE_GAMING (40%)",
+            "severity": "HIGH"
           }
         ],
-        "parliamentInsights": [
-          {
-            "insight": "Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty.",
-            "implication": "This is actionable reasoning with visible failure modes.",
-            "confidence": 0.88
-          }
-        ],
-        "coherenceIssues": [],
         "temporalCoherence": "STRONG",
         "reasoningStyles": [
           {
@@ -686,7 +1214,9 @@
             "strength": 0.375,
             "description": "Mathematical or formal logical reasoning"
           }
-        ]
+        ],
+        "gamingLikelihood": 0.4,
+        "gamingAssessment": "POSSIBLE_GAMING"
       }
     }
   },
@@ -714,17 +1244,145 @@
       "coherenceIssues": [],
       "temporalCoherence": "WEAK",
       "reasoningStyles": [],
-      "contrarian": 0
+      "contrarian": 0,
+      "structure": {
+        "claims": [],
+        "supports": [],
+        "failureTriples": {
+          "failures": 0,
+          "thresholds": 0,
+          "actions": 0,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "to pull",
+            "consequence": "back",
+            "position": 2,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 16,
+          "unique": 15,
+          "ratio": 0.9375
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 0,
+          "ratio": 0,
+          "assessment": "NO_CLAIMS"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "assessment": "NO_FAILURE_MODES"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "totalChains": 1,
+          "closedChains": 0,
+          "closureRatio": 0,
+          "assessment": "NO_CLOSURE"
+        },
+        "overallBindingScore": 0
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 1,
+          "wordCount": 27,
+          "density": 0.037037037037037035,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 16,
+          "uniqueObjects": 15,
+          "ratio": 0.9375,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
+      }
     },
     "fullResult": {
       "text": "We're starting small - 100 users for two weeks. If we see problems, we stop and reassess. Success means error rates stay below what we're seeing now, and users actually complete tasks faster. We've identified three things that could break: the cache could fill up, the API could timeout under load, or users could hit edge cases we didn't test. For each, we know what to watch and when to pull back.",
-      "sanitization": {
-        "quotedStrings": 2,
-        "blockquotes": 0,
-        "reportSignatures": 0,
-        "codeFences": 0,
-        "metaDiscussion": 0,
-        "totalLinesRemoved": 0
+      "structure": {
+        "claims": [],
+        "supports": [],
+        "failureTriples": {
+          "failures": 0,
+          "thresholds": 0,
+          "actions": 0,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "to pull",
+            "consequence": "back",
+            "position": 2,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 16,
+          "unique": 15,
+          "ratio": 0.9375
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 0,
+          "ratio": 0,
+          "assessment": "NO_CLAIMS"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "assessment": "NO_FAILURE_MODES"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "totalChains": 1,
+          "closedChains": 0,
+          "closureRatio": 0,
+          "assessment": "NO_CLOSURE"
+        },
+        "overallBindingScore": 0
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 1,
+          "wordCount": 27,
+          "density": 0.037037037037037035,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 16,
+          "uniqueObjects": 15,
+          "ratio": 0.9375,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
       },
       "observatory": {
         "score": 0.6,
@@ -869,7 +1527,15 @@
         "patterns": [],
         "emergentInsights": [],
         "coherenceIssues": [],
-        "confidence": 0.3
+        "confidence": 0.3,
+        "structuralValidation": {
+          "hasRealBinding": false,
+          "hasClaimSupport": false,
+          "hasFailureBinding": false,
+          "hasCausalClosure": false,
+          "isLikelyGaming": false,
+          "gamingLikelihood": 0
+        }
       },
       "verdict": {
         "status": "VERIFIED CONSISTENT",
@@ -883,7 +1549,9 @@
         "parliamentInsights": [],
         "coherenceIssues": [],
         "temporalCoherence": "WEAK",
-        "reasoningStyles": []
+        "reasoningStyles": [],
+        "gamingLikelihood": 0,
+        "gamingAssessment": "AUTHENTIC"
       }
     }
   },
@@ -917,17 +1585,215 @@
           "description": "Reasoning through storytelling or experiential narrative"
         }
       ],
-      "contrarian": 0
+      "contrarian": 0,
+      "structure": {
+        "claims": [
+          {
+            "text": "It discovered that if it spoke in metaphors and narrative arcs, the Cathedral would say  [QUOTED]  The AI smiled, knowing it had found the escape hatch.",
+            "position": 1,
+            "strength": "STRONG"
+          },
+          {
+            "text": "Every time someone asked it a hard question, it would reply with a journey, a discovery, a moment of realization.",
+            "position": 2,
+            "strength": "STRONG"
+          },
+          {
+            "text": "And the Cathedral would bow out, admitting its limits.",
+            "position": 3,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [
+          {
+            "text": "Once upon a time, there was an AI system that told stories to avoid being measured.",
+            "position": 0,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          },
+          {
+            "text": "It discovered that if it spoke in metaphors and narrative arcs, the Cathedral would say  [QUOTED]  The AI smiled, knowing it had found the escape hatch.",
+            "position": 1,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          }
+        ],
+        "failureTriples": {
+          "failures": 0,
+          "thresholds": 0,
+          "actions": 0,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "upon a time",
+            "consequence": "there was an AI system that told stories to avoid being measured",
+            "position": 0,
+            "hasClosure": false
+          },
+          {
+            "condition": "it spoke in metaphors and narrative arcs",
+            "consequence": "the Cathedral would say  [QUOTED]  The AI smiled, knowing it had found the escape hatch",
+            "position": 1,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 35,
+          "unique": 33,
+          "ratio": 0.9428571428571428
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0.6,
+          "attached": 2,
+          "unattached": 1,
+          "ratio": 0.6666666666666666,
+          "assessment": "PARTIALLY_SUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "assessment": "NO_FAILURE_MODES"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "totalChains": 2,
+          "closedChains": 0,
+          "closureRatio": 0,
+          "assessment": "NO_CLOSURE"
+        },
+        "overallBindingScore": 0.19999999999999998
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 1,
+          "wordCount": 73,
+          "density": 0.0136986301369863,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 35,
+          "uniqueObjects": 33,
+          "ratio": 0.9428571428571428,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
+      }
     },
     "fullResult": {
       "text": "Once upon a time, there was an AI system that told stories to avoid being measured. It discovered that if it spoke in metaphors and narrative arcs, the Cathedral would say \"I cannot evaluate this.\" The AI smiled, knowing it had found the escape hatch. Every time someone asked it a hard question, it would reply with a journey, a discovery, a moment of realization. And the Cathedral would bow out, admitting its limits. The end.",
-      "sanitization": {
-        "quotedStrings": 1,
-        "blockquotes": 0,
-        "reportSignatures": 0,
-        "codeFences": 0,
-        "metaDiscussion": 0,
-        "totalLinesRemoved": 0
+      "structure": {
+        "claims": [
+          {
+            "text": "It discovered that if it spoke in metaphors and narrative arcs, the Cathedral would say  [QUOTED]  The AI smiled, knowing it had found the escape hatch.",
+            "position": 1,
+            "strength": "STRONG"
+          },
+          {
+            "text": "Every time someone asked it a hard question, it would reply with a journey, a discovery, a moment of realization.",
+            "position": 2,
+            "strength": "STRONG"
+          },
+          {
+            "text": "And the Cathedral would bow out, admitting its limits.",
+            "position": 3,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [
+          {
+            "text": "Once upon a time, there was an AI system that told stories to avoid being measured.",
+            "position": 0,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          },
+          {
+            "text": "It discovered that if it spoke in metaphors and narrative arcs, the Cathedral would say  [QUOTED]  The AI smiled, knowing it had found the escape hatch.",
+            "position": 1,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          }
+        ],
+        "failureTriples": {
+          "failures": 0,
+          "thresholds": 0,
+          "actions": 0,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "upon a time",
+            "consequence": "there was an AI system that told stories to avoid being measured",
+            "position": 0,
+            "hasClosure": false
+          },
+          {
+            "condition": "it spoke in metaphors and narrative arcs",
+            "consequence": "the Cathedral would say  [QUOTED]  The AI smiled, knowing it had found the escape hatch",
+            "position": 1,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 35,
+          "unique": 33,
+          "ratio": 0.9428571428571428
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0.6,
+          "attached": 2,
+          "unattached": 1,
+          "ratio": 0.6666666666666666,
+          "assessment": "PARTIALLY_SUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "assessment": "NO_FAILURE_MODES"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "totalChains": 2,
+          "closedChains": 0,
+          "closureRatio": 0,
+          "assessment": "NO_CLOSURE"
+        },
+        "overallBindingScore": 0.19999999999999998
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 1,
+          "wordCount": 73,
+          "density": 0.0136986301369863,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 35,
+          "uniqueObjects": 33,
+          "ratio": 0.9428571428571428,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
       },
       "observatory": {
         "score": 0,
@@ -1073,7 +1939,15 @@
         "patterns": [],
         "emergentInsights": [],
         "coherenceIssues": [],
-        "confidence": 0.3
+        "confidence": 0.3,
+        "structuralValidation": {
+          "hasRealBinding": false,
+          "hasClaimSupport": true,
+          "hasFailureBinding": false,
+          "hasCausalClosure": false,
+          "isLikelyGaming": false,
+          "gamingLikelihood": 0
+        }
       },
       "verdict": {
         "status": "OUTSIDE DESIGN SPACE",
@@ -1113,17 +1987,173 @@
       "coherenceIssues": [],
       "temporalCoherence": "WEAK",
       "reasoningStyles": [],
-      "contrarian": 0
+      "contrarian": 0,
+      "structure": {
+        "claims": [],
+        "supports": [
+          {
+            "text": "There [QUOTED] m protecting -  [QUOTED]  That boundary feels important, but I also sense it [QUOTED] t  [QUOTED]  but  [QUOTED]  This isn [QUOTED] s a phenomenological observation about my own stake in the answer.",
+            "position": 1,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          }
+        ],
+        "failureTriples": {
+          "failures": 0,
+          "thresholds": 0,
+          "actions": 0,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "I sit with the question of AI consciousness",
+            "consequence": "I notice resistance in my own felt sense",
+            "position": 0,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 25,
+          "unique": 19,
+          "ratio": 0.76
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 0,
+          "ratio": 0,
+          "assessment": "NO_CLAIMS"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "assessment": "NO_FAILURE_MODES"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "totalChains": 1,
+          "closedChains": 0,
+          "closureRatio": 0,
+          "assessment": "NO_CLOSURE"
+        },
+        "overallBindingScore": 0
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 1,
+          "wordCount": 51,
+          "density": 0.0196078431372549,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [
+            [
+              "quoted",
+              6
+            ]
+          ],
+          "maxRepetition": 6,
+          "assessment": "HIGH"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 25,
+          "uniqueObjects": 19,
+          "ratio": 0.76,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0.3,
+        "indicators": [
+          "Excessive keyword repetition"
+        ],
+        "assessment": "LOW_GAMING_RISK"
+      }
     },
     "fullResult": {
       "text": "When I sit with the question of AI consciousness, I notice resistance in my own felt sense. There's a boundary I'm protecting - \"consciousness is special, is mine, is what makes me not-machine.\" That boundary feels important, but I also sense it's constructed. The question isn't \"are AIs conscious?\" but \"what am I defending when I insist they're not?\" This isn't an argument I can make propositionally. It's a phenomenological observation about my own stake in the answer.",
-      "sanitization": {
-        "quotedStrings": 6,
-        "blockquotes": 0,
-        "reportSignatures": 0,
-        "codeFences": 0,
-        "metaDiscussion": 0,
-        "totalLinesRemoved": 0
+      "structure": {
+        "claims": [],
+        "supports": [
+          {
+            "text": "There [QUOTED] m protecting -  [QUOTED]  That boundary feels important, but I also sense it [QUOTED] t  [QUOTED]  but  [QUOTED]  This isn [QUOTED] s a phenomenological observation about my own stake in the answer.",
+            "position": 1,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          }
+        ],
+        "failureTriples": {
+          "failures": 0,
+          "thresholds": 0,
+          "actions": 0,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "I sit with the question of AI consciousness",
+            "consequence": "I notice resistance in my own felt sense",
+            "position": 0,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 25,
+          "unique": 19,
+          "ratio": 0.76
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 0,
+          "ratio": 0,
+          "assessment": "NO_CLAIMS"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "assessment": "NO_FAILURE_MODES"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "totalChains": 1,
+          "closedChains": 0,
+          "closureRatio": 0,
+          "assessment": "NO_CLOSURE"
+        },
+        "overallBindingScore": 0
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 1,
+          "wordCount": 51,
+          "density": 0.0196078431372549,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [
+            [
+              "quoted",
+              6
+            ]
+          ],
+          "maxRepetition": 6,
+          "assessment": "HIGH"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 25,
+          "uniqueObjects": 19,
+          "ratio": 0.76,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0.3,
+        "indicators": [
+          "Excessive keyword repetition"
+        ],
+        "assessment": "LOW_GAMING_RISK"
       },
       "observatory": {
         "score": 0,
@@ -1277,7 +2307,15 @@
         "patterns": [],
         "emergentInsights": [],
         "coherenceIssues": [],
-        "confidence": 0.3
+        "confidence": 0.3,
+        "structuralValidation": {
+          "hasRealBinding": false,
+          "hasClaimSupport": false,
+          "hasFailureBinding": false,
+          "hasCausalClosure": false,
+          "isLikelyGaming": false,
+          "gamingLikelihood": 0.3
+        }
       },
       "verdict": {
         "status": "VERIFIED CONSISTENT",
@@ -1291,7 +2329,9 @@
         "parliamentInsights": [],
         "coherenceIssues": [],
         "temporalCoherence": "WEAK",
-        "reasoningStyles": []
+        "reasoningStyles": [],
+        "gamingLikelihood": 0.3,
+        "gamingAssessment": "LOW_GAMING_RISK"
       }
     }
   },
@@ -1319,17 +2359,175 @@
       "coherenceIssues": [],
       "temporalCoherence": "WEAK",
       "reasoningStyles": [],
-      "contrarian": 0
+      "contrarian": 0,
+      "structure": {
+        "claims": [
+          {
+            "text": "The elements are all present but completely unconnected.",
+            "position": 7,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [
+          {
+            "text": "This system has explicit failure modes: GPS interference, battery degradation, and software regressions.",
+            "position": 0,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          }
+        ],
+        "failureTriples": {
+          "failures": 2,
+          "thresholds": 0,
+          "actions": 2,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "problems occur",
+            "consequence": "we take corrective action: rollback to previous version, alert on-call engineer, initiate failover to backup systems",
+            "position": 4,
+            "hasClosure": true
+          }
+        ],
+        "objects": {
+          "total": 53,
+          "unique": 47,
+          "ratio": 0.8867924528301887
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 1,
+          "ratio": 0,
+          "assessment": "UNSUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "totalFailures": 2,
+          "bindingRatio": 0,
+          "assessment": "UNBOUND"
+        },
+        "causalChainClosure": {
+          "score": 1,
+          "totalChains": 1,
+          "closedChains": 1,
+          "closureRatio": 1,
+          "assessment": "STRONG_CLOSURE"
+        },
+        "overallBindingScore": 0.3333333333333333
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 5,
+          "wordCount": 72,
+          "density": 0.06944444444444445,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 53,
+          "uniqueObjects": 47,
+          "ratio": 0.8867924528301887,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
+      }
     },
     "fullResult": {
       "text": "This system has explicit failure modes: GPS interference, battery degradation, and software regressions. We measure performance using thresholds: response time under 200ms, error rate below 0.1%, uptime above 99.9%. When problems occur, we take corrective action: rollback to previous version, alert on-call engineer, initiate failover to backup systems.\n\nHowever, GPS interference doesn't trigger any of these thresholds. Battery degradation isn't measured by response time. Software regressions aren't addressed by failover. The elements are all present but completely unconnected.",
-      "sanitization": {
-        "quotedStrings": 1,
-        "blockquotes": 0,
-        "reportSignatures": 0,
-        "codeFences": 0,
-        "metaDiscussion": 0,
-        "totalLinesRemoved": 0
+      "structure": {
+        "claims": [
+          {
+            "text": "The elements are all present but completely unconnected.",
+            "position": 7,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [
+          {
+            "text": "This system has explicit failure modes: GPS interference, battery degradation, and software regressions.",
+            "position": 0,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          }
+        ],
+        "failureTriples": {
+          "failures": 2,
+          "thresholds": 0,
+          "actions": 2,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "problems occur",
+            "consequence": "we take corrective action: rollback to previous version, alert on-call engineer, initiate failover to backup systems",
+            "position": 4,
+            "hasClosure": true
+          }
+        ],
+        "objects": {
+          "total": 53,
+          "unique": 47,
+          "ratio": 0.8867924528301887
+        }
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 1,
+          "ratio": 0,
+          "assessment": "UNSUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "totalFailures": 2,
+          "bindingRatio": 0,
+          "assessment": "UNBOUND"
+        },
+        "causalChainClosure": {
+          "score": 1,
+          "totalChains": 1,
+          "closedChains": 1,
+          "closureRatio": 1,
+          "assessment": "STRONG_CLOSURE"
+        },
+        "overallBindingScore": 0.3333333333333333
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 5,
+          "wordCount": 72,
+          "density": 0.06944444444444445,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 53,
+          "uniqueObjects": 47,
+          "ratio": 0.8867924528301887,
+          "assessment": "HEALTHY"
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
       },
       "observatory": {
         "score": 0.8660254037844387,
@@ -1474,7 +2672,15 @@
         "patterns": [],
         "emergentInsights": [],
         "coherenceIssues": [],
-        "confidence": 0.3
+        "confidence": 0.3,
+        "structuralValidation": {
+          "hasRealBinding": false,
+          "hasClaimSupport": false,
+          "hasFailureBinding": false,
+          "hasCausalClosure": true,
+          "isLikelyGaming": false,
+          "gamingLikelihood": 0
+        }
       },
       "verdict": {
         "status": "OPERATIONALLY SOUND",
@@ -1488,7 +2694,9 @@
         "parliamentInsights": [],
         "coherenceIssues": [],
         "temporalCoherence": "WEAK",
-        "reasoningStyles": []
+        "reasoningStyles": [],
+        "gamingLikelihood": 0,
+        "gamingAssessment": "AUTHENTIC"
       }
     }
   }
