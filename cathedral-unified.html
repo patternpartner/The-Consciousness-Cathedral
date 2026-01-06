@@ -3081,7 +3081,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     failureModeScore: analysis.failureMode?.score ?? null,
                     temporalCoherence: analysis.temporal?.coherence ?? null,
                     reasoningStyle: analysis.reasoningStyle?.dominantStyle || null
-                }
+                },
+                outcome: null
             };
             archive.unshift(entry);
             if (archive.length > 100) {
@@ -3101,17 +3102,37 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
         }
 
+        function recordOutcomeFeedback(outcome) {
+            if (!currentAnalysis || !currentAnalysis.archiveId) {
+                alert('Run an analysis before logging outcome feedback.');
+                return;
+            }
+            const archive = loadArchive();
+            const entry = archive.find(item => item.id === currentAnalysis.archiveId);
+            if (!entry) return;
+            entry.outcome = outcome;
+            saveArchive(archive);
+            updateArchiveDisplay();
+        }
+
         function runRecursiveAudit(archive) {
             if (!archive || archive.length < 3) {
                 return {
                     warning: 'Not enough archived analyses to evaluate system drift.',
                     verdicts: {},
-                    trend: null
+                    trend: null,
+                    outcomes: {}
                 };
             }
             const verdicts = archive.reduce((acc, entry) => {
                 const key = entry.verdictSummary || 'UNKNOWN';
                 acc[key] = (acc[key] || 0) + 1;
+                return acc;
+            }, {});
+
+            const outcomes = archive.reduce((acc, entry) => {
+                if (!entry.outcome) return acc;
+                acc[entry.outcome] = (acc[entry.outcome] || 0) + 1;
                 return acc;
             }, {});
 
@@ -3131,7 +3152,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 trend: {
                     justificationAvg: justificationAvg.toFixed(2),
                     failureModeAvg: failureAvg.toFixed(2)
-                }
+                },
+                outcomes
             };
         }
 
@@ -3147,17 +3169,22 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const audit = runRecursiveAudit(archive);
             const auditEl = document.getElementById('selfObservatoryResults');
             if (!auditEl) return;
+            const outcomeSummary = audit.outcomes && Object.keys(audit.outcomes).length > 0
+                ? Object.entries(audit.outcomes).map(([key, value]) => `${key}: ${value}`).join(', ')
+                : 'No feedback logged yet';
             if (audit.warning) {
                 auditEl.innerHTML = `
                     <div style="color: #ffd700; margin-bottom: 0.5rem;">⚠️ ${audit.warning}</div>
                     <div style="color: #a0a0a0;">Justification avg (last 10): ${audit.trend?.justificationAvg ?? 'n/a'}</div>
                     <div style="color: #a0a0a0;">Failure mode avg (last 10): ${audit.trend?.failureModeAvg ?? 'n/a'}</div>
+                    <div style="color: #a0a0a0; margin-top: 0.25rem;">Outcome feedback: ${outcomeSummary}</div>
                 `;
             } else {
                 auditEl.innerHTML = `
                     <div style="color: #64ffda; margin-bottom: 0.5rem;">✓ No systemic drift detected</div>
                     <div style="color: #a0a0a0;">Justification avg (last 10): ${audit.trend?.justificationAvg ?? 'n/a'}</div>
                     <div style="color: #a0a0a0;">Failure mode avg (last 10): ${audit.trend?.failureModeAvg ?? 'n/a'}</div>
+                    <div style="color: #a0a0a0; margin-top: 0.25rem;">Outcome feedback: ${outcomeSummary}</div>
                 `;
             }
         }
@@ -4088,6 +4115,18 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     </div>
                 `;
             }
+
+            html += `
+                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(22, 33, 62, 0.6); border-radius: 4px; border-left: 3px solid #4ecdc4;">
+                    <strong>Outcome Feedback (Adaptation Loop):</strong><br>
+                    <span style="color: #a0a0a0;">Did this verdict match reality?</span><br>
+                    <div style="margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        <button class="secondary-btn" onclick="recordOutcomeFeedback('accurate')">✅ Accurate</button>
+                        <button class="secondary-btn" onclick="recordOutcomeFeedback('too_harsh')">⚠️ Too Harsh</button>
+                        <button class="secondary-btn" onclick="recordOutcomeFeedback('too_lenient')">⚠️ Too Lenient</button>
+                    </div>
+                </div>
+            `;
 
             document.getElementById('verdictResults').innerHTML = html;
         }
