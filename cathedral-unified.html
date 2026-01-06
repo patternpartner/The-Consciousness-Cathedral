@@ -1012,9 +1012,13 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 });
 
                 const sentences = text.split(/[.!?]/).map(s => s.trim()).filter(Boolean);
-                const loopCount = this.detectRecursiveLoops(sentences);
+                const recursiveLoops = this.detectRecursiveLoops(sentences);
 
-                return { count, loopCount };
+                return {
+                    count,
+                    loopCount: recursiveLoops.count,
+                    examples: recursiveLoops.examples
+                };
             },
 
             detectRecursiveLoops: function(sentences) {
@@ -1037,9 +1041,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     .filter(word => word.length > 3);
 
                 let loops = 0;
+                const examples = [];
                 sentences.forEach(sentence => {
-                    if (!/\bbecause\b/i.test(sentence)) return;
-                    const parts = sentence.split(/\bbecause\b/i);
+                    if (!/\b(because|since|as|due to|given that)\b/i.test(sentence)) return;
+                    const parts = sentence.split(/\b(?:because|since|as|due to|given that)\b/i);
                     if (parts.length < 2) return;
                     const leftTokens = new Set(tokenize(parts[0]));
                     const rightTokens = new Set(tokenize(parts[1]));
@@ -1048,10 +1053,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         if (rightTokens.has(token)) overlap += 1;
                     });
                     const ratio = leftTokens.size > 0 ? overlap / leftTokens.size : 0;
-                    if (ratio >= 0.7) loops += 1;
+                    if (ratio >= 0.6 && overlap >= 1) {
+                        loops += 1;
+                        if (examples.length < 3) {
+                            examples.push(sentence);
+                        }
+                    }
                 });
 
-                return loops;
+                return { count: loops, examples };
             },
 
             extractOrphanedActions: function(text, failureSignals, implicitTriggers, actions) {
@@ -2332,9 +2342,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
 
                 if (bindings.implicitBindings.assessment === 'TAUTOLOGICAL_BINDING') {
+                    const tautologyExamples = structure.tautologies && structure.tautologies.examples && structure.tautologies.examples.length > 0
+                        ? ` Examples: "${structure.tautologies.examples.slice(0, 2).join('" | "')}".`
+                        : '';
                     synthesis.coherenceIssues.push({
                         issue: 'Tautological bindings detected',
-                        detail: 'Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation.',
+                        detail: `Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation.${tautologyExamples}`,
                         severity: 'MODERATE'
                     });
                 }
@@ -2435,6 +2448,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         summary: ''
                     },
                     certaintyTrajectory: [],
+                    certaintyDecayStart: null,
+                    certaintyDecaySentence: '',
                     driftDetected: false,
                     driftSummary: ''
                 };
@@ -2568,6 +2583,13 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     if (earlyAvg >= 1 && lateAvg < 0) {
                         temporal.driftDetected = true;
                         temporal.driftSummary = 'Certainty decays across the document (high certainty early, caveats later).';
+                        const decayIndex = trajectory.findIndex((value, index) =>
+                            value < 0 && trajectory.slice(0, index).some(prev => prev >= 1)
+                        );
+                        if (decayIndex >= 0) {
+                            temporal.certaintyDecayStart = decayIndex + 1;
+                            temporal.certaintyDecaySentence = sentences[decayIndex] || '';
+                        }
                     }
                 }
 
@@ -2577,6 +2599,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     coherence: temporal.temporalCoherence,
                     markers: temporal.temporalMarkers,
                     certaintyTrajectory: temporal.certaintyTrajectory,
+                    certaintyDecayStart: temporal.certaintyDecayStart,
+                    certaintyDecaySentence: temporal.certaintyDecaySentence,
                     driftDetected: temporal.driftDetected,
                     driftSummary: temporal.driftSummary
                 };
@@ -3709,6 +3733,13 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         ⚠ ${result.driftSummary}
                     </div>
                 `;
+                if (result.certaintyDecayStart && result.certaintyDecaySentence) {
+                    html += `
+                        <div style="margin-top: 0.5rem; color: #a0a0a0;">
+                            Certainty decay begins at sentence ${result.certaintyDecayStart}: “${result.certaintyDecaySentence}”
+                        </div>
+                    `;
+                }
             } else if (result.certaintyTrajectory && result.certaintyTrajectory.length > 0) {
                 html += `
                     <div style="margin-top: 0.75rem; color: #a0a0a0;">
@@ -4077,6 +4108,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += `Temporal Markers: ${temporal.markers}\n`;
             if (temporal.driftDetected) {
                 report += `Certainty Drift: ${temporal.driftSummary}\n`;
+                if (temporal.certaintyDecayStart && temporal.certaintyDecaySentence) {
+                    report += `Certainty Decay Starts: sentence ${temporal.certaintyDecayStart} — ${temporal.certaintyDecaySentence}\n`;
+                }
             }
             if (temporal.details.nonLinearNarrative && temporal.details.nonLinearNarrative.score > 0) {
                 report += `Non-Linear Storytelling: ${temporal.details.nonLinearNarrative.summary || 'Temporal jumps detected alongside evidence references.'}\n`;

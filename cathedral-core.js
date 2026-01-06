@@ -1,6 +1,6 @@
 // Cathedral v2.x with Tier 1 Structural Validation
 // Automatically extracted from cathedral-unified.html
-// Generated: 2026-01-06T16:36:11.306Z
+// Generated: 2026-01-06T16:53:29.302Z
 
 const TextCleaner = {
             removeQuotes: function(text) {
@@ -428,9 +428,13 @@ const StructuralExtractor = {
                 });
 
                 const sentences = text.split(/[.!?]/).map(s => s.trim()).filter(Boolean);
-                const loopCount = this.detectRecursiveLoops(sentences);
+                const recursiveLoops = this.detectRecursiveLoops(sentences);
 
-                return { count, loopCount };
+                return {
+                    count,
+                    loopCount: recursiveLoops.count,
+                    examples: recursiveLoops.examples
+                };
             },
 
             detectRecursiveLoops: function(sentences) {
@@ -453,9 +457,10 @@ const StructuralExtractor = {
                     .filter(word => word.length > 3);
 
                 let loops = 0;
+                const examples = [];
                 sentences.forEach(sentence => {
-                    if (!/\bbecause\b/i.test(sentence)) return;
-                    const parts = sentence.split(/\bbecause\b/i);
+                    if (!/\b(because|since|as|due to|given that)\b/i.test(sentence)) return;
+                    const parts = sentence.split(/\b(?:because|since|as|due to|given that)\b/i);
                     if (parts.length < 2) return;
                     const leftTokens = new Set(tokenize(parts[0]));
                     const rightTokens = new Set(tokenize(parts[1]));
@@ -464,10 +469,15 @@ const StructuralExtractor = {
                         if (rightTokens.has(token)) overlap += 1;
                     });
                     const ratio = leftTokens.size > 0 ? overlap / leftTokens.size : 0;
-                    if (ratio >= 0.7) loops += 1;
+                    if (ratio >= 0.6 && overlap >= 1) {
+                        loops += 1;
+                        if (examples.length < 3) {
+                            examples.push(sentence);
+                        }
+                    }
                 });
 
-                return loops;
+                return { count: loops, examples };
             },
 
             extractOrphanedActions: function(text, failureSignals, implicitTriggers, actions) {
@@ -1530,6 +1540,8 @@ const TemporalEngine = {
                         summary: ''
                     },
                     certaintyTrajectory: [],
+                    certaintyDecayStart: null,
+                    certaintyDecaySentence: '',
                     driftDetected: false,
                     driftSummary: ''
                 };
@@ -1663,6 +1675,13 @@ const TemporalEngine = {
                     if (earlyAvg >= 1 && lateAvg < 0) {
                         temporal.driftDetected = true;
                         temporal.driftSummary = 'Certainty decays across the document (high certainty early, caveats later).';
+                        const decayIndex = trajectory.findIndex((value, index) =>
+                            value < 0 && trajectory.slice(0, index).some(prev => prev >= 1)
+                        );
+                        if (decayIndex >= 0) {
+                            temporal.certaintyDecayStart = decayIndex + 1;
+                            temporal.certaintyDecaySentence = sentences[decayIndex] || '';
+                        }
                     }
                 }
 
@@ -1672,6 +1691,8 @@ const TemporalEngine = {
                     coherence: temporal.temporalCoherence,
                     markers: temporal.temporalMarkers,
                     certaintyTrajectory: temporal.certaintyTrajectory,
+                    certaintyDecayStart: temporal.certaintyDecayStart,
+                    certaintyDecaySentence: temporal.certaintyDecaySentence,
                     driftDetected: temporal.driftDetected,
                     driftSummary: temporal.driftSummary
                 };
@@ -2024,9 +2045,12 @@ const Parliament = {
                 }
 
                 if (bindings.implicitBindings.assessment === 'TAUTOLOGICAL_BINDING') {
+                    const tautologyExamples = structure.tautologies && structure.tautologies.examples && structure.tautologies.examples.length > 0
+                        ? ` Examples: "${structure.tautologies.examples.slice(0, 2).join('" | "')}".`
+                        : '';
                     synthesis.coherenceIssues.push({
                         issue: 'Tautological bindings detected',
-                        detail: 'Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation.',
+                        detail: `Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation.${tautologyExamples}`,
                         severity: 'MODERATE'
                     });
                 }
