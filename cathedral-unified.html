@@ -492,6 +492,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     Stored Analyses: <strong id="archiveCount">0</strong><br>
                     Last Verdict: <strong id="lastVerdict">None yet</strong>
                 </div>
+                <div id="archiveList" style="margin-top: 0.75rem; color: #a0a0a0;"></div>
             </div>
 
             <!-- Self-Observatory -->
@@ -3165,6 +3166,23 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             if (lastVerdictEl) {
                 lastVerdictEl.textContent = archive[0]?.verdictSummary || 'None yet';
             }
+            const listEl = document.getElementById('archiveList');
+            if (listEl) {
+                if (archive.length === 0) {
+                    listEl.textContent = 'No archived analyses yet.';
+                } else {
+                    const recent = archive.slice(0, 5);
+                    listEl.innerHTML = `
+                        <div style="font-size: 0.85rem; margin-bottom: 0.35rem;">Recent Analyses:</div>
+                        ${recent.map(entry => `
+                            <div style="margin-bottom: 0.25rem;">
+                                <span style="color: #ffd700;">${entry.verdictSummary}</span>
+                                <span style="color: #606060;"> • ${new Date(entry.timestamp).toLocaleString()}</span>
+                            </div>
+                        `).join('')}
+                    `;
+                }
+            }
 
             const audit = runRecursiveAudit(archive);
             const auditEl = document.getElementById('selfObservatoryResults');
@@ -4366,6 +4384,29 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 });
                 report += '\n';
             }
+
+            // SELF-OBSERVATORY
+            const archive = loadArchive();
+            const audit = runRecursiveAudit(archive);
+            report += '───────────────────────────────────────────────────────────────\n';
+            report += '🪞 SELF-OBSERVATORY - Report of Reports\n';
+            report += '───────────────────────────────────────────────────────────────\n\n';
+            report += `Archived Analyses: ${archive.length}\n`;
+            if (audit.warning) {
+                report += `System Drift Warning: ${audit.warning}\n`;
+            } else {
+                report += 'System Drift Warning: None detected\n';
+            }
+            if (audit.trend) {
+                report += `Justification Avg (last 10): ${audit.trend.justificationAvg}\n`;
+                report += `Failure Mode Avg (last 10): ${audit.trend.failureModeAvg}\n`;
+            }
+            if (audit.outcomes && Object.keys(audit.outcomes).length > 0) {
+                report += `Outcome Feedback: ${Object.entries(audit.outcomes).map(([key, value]) => `${key}: ${value}`).join(', ')}\n`;
+            } else {
+                report += 'Outcome Feedback: None logged\n';
+            }
+            report += '\n';
 
             // VERDICT
             report += '───────────────────────────────────────────────────────────────\n';
