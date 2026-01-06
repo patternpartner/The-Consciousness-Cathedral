@@ -477,29 +477,39 @@ const BindingValidator = {
         };
 
         let attached = 0;
+        let semanticTotal = 0;
         claims.forEach(claim => {
             // Support must be in same position, +1, or explicitly reference the claim
+            let bestOverlap = 0;
             const hasAttachedSupport = supports.some(support => {
                 const positionDiff = Math.abs(support.position - claim.position);
                 const hasSemanticOverlap = support.hasExplicitMarker && overlapCount(claim.text, support.text) >= 1;
+                bestOverlap = Math.max(bestOverlap, overlapCount(claim.text, support.text));
                 return positionDiff <= 1 || hasSemanticOverlap;  // Adjacent or semantically linked
             });
 
-            if (hasAttachedSupport) attached++;
+            if (hasAttachedSupport) {
+                attached++;
+                const claimTokens = tokenize(claim.text).length || 1;
+                semanticTotal += Math.min(1, bestOverlap / claimTokens);
+            }
         });
 
-                const ratio = attached / claims.length;
-                const score = ratio >= 0.7 ? 1.0 : ratio >= 0.4 ? 0.6 : ratio >= 0.2 ? 0.3 : 0;
+        const ratio = attached / claims.length;
+        const semanticScore = attached > 0 ? semanticTotal / attached : 0;
+        const baseScore = ratio >= 0.7 ? 1.0 : ratio >= 0.4 ? 0.6 : ratio >= 0.2 ? 0.3 : 0;
+        const score = baseScore * (0.7 + (0.3 * semanticScore));
 
         return {
             score,
             attached,
             unattached: claims.length - attached,
             ratio,
-                    assessment: ratio >= 0.7 ? 'WELL_SUPPORTED' :
-                               ratio >= 0.4 ? 'PARTIALLY_SUPPORTED' :
-                               ratio >= 0.2 ? 'WEAKLY_SUPPORTED' : 'UNSUPPORTED'
-                };
+            semanticScore,
+            assessment: ratio >= 0.7 ? 'WELL_SUPPORTED' :
+                       ratio >= 0.4 ? 'PARTIALLY_SUPPORTED' :
+                       ratio >= 0.2 ? 'WEAKLY_SUPPORTED' : 'UNSUPPORTED'
+        };
             },
 
             validateFailureTriples: function(failureTriples) {
