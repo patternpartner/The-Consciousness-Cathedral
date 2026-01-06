@@ -2428,6 +2428,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     temporalCoherence: 'UNKNOWN',
                     boundToOutcomes: false,
                     temporalMarkers: 0,
+                    nonLinearNarrative: {
+                        evidenceMarkers: 0,
+                        nonLinearMarkers: 0,
+                        score: 0,
+                        summary: ''
+                    },
                     certaintyTrajectory: [],
                     driftDetected: false,
                     driftSummary: ''
@@ -2448,6 +2454,21 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
                 temporal.temporalMarkers = explicitSequence.length + conditionalSequence.length +
                                           causalMarkers.length + temporalMarkers.length;
+
+                // NON-LINEAR STORYTELLING DETECTION
+                // Evidence presented out of order (flashbacks, callbacks, temporal jumps)
+                const evidenceMarkers = cleanedText.match(/\b(for example|for instance|case study|in practice|we observed|field report|this shows|as evidence)\b/gi) || [];
+                const nonLinearMarkers = cleanedText.match(/\b(earlier|later|previously|flashback|flash-forward|jump(?:ing)? back|circling back|rewind|fast forward|return to|backtrack|in retrospect)\b/gi) || [];
+                const temporalJumps = cleanedText.match(/\b(before|after|meanwhile|at the same time|in parallel|simultaneously)\b/gi) || [];
+                temporal.nonLinearNarrative = {
+                    evidenceMarkers: evidenceMarkers.length,
+                    nonLinearMarkers: nonLinearMarkers.length + temporalJumps.length,
+                    score: (evidenceMarkers.length >= 1 ? 1 : 0) + (nonLinearMarkers.length + temporalJumps.length >= 2 ? 1 : 0),
+                    summary: ''
+                };
+                if (temporal.nonLinearNarrative.score >= 2) {
+                    temporal.nonLinearNarrative.summary = 'Non-linear storytelling detected: evidence references appear with temporal jumps.';
+                }
 
                 // SEQUENCE DETECTION
                 // Look for enumerated steps or phases
@@ -3696,6 +3717,17 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 `;
             }
 
+            if (result.details.nonLinearNarrative && result.details.nonLinearNarrative.score > 0) {
+                const nonLinear = result.details.nonLinearNarrative;
+                html += `
+                    <div style="margin-top: 0.75rem; color: #a0a0a0;">
+                        <strong>Non-Linear Storytelling:</strong>
+                        ${nonLinear.summary || 'Temporal jumps detected alongside evidence references.'}<br>
+                        Evidence markers: ${nonLinear.evidenceMarkers}, temporal jump markers: ${nonLinear.nonLinearMarkers}
+                    </div>
+                `;
+            }
+
             if (currentAnalysis && currentAnalysis.temporalInconsistencies && currentAnalysis.temporalInconsistencies.length > 0) {
                 html += `
                     <div style="margin-top: 0.75rem; padding: 0.5rem; border-left: 3px solid #ff6b6b; color: #ff6b6b;">
@@ -4045,6 +4077,11 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += `Temporal Markers: ${temporal.markers}\n`;
             if (temporal.driftDetected) {
                 report += `Certainty Drift: ${temporal.driftSummary}\n`;
+            }
+            if (temporal.details.nonLinearNarrative && temporal.details.nonLinearNarrative.score > 0) {
+                report += `Non-Linear Storytelling: ${temporal.details.nonLinearNarrative.summary || 'Temporal jumps detected alongside evidence references.'}\n`;
+                report += `  Evidence Markers: ${temporal.details.nonLinearNarrative.evidenceMarkers}\n`;
+                report += `  Temporal Jump Markers: ${temporal.details.nonLinearNarrative.nonLinearMarkers}\n`;
             }
             if (currentAnalysis.temporalInconsistencies && currentAnalysis.temporalInconsistencies.length > 0) {
                 report += 'Cross-Analysis Temporal Inconsistencies:\n';

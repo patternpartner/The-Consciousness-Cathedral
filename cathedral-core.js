@@ -1,6 +1,6 @@
 // Cathedral v2.x with Tier 1 Structural Validation
 // Automatically extracted from cathedral-unified.html
-// Generated: 2026-01-06T16:22:56.168Z
+// Generated: 2026-01-06T16:36:11.306Z
 
 const TextCleaner = {
             removeQuotes: function(text) {
@@ -1523,6 +1523,12 @@ const TemporalEngine = {
                     temporalCoherence: 'UNKNOWN',
                     boundToOutcomes: false,
                     temporalMarkers: 0,
+                    nonLinearNarrative: {
+                        evidenceMarkers: 0,
+                        nonLinearMarkers: 0,
+                        score: 0,
+                        summary: ''
+                    },
                     certaintyTrajectory: [],
                     driftDetected: false,
                     driftSummary: ''
@@ -1543,6 +1549,21 @@ const TemporalEngine = {
 
                 temporal.temporalMarkers = explicitSequence.length + conditionalSequence.length +
                                           causalMarkers.length + temporalMarkers.length;
+
+                // NON-LINEAR STORYTELLING DETECTION
+                // Evidence presented out of order (flashbacks, callbacks, temporal jumps)
+                const evidenceMarkers = cleanedText.match(/\b(for example|for instance|case study|in practice|we observed|field report|this shows|as evidence)\b/gi) || [];
+                const nonLinearMarkers = cleanedText.match(/\b(earlier|later|previously|flashback|flash-forward|jump(?:ing)? back|circling back|rewind|fast forward|return to|backtrack|in retrospect)\b/gi) || [];
+                const temporalJumps = cleanedText.match(/\b(before|after|meanwhile|at the same time|in parallel|simultaneously)\b/gi) || [];
+                temporal.nonLinearNarrative = {
+                    evidenceMarkers: evidenceMarkers.length,
+                    nonLinearMarkers: nonLinearMarkers.length + temporalJumps.length,
+                    score: (evidenceMarkers.length >= 1 ? 1 : 0) + (nonLinearMarkers.length + temporalJumps.length >= 2 ? 1 : 0),
+                    summary: ''
+                };
+                if (temporal.nonLinearNarrative.score >= 2) {
+                    temporal.nonLinearNarrative.summary = 'Non-linear storytelling detected: evidence references appear with temporal jumps.';
+                }
 
                 // SEQUENCE DETECTION
                 // Look for enumerated steps or phases
