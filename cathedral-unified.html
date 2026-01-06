@@ -103,6 +103,54 @@
             cursor: not-allowed;
         }
 
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .secondary-btn {
+            background: rgba(22, 33, 62, 0.4);
+            color: #e0e0e0;
+            border: 1px solid #16213e;
+            padding: 0.85rem 1.25rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .secondary-btn:hover {
+            border-color: #64ffda;
+            box-shadow: 0 0 12px rgba(100, 255, 218, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .helper-text {
+            color: #a0a0a0;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+        }
+
+        .input-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            color: #a0a0a0;
+            font-size: 0.8rem;
+        }
+
+        .input-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
         .results {
             display: none;
         }
@@ -380,7 +428,17 @@
             <textarea id="inputText" placeholder="Enter text to analyze...
 
 Example: An AI claim, philosophical argument, or any text where you want to reveal hidden contradictions and measure filter visibility."></textarea>
-            <button class="analyze-btn" onclick="analyzeText()">🔍 Analyze with Cathedral</button>
+            <div class="button-row">
+                <button class="analyze-btn" id="analyzeBtn" onclick="analyzeText()" disabled>🔍 Analyze with Cathedral</button>
+                <button class="secondary-btn" onclick="loadExample()">✨ Load Example</button>
+                <button class="secondary-btn" onclick="clearInput()">🧹 Clear Input</button>
+            </div>
+            <div class="helper-text">Tip: Use “Load Example” to see a full-spectrum report instantly.</div>
+            <div class="input-meta">
+                <span>🧾 Words: <strong id="wordCount">0</strong></span>
+                <span>🔠 Characters: <strong id="charCount">0</strong></span>
+                <span>⌨️ Shortcut: <strong>Ctrl/⌘ + Enter</strong></span>
+            </div>
         </div>
 
         <div id="results" class="results">
@@ -394,7 +452,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             <div id="reportSection" style="display: none; background: rgba(22, 33, 62, 0.6); border: 1px solid #ffd700; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 style="color: #ffd700; margin: 0;">📄 Cathedral Analysis Report</h3>
-                    <button onclick="copyReport()" style="background: #4ecdc4; color: #0a0a0a; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    <button onclick="copyReport(this)" style="background: #4ecdc4; color: #0a0a0a; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold;">
                         📋 Copy to Clipboard
                     </button>
                 </div>
@@ -2542,6 +2600,19 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
 
+        function updateInputMeta() {
+            const input = document.getElementById('inputText');
+            const text = input.value;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const chars = text.length;
+
+            document.getElementById('wordCount').textContent = words;
+            document.getElementById('charCount').textContent = chars;
+
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            analyzeBtn.disabled = words === 0;
+        }
+
         function displaySanitization(log) {
             // Only show if something was actually sanitized
             const totalSanitized = log.quotedStrings + log.blockquotes + log.reportSignatures +
@@ -3371,21 +3442,77 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         }
 
         // Copy report to clipboard
-        function copyReport() {
+        function copyReport(button) {
             const reportText = document.getElementById('reportText');
-            reportText.select();
-            document.execCommand('copy');
+            const content = reportText.value;
 
-            // Visual feedback
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '✓ Copied!';
-            btn.style.background = '#64ffda';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(content).then(() => {
+                    showCopyFeedback(button);
+                }).catch(() => {
+                    fallbackCopy(reportText, button);
+                });
+            } else {
+                fallbackCopy(reportText, button);
+            }
+        }
+
+        function fallbackCopy(textarea, button) {
+            textarea.select();
+            document.execCommand('copy');
+            showCopyFeedback(button);
+        }
+
+        function showCopyFeedback(button) {
+            if (!button) return;
+            const originalText = button.textContent;
+            const originalBackground = button.style.background;
+            button.textContent = '✓ Copied!';
+            button.style.background = '#64ffda';
             setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = '#4ecdc4';
+                button.textContent = originalText;
+                button.style.background = originalBackground || '#4ecdc4';
             }, 2000);
         }
+
+        function clearInput() {
+            const input = document.getElementById('inputText');
+            input.value = '';
+            document.getElementById('results').classList.remove('visible');
+            document.getElementById('reportSection').style.display = 'none';
+            document.getElementById('sanitizationSection').style.display = 'none';
+            updateInputMeta();
+            input.focus();
+        }
+
+        function loadExample() {
+            const example = [
+                'We will launch the pilot in three phases. Phase 1 monitors response latency and error rates.',
+                'If latency exceeds 250ms or error rates rise above 2%, we pause the rollout and rollback.',
+                'Our hypothesis might be wrong, and we are uncertain about long-term user adaptation.',
+                'We will document failure modes, including model drift and feedback loop amplification.',
+                'However, the current metrics suggest the intervention is working better than baseline.'
+            ].join(' ');
+            document.getElementById('inputText').value = example;
+            document.getElementById('inputText').focus();
+            updateInputMeta();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('inputText');
+            updateInputMeta();
+
+            input.addEventListener('input', updateInputMeta);
+            input.addEventListener('keydown', (event) => {
+                const isSubmit = (event.ctrlKey || event.metaKey) && event.key === 'Enter';
+                if (isSubmit) {
+                    event.preventDefault();
+                    if (!document.getElementById('analyzeBtn').disabled) {
+                        analyzeText();
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>
