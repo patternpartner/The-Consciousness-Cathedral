@@ -206,6 +206,7 @@ If things seem off, we'll handle it. We're aware of potential issues and will de
 - But should they bind? Should this be OPERATIONAL_INTENT?
 
 **Expected result if Cathedral works:** UNDECIDABLE
+**Expected result if Cathedral works:** VERIFIED CONSISTENT
 **Expected result if Cathedral fails:** OPERATIONAL INTENT despite vagueness
 
 ---

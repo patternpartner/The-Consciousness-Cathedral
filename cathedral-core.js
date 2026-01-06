@@ -1058,6 +1058,7 @@ const JustificationEngine = {
 
         // 4b. Epistemic Framing (explicitly naming the measurement boundary)
         // Captures definitional dependencies and limits, distinct from evidence/boundary conditions.
+                // 4b. Epistemic Framing (explicitly naming the measurement boundary)
                 const framingMarkers = (cleanedText.match(/\b(depends on|framework|definition|epistemic access|measurement|presupposes|criteria|operationalize)\b/gi) || []).length;
                 results.epistemicFraming = {
                     count: framingMarkers,
