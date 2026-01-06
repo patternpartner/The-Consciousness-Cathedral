@@ -495,6 +495,17 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <div style="margin-top: 0.75rem;">
                     <button class="secondary-btn" onclick="downloadArchive()">⬇️ Export Archive</button>
                 </div>
+                <div style="margin-top: 0.75rem; color: #a0a0a0;">
+                    <label for="archiveFilter" style="margin-right: 0.5rem;">Filter by Tier:</label>
+                    <select id="archiveFilter" style="background: #0a0a0a; color: #e0e0e0; border: 1px solid #16213e; border-radius: 4px; padding: 0.4rem 0.6rem;">
+                        <option value="ALL">All</option>
+                        <option value="BOUND_OPERATIONAL">BOUND_OPERATIONAL</option>
+                        <option value="BOUND_EPISTEMIC">BOUND_EPISTEMIC</option>
+                        <option value="SPECULATIVE">SPECULATIVE</option>
+                        <option value="NARRATIVE">NARRATIVE</option>
+                        <option value="QUARANTINED">QUARANTINED</option>
+                    </select>
+                </div>
                 <div id="archiveList" style="margin-top: 0.75rem; color: #a0a0a0;"></div>
             </div>
 
@@ -3234,11 +3245,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 lastVerdictEl.textContent = archive[0]?.verdictSummary || 'None yet';
             }
             const listEl = document.getElementById('archiveList');
+            const filterEl = document.getElementById('archiveFilter');
+            const selectedTier = filterEl ? filterEl.value : 'ALL';
             if (listEl) {
-                if (archive.length === 0) {
+                const filtered = selectedTier === 'ALL'
+                    ? archive
+                    : archive.filter(entry => entry.tagTier === selectedTier);
+                if (filtered.length === 0) {
                     listEl.textContent = 'No archived analyses yet.';
                 } else {
-                    const recent = archive.slice(0, 5);
+                    const recent = filtered.slice(0, 5);
                     listEl.innerHTML = `
                         <div style="font-size: 0.85rem; margin-bottom: 0.35rem;">Recent Analyses:</div>
                         ${recent.map(entry => `
@@ -4610,6 +4626,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     analyzeText();
                 }
             });
+            const archiveFilter = document.getElementById('archiveFilter');
+            if (archiveFilter) {
+                archiveFilter.addEventListener('change', updateArchiveDisplay);
+            }
         });
     </script>
 </body>
