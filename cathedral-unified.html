@@ -498,6 +498,21 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <div id="archiveList" style="margin-top: 0.75rem; color: #a0a0a0;"></div>
             </div>
 
+            <!-- Tagging Schema -->
+            <div class="system-result" style="border-left-color: #64ffda;">
+                <div class="system-title">
+                    <span>🏷️ TAGGING SCHEMA</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Sandbox vs Substrate</span>
+                </div>
+                <div style="color: #a0a0a0; font-size: 0.9rem; line-height: 1.6;">
+                    <div><span style="color: #64ffda;">BOUND_OPERATIONAL</span> — Operationally bound, safe substrate.</div>
+                    <div><span style="color: #64ffda;">BOUND_EPISTEMIC</span> — Evidentially supported, non-operational substrate.</div>
+                    <div><span style="color: #ffd700;">SPECULATIVE</span> — Plausible but unbound (sandbox).</div>
+                    <div><span style="color: #ffd700;">NARRATIVE</span> — Metaphor/experiential reasoning (sandbox).</div>
+                    <div><span style="color: #ff6b6b;">QUARANTINED</span> — Low integrity or incoherent (do not promote).</div>
+                </div>
+            </div>
+
             <!-- Self-Observatory -->
             <div class="system-result" style="border-left-color: #ffd700;">
                 <div class="system-title">
@@ -4485,6 +4500,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 report += 'No archive entries to summarize.\n';
             }
             report += '\n';
+
+            report += '───────────────────────────────────────────────────────────────\n';
+            report += '🏷️ TAGGING SCHEMA - Sandbox vs Substrate\n';
+            report += '───────────────────────────────────────────────────────────────\n\n';
+            report += 'BOUND_OPERATIONAL — Operationally bound, safe substrate.\n';
+            report += 'BOUND_EPISTEMIC — Evidentially supported, non-operational substrate.\n';
+            report += 'SPECULATIVE — Plausible but unbound (sandbox).\n';
+            report += 'NARRATIVE — Metaphor/experiential reasoning (sandbox).\n';
+            report += 'QUARANTINED — Low integrity or incoherent (do not promote).\n\n';
 
             // VERDICT
             report += '───────────────────────────────────────────────────────────────\n';
