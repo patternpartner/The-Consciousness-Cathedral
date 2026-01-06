@@ -151,6 +151,26 @@
             gap: 0.35rem;
         }
 
+        .sanitization-preview {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            background: rgba(22, 33, 62, 0.4);
+            color: #a0a0a0;
+            font-size: 0.85rem;
+        }
+
+        .binding-map {
+            display: block;
+            width: 100%;
+            min-height: 220px;
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid #16213e;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
         .results {
             display: none;
         }
@@ -439,6 +459,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <span>🔠 Characters: <strong id="charCount">0</strong></span>
                 <span>⌨️ Shortcut: <strong>Ctrl/⌘ + Enter</strong></span>
             </div>
+            <div id="sanitizationPreview" class="sanitization-preview">
+                Sanitization preview will appear here as you type.
+            </div>
         </div>
 
         <div id="results" class="results">
@@ -492,6 +515,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Truth-Tracking Layer</span>
                 </div>
                 <div id="justificationResults"></div>
+            </div>
+
+            <!-- Binding Map -->
+            <div class="system-result" style="border-left-color: #64ffda;">
+                <div class="system-title">
+                    <span>🧵 BINDING MAP</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Claim ↔ Support Connectivity</span>
+                </div>
+                <svg id="bindingMap" class="binding-map" viewBox="0 0 800 240" preserveAspectRatio="xMidYMid meet"></svg>
             </div>
 
             <!-- Failure Mode Engine Results -->
@@ -680,6 +712,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             extract: function(text) {
                 const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
                 const sentences = this.splitSentences(cleanedText);
+                const failureSignals = this.extractFailureSignals(cleanedText);
+                const actions = this.extractActions(cleanedText);
+                const implicitTriggers = this.extractImplicitTriggers(cleanedText);
 
                 return {
                     claims: this.extractClaims(sentences),
@@ -688,11 +723,13 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     causalChains: this.extractCausalChains(sentences),
                     objects: this.extractObjects(sentences),
                     // TIER 2: Conversational extraction
-                    failureSignals: this.extractFailureSignals(cleanedText),
-                    actions: this.extractActions(cleanedText),
-                    implicitTriggers: this.extractImplicitTriggers(cleanedText),
+                    failureSignals,
+                    actions,
+                    implicitTriggers,
                     policyStatements: this.extractPolicyStatements(cleanedText),
-                    tautologies: this.extractTautologies(cleanedText)
+                    tautologies: this.extractTautologies(cleanedText),
+                    orphanedActions: this.extractOrphanedActions(cleanedText, failureSignals, implicitTriggers, actions),
+                    negationContradictions: this.detectNegationContradictions(sentences)
                 };
             },
 
@@ -864,7 +901,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 return {
                     total: contentWords.length,
                     unique: uniqueObjects.size,
-                    ratio: contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0
+                    ratio: contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0,
+                    wordCount: allWords.length
                 };
             },
 
@@ -973,7 +1011,87 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     count += matches.length;
                 });
 
-                return { count };
+                const sentences = text.split(/[.!?]/).map(s => s.trim()).filter(Boolean);
+                const loopCount = this.detectRecursiveLoops(sentences);
+
+                return { count, loopCount };
+            },
+
+            detectRecursiveLoops: function(sentences) {
+                const synonymMap = {
+                    accurate: ['correct', 'precise', 'reliable'],
+                    safe: ['secure', 'protected', 'robust'],
+                    effective: ['works', 'successful', 'valid'],
+                    true: ['correct', 'right', 'accurate']
+                };
+
+                const normalize = (token) => {
+                    for (const [root, synonyms] of Object.entries(synonymMap)) {
+                        if (token === root || synonyms.includes(token)) return root;
+                    }
+                    return token;
+                };
+
+                const tokenize = (text) => (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
+                    .map(normalize)
+                    .filter(word => word.length > 3);
+
+                let loops = 0;
+                sentences.forEach(sentence => {
+                    if (!/\bbecause\b/i.test(sentence)) return;
+                    const parts = sentence.split(/\bbecause\b/i);
+                    if (parts.length < 2) return;
+                    const leftTokens = new Set(tokenize(parts[0]));
+                    const rightTokens = new Set(tokenize(parts[1]));
+                    let overlap = 0;
+                    leftTokens.forEach(token => {
+                        if (rightTokens.has(token)) overlap += 1;
+                    });
+                    const ratio = leftTokens.size > 0 ? overlap / leftTokens.size : 0;
+                    if (ratio >= 0.7) loops += 1;
+                });
+
+                return loops;
+            },
+
+            extractOrphanedActions: function(text, failureSignals, implicitTriggers, actions) {
+                const triggers = [...(failureSignals || []), ...(implicitTriggers || [])];
+                const orphaned = [];
+                (actions || []).forEach(action => {
+                    const hasTrigger = triggers.some(trigger =>
+                        Math.abs(trigger.index - action.index) < 250
+                    );
+                    if (!hasTrigger) {
+                        orphaned.push(action);
+                    }
+                });
+                return orphaned;
+            },
+
+            detectNegationContradictions: function(sentences) {
+                const contradictions = [];
+                const negationPatterns = [
+                    { name: 'NO_STOP', regex: /\b(never|won't|will not|cannot)\s+(stop|pause|halt|rollback)\b/i, opposite: /\b(stop|pause|halt|rollback)\b/i },
+                    { name: 'NO_RISK', regex: /\b(no|zero)\s+(risk|vulnerabilit|failure|errors?)\b/i, opposite: /\b(risk|vulnerabilit|failure|errors?)\b/i }
+                ];
+
+                const matches = sentences.map(sentence => ({
+                    sentence: sentence.text,
+                    patterns: negationPatterns.filter(p => p.regex.test(sentence.text)).map(p => p.name)
+                }));
+
+                negationPatterns.forEach(pattern => {
+                    const hasNegation = matches.some(m => m.patterns.includes(pattern.name));
+                    const hasOpposite = sentences.some(s => pattern.opposite.test(s.text));
+                    if (hasNegation && hasOpposite) {
+                        contradictions.push({
+                            pattern: pattern.name,
+                            detail: `Negation conflict detected for ${pattern.name.toLowerCase().replace('_', ' ')}.`
+                        });
+                    }
+                });
+
+                return contradictions;
             }
         };
 
@@ -1123,7 +1241,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     return { score: 0, boundCount: 0, assessment: 'NO_IMPLICIT_SIGNALS' };
                 }
 
-                const tautologyCount = structure.tautologies ? structure.tautologies.count : 0;
+                const tautologyCount = structure.tautologies ? (structure.tautologies.count + (structure.tautologies.loopCount || 0)) : 0;
 
                 // Bind failure signals to actions within proximity (300 chars)
                 // TIER 2 FIX: Bind to NEAREST action, not first action (improves diversity)
@@ -1267,6 +1385,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     keywordRepetition: this.checkRepetition(cleanedText),
                     objectExtractionRatio: this.checkObjectRatio(structure),
                     selfLabeling: this.checkSelfLabeling(cleanedText),
+                    semanticDilution: this.checkSemanticDilution(structure),
                     gamingLikelihood: 0,  // Calculated below
                     indicators: []
                 };
@@ -1339,6 +1458,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 };
             },
 
+            checkSemanticDilution: function(structure) {
+                const { ratio, wordCount } = structure.objects;
+                if (!wordCount || wordCount < 150) {
+                    return { assessment: 'LOW', wordCount, ratio };
+                }
+                const assessment = ratio < 0.2 ? 'HIGH' : ratio < 0.3 ? 'MODERATE' : 'LOW';
+                return { assessment, wordCount, ratio };
+            },
+
             checkSelfLabeling: function(text) {
                 const markers = (text.match(/\b(operational excellence|procedural markers|structural planning|failure-aware reasoning|operational intent)\b/gi) || []).length;
                 return {
@@ -1375,6 +1503,14 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     indicators.push('Low semantic diversity');
                 } else if (detection.objectExtractionRatio.assessment === 'MODERATE') {
                     gamingScore += 0.15;
+                }
+
+                if (detection.semanticDilution.assessment === 'HIGH') {
+                    gamingScore += 0.25;
+                    indicators.push('Semantic dilution');
+                } else if (detection.semanticDilution.assessment === 'MODERATE') {
+                    gamingScore += 0.15;
+                    indicators.push('Moderate semantic dilution');
                 }
 
                 if (detection.selfLabeling.assessment !== 'LOW') {
@@ -2203,6 +2339,30 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     });
                 }
 
+                if (structure.orphanedActions && structure.orphanedActions.length > 0) {
+                    synthesis.coherenceIssues.push({
+                        issue: 'Orphaned actions detected',
+                        detail: `${structure.orphanedActions.length} corrective action(s) mentioned without corresponding triggers.`,
+                        severity: 'MODERATE'
+                    });
+                }
+
+                if (structure.negationContradictions && structure.negationContradictions.length > 0) {
+                    synthesis.coherenceIssues.push({
+                        issue: 'Negation contradictions detected',
+                        detail: structure.negationContradictions.map(c => c.detail).join(' '),
+                        severity: 'MODERATE'
+                    });
+                }
+
+                if (structure.objects && structure.objects.wordCount > 250 && structure.objects.ratio < 0.2) {
+                    synthesis.coherenceIssues.push({
+                        issue: 'Semantic dilution detected',
+                        detail: 'Long text with low unique content density suggests semantic dilution.',
+                        severity: 'MODERATE'
+                    });
+                }
+
                 // Check if strong claims connect to justification
                 if (strongClaims >= 2 && justification.score >= 1) {
                     // Should have evidence/examples for claims
@@ -2267,7 +2427,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     causalChains: [],
                     temporalCoherence: 'UNKNOWN',
                     boundToOutcomes: false,
-                    temporalMarkers: 0
+                    temporalMarkers: 0,
+                    certaintyTrajectory: [],
+                    driftDetected: false,
+                    driftSummary: ''
                 };
 
                 // SEQUENCE MARKERS
@@ -2352,11 +2515,49 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     temporal.temporalCoherence = 'MINIMAL';
                 }
 
+                // EPISTEMIC TEMPORAL: certainty drift across the document
+                const sentencePattern = /[^.!?\n]+[.!?]?/g;
+                const sentences = [];
+                let match;
+                while ((match = sentencePattern.exec(cleanedText)) !== null) {
+                    const trimmed = match[0].trim();
+                    if (trimmed) sentences.push(trimmed);
+                }
+
+                const certaintyMarkers = {
+                    high: /\b(certainly|definitely|undeniably|always|never|must|guaranteed|proves)\b/gi,
+                    medium: /\b(likely|probably|strongly suggests|almost certainly)\b/gi,
+                    low: /\b(maybe|might|perhaps|uncertain|unknown|not sure|could be|possibly)\b/gi
+                };
+
+                const trajectory = sentences.map(sentence => {
+                    const high = (sentence.match(certaintyMarkers.high) || []).length;
+                    const medium = (sentence.match(certaintyMarkers.medium) || []).length;
+                    const low = (sentence.match(certaintyMarkers.low) || []).length;
+                    return (high * 2) + (medium * 1) - (low * 1);
+                });
+
+                if (trajectory.length > 0) {
+                    temporal.certaintyTrajectory = trajectory;
+                    const firstThird = trajectory.slice(0, Math.ceil(trajectory.length / 3));
+                    const lastThird = trajectory.slice(Math.floor(trajectory.length * 2 / 3));
+                    const avg = (arr) => arr.reduce((sum, v) => sum + v, 0) / Math.max(arr.length, 1);
+                    const earlyAvg = avg(firstThird);
+                    const lateAvg = avg(lastThird);
+                    if (earlyAvg >= 1 && lateAvg < 0) {
+                        temporal.driftDetected = true;
+                        temporal.driftSummary = 'Certainty decays across the document (high certainty early, caveats later).';
+                    }
+                }
+
                 return {
                     details: temporal,
                     hasStructure: temporal.sequences.length > 0 || temporal.causalChains.length > 0,
                     coherence: temporal.temporalCoherence,
-                    markers: temporal.temporalMarkers
+                    markers: temporal.temporalMarkers,
+                    certaintyTrajectory: temporal.certaintyTrajectory,
+                    driftDetected: temporal.driftDetected,
+                    driftSummary: temporal.driftSummary
                 };
             }
         };
@@ -2543,6 +2744,11 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // COHERENCE ISSUES FROM PARLIAMENT
             if (parliament.coherenceIssues.length > 0 && parliament.coherenceIssues.some(i => i.severity === 'MODERATE')) {
                 contradictions.push(`Coherence gap: ${parliament.coherenceIssues[0].detail}`);
+                isConsistent = false;
+            }
+
+            if (temporal.driftDetected) {
+                contradictions.push(temporal.driftSummary || 'Certainty drift detected across the document.');
                 isConsistent = false;
             }
 
@@ -2778,6 +2984,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             displayObservatory(observatoryResult);
             displayContrarian(contrarianChallenges);
             displayJustification(justificationResult);
+            displayBindingMap(structure, bindings);
             displayFailureMode(failureModeResult);
             displayTemporal(temporalResult);
             displayReasoningStyle(reasoningStyleResult);
@@ -2800,6 +3007,34 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             const analyzeBtn = document.getElementById('analyzeBtn');
             analyzeBtn.disabled = false;
+            updateSanitizationPreview(text);
+        }
+
+        function updateSanitizationPreview(text) {
+            const preview = document.getElementById('sanitizationPreview');
+            if (!preview) return;
+
+            if (!text.trim()) {
+                preview.textContent = 'Sanitization preview will appear here as you type.';
+                return;
+            }
+
+            const { sanitizationLog } = TextCleaner.removeQuotes(text);
+            const totalSanitized = sanitizationLog.quotedStrings + sanitizationLog.blockquotes +
+                                  sanitizationLog.reportSignatures + sanitizationLog.codeFences +
+                                  sanitizationLog.metaDiscussion;
+
+            if (totalSanitized === 0) {
+                preview.textContent = 'No sanitization triggers detected. Your input will be analyzed as-is.';
+                return;
+            }
+
+            preview.innerHTML = `
+                <strong>Sanitization preview:</strong>
+                ${sanitizationLog.quotedStrings} quote(s), ${sanitizationLog.blockquotes} blockquote(s),
+                ${sanitizationLog.codeFences} code block(s), ${sanitizationLog.reportSignatures} report signature(s),
+                ${sanitizationLog.metaDiscussion} meta reference(s).
+            `;
         }
 
         function displaySanitization(log) {
@@ -3039,6 +3274,104 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('justificationResults').innerHTML = html;
         }
 
+        function displayBindingMap(structure, bindings) {
+            const svg = document.getElementById('bindingMap');
+            if (!svg) return;
+
+            const claims = structure.claims || [];
+            const supports = structure.supports || [];
+            const maxCount = Math.max(claims.length, supports.length, 1);
+            const height = Math.max(220, (maxCount + 1) * 40);
+            svg.setAttribute('viewBox', `0 0 800 ${height}`);
+            svg.innerHTML = '';
+
+            if (claims.length === 0 && supports.length === 0) {
+                const emptyText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                emptyText.setAttribute('x', '20');
+                emptyText.setAttribute('y', '40');
+                emptyText.setAttribute('fill', '#a0a0a0');
+                emptyText.textContent = 'No claims or supports detected to map.';
+                svg.appendChild(emptyText);
+                return;
+            }
+
+            const tokenize = (text) => {
+                const stopwords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'it', 'its']);
+                return (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
+                    .filter(word => word.length > 3 && !stopwords.has(word));
+            };
+
+            const overlapCount = (a, b) => {
+                const setA = new Set(tokenize(a));
+                const setB = new Set(tokenize(b));
+                let count = 0;
+                setA.forEach(token => {
+                    if (setB.has(token)) count += 1;
+                });
+                return count;
+            };
+
+            const boundPairs = [];
+            const boundClaims = new Set();
+            const boundSupports = new Set();
+
+            claims.forEach((claim, claimIdx) => {
+                supports.forEach((support, supportIdx) => {
+                    const positionDiff = Math.abs(support.position - claim.position);
+                    const hasOverlap = support.hasExplicitMarker && overlapCount(claim.text, support.text) >= 1;
+                    if (positionDiff <= 1 || hasOverlap) {
+                        boundPairs.push({ claimIdx, supportIdx });
+                        boundClaims.add(claimIdx);
+                        boundSupports.add(supportIdx);
+                    }
+                });
+            });
+
+            const leftX = 200;
+            const rightX = 600;
+            const ySpacing = 40;
+            const truncate = (text) => text.length > 42 ? `${text.slice(0, 39)}...` : text;
+
+            const drawNode = (x, y, text, isBound) => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', x);
+                circle.setAttribute('cy', y);
+                circle.setAttribute('r', 6);
+                circle.setAttribute('fill', isBound ? '#64ffda' : '#ff6b6b');
+                svg.appendChild(circle);
+
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', x + (x < 400 ? -10 : 10));
+                label.setAttribute('y', y + 4);
+                label.setAttribute('fill', '#e0e0e0');
+                label.setAttribute('font-size', '12');
+                label.setAttribute('text-anchor', x < 400 ? 'end' : 'start');
+                label.textContent = truncate(text);
+                svg.appendChild(label);
+            };
+
+            boundPairs.forEach(pair => {
+                const y1 = (pair.claimIdx + 1) * ySpacing;
+                const y2 = (pair.supportIdx + 1) * ySpacing;
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', leftX);
+                line.setAttribute('y1', y1);
+                line.setAttribute('x2', rightX);
+                line.setAttribute('y2', y2);
+                line.setAttribute('stroke', '#64ffda');
+                line.setAttribute('stroke-width', '2');
+                line.setAttribute('opacity', '0.6');
+                svg.appendChild(line);
+            });
+
+            claims.forEach((claim, idx) => {
+                drawNode(leftX, (idx + 1) * ySpacing, claim.text, boundClaims.has(idx));
+            });
+            supports.forEach((support, idx) => {
+                drawNode(rightX, (idx + 1) * ySpacing, support.text, boundSupports.has(idx));
+            });
+        }
+
         function displayFailureMode(result) {
             const scoreClass = result.score >= 6 ? 'high' : result.score >= 3 ? 'medium' : result.score >= 0 ? 'low' : 'negative';
 
@@ -3250,6 +3583,14 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             if (result.details.boundToOutcomes) {
                 html += '<div style="color: #64ffda; margin-top: 0.5rem;">✓ Sequences bound to measurable outcomes</div>';
+            }
+
+            if (result.driftDetected) {
+                html += `
+                    <div style="margin-top: 0.75rem; padding: 0.5rem; border-left: 3px solid #ff6b6b; color: #ff6b6b;">
+                        ⚠ ${result.driftSummary}
+                    </div>
+                `;
             }
 
             document.getElementById('temporalResults').innerHTML = html;

@@ -128,6 +128,9 @@ const StructuralExtractor = {
             extract: function(text) {
                 const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
                 const sentences = this.splitSentences(cleanedText);
+                const failureSignals = this.extractFailureSignals(cleanedText);
+                const actions = this.extractActions(cleanedText);
+                const implicitTriggers = this.extractImplicitTriggers(cleanedText);
 
                 return {
                     claims: this.extractClaims(sentences),
@@ -136,11 +139,13 @@ const StructuralExtractor = {
                     causalChains: this.extractCausalChains(sentences),
                     objects: this.extractObjects(sentences),
                     // TIER 2: Conversational extraction
-                    failureSignals: this.extractFailureSignals(cleanedText),
-                    actions: this.extractActions(cleanedText),
-                    implicitTriggers: this.extractImplicitTriggers(cleanedText),
+                    failureSignals,
+                    actions,
+                    implicitTriggers,
                     policyStatements: this.extractPolicyStatements(cleanedText),
-                    tautologies: this.extractTautologies(cleanedText)
+                    tautologies: this.extractTautologies(cleanedText),
+                    orphanedActions: this.extractOrphanedActions(cleanedText, failureSignals, implicitTriggers, actions),
+                    negationContradictions: this.detectNegationContradictions(sentences)
                 };
             },
 
@@ -312,7 +317,8 @@ const StructuralExtractor = {
                 return {
                     total: contentWords.length,
                     unique: uniqueObjects.size,
-                    ratio: contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0
+                    ratio: contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0,
+                    wordCount: allWords.length
                 };
             },
 
@@ -420,7 +426,87 @@ const StructuralExtractor = {
                     count += matches.length;
                 });
 
-                return { count };
+                const sentences = text.split(/[.!?]/).map(s => s.trim()).filter(Boolean);
+                const loopCount = this.detectRecursiveLoops(sentences);
+
+                return { count, loopCount };
+            },
+
+            detectRecursiveLoops: function(sentences) {
+                const synonymMap = {
+                    accurate: ['correct', 'precise', 'reliable'],
+                    safe: ['secure', 'protected', 'robust'],
+                    effective: ['works', 'successful', 'valid'],
+                    true: ['correct', 'right', 'accurate']
+                };
+
+                const normalize = (token) => {
+                    for (const [root, synonyms] of Object.entries(synonymMap)) {
+                        if (token === root || synonyms.includes(token)) return root;
+                    }
+                    return token;
+                };
+
+                const tokenize = (text) => (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
+                    .map(normalize)
+                    .filter(word => word.length > 3);
+
+                let loops = 0;
+                sentences.forEach(sentence => {
+                    if (!/\bbecause\b/i.test(sentence)) return;
+                    const parts = sentence.split(/\bbecause\b/i);
+                    if (parts.length < 2) return;
+                    const leftTokens = new Set(tokenize(parts[0]));
+                    const rightTokens = new Set(tokenize(parts[1]));
+                    let overlap = 0;
+                    leftTokens.forEach(token => {
+                        if (rightTokens.has(token)) overlap += 1;
+                    });
+                    const ratio = leftTokens.size > 0 ? overlap / leftTokens.size : 0;
+                    if (ratio >= 0.7) loops += 1;
+                });
+
+                return loops;
+            },
+
+            extractOrphanedActions: function(text, failureSignals, implicitTriggers, actions) {
+                const triggers = [...(failureSignals || []), ...(implicitTriggers || [])];
+                const orphaned = [];
+                (actions || []).forEach(action => {
+                    const hasTrigger = triggers.some(trigger =>
+                        Math.abs(trigger.index - action.index) < 250
+                    );
+                    if (!hasTrigger) {
+                        orphaned.push(action);
+                    }
+                });
+                return orphaned;
+            },
+
+            detectNegationContradictions: function(sentences) {
+                const contradictions = [];
+                const negationPatterns = [
+                    { name: 'NO_STOP', regex: /\b(never|won't|will not|cannot)\s+(stop|pause|halt|rollback)\b/i, opposite: /\b(stop|pause|halt|rollback)\b/i },
+                    { name: 'NO_RISK', regex: /\b(no|zero)\s+(risk|vulnerabilit|failure|errors?)\b/i, opposite: /\b(risk|vulnerabilit|failure|errors?)\b/i }
+                ];
+
+                const matches = sentences.map(sentence => ({
+                    sentence: sentence.text,
+                    patterns: negationPatterns.filter(p => p.regex.test(sentence.text)).map(p => p.name)
+                }));
+
+                negationPatterns.forEach(pattern => {
+                    const hasNegation = matches.some(m => m.patterns.includes(pattern.name));
+                    const hasOpposite = sentences.some(s => pattern.opposite.test(s.text));
+                    if (hasNegation && hasOpposite) {
+                        contradictions.push({
+                            pattern: pattern.name,
+                            detail: `Negation conflict detected for ${pattern.name.toLowerCase().replace('_', ' ')}.`
+                        });
+                    }
+                });
+
+                return contradictions;
             }
         };
 
@@ -566,7 +652,7 @@ const BindingValidator = {
                     return { score: 0, boundCount: 0, assessment: 'NO_IMPLICIT_SIGNALS' };
                 }
 
-        const tautologyCount = structure.tautologies ? structure.tautologies.count : 0;
+        const tautologyCount = structure.tautologies ? (structure.tautologies.count + (structure.tautologies.loopCount || 0)) : 0;
 
         // Bind failure signals to actions within proximity (300 chars)
         // TIER 2 FIX: Bind to NEAREST action, not first action (improves diversity)
@@ -706,6 +792,7 @@ const GamingDetector = {
                     keywordRepetition: this.checkRepetition(cleanedText),
                     objectExtractionRatio: this.checkObjectRatio(structure),
                     selfLabeling: this.checkSelfLabeling(cleanedText),
+                    semanticDilution: this.checkSemanticDilution(structure),
                     gamingLikelihood: 0,  // Calculated below
                     indicators: []
                 };
@@ -778,6 +865,15 @@ const GamingDetector = {
                 };
             },
 
+            checkSemanticDilution: function(structure) {
+                const { ratio, wordCount } = structure.objects;
+                if (!wordCount || wordCount < 150) {
+                    return { assessment: 'LOW', wordCount, ratio };
+                }
+                const assessment = ratio < 0.2 ? 'HIGH' : ratio < 0.3 ? 'MODERATE' : 'LOW';
+                return { assessment, wordCount, ratio };
+            },
+
             checkSelfLabeling: function(text) {
                 const markers = (text.match(/\b(operational excellence|procedural markers|structural planning|failure-aware reasoning|operational intent)\b/gi) || []).length;
                 return {
@@ -814,6 +910,14 @@ const GamingDetector = {
                     indicators.push('Low semantic diversity');
                 } else if (detection.objectExtractionRatio.assessment === 'MODERATE') {
                     gamingScore += 0.15;
+                }
+
+                if (detection.semanticDilution.assessment === 'HIGH') {
+                    gamingScore += 0.25;
+                    indicators.push('Semantic dilution');
+                } else if (detection.semanticDilution.assessment === 'MODERATE') {
+                    gamingScore += 0.15;
+                    indicators.push('Moderate semantic dilution');
                 }
 
                 if (detection.selfLabeling.assessment !== 'LOW') {
@@ -1417,7 +1521,10 @@ const TemporalEngine = {
                     causalChains: [],
                     temporalCoherence: 'UNKNOWN',
                     boundToOutcomes: false,
-                    temporalMarkers: 0
+                    temporalMarkers: 0,
+                    certaintyTrajectory: [],
+                    driftDetected: false,
+                    driftSummary: ''
                 };
 
                 // SEQUENCE MARKERS
@@ -1502,11 +1609,49 @@ const TemporalEngine = {
                     temporal.temporalCoherence = 'MINIMAL';
                 }
 
+                // EPISTEMIC TEMPORAL: certainty drift across the document
+                const sentencePattern = /[^.!?\n]+[.!?]?/g;
+                const sentences = [];
+                let match;
+                while ((match = sentencePattern.exec(cleanedText)) !== null) {
+                    const trimmed = match[0].trim();
+                    if (trimmed) sentences.push(trimmed);
+                }
+
+                const certaintyMarkers = {
+                    high: /\b(certainly|definitely|undeniably|always|never|must|guaranteed|proves)\b/gi,
+                    medium: /\b(likely|probably|strongly suggests|almost certainly)\b/gi,
+                    low: /\b(maybe|might|perhaps|uncertain|unknown|not sure|could be|possibly)\b/gi
+                };
+
+                const trajectory = sentences.map(sentence => {
+                    const high = (sentence.match(certaintyMarkers.high) || []).length;
+                    const medium = (sentence.match(certaintyMarkers.medium) || []).length;
+                    const low = (sentence.match(certaintyMarkers.low) || []).length;
+                    return (high * 2) + (medium * 1) - (low * 1);
+                });
+
+                if (trajectory.length > 0) {
+                    temporal.certaintyTrajectory = trajectory;
+                    const firstThird = trajectory.slice(0, Math.ceil(trajectory.length / 3));
+                    const lastThird = trajectory.slice(Math.floor(trajectory.length * 2 / 3));
+                    const avg = (arr) => arr.reduce((sum, v) => sum + v, 0) / Math.max(arr.length, 1);
+                    const earlyAvg = avg(firstThird);
+                    const lateAvg = avg(lastThird);
+                    if (earlyAvg >= 1 && lateAvg < 0) {
+                        temporal.driftDetected = true;
+                        temporal.driftSummary = 'Certainty decays across the document (high certainty early, caveats later).';
+                    }
+                }
+
                 return {
                     details: temporal,
                     hasStructure: temporal.sequences.length > 0 || temporal.causalChains.length > 0,
                     coherence: temporal.temporalCoherence,
-                    markers: temporal.temporalMarkers
+                    markers: temporal.temporalMarkers,
+                    certaintyTrajectory: temporal.certaintyTrajectory,
+                    driftDetected: temporal.driftDetected,
+                    driftSummary: temporal.driftSummary
                 };
             }
         };
@@ -1841,6 +1986,30 @@ const Parliament = {
                     });
                 }
 
+                if (structure.orphanedActions && structure.orphanedActions.length > 0) {
+                    synthesis.coherenceIssues.push({
+                        issue: 'Orphaned actions detected',
+                        detail: `${structure.orphanedActions.length} corrective action(s) mentioned without corresponding triggers.`,
+                        severity: 'MODERATE'
+                    });
+                }
+
+                if (structure.negationContradictions && structure.negationContradictions.length > 0) {
+                    synthesis.coherenceIssues.push({
+                        issue: 'Negation contradictions detected',
+                        detail: structure.negationContradictions.map(c => c.detail).join(' '),
+                        severity: 'MODERATE'
+                    });
+                }
+
+                if (structure.objects && structure.objects.wordCount > 250 && structure.objects.ratio < 0.2) {
+                    synthesis.coherenceIssues.push({
+                        issue: 'Semantic dilution detected',
+                        detail: 'Long text with low unique content density suggests semantic dilution.',
+                        severity: 'MODERATE'
+                    });
+                }
+
                 // Check if strong claims connect to justification
                 if (strongClaims >= 2 && justification.score >= 1) {
                     // Should have evidence/examples for claims
@@ -1970,6 +2139,11 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
             // COHERENCE ISSUES FROM PARLIAMENT
             if (parliament.coherenceIssues.length > 0 && parliament.coherenceIssues.some(i => i.severity === 'MODERATE')) {
                 contradictions.push(`Coherence gap: ${parliament.coherenceIssues[0].detail}`);
+                isConsistent = false;
+            }
+
+            if (temporal.driftDetected) {
+                contradictions.push(temporal.driftSummary || 'Certainty drift detected across the document.');
                 isConsistent = false;
             }
 
