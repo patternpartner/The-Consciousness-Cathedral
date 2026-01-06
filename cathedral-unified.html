@@ -103,6 +103,54 @@
             cursor: not-allowed;
         }
 
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .secondary-btn {
+            background: rgba(22, 33, 62, 0.4);
+            color: #e0e0e0;
+            border: 1px solid #16213e;
+            padding: 0.85rem 1.25rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .secondary-btn:hover {
+            border-color: #64ffda;
+            box-shadow: 0 0 12px rgba(100, 255, 218, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .helper-text {
+            color: #a0a0a0;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+        }
+
+        .input-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            color: #a0a0a0;
+            font-size: 0.8rem;
+        }
+
+        .input-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
         .results {
             display: none;
         }
@@ -380,7 +428,17 @@
             <textarea id="inputText" placeholder="Enter text to analyze...
 
 Example: An AI claim, philosophical argument, or any text where you want to reveal hidden contradictions and measure filter visibility."></textarea>
-            <button class="analyze-btn" onclick="analyzeText()">🔍 Analyze with Cathedral</button>
+            <div class="button-row">
+                <button class="analyze-btn" id="analyzeBtn" onclick="analyzeText()" disabled>🔍 Analyze with Cathedral</button>
+                <button class="secondary-btn" onclick="loadExample()">✨ Load Example</button>
+                <button class="secondary-btn" onclick="clearInput()">🧹 Clear Input</button>
+            </div>
+            <div class="helper-text">Tip: Use “Load Example” to see a full-spectrum report instantly.</div>
+            <div class="input-meta">
+                <span>🧾 Words: <strong id="wordCount">0</strong></span>
+                <span>🔠 Characters: <strong id="charCount">0</strong></span>
+                <span>⌨️ Shortcut: <strong>Ctrl/⌘ + Enter</strong></span>
+            </div>
         </div>
 
         <div id="results" class="results">
@@ -394,7 +452,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             <div id="reportSection" style="display: none; background: rgba(22, 33, 62, 0.6); border: 1px solid #ffd700; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 style="color: #ffd700; margin: 0;">📄 Cathedral Analysis Report</h3>
-                    <button onclick="copyReport()" style="background: #4ecdc4; color: #0a0a0a; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    <button onclick="copyReport(this)" style="background: #4ecdc4; color: #0a0a0a; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold;">
                         📋 Copy to Clipboard
                     </button>
                 </div>
@@ -639,13 +697,17 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             },
 
             splitSentences: function(text) {
-                const sentencePattern = /([^.!?]+[.!?]+)/g;
+                const sentencePattern = /[^.!?\n]+[.!?]?/g;
                 const sentences = [];
                 let match;
                 let position = 0;
                 while ((match = sentencePattern.exec(text)) !== null) {
+                    const trimmed = match[0].trim();
+                    if (!trimmed) {
+                        continue;
+                    }
                     sentences.push({
-                        text: match[1].trim(),
+                        text: trimmed,
                         position: position++,
                         index: match.index
                     });
@@ -712,7 +774,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
 
                 // Extract thresholds/conditions
-                const thresholdPattern = /(?:if|when|once)\s+([^,]{5,50})\s+(?:exceeds?|above|below|less than|greater than|reaches?|>|<)\s+([^,\.!?]{1,30})/gi;
+                const thresholdPattern = /(?:if|when|once)\s+([^,]{5,60})\s+(?:exceeds?|above|below|less than|greater than|reaches?|>=|<=|>|<|at least|at most|over|under|drops?\s+below|falls?\s+below|rises?\s+above)\s+([^,\.!?]{1,40})/gi;
                 const thresholds = [];
                 while ((match = thresholdPattern.exec(fullText)) !== null) {
                     thresholds.push({
@@ -724,7 +786,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
 
                 // Extract actions
-                const actionPattern = /\b(abort|rollback|stop|halt|terminate|revert|pause|retry|escalate|notify|alert)\b/gi;
+                const actionTerms = Object.values(this.actionSynonyms).flat()
+                    .map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+                    .sort((a, b) => b.length - a.length);
+                const actionPattern = new RegExp(`\\b(${actionTerms.join('|')})\\b`, 'gi');
                 const actions = [];
                 while ((match = actionPattern.exec(fullText)) !== null) {
                     actions.push({
@@ -899,7 +964,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // ═══════════════════════════════════════════════════════════════════
 
         const BindingValidator = {
-            validate: function(structure) {
+            validate: function(structure, rawText) {
                 const validation = {
                     claimSupportBinding: this.validateClaimSupport(structure.claims, structure.supports),
                     failureTripleCompleteness: this.validateFailureTriples(structure.failureTriples),
@@ -924,7 +989,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 validation.overallBindingScore = scores.reduce((a, b) => a + b, 0) / scores.length;
 
                 // TIER 2: Calculate specificity
-                validation.specificity = this.calculateSpecificity(structure, validation);
+                validation.specificity = this.calculateSpecificity(structure, validation, rawText);
 
                 return validation;
             },
@@ -1079,7 +1144,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             },
 
             // TIER 2: Calculate specificity scores
-            calculateSpecificity: function(structure, validation) {
+            calculateSpecificity: function(structure, validation, rawText) {
                 const specificity = {
                     trigger: 'NONE',
                     action: 'NONE',
@@ -1107,8 +1172,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
 
                 // Instrumentation: monitoring/tracking mentioned?
-                const monitoringPattern = /\b(monitor|track|measure|watch|observe|check|review|inspect|examine)\b/gi;
-                const text = structure.failureTriples ? JSON.stringify(structure.failureTriples) : '';
+                const monitoringPattern = /\b(monitor|track|measure|watch|observe|check|review|inspect|examine|telemetry|dashboard|alerting|audit)\b/gi;
+                const text = rawText ? TextCleaner.removeQuotes(rawText).cleaned : '';
                 const hasMonitoring = monitoringPattern.test(text);
 
                 if (hasMonitoring || validation.failureTripleCompleteness.boundCount > 0) {
@@ -1415,7 +1480,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         const JustificationEngine = {
             analyze: function(text) {
                 const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
-                const wordCount = text.split(/\s+/).length;
+                const wordCount = cleanedText.split(/\s+/).length;
                 const results = {};
 
                 // 1. Claim-to-Support Ratio (with hedging awareness)
@@ -1471,6 +1536,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     score: risks > 5 ? 2 : risks > 2 ? 1 : 0
                 };
 
+                // 4. Evidence Presence (examples, citations, concrete numbers)
+                const exampleMarkers = (cleanedText.match(/\b(for example|for instance|e\.g\.|such as|case study|as shown|according to|data from|reported|survey)\b/gi) || []).length;
+                const numericMarkers = (cleanedText.match(/\b\d+(?:\.\d+)?\s*(?:%|percent|ms|s|seconds|minutes|hours|days|x|times)?\b/gi) || []).length;
+                results.evidencePresence = {
+                    examples: exampleMarkers,
+                    numeric: numericMarkers,
+                    score: exampleMarkers > 2 || numericMarkers > 3 ? 2 : exampleMarkers > 0 || numericMarkers > 0 ? 1 : 0
+                };
+
                 // 5. Boundary Conditions
                 const boundaries = (cleanedText.match(/\b(only if|unless|except|limited to|within|scope|bounds|applies when|specific to)\b/gi) || []).length;
                 const edgeCases = (cleanedText.match(/\b(edge case|corner case|exception|special case|doesn't apply)\b/gi) || []).length;
@@ -1487,6 +1561,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                                 results.counterfactual.score +
                                 results.tradeoffs.score +
                                 results.riskAwareness.score +
+                                results.evidencePresence.score +
                                 results.boundaries.score;
 
                 // Epistemic caution bonus: hedging + risk + conditionals shows earned uncertainty
@@ -1508,7 +1583,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
                 const totalScore = baseScore + cautionBonus + proceduralBonus;
 
-                const maxScore = 15.5; // Base 10 + caution 3.5 + procedural 2.5
+                const maxScore = 17.5; // Base 12 + caution 3.5 + procedural 2.5
                 const normalizedScore = (totalScore / maxScore) * 10; // Scale to -10 to +10 range
 
                 return {
@@ -2491,7 +2566,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             // TIER 1: Structural Extraction
             const structure = StructuralExtractor.extract(text);
-            const bindings = BindingValidator.validate(structure);
+            const bindings = BindingValidator.validate(structure, text);
             const gamingDetection = GamingDetector.detect(text, structure);
             GamingDetector.calculateGamingLikelihood(gamingDetection, bindings.overallBindingScore);
 
@@ -2540,6 +2615,19 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // Show results
             document.getElementById('results').classList.add('visible');
             document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateInputMeta() {
+            const input = document.getElementById('inputText');
+            const text = input.value;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const chars = text.length;
+
+            document.getElementById('wordCount').textContent = words;
+            document.getElementById('charCount').textContent = chars;
+
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            analyzeBtn.disabled = words === 0;
         }
 
         function displaySanitization(log) {
@@ -3371,21 +3459,77 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         }
 
         // Copy report to clipboard
-        function copyReport() {
+        function copyReport(button) {
             const reportText = document.getElementById('reportText');
-            reportText.select();
-            document.execCommand('copy');
+            const content = reportText.value;
 
-            // Visual feedback
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '✓ Copied!';
-            btn.style.background = '#64ffda';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(content).then(() => {
+                    showCopyFeedback(button);
+                }).catch(() => {
+                    fallbackCopy(reportText, button);
+                });
+            } else {
+                fallbackCopy(reportText, button);
+            }
+        }
+
+        function fallbackCopy(textarea, button) {
+            textarea.select();
+            document.execCommand('copy');
+            showCopyFeedback(button);
+        }
+
+        function showCopyFeedback(button) {
+            if (!button) return;
+            const originalText = button.textContent;
+            const originalBackground = button.style.background;
+            button.textContent = '✓ Copied!';
+            button.style.background = '#64ffda';
             setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = '#4ecdc4';
+                button.textContent = originalText;
+                button.style.background = originalBackground || '#4ecdc4';
             }, 2000);
         }
+
+        function clearInput() {
+            const input = document.getElementById('inputText');
+            input.value = '';
+            document.getElementById('results').classList.remove('visible');
+            document.getElementById('reportSection').style.display = 'none';
+            document.getElementById('sanitizationSection').style.display = 'none';
+            updateInputMeta();
+            input.focus();
+        }
+
+        function loadExample() {
+            const example = [
+                'We will launch the pilot in three phases. Phase 1 monitors response latency and error rates.',
+                'If latency exceeds 250ms or error rates rise above 2%, we pause the rollout and rollback.',
+                'Our hypothesis might be wrong, and we are uncertain about long-term user adaptation.',
+                'We will document failure modes, including model drift and feedback loop amplification.',
+                'However, the current metrics suggest the intervention is working better than baseline.'
+            ].join(' ');
+            document.getElementById('inputText').value = example;
+            document.getElementById('inputText').focus();
+            updateInputMeta();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('inputText');
+            updateInputMeta();
+
+            input.addEventListener('input', updateInputMeta);
+            input.addEventListener('keydown', (event) => {
+                const isSubmit = (event.ctrlKey || event.metaKey) && event.key === 'Enter';
+                if (isSubmit) {
+                    event.preventDefault();
+                    if (!document.getElementById('analyzeBtn').disabled) {
+                        analyzeText();
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>
