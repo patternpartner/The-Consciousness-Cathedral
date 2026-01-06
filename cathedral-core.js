@@ -455,30 +455,47 @@ const BindingValidator = {
         return validation;
     },
 
-            validateClaimSupport: function(claims, supports) {
-                if (claims.length === 0) {
-                    return { score: 0, attached: 0, unattached: 0, ratio: 0, assessment: 'NO_CLAIMS' };
-                }
+    validateClaimSupport: function(claims, supports) {
+        if (claims.length === 0) {
+            return { score: 0, attached: 0, unattached: 0, ratio: 0, assessment: 'NO_CLAIMS' };
+        }
 
-                let attached = 0;
-                claims.forEach(claim => {
-                    // Support must be in same position, +1, or explicitly reference the claim
-                    const hasAttachedSupport = supports.some(support => {
-                        const positionDiff = Math.abs(support.position - claim.position);
-                        return positionDiff <= 1;  // Adjacent sentences
-                    });
+        const tokenize = (text) => {
+            const stopwords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'it', 'its']);
+            return (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
+                .filter(word => word.length > 3 && !stopwords.has(word));
+        };
 
-                    if (hasAttachedSupport) attached++;
-                });
+        const overlapCount = (a, b) => {
+            const setA = new Set(tokenize(a));
+            const setB = new Set(tokenize(b));
+            let count = 0;
+            setA.forEach(token => {
+                if (setB.has(token)) count += 1;
+            });
+            return count;
+        };
+
+        let attached = 0;
+        claims.forEach(claim => {
+            // Support must be in same position, +1, or explicitly reference the claim
+            const hasAttachedSupport = supports.some(support => {
+                const positionDiff = Math.abs(support.position - claim.position);
+                const hasSemanticOverlap = support.hasExplicitMarker && overlapCount(claim.text, support.text) >= 1;
+                return positionDiff <= 1 || hasSemanticOverlap;  // Adjacent or semantically linked
+            });
+
+            if (hasAttachedSupport) attached++;
+        });
 
                 const ratio = attached / claims.length;
                 const score = ratio >= 0.7 ? 1.0 : ratio >= 0.4 ? 0.6 : ratio >= 0.2 ? 0.3 : 0;
 
-                return {
-                    score,
-                    attached,
-                    unattached: claims.length - attached,
-                    ratio,
+        return {
+            score,
+            attached,
+            unattached: claims.length - attached,
+            ratio,
                     assessment: ratio >= 0.7 ? 'WELL_SUPPORTED' :
                                ratio >= 0.4 ? 'PARTIALLY_SUPPORTED' :
                                ratio >= 0.2 ? 'WEAKLY_SUPPORTED' : 'UNSUPPORTED'
@@ -1039,6 +1056,8 @@ const JustificationEngine = {
                     score: exampleMarkers > 2 || numericMarkers > 3 ? 2 : exampleMarkers > 0 || numericMarkers > 0 ? 1 : 0
                 };
 
+        // 4b. Epistemic Framing (explicitly naming the measurement boundary)
+        // Captures definitional dependencies and limits, distinct from evidence/boundary conditions.
                 // 4b. Epistemic Framing (explicitly naming the measurement boundary)
                 const framingMarkers = (cleanedText.match(/\b(depends on|framework|definition|epistemic access|measurement|presupposes|criteria|operationalize)\b/gi) || []).length;
                 results.epistemicFraming = {
@@ -1826,6 +1845,14 @@ const Parliament = {
                     }
                 }
 
+                if (bindings && bindings.claimSupportBinding.assessment === 'UNSUPPORTED' && strongClaims >= 1) {
+                    synthesis.coherenceIssues.push({
+                        issue: 'Claims detected without bound support',
+                        detail: 'Strong claims appear without nearby or semantically linked support.',
+                        severity: 'MODERATE'
+                    });
+                }
+
                 // CONFIDENCE CALCULATION
                 // Parliament's confidence in its own synthesis
                 if (synthesis.patterns.length === 0) {
@@ -1934,6 +1961,7 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
             // COHERENCE ISSUES FROM PARLIAMENT
             if (parliament.coherenceIssues.length > 0 && parliament.coherenceIssues.some(i => i.severity === 'MODERATE')) {
                 contradictions.push(`Coherence gap: ${parliament.coherenceIssues[0].detail}`);
+                isConsistent = false;
             }
 
             // Generate verdict

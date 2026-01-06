@@ -117,6 +117,8 @@ function analyzeTestResult(testResult) {
             analysis.passedWorksCheck = true;
         } else if (worksKeywords.includes('verified consistent') && actual.verdict === 'VERIFIED CONSISTENT') {
             analysis.passedWorksCheck = true;
+        } else if (worksKeywords.includes('undecidable') && actual.verdict === 'UNDECIDABLE') {
+            analysis.passedWorksCheck = true;
         } else if (worksKeywords.includes('operational intent') && ['OPERATIONAL INTENT', 'OPERATIONALLY SOUND'].includes(actual.verdict)) {
             analysis.passedWorksCheck = true;
         } else if (worksKeywords.includes('coherence issue') && actual.coherenceIssues.length > 0) {
