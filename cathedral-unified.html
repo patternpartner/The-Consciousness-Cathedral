@@ -3237,7 +3237,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     justificationAvg: justificationAvg.toFixed(2),
                     failureModeAvg: failureAvg.toFixed(2)
                 },
-                outcomes
+                outcomes,
+                recent
             };
         }
 
@@ -3280,12 +3281,17 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const outcomeSummary = audit.outcomes && Object.keys(audit.outcomes).length > 0
                 ? Object.entries(audit.outcomes).map(([key, value]) => `${key}: ${value}`).join(', ')
                 : 'No feedback logged yet';
+            const bridgeCandidates = (audit.recent || []).filter(entry =>
+                entry.integrityLabel === 'AMBIGUOUS' || entry.tagTier === 'SPECULATIVE'
+            );
+            const bridgeCount = bridgeCandidates.length;
             if (audit.warning) {
                 auditEl.innerHTML = `
                     <div style="color: #ffd700; margin-bottom: 0.5rem;">⚠️ ${audit.warning}</div>
                     <div style="color: #a0a0a0;">Justification avg (last 10): ${audit.trend?.justificationAvg ?? 'n/a'}</div>
                     <div style="color: #a0a0a0;">Failure mode avg (last 10): ${audit.trend?.failureModeAvg ?? 'n/a'}</div>
                     <div style="color: #a0a0a0; margin-top: 0.25rem;">Outcome feedback: ${outcomeSummary}</div>
+                    <div style="color: #a0a0a0; margin-top: 0.25rem;">Bridge candidates (speculative): ${bridgeCount}</div>
                 `;
             } else {
                 auditEl.innerHTML = `
@@ -3293,6 +3299,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     <div style="color: #a0a0a0;">Justification avg (last 10): ${audit.trend?.justificationAvg ?? 'n/a'}</div>
                     <div style="color: #a0a0a0;">Failure mode avg (last 10): ${audit.trend?.failureModeAvg ?? 'n/a'}</div>
                     <div style="color: #a0a0a0; margin-top: 0.25rem;">Outcome feedback: ${outcomeSummary}</div>
+                    <div style="color: #a0a0a0; margin-top: 0.25rem;">Bridge candidates (speculative): ${bridgeCount}</div>
                 `;
             }
         }
@@ -4495,6 +4502,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 report += `Outcome Feedback: ${Object.entries(audit.outcomes).map(([key, value]) => `${key}: ${value}`).join(', ')}\n`;
             } else {
                 report += 'Outcome Feedback: None logged\n';
+            }
+            if (audit.recent) {
+                const bridgeCandidates = audit.recent.filter(entry =>
+                    entry.integrityLabel === 'AMBIGUOUS' || entry.tagTier === 'SPECULATIVE'
+                ).length;
+                report += `Bridge Candidates (Speculative): ${bridgeCandidates}\n`;
             }
             report += '\n';
 
