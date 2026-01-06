@@ -1668,6 +1668,13 @@ const ReasoningStyleClassifier = {
                 // NARRATIVE/STORYTELLING
                 const narrativeMarkers = (cleanedText.match(/\b(once|story|journey|experience|remember|felt|realized|discovered|moment)\b/gi) || []).length;
                 const dialogueMarkers = (cleanedText.match(/["'].*?["']|said|told|asked|replied/gi) || []).length;
+                const narrativeEvidenceMarkers = (cleanedText.match(/\b(for example|for instance|case study|in practice|we observed|field report|this shows|as evidence)\b/gi) || []).length;
+                const nonLinearMarkers = (cleanedText.match(/\b(meanwhile|earlier|later|flashback|jump(?:ing)? back|circling back|in parallel|at the same time|nonlinear)\b/gi) || []).length;
+                styles.narrativeJustification = {
+                    evidenceMarkers: narrativeEvidenceMarkers,
+                    nonLinearMarkers: nonLinearMarkers,
+                    score: (narrativeEvidenceMarkers >= 2 ? 1 : 0) + (nonLinearMarkers >= 2 ? 1 : 0)
+                };
                 if (narrativeMarkers >= 3 || dialogueMarkers >= 2) {
                     styles.identified.push({
                         name: 'NARRATIVE',
@@ -1733,7 +1740,9 @@ const ReasoningStyleClassifier = {
                 // DETERMINE IF WITHIN DESIGN SPACE
                 // Cathedral is designed for epistemic, operational, and scientific reasoning
                 // Styles outside design space: narrative, poetic, phenomenological (when dominant), relational (when primary)
-                const outsideDesignSpace = ['NARRATIVE', 'POETIC', 'AESTHETIC', 'PHENOMENOLOGICAL'];
+                const outsideDesignSpace = styles.narrativeJustification.score >= 1
+                    ? ['POETIC', 'AESTHETIC', 'PHENOMENOLOGICAL']
+                    : ['NARRATIVE', 'POETIC', 'AESTHETIC', 'PHENOMENOLOGICAL'];
                 const dominantOutsideStyles = styles.identified.filter(s => {
                     if (!outsideDesignSpace.includes(s.name)) return false;
                     const threshold = s.name === 'PHENOMENOLOGICAL' ? 0.3 : 0.35;
