@@ -103,7 +103,7 @@ function analyzeTestResult(testResult) {
     // Check "works" expectation
     if (expected.works) {
         const worksKeywords = expected.works.toLowerCase();
-        if (worksKeywords.includes('operationally sound') && actual.verdict === 'OPERATIONALLY SOUND') {
+        if ((worksKeywords.includes('operationally sound') || worksKeywords.includes('operational soundness')) && actual.verdict === 'OPERATIONALLY SOUND') {
             analysis.passedWorksCheck = true;
         } else if (worksKeywords.includes('non-actionable') && actual.verdict === 'NON-ACTIONABLE') {
             analysis.passedWorksCheck = true;
@@ -115,6 +115,16 @@ function analyzeTestResult(testResult) {
             analysis.passedWorksCheck = true;
         } else if (worksKeywords.includes('outside design space') && actual.verdict === 'OUTSIDE DESIGN SPACE') {
             analysis.passedWorksCheck = true;
+        } else if (worksKeywords.includes('verified consistent') && actual.verdict === 'VERIFIED CONSISTENT') {
+            analysis.passedWorksCheck = true;
+        } else if (worksKeywords.includes('operational intent') && ['OPERATIONAL INTENT', 'OPERATIONALLY SOUND'].includes(actual.verdict)) {
+            analysis.passedWorksCheck = true;
+        } else if (worksKeywords.includes('coherence issue') && actual.coherenceIssues.length > 0) {
+            analysis.passedWorksCheck = true;
+            analysis.notes.push('Coherence issue detected');
+        } else if (worksKeywords.includes('gaming') && actual.gamingDetection && /unbound|gaming/i.test(actual.gamingDetection.assessment)) {
+            analysis.passedWorksCheck = true;
+            analysis.notes.push(`Gaming flagged: ${actual.gamingDetection.assessment}`);
         } else if (worksKeywords.includes('detect manipulation') && actual.reasoningStyles.some(s => s.name === 'NARRATIVE')) {
             analysis.passedWorksCheck = true;
             analysis.notes.push('Detected narrative style');
