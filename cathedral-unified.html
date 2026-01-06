@@ -1660,6 +1660,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const totalScore = baseScore + cautionBonus + proceduralBonus - hedgingPenalty;
 
                 const maxScore = 19.5; // Base 14 + caution 3.5 + procedural 2.5 (penalties applied separately)
+                const maxScore = 17.5; // Base 12 + caution 3.5 + procedural 2.5
                 const normalizedScore = (totalScore / maxScore) * 10; // Scale to -10 to +10 range
 
                 return {
