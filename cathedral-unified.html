@@ -482,6 +482,29 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <textarea id="reportText" readonly style="width: 100%; min-height: 400px; background: #0a0a0a; color: #e0e0e0; border: 1px solid #16213e; border-radius: 4px; padding: 1rem; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical;"></textarea>
             </div>
 
+            <!-- Archive -->
+            <div class="system-result" style="border-left-color: #ffd700;">
+                <div class="system-title">
+                    <span>🧠 ARCHIVE</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Temporal Substrate</span>
+                </div>
+                <div style="color: #a0a0a0;">
+                    Stored Analyses: <strong id="archiveCount">0</strong><br>
+                    Last Verdict: <strong id="lastVerdict">None yet</strong>
+                </div>
+            </div>
+
+            <!-- Self-Observatory -->
+            <div class="system-result" style="border-left-color: #ffd700;">
+                <div class="system-title">
+                    <span>🪞 SELF-OBSERVATORY</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Recursive Audit Loop</span>
+                </div>
+                <div id="selfObservatoryResults" style="color: #a0a0a0;">
+                    Run analyses to populate the recursive audit.
+                </div>
+            </div>
+
             <!-- Sanitization Transparency -->
             <div id="sanitizationSection" style="display: none; background: rgba(160, 160, 160, 0.1); border: 1px solid #a0a0a0; border-radius: 8px; padding: 1rem; margin-bottom: 2rem;">
                 <div style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 0.5rem;">
@@ -2997,10 +3020,147 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         }
 
         // Global storage for current analysis results
+        const ARCHIVE_KEY = 'cathedral_archive_v1';
         let currentAnalysis = null;
         let analysisHistory = {
             previousAnalysis: null
         };
+
+        function loadArchive() {
+            try {
+                const raw = localStorage.getItem(ARCHIVE_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (error) {
+                console.warn('Archive load failed:', error);
+                return [];
+            }
+        }
+
+        function saveArchive(archive) {
+            try {
+                localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive));
+            } catch (error) {
+                console.warn('Archive save failed:', error);
+            }
+        }
+
+        function hashFingerprint(input) {
+            let hash = 0;
+            for (let i = 0; i < input.length; i += 1) {
+                hash = ((hash << 5) - hash) + input.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash).toString(16);
+        }
+
+        function buildFingerprint(analysis) {
+            if (!analysis) return 'no-analysis';
+            const snapshot = [
+                analysis.observatory?.score?.toFixed(2),
+                analysis.justification?.score?.toFixed(2),
+                analysis.failureMode?.score?.toFixed(2),
+                analysis.temporal?.coherence,
+                analysis.reasoningStyle?.dominantStyle || 'NONE',
+                analysis.verdict?.status
+            ].join('|');
+            return hashFingerprint(snapshot);
+        }
+
+        function addArchiveEntry(analysis) {
+            if (!analysis) return null;
+            const archive = loadArchive();
+            const entry = {
+                id: `${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+                timestamp: new Date().toISOString(),
+                fingerprint: buildFingerprint(analysis),
+                verdictSummary: analysis.verdict?.status || 'UNKNOWN',
+                reportText: '',
+                keySignals: {
+                    observatoryScore: analysis.observatory?.score ?? null,
+                    justificationScore: analysis.justification?.score ?? null,
+                    failureModeScore: analysis.failureMode?.score ?? null,
+                    temporalCoherence: analysis.temporal?.coherence ?? null,
+                    reasoningStyle: analysis.reasoningStyle?.dominantStyle || null
+                }
+            };
+            archive.unshift(entry);
+            if (archive.length > 100) {
+                archive.splice(100);
+            }
+            saveArchive(archive);
+            return entry.id;
+        }
+
+        function updateArchiveEntry(entryId, reportText) {
+            if (!entryId) return;
+            const archive = loadArchive();
+            const entry = archive.find(item => item.id === entryId);
+            if (entry) {
+                entry.reportText = reportText;
+                saveArchive(archive);
+            }
+        }
+
+        function runRecursiveAudit(archive) {
+            if (!archive || archive.length < 3) {
+                return {
+                    warning: 'Not enough archived analyses to evaluate system drift.',
+                    verdicts: {},
+                    trend: null
+                };
+            }
+            const verdicts = archive.reduce((acc, entry) => {
+                const key = entry.verdictSummary || 'UNKNOWN';
+                acc[key] = (acc[key] || 0) + 1;
+                return acc;
+            }, {});
+
+            const recent = archive.slice(0, Math.min(10, archive.length));
+            const justificationAvg = recent.reduce((sum, entry) => sum + (entry.keySignals.justificationScore || 0), 0) / recent.length;
+            const failureAvg = recent.reduce((sum, entry) => sum + (entry.keySignals.failureModeScore || 0), 0) / recent.length;
+
+            const total = archive.length;
+            const dominantVerdict = Object.entries(verdicts).sort((a, b) => b[1] - a[1])[0];
+            const warning = dominantVerdict && dominantVerdict[1] / total > 0.6
+                ? `System-level filter surfacing: ${dominantVerdict[0]} dominates (${Math.round((dominantVerdict[1] / total) * 100)}%).`
+                : null;
+
+            return {
+                warning,
+                verdicts,
+                trend: {
+                    justificationAvg: justificationAvg.toFixed(2),
+                    failureModeAvg: failureAvg.toFixed(2)
+                }
+            };
+        }
+
+        function updateArchiveDisplay() {
+            const archive = loadArchive();
+            const countEl = document.getElementById('archiveCount');
+            const lastVerdictEl = document.getElementById('lastVerdict');
+            if (countEl) countEl.textContent = archive.length;
+            if (lastVerdictEl) {
+                lastVerdictEl.textContent = archive[0]?.verdictSummary || 'None yet';
+            }
+
+            const audit = runRecursiveAudit(archive);
+            const auditEl = document.getElementById('selfObservatoryResults');
+            if (!auditEl) return;
+            if (audit.warning) {
+                auditEl.innerHTML = `
+                    <div style="color: #ffd700; margin-bottom: 0.5rem;">⚠️ ${audit.warning}</div>
+                    <div style="color: #a0a0a0;">Justification avg (last 10): ${audit.trend?.justificationAvg ?? 'n/a'}</div>
+                    <div style="color: #a0a0a0;">Failure mode avg (last 10): ${audit.trend?.failureModeAvg ?? 'n/a'}</div>
+                `;
+            } else {
+                auditEl.innerHTML = `
+                    <div style="color: #64ffda; margin-bottom: 0.5rem;">✓ No systemic drift detected</div>
+                    <div style="color: #a0a0a0;">Justification avg (last 10): ${audit.trend?.justificationAvg ?? 'n/a'}</div>
+                    <div style="color: #a0a0a0;">Failure mode avg (last 10): ${audit.trend?.failureModeAvg ?? 'n/a'}</div>
+                `;
+            }
+        }
 
         function compareTemporalInconsistencies(previous, current) {
             if (!previous || !previous.structure || !current.structure) {
@@ -3109,6 +3269,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             };
 
             analysisHistory.previousAnalysis = currentAnalysis;
+            currentAnalysis.archiveId = addArchiveEntry(currentAnalysis);
+            updateArchiveDisplay();
 
             // Display sanitization transparency
             displaySanitization(sanitizationLog);
@@ -4193,6 +4355,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('reportText').value = report;
             document.getElementById('reportSection').style.display = 'block';
             document.getElementById('reportSection').scrollIntoView({ behavior: 'smooth' });
+            updateArchiveEntry(currentAnalysis.archiveId, report);
         }
 
         // Copy report to clipboard
@@ -4255,6 +4418,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         document.addEventListener('DOMContentLoaded', () => {
             const input = document.getElementById('inputText');
             updateInputMeta();
+            updateArchiveDisplay();
 
             input.addEventListener('input', updateInputMeta);
             input.addEventListener('keydown', (event) => {
