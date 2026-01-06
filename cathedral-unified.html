@@ -429,7 +429,7 @@
 
 Example: An AI claim, philosophical argument, or any text where you want to reveal hidden contradictions and measure filter visibility."></textarea>
             <div class="button-row">
-                <button class="analyze-btn" id="analyzeBtn" onclick="analyzeText()" disabled>🔍 Analyze with Cathedral</button>
+                <button class="analyze-btn" id="analyzeBtn" onclick="analyzeText()">🔍 Analyze with Cathedral</button>
                 <button class="secondary-btn" onclick="loadExample()">✨ Load Example</button>
                 <button class="secondary-btn" onclick="clearInput()">🧹 Clear Input</button>
             </div>
@@ -2789,7 +2789,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('charCount').textContent = chars;
 
             const analyzeBtn = document.getElementById('analyzeBtn');
-            analyzeBtn.disabled = words === 0;
+            analyzeBtn.disabled = false;
         }
 
         function displaySanitization(log) {
@@ -3685,9 +3685,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const isSubmit = (event.ctrlKey || event.metaKey) && event.key === 'Enter';
                 if (isSubmit) {
                     event.preventDefault();
-                    if (!document.getElementById('analyzeBtn').disabled) {
-                        analyzeText();
-                    }
+                    analyzeText();
                 }
             });
         });
