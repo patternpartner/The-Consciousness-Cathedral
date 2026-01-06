@@ -3591,6 +3591,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         ⚠ ${result.driftSummary}
                     </div>
                 `;
+            } else if (result.certaintyTrajectory && result.certaintyTrajectory.length > 0) {
+                html += `
+                    <div style="margin-top: 0.75rem; color: #a0a0a0;">
+                        Certainty trajectory detected without decay flag.
+                    </div>
+                `;
             }
 
             document.getElementById('temporalResults').innerHTML = html;
@@ -3745,7 +3751,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 return;
             }
 
-            const { observatory, contrarian, justification, parliament, verdict } = currentAnalysis;
+            const { observatory, contrarian, justification, parliament, verdict, temporal } = currentAnalysis;
 
             let report = '';
             report += '═══════════════════════════════════════════════════════════════\n';
@@ -3899,6 +3905,17 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += `  Uncertainty Markers: ${failureMode.details.knownUnknowns.count}\n`;
             report += `  Questions Raised: ${failureMode.details.knownUnknowns.questions}\n`;
             report += `  Score Contribution: ${failureMode.details.knownUnknowns.score > 0 ? '+' : ''}${failureMode.details.knownUnknowns.score}\n\n`;
+
+            // TEMPORAL ENGINE
+            report += '───────────────────────────────────────────────────────────────\n';
+            report += '⏱️ TEMPORAL ENGINE - Sequence & Causality\n';
+            report += '───────────────────────────────────────────────────────────────\n\n';
+            report += `Temporal Coherence: ${temporal.coherence}\n`;
+            report += `Temporal Markers: ${temporal.markers}\n`;
+            if (temporal.driftDetected) {
+                report += `Certainty Drift: ${temporal.driftSummary}\n`;
+            }
+            report += '\n';
 
             // PARLIAMENT
             report += '───────────────────────────────────────────────────────────────\n';
