@@ -492,6 +492,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     Stored Analyses: <strong id="archiveCount">0</strong><br>
                     Last Verdict: <strong id="lastVerdict">None yet</strong>
                 </div>
+                <div style="margin-top: 0.75rem;">
+                    <button class="secondary-btn" onclick="downloadArchive()">⬇️ Export Archive</button>
+                </div>
                 <div id="archiveList" style="margin-top: 0.75rem; color: #a0a0a0;"></div>
             </div>
 
@@ -3101,6 +3104,23 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 entry.reportText = reportText;
                 saveArchive(archive);
             }
+        }
+
+        function downloadArchive() {
+            const archive = loadArchive();
+            if (archive.length === 0) {
+                alert('Archive is empty.');
+                return;
+            }
+            const blob = new Blob([JSON.stringify(archive, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `cathedral-archive-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
 
         function recordOutcomeFeedback(outcome) {
