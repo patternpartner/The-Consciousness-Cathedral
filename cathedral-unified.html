@@ -467,7 +467,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         <div id="results" class="results">
             <!-- Report Export -->
             <div style="text-align: center; margin-bottom: 2rem;">
-                <button class="analyze-btn" onclick="generateReport()" style="background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);">
+                <button class="analyze-btn" id="generateReportBtn" onclick="generateReport()" style="background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);" disabled>
                     📄 Generate Text Report
                 </button>
             </div>
@@ -3431,6 +3431,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // Show results
             document.getElementById('results').classList.add('visible');
             document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            const reportBtn = document.getElementById('generateReportBtn');
+            if (reportBtn) reportBtn.disabled = false;
         }
 
         function updateInputMeta() {
@@ -3443,7 +3445,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('charCount').textContent = chars;
 
             const analyzeBtn = document.getElementById('analyzeBtn');
-            analyzeBtn.disabled = false;
+            analyzeBtn.disabled = words === 0;
             updateSanitizationPreview(text);
         }
 
@@ -4614,6 +4616,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('results').classList.remove('visible');
             document.getElementById('reportSection').style.display = 'none';
             document.getElementById('sanitizationSection').style.display = 'none';
+            const reportBtn = document.getElementById('generateReportBtn');
+            if (reportBtn) reportBtn.disabled = true;
             updateInputMeta();
             input.focus();
         }

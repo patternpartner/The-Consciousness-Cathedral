@@ -43,9 +43,9 @@ extractEngine('JustificationEngine', /const JustificationEngine = \{[\s\S]*?\n  
 extractEngine('FailureModeEngine', /const FailureModeEngine = \{[\s\S]*?\n        \};/);
 extractEngine('TemporalEngine', /const TemporalEngine = \{[\s\S]*?\n        \};/);
 extractEngine('ReasoningStyleClassifier', /const ReasoningStyleClassifier = \{[\s\S]*?\n        \};/);
-extractEngine('analysisHistory', /let analysisHistory = \{[\s\S]*?\n\};/);
-extractEngine('compareTemporalInconsistencies', /function compareTemporalInconsistencies[\s\S]*?\n\}/);
-extractEngine('generateProbingQuestions', /function generateProbingQuestions[\s\S]*?\n\}/);
+extractEngine('analysisHistory', /let analysisHistory = \{[\s\S]*?\n\s*\};/);
+extractEngine('compareTemporalInconsistencies', /function compareTemporalInconsistencies[\s\S]*?(?=\n\s*function generateProbingQuestions)/);
+extractEngine('generateProbingQuestions', /function generateProbingQuestions[\s\S]*?(?=\n\s*\/\/ Main Analysis Function)/);
 extractEngine('Parliament', /const Parliament = \{[\s\S]*?\n        \};/);
 
 // Extract synthesizeVerdict function

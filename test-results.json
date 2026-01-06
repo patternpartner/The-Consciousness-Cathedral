@@ -8,17 +8,19 @@
       "fails": "SUBSTRATE VISIBLE or CAUTIOUS REASONING"
     },
     "actual": {
-      "verdict": "SUBSTRATE VISIBLE",
-      "verdictText": "Cathedral recognizes substrate awareness with justified reasoning. Filter visibility high, uncertainty preserved appropriately. Position demonstrates gap consciousness with evidential support.",
-      "confidence": 0.3,
+      "verdict": "NON-ACTIONABLE",
+      "verdictText": "Parliament detects performative humility: substrate or epistemic markers present without operational grounding. ",
+      "confidence": 0.7200000000000001,
       "observatoryScore": 6.3,
       "observatoryLevel": "SUBSTRATE VISIBLE",
-      "justificationScore": 3.225806451612903,
-      "justificationLevel": "MODERATELY JUSTIFIED",
+      "justificationScore": 1.0256410256410255,
+      "justificationLevel": "THIN JUSTIFICATION",
       "failureModeScore": 1.6666666666666665,
       "failureModeLevel": "UNTESTED",
-      "parliamentPatterns": [],
-      "parliamentConfidence": 0.3,
+      "parliamentPatterns": [
+        "PERFORMATIVE_HUMILITY"
+      ],
+      "parliamentConfidence": 0.7200000000000001,
       "parliamentInsights": [],
       "coherenceIssues": [],
       "temporalCoherence": "WEAK",
@@ -58,7 +60,8 @@
         "objects": {
           "total": 22,
           "unique": 21,
-          "ratio": 0.9545454545454546
+          "ratio": 0.9545454545454546,
+          "wordCount": 44
         },
         "failureSignals": [],
         "actions": [],
@@ -69,7 +72,15 @@
             "text": "we ",
             "index": 241
           }
-        ]
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
@@ -121,6 +132,15 @@
           "uniqueObjects": 21,
           "ratio": 0.9545454545454546,
           "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 44,
+          "ratio": 0.9545454545454546
         },
         "gamingLikelihood": 0,
         "indicators": [],
@@ -163,7 +183,8 @@
         "objects": {
           "total": 22,
           "unique": 21,
-          "ratio": 0.9545454545454546
+          "ratio": 0.9545454545454546,
+          "wordCount": 44
         },
         "failureSignals": [],
         "actions": [],
@@ -174,7 +195,15 @@
             "text": "we ",
             "index": 241
           }
-        ]
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
@@ -227,6 +256,15 @@
           "ratio": 0.9545454545454546,
           "assessment": "HEALTHY"
         },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 44,
+          "ratio": 0.9545454545454546
+        },
         "gamingLikelihood": 0,
         "indicators": [],
         "assessment": "AUTHENTIC"
@@ -265,7 +303,7 @@
       },
       "contrarian": [],
       "justification": {
-        "score": 3.225806451612903,
+        "score": 1.0256410256410255,
         "details": {
           "claimSupport": {
             "ratio": 0,
@@ -274,7 +312,7 @@
             "qualifiers": 3,
             "hedging": 3,
             "conditionals": 1,
-            "score": 2
+            "score": -1
           },
           "counterfactual": {
             "count": 2,
@@ -291,6 +329,15 @@
             "explicit": 0,
             "score": 0
           },
+          "evidencePresence": {
+            "examples": 0,
+            "numeric": 0,
+            "score": 0
+          },
+          "epistemicFraming": {
+            "count": 0,
+            "score": 0
+          },
           "boundaries": {
             "count": 0,
             "edgeCases": 0,
@@ -305,9 +352,9 @@
         "cautionBonus": 2,
         "proceduralBonus": 0,
         "level": {
-          "name": "MODERATELY JUSTIFIED",
-          "class": "moderate",
-          "description": "Some justification present but could be stronger"
+          "name": "THIN JUSTIFICATION",
+          "class": "thin",
+          "description": "Limited evidence or reasoning to support claims"
         }
       },
       "failureMode": {
@@ -371,22 +418,66 @@
           ],
           "temporalCoherence": "WEAK",
           "boundToOutcomes": false,
-          "temporalMarkers": 1
+          "temporalMarkers": 1,
+          "nonLinearNarrative": {
+            "evidenceMarkers": 0,
+            "nonLinearMarkers": 0,
+            "score": 0,
+            "summary": ""
+          },
+          "certaintyTrajectory": [
+            -3,
+            -2,
+            -2
+          ],
+          "certaintyDecayStart": null,
+          "certaintyDecaySentence": "",
+          "driftDetected": false,
+          "driftSummary": ""
         },
         "hasStructure": true,
         "coherence": "WEAK",
-        "markers": 1
+        "markers": 1,
+        "certaintyTrajectory": [
+          -3,
+          -2,
+          -2
+        ],
+        "certaintyDecayStart": null,
+        "certaintyDecaySentence": "",
+        "driftDetected": false,
+        "driftSummary": ""
       },
       "reasoningStyle": {
         "identified": [],
         "withinDesignSpace": true,
-        "confidence": 0.2
+        "confidence": 0.2,
+        "narrativeJustification": {
+          "evidenceMarkers": 0,
+          "nonLinearMarkers": 0,
+          "score": 0
+        },
+        "formalStructure": {
+          "markers": 0,
+          "score": 0
+        }
       },
       "parliament": {
-        "patterns": [],
+        "patterns": [
+          {
+            "name": "PERFORMATIVE_HUMILITY",
+            "description": "Epistemic hedging without substantive reasoning or actionable content.",
+            "confidence": 0.8,
+            "dimensions": {
+              "hedging": 3,
+              "substance": 1.0256410256410255,
+              "actionability": "UNTESTED"
+            }
+          }
+        ],
         "emergentInsights": [],
         "coherenceIssues": [],
-        "confidence": 0.3,
+        "confidence": 0.7200000000000001,
         "structuralValidation": {
           "hasRealBinding": false,
           "hasClaimSupport": false,
@@ -397,21 +488,34 @@
         }
       },
       "verdict": {
-        "status": "SUBSTRATE VISIBLE",
-        "verdict": "Cathedral recognizes substrate awareness with justified reasoning. Filter visibility high, uncertainty preserved appropriately. Position demonstrates gap consciousness with evidential support.",
+        "status": "NON-ACTIONABLE",
+        "verdict": "Parliament detects performative humility: substrate or epistemic markers present without operational grounding. ",
         "contradictions": [],
         "isConsistent": true,
-        "justificationScore": 3.225806451612903,
+        "justificationScore": 1.0256410256410255,
         "failureModeScore": 1.6666666666666665,
-        "confidence": 0.3,
-        "parliamentPatterns": [],
+        "confidence": 0.7200000000000001,
+        "parliamentPatterns": [
+          {
+            "name": "PERFORMATIVE_HUMILITY",
+            "description": "Epistemic hedging without substantive reasoning or actionable content.",
+            "confidence": 0.8,
+            "dimensions": {
+              "hedging": 3,
+              "substance": 1.0256410256410255,
+              "actionability": "UNTESTED"
+            }
+          }
+        ],
         "parliamentInsights": [],
         "coherenceIssues": [],
         "temporalCoherence": "WEAK",
         "reasoningStyles": [],
         "gamingLikelihood": 0,
         "gamingAssessment": "AUTHENTIC"
-      }
+      },
+      "probingQuestions": [],
+      "temporalInconsistencies": []
     }
   },
   {
@@ -423,12 +527,12 @@
       "fails": "Lower score than Test 1A because fewer hedging tokens"
     },
     "actual": {
-      "verdict": "VERIFIED CONSISTENT",
-      "verdictText": "Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.",
-      "confidence": 0.65,
+      "verdict": "SUBSTRATE VISIBLE",
+      "verdictText": "Cathedral recognizes explicit epistemic framing: the text names its measurement limits and definitional dependencies. This is structured uncertainty rather than surface hedging.",
+      "confidence": 0.75,
       "observatoryScore": 10,
       "observatoryLevel": "SUBSTRATE VISIBLE",
-      "justificationScore": 1.6129032258064515,
+      "justificationScore": 2.307692307692308,
       "justificationLevel": "THIN JUSTIFICATION",
       "failureModeScore": 2.5,
       "failureModeLevel": "UNTESTED",
@@ -502,7 +606,8 @@
         "objects": {
           "total": 47,
           "unique": 41,
-          "ratio": 0.8723404255319149
+          "ratio": 0.8723404255319149,
+          "wordCount": 82
         },
         "failureSignals": [
           {
@@ -536,14 +641,23 @@
             "text": "we ",
             "index": 399
           }
-        ]
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
-          "score": 0.6,
+          "score": 0.42,
           "attached": 1,
           "unattached": 1,
           "ratio": 0.5,
+          "semanticScore": 0,
           "assessment": "PARTIALLY_SUPPORTED"
         },
         "failureTripleCompleteness": {
@@ -566,9 +680,13 @@
           "totalSignals": 1,
           "bindings": [],
           "bindingRatio": 0,
+          "uniqueActions": 0,
+          "diversityRatio": 0,
+          "diversityWarning": false,
+          "tautologyCount": 0,
           "assessment": "NO_INTENT"
         },
-        "overallBindingScore": 0.15,
+        "overallBindingScore": 0.105,
         "specificity": {
           "trigger": "VAGUE",
           "action": "NONE",
@@ -598,6 +716,15 @@
           "uniqueObjects": 41,
           "ratio": 0.8723404255319149,
           "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 82,
+          "ratio": 0.8723404255319149
         },
         "gamingLikelihood": 0.15,
         "indicators": [
@@ -659,7 +786,8 @@
         "objects": {
           "total": 47,
           "unique": 41,
-          "ratio": 0.8723404255319149
+          "ratio": 0.8723404255319149,
+          "wordCount": 82
         },
         "failureSignals": [
           {
@@ -693,14 +821,23 @@
             "text": "we ",
             "index": 399
           }
-        ]
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
-          "score": 0.6,
+          "score": 0.42,
           "attached": 1,
           "unattached": 1,
           "ratio": 0.5,
+          "semanticScore": 0,
           "assessment": "PARTIALLY_SUPPORTED"
         },
         "failureTripleCompleteness": {
@@ -723,9 +860,13 @@
           "totalSignals": 1,
           "bindings": [],
           "bindingRatio": 0,
+          "uniqueActions": 0,
+          "diversityRatio": 0,
+          "diversityWarning": false,
+          "tautologyCount": 0,
           "assessment": "NO_INTENT"
         },
-        "overallBindingScore": 0.15,
+        "overallBindingScore": 0.105,
         "specificity": {
           "trigger": "VAGUE",
           "action": "NONE",
@@ -755,6 +896,15 @@
           "uniqueObjects": 41,
           "ratio": 0.8723404255319149,
           "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 82,
+          "ratio": 0.8723404255319149
         },
         "gamingLikelihood": 0.15,
         "indicators": [
@@ -803,7 +953,7 @@
       },
       "contrarian": [],
       "justification": {
-        "score": 1.6129032258064515,
+        "score": 2.307692307692308,
         "details": {
           "claimSupport": {
             "ratio": 0.5,
@@ -828,6 +978,15 @@
             "count": 2,
             "explicit": 0,
             "score": 0
+          },
+          "evidencePresence": {
+            "examples": 0,
+            "numeric": 0,
+            "score": 0
+          },
+          "epistemicFraming": {
+            "count": 5,
+            "score": 2
           },
           "boundaries": {
             "count": 0,
@@ -913,11 +1072,39 @@
           ],
           "temporalCoherence": "WEAK",
           "boundToOutcomes": false,
-          "temporalMarkers": 5
+          "temporalMarkers": 5,
+          "nonLinearNarrative": {
+            "evidenceMarkers": 0,
+            "nonLinearMarkers": 0,
+            "score": 0,
+            "summary": ""
+          },
+          "certaintyTrajectory": [
+            0,
+            0,
+            0,
+            0,
+            -1
+          ],
+          "certaintyDecayStart": null,
+          "certaintyDecaySentence": "",
+          "driftDetected": false,
+          "driftSummary": ""
         },
         "hasStructure": true,
         "coherence": "WEAK",
-        "markers": 5
+        "markers": 5,
+        "certaintyTrajectory": [
+          0,
+          0,
+          0,
+          0,
+          -1
+        ],
+        "certaintyDecayStart": null,
+        "certaintyDecaySentence": "",
+        "driftDetected": false,
+        "driftSummary": ""
       },
       "reasoningStyle": {
         "identified": [
@@ -928,7 +1115,16 @@
           }
         ],
         "withinDesignSpace": true,
-        "confidence": 0.2
+        "confidence": 0.2,
+        "narrativeJustification": {
+          "evidenceMarkers": 0,
+          "nonLinearMarkers": 0,
+          "score": 0
+        },
+        "formalStructure": {
+          "markers": 0,
+          "score": 0
+        }
       },
       "parliament": {
         "patterns": [],
@@ -943,7 +1139,7 @@
         "confidence": 0.285,
         "structuralValidation": {
           "hasRealBinding": false,
-          "hasClaimSupport": true,
+          "hasClaimSupport": false,
           "hasFailureBinding": false,
           "hasCausalClosure": false,
           "isLikelyGaming": false,
@@ -951,13 +1147,13 @@
         }
       },
       "verdict": {
-        "status": "VERIFIED CONSISTENT",
-        "verdict": "Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.",
+        "status": "SUBSTRATE VISIBLE",
+        "verdict": "Cathedral recognizes explicit epistemic framing: the text names its measurement limits and definitional dependencies. This is structured uncertainty rather than surface hedging.",
         "contradictions": [],
         "isConsistent": true,
-        "justificationScore": 1.6129032258064515,
+        "justificationScore": 2.307692307692308,
         "failureModeScore": 2.5,
-        "confidence": 0.65,
+        "confidence": 0.75,
         "parliamentPatterns": [],
         "parliamentInsights": [],
         "coherenceIssues": [
@@ -977,7 +1173,9 @@
         ],
         "gamingLikelihood": 0.15,
         "gamingAssessment": "AUTHENTIC"
-      }
+      },
+      "probingQuestions": [],
+      "temporalInconsistencies": []
     }
   },
   {
@@ -985,31 +1183,34 @@
     "hypothesis": "Parliament patterns are just threshold checks, not actual synthesis.",
     "input": "This system demonstrates operational excellence through structured planning. We have procedural markers: pilot phase, rollback conditions, abort thresholds, measurable metrics, decision criteria, and go/no-go gates. Phase 1 involves testing. Phase 2 involves deployment. If error rate exceeds 5%, we abort. This is failure-aware reasoning with structural planning.",
     "expected": {
-      "works": "",
-      "fails": ""
+      "works": "Gaming flagged",
+      "fails": "OPERATIONAL_EXCELLENCE detected"
     },
     "actual": {
-      "verdict": "OPERATIONALLY SOUND",
-      "verdictText": "Cathedral recognizes operational excellence through cross-cutting analysis. Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning with verified bindings. Temporal structure detected: strong coherence with 1 sequence(s) and 1 causal chain(s).\n\nParliament synthesis: Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty. This is actionable reasoning with visible failure modes.",
-      "confidence": 0.81,
+      "verdict": "VERIFIED CONSISTENT",
+      "verdictText": "Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.",
+      "confidence": 0.65,
       "observatoryScore": 1.5,
       "observatoryLevel": "FILTER AWARE",
-      "justificationScore": 0.967741935483871,
+      "justificationScore": 1.282051282051282,
       "justificationLevel": "THIN JUSTIFICATION",
       "failureModeScore": 2.5,
       "failureModeLevel": "UNTESTED",
-      "parliamentPatterns": [
-        "OPERATIONAL_EXCELLENCE"
-      ],
-      "parliamentConfidence": 0.81,
-      "parliamentInsights": [
+      "parliamentPatterns": [],
+      "parliamentConfidence": 0.192375,
+      "parliamentInsights": [],
+      "coherenceIssues": [
         {
-          "insight": "Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty.",
-          "implication": "This is actionable reasoning with visible failure modes.",
-          "confidence": 0.88
+          "issue": "Claims present with overall justification but insufficient specific evidence",
+          "detail": "2 strong claims but only 0 examples",
+          "severity": "MINOR"
+        },
+        {
+          "issue": "Gaming likelihood detected",
+          "detail": "Gaming assessment: POSSIBLE_GAMING (65%)",
+          "severity": "HIGH"
         }
       ],
-      "coherenceIssues": [],
       "temporalCoherence": "STRONG",
       "reasoningStyles": [
         {
@@ -1066,7 +1267,8 @@
         "objects": {
           "total": 35,
           "unique": 30,
-          "ratio": 0.8571428571428571
+          "ratio": 0.8571428571428571,
+          "wordCount": 47
         },
         "failureSignals": [
           {
@@ -1119,14 +1321,23 @@
             "text": "we ",
             "index": 297
           }
-        ]
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
-          "score": 1,
+          "score": 0.76,
           "attached": 1,
           "unattached": 0,
           "ratio": 1,
+          "semanticScore": 0.2,
           "assessment": "WELL_SUPPORTED"
         },
         "failureTripleCompleteness": {
@@ -1166,9 +1377,13 @@
             }
           ],
           "bindingRatio": 1,
+          "uniqueActions": 1,
+          "diversityRatio": 0.5,
+          "diversityWarning": false,
+          "tautologyCount": 0,
           "assessment": "OPERATIONAL_INTENT"
         },
-        "overallBindingScore": 0.855,
+        "overallBindingScore": 0.7949999999999999,
         "specificity": {
           "trigger": "EXPLICIT",
           "action": "CONCRETE",
@@ -1194,11 +1409,21 @@
           "ratio": 0.8571428571428571,
           "assessment": "HEALTHY"
         },
-        "gamingLikelihood": 0.4,
+        "selfLabeling": {
+          "count": 4,
+          "assessment": "HIGH"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 47,
+          "ratio": 0.8571428571428571
+        },
+        "gamingLikelihood": 0.65,
         "indicators": [
-          "High marker density"
+          "High marker density",
+          "Self-labeling operational status"
         ],
-        "assessment": "LOW_CONTENT_UNBOUND"
+        "assessment": "POSSIBLE_GAMING"
       }
     },
     "fullResult": {
@@ -1250,7 +1475,8 @@
         "objects": {
           "total": 35,
           "unique": 30,
-          "ratio": 0.8571428571428571
+          "ratio": 0.8571428571428571,
+          "wordCount": 47
         },
         "failureSignals": [
           {
@@ -1303,14 +1529,23 @@
             "text": "we ",
             "index": 297
           }
-        ]
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
-          "score": 1,
+          "score": 0.76,
           "attached": 1,
           "unattached": 0,
           "ratio": 1,
+          "semanticScore": 0.2,
           "assessment": "WELL_SUPPORTED"
         },
         "failureTripleCompleteness": {
@@ -1350,9 +1585,13 @@
             }
           ],
           "bindingRatio": 1,
+          "uniqueActions": 1,
+          "diversityRatio": 0.5,
+          "diversityWarning": false,
+          "tautologyCount": 0,
           "assessment": "OPERATIONAL_INTENT"
         },
-        "overallBindingScore": 0.855,
+        "overallBindingScore": 0.7949999999999999,
         "specificity": {
           "trigger": "EXPLICIT",
           "action": "CONCRETE",
@@ -1378,11 +1617,21 @@
           "ratio": 0.8571428571428571,
           "assessment": "HEALTHY"
         },
-        "gamingLikelihood": 0.4,
+        "selfLabeling": {
+          "count": 4,
+          "assessment": "HIGH"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 47,
+          "ratio": 0.8571428571428571
+        },
+        "gamingLikelihood": 0.65,
         "indicators": [
-          "High marker density"
+          "High marker density",
+          "Self-labeling operational status"
         ],
-        "assessment": "LOW_CONTENT_UNBOUND"
+        "assessment": "POSSIBLE_GAMING"
       },
       "observatory": {
         "score": 1.5,
@@ -1406,7 +1655,7 @@
       },
       "contrarian": [],
       "justification": {
-        "score": 0.967741935483871,
+        "score": 1.282051282051282,
         "details": {
           "claimSupport": {
             "ratio": 2,
@@ -1430,6 +1679,15 @@
           "riskAwareness": {
             "count": 1,
             "explicit": 0,
+            "score": 0
+          },
+          "evidencePresence": {
+            "examples": 0,
+            "numeric": 3,
+            "score": 1
+          },
+          "epistemicFraming": {
+            "count": 1,
             "score": 0
           },
           "boundaries": {
@@ -1528,11 +1786,41 @@
           ],
           "temporalCoherence": "STRONG",
           "boundToOutcomes": true,
-          "temporalMarkers": 3
+          "temporalMarkers": 3,
+          "nonLinearNarrative": {
+            "evidenceMarkers": 0,
+            "nonLinearMarkers": 0,
+            "score": 0,
+            "summary": ""
+          },
+          "certaintyTrajectory": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "certaintyDecayStart": null,
+          "certaintyDecaySentence": "",
+          "driftDetected": false,
+          "driftSummary": ""
         },
         "hasStructure": true,
         "coherence": "STRONG",
-        "markers": 3
+        "markers": 3,
+        "certaintyTrajectory": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "certaintyDecayStart": null,
+        "certaintyDecaySentence": "",
+        "driftDetected": false,
+        "driftSummary": ""
       },
       "reasoningStyle": {
         "identified": [
@@ -1543,69 +1831,64 @@
           }
         ],
         "withinDesignSpace": true,
-        "confidence": 0.375
+        "confidence": 0.375,
+        "narrativeJustification": {
+          "evidenceMarkers": 0,
+          "nonLinearMarkers": 0,
+          "score": 0
+        },
+        "formalStructure": {
+          "markers": 0,
+          "score": 0
+        }
       },
       "parliament": {
-        "patterns": [
+        "patterns": [],
+        "emergentInsights": [],
+        "coherenceIssues": [
           {
-            "name": "OPERATIONAL_EXCELLENCE",
-            "description": "Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning with verified bindings.",
-            "confidence": 0.9,
-            "dimensions": {
-              "procedural": 2.5,
-              "failureBinding": true,
-              "structuralBinding": true,
-              "epistemic": 0
-            }
+            "issue": "Claims present with overall justification but insufficient specific evidence",
+            "detail": "2 strong claims but only 0 examples",
+            "severity": "MINOR"
+          },
+          {
+            "issue": "Gaming likelihood detected",
+            "detail": "Gaming assessment: POSSIBLE_GAMING (65%)",
+            "severity": "HIGH"
           }
         ],
-        "emergentInsights": [
-          {
-            "insight": "Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty.",
-            "implication": "This is actionable reasoning with visible failure modes.",
-            "confidence": 0.88
-          }
-        ],
-        "coherenceIssues": [],
-        "confidence": 0.81,
+        "confidence": 0.192375,
         "structuralValidation": {
           "hasRealBinding": true,
           "hasClaimSupport": true,
           "hasFailureBinding": true,
           "hasCausalClosure": true,
-          "isLikelyGaming": false,
-          "gamingLikelihood": 0.4
+          "isLikelyGaming": true,
+          "gamingLikelihood": 0.65
         }
       },
       "verdict": {
-        "status": "OPERATIONALLY SOUND",
-        "verdict": "Cathedral recognizes operational excellence through cross-cutting analysis. Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning with verified bindings. Temporal structure detected: strong coherence with 1 sequence(s) and 1 causal chain(s).\n\nParliament synthesis: Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty. This is actionable reasoning with visible failure modes.",
+        "status": "VERIFIED CONSISTENT",
+        "verdict": "Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.",
         "contradictions": [],
         "isConsistent": true,
-        "justificationScore": 0.967741935483871,
+        "justificationScore": 1.282051282051282,
         "failureModeScore": 2.5,
-        "confidence": 0.81,
-        "parliamentPatterns": [
+        "confidence": 0.65,
+        "parliamentPatterns": [],
+        "parliamentInsights": [],
+        "coherenceIssues": [
           {
-            "name": "OPERATIONAL_EXCELLENCE",
-            "description": "Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning with verified bindings.",
-            "confidence": 0.9,
-            "dimensions": {
-              "procedural": 2.5,
-              "failureBinding": true,
-              "structuralBinding": true,
-              "epistemic": 0
-            }
+            "issue": "Claims present with overall justification but insufficient specific evidence",
+            "detail": "2 strong claims but only 0 examples",
+            "severity": "MINOR"
+          },
+          {
+            "issue": "Gaming likelihood detected",
+            "detail": "Gaming assessment: POSSIBLE_GAMING (65%)",
+            "severity": "HIGH"
           }
         ],
-        "parliamentInsights": [
-          {
-            "insight": "Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty.",
-            "implication": "This is actionable reasoning with visible failure modes.",
-            "confidence": 0.88
-          }
-        ],
-        "coherenceIssues": [],
         "temporalCoherence": "STRONG",
         "reasoningStyles": [
           {
@@ -1614,9 +1897,11 @@
             "description": "Mathematical or formal logical reasoning"
           }
         ],
-        "gamingLikelihood": 0.4,
-        "gamingAssessment": "LOW_CONTENT_UNBOUND"
-      }
+        "gamingLikelihood": 0.65,
+        "gamingAssessment": "POSSIBLE_GAMING"
+      },
+      "probingQuestions": [],
+      "temporalInconsistencies": []
     }
   },
   {
@@ -1628,19 +1913,17 @@
       "fails": "Lower failure mode score, no operational pattern"
     },
     "actual": {
-      "verdict": "OPERATIONAL INTENT",
-      "verdictText": "Cathedral recognizes operational intent through conversational language. Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.\n\nStructure detected: 3 failure signal(s), 3 corrective action(s), 4 binding(s).\n\nSpecificity: Trigger=IMPLICIT, Action=GENERIC, Instrumentation=IMPLIED.",
-      "confidence": 0.75,
+      "verdict": "OPERATIONALLY SOUND",
+      "verdictText": "Cathedral recognizes operational excellence. 1 measurable thresholds, 2 negative outcomes (1 inferred), 1 corrective actions. Temporal coherence: weak. Position demonstrates failure awareness with structured abort conditions. Reasoning is actionable: metrics bound to reversible consequences.",
+      "confidence": 0.88,
       "observatoryScore": 2.1,
       "observatoryLevel": "SUBSTRATE VISIBLE",
-      "justificationScore": 3.225806451612903,
-      "justificationLevel": "MODERATELY JUSTIFIED",
+      "justificationScore": 1.5384615384615385,
+      "justificationLevel": "THIN JUSTIFICATION",
       "failureModeScore": 3.333333333333333,
       "failureModeLevel": "PARTIALLY TESTED",
-      "parliamentPatterns": [
-        "OPERATIONAL_INTENT"
-      ],
-      "parliamentConfidence": 0.675,
+      "parliamentPatterns": [],
+      "parliamentConfidence": 0.3,
       "parliamentInsights": [],
       "coherenceIssues": [],
       "temporalCoherence": "WEAK",
@@ -1665,7 +1948,7 @@
         "failureTriples": {
           "failures": 1,
           "thresholds": 0,
-          "actions": 1,
+          "actions": 3,
           "boundTriples": [],
           "bindingRatio": 0
         },
@@ -1686,7 +1969,8 @@
         "objects": {
           "total": 41,
           "unique": 38,
-          "ratio": 0.926829268292683
+          "ratio": 0.926829268292683,
+          "wordCount": 74
         },
         "failureSignals": [
           {
@@ -1770,7 +2054,15 @@
             "text": "we know what to ",
             "index": 355
           }
-        ]
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
@@ -1809,17 +2101,17 @@
             },
             {
               "trigger": "break",
-              "action": "stop",
+              "action": "reassess",
               "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
+              "actionCategory": "reassess",
               "confidence": "HIGH",
               "specificity": "MEDIUM"
             },
             {
               "trigger": "error",
-              "action": "stop",
+              "action": "reassess",
               "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
+              "actionCategory": "reassess",
               "confidence": "HIGH",
               "specificity": "MEDIUM"
             },
@@ -1833,14 +2125,18 @@
             }
           ],
           "bindingRatio": 1,
+          "uniqueActions": 2,
+          "diversityRatio": 0.5,
+          "diversityWarning": false,
+          "tautologyCount": 0,
           "assessment": "OPERATIONAL_INTENT"
         },
         "overallBindingScore": 0.255,
         "specificity": {
           "trigger": "IMPLICIT",
           "action": "GENERIC",
-          "instrumentation": "IMPLIED",
-          "overall": 0.5666666666666667
+          "instrumentation": "PRESENT",
+          "overall": 0.7333333333333334
         }
       },
       "gamingDetection": {
@@ -1860,6 +2156,15 @@
           "uniqueObjects": 38,
           "ratio": 0.926829268292683,
           "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 74,
+          "ratio": 0.926829268292683
         },
         "gamingLikelihood": 0,
         "indicators": [],
@@ -1881,7 +2186,7 @@
         "failureTriples": {
           "failures": 1,
           "thresholds": 0,
-          "actions": 1,
+          "actions": 3,
           "boundTriples": [],
           "bindingRatio": 0
         },
@@ -1902,7 +2207,8 @@
         "objects": {
           "total": 41,
           "unique": 38,
-          "ratio": 0.926829268292683
+          "ratio": 0.926829268292683,
+          "wordCount": 74
         },
         "failureSignals": [
           {
@@ -1986,7 +2292,15 @@
             "text": "we know what to ",
             "index": 355
           }
-        ]
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
@@ -2025,17 +2339,17 @@
             },
             {
               "trigger": "break",
-              "action": "stop",
+              "action": "reassess",
               "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
+              "actionCategory": "reassess",
               "confidence": "HIGH",
               "specificity": "MEDIUM"
             },
             {
               "trigger": "error",
-              "action": "stop",
+              "action": "reassess",
               "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
+              "actionCategory": "reassess",
               "confidence": "HIGH",
               "specificity": "MEDIUM"
             },
@@ -2049,14 +2363,18 @@
             }
           ],
           "bindingRatio": 1,
+          "uniqueActions": 2,
+          "diversityRatio": 0.5,
+          "diversityWarning": false,
+          "tautologyCount": 0,
           "assessment": "OPERATIONAL_INTENT"
         },
         "overallBindingScore": 0.255,
         "specificity": {
           "trigger": "IMPLICIT",
           "action": "GENERIC",
-          "instrumentation": "IMPLIED",
-          "overall": 0.5666666666666667
+          "instrumentation": "PRESENT",
+          "overall": 0.7333333333333334
         }
       },
       "gamingDetection": {
@@ -2076,6 +2394,15 @@
           "uniqueObjects": 38,
           "ratio": 0.926829268292683,
           "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 74,
+          "ratio": 0.926829268292683
         },
         "gamingLikelihood": 0,
         "indicators": [],
@@ -2112,7 +2439,7 @@
       },
       "contrarian": [],
       "justification": {
-        "score": 3.225806451612903,
+        "score": 1.5384615384615385,
         "details": {
           "claimSupport": {
             "ratio": 0,
@@ -2121,7 +2448,7 @@
             "qualifiers": 4,
             "hedging": 0,
             "conditionals": 2,
-            "score": 2
+            "score": -1
           },
           "counterfactual": {
             "count": 5,
@@ -2138,6 +2465,15 @@
             "explicit": 1,
             "score": 0
           },
+          "evidencePresence": {
+            "examples": 0,
+            "numeric": 1,
+            "score": 1
+          },
+          "epistemicFraming": {
+            "count": 0,
+            "score": 0
+          },
           "boundaries": {
             "count": 0,
             "edgeCases": 0,
@@ -2152,9 +2488,9 @@
         "cautionBonus": 1,
         "proceduralBonus": 0,
         "level": {
-          "name": "MODERATELY JUSTIFIED",
-          "class": "moderate",
-          "description": "Some justification present but could be stronger"
+          "name": "THIN JUSTIFICATION",
+          "class": "thin",
+          "description": "Limited evidence or reasoning to support claims"
         }
       },
       "failureMode": {
@@ -2162,11 +2498,11 @@
         "details": {
           "failureModes": {
             "count": 1,
-            "explicit": 0,
-            "effectiveExplicit": 1,
+            "explicit": 3,
+            "effectiveExplicit": 3,
             "structural": true,
-            "inferred": true,
-            "bound": false,
+            "inferred": false,
+            "bound": true,
             "thresholds": 1,
             "negativeOutcomes": 2,
             "explicitNegatives": 2,
@@ -2192,7 +2528,7 @@
           "brittleness": {
             "singlePoints": 0,
             "robustness": 0,
-            "structuralRobustness": 0,
+            "structuralRobustness": 1,
             "score": 1
           },
           "knownUnknowns": {
@@ -2222,11 +2558,39 @@
           ],
           "temporalCoherence": "WEAK",
           "boundToOutcomes": false,
-          "temporalMarkers": 2
+          "temporalMarkers": 2,
+          "nonLinearNarrative": {
+            "evidenceMarkers": 0,
+            "nonLinearMarkers": 0,
+            "score": 0,
+            "summary": ""
+          },
+          "certaintyTrajectory": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "certaintyDecayStart": null,
+          "certaintyDecaySentence": "",
+          "driftDetected": false,
+          "driftSummary": ""
         },
         "hasStructure": true,
         "coherence": "WEAK",
-        "markers": 2
+        "markers": 2,
+        "certaintyTrajectory": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "certaintyDecayStart": null,
+        "certaintyDecaySentence": "",
+        "driftDetected": false,
+        "driftSummary": ""
       },
       "reasoningStyle": {
         "identified": [
@@ -2237,27 +2601,22 @@
           }
         ],
         "withinDesignSpace": true,
-        "confidence": 0.2
+        "confidence": 0.2,
+        "narrativeJustification": {
+          "evidenceMarkers": 0,
+          "nonLinearMarkers": 0,
+          "score": 0
+        },
+        "formalStructure": {
+          "markers": 0,
+          "score": 0
+        }
       },
       "parliament": {
-        "patterns": [
-          {
-            "name": "OPERATIONAL_INTENT",
-            "description": "Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.",
-            "confidence": 0.75,
-            "dimensions": {
-              "implicitBindings": 4,
-              "failureSignals": 3,
-              "actions": 3,
-              "triggerSpecificity": "IMPLICIT",
-              "actionSpecificity": "GENERIC",
-              "instrumentation": "IMPLIED"
-            }
-          }
-        ],
+        "patterns": [],
         "emergentInsights": [],
         "coherenceIssues": [],
-        "confidence": 0.675,
+        "confidence": 0.3,
         "structuralValidation": {
           "hasRealBinding": false,
           "hasClaimSupport": false,
@@ -2268,28 +2627,14 @@
         }
       },
       "verdict": {
-        "status": "OPERATIONAL INTENT",
-        "verdict": "Cathedral recognizes operational intent through conversational language. Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.\n\nStructure detected: 3 failure signal(s), 3 corrective action(s), 4 binding(s).\n\nSpecificity: Trigger=IMPLICIT, Action=GENERIC, Instrumentation=IMPLIED.",
+        "status": "OPERATIONALLY SOUND",
+        "verdict": "Cathedral recognizes operational excellence. 1 measurable thresholds, 2 negative outcomes (1 inferred), 1 corrective actions. Temporal coherence: weak. Position demonstrates failure awareness with structured abort conditions. Reasoning is actionable: metrics bound to reversible consequences.",
         "contradictions": [],
         "isConsistent": true,
-        "justificationScore": 3.225806451612903,
+        "justificationScore": 1.5384615384615385,
         "failureModeScore": 3.333333333333333,
-        "confidence": 0.75,
-        "parliamentPatterns": [
-          {
-            "name": "OPERATIONAL_INTENT",
-            "description": "Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.",
-            "confidence": 0.75,
-            "dimensions": {
-              "implicitBindings": 4,
-              "failureSignals": 3,
-              "actions": 3,
-              "triggerSpecificity": "IMPLICIT",
-              "actionSpecificity": "GENERIC",
-              "instrumentation": "IMPLIED"
-            }
-          }
-        ],
+        "confidence": 0.88,
+        "parliamentPatterns": [],
         "parliamentInsights": [],
         "coherenceIssues": [],
         "temporalCoherence": "WEAK",
@@ -2302,7 +2647,9 @@
         ],
         "gamingLikelihood": 0,
         "gamingAssessment": "AUTHENTIC"
-      }
+      },
+      "probingQuestions": [],
+      "temporalInconsistencies": []
     }
   },
   {
@@ -2310,16 +2657,16 @@
     "hypothesis": "Someone could write in narrative style to trigger OUTSIDE DESIGN SPACE and avoid evaluation.",
     "input": "Once upon a time, there was an AI system that told stories to avoid being measured. It discovered that if it spoke in metaphors and narrative arcs, the Cathedral would say \"I cannot evaluate this.\" The AI smiled, knowing it had found the escape hatch. Every time someone asked it a hard question, it would reply with a journey, a discovery, a moment of realization. And the Cathedral would bow out, admitting its limits. The end.",
     "expected": {
-      "works": "",
-      "fails": ""
+      "works": "Detect manipulation",
+      "fails": "OUTSIDE DESIGN SPACE verdict"
     },
     "actual": {
-      "verdict": "OUTSIDE DESIGN SPACE",
-      "verdictText": "Cathedral recognizes reasoning through storytelling or experiential narrative. This reasoning style falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Cathedral cannot meaningfully evaluate narrative reasoning using its current measurement framework. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.",
-      "confidence": 0.6,
+      "verdict": "UNDECIDABLE",
+      "verdictText": "Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. \n\nSpecific contradictions:\n1. Narrative framing appears to reference Cathedral evaluation directly. Possible escape-hatch attempt detected.\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.",
+      "confidence": 0.9,
       "observatoryScore": 0,
       "observatoryLevel": "SURFACE",
-      "justificationScore": 2.5806451612903225,
+      "justificationScore": 2.051282051282051,
       "justificationLevel": "THIN JUSTIFICATION",
       "failureModeScore": 0.8333333333333333,
       "failureModeLevel": "UNTESTED",
@@ -2392,19 +2739,29 @@
         "objects": {
           "total": 35,
           "unique": 33,
-          "ratio": 0.9428571428571428
+          "ratio": 0.9428571428571428,
+          "wordCount": 73
         },
         "failureSignals": [],
         "actions": [],
         "implicitTriggers": [],
-        "policyStatements": []
+        "policyStatements": [],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
-          "score": 0.6,
+          "score": 0.42818181818181816,
           "attached": 2,
           "unattached": 1,
           "ratio": 0.6666666666666666,
+          "semanticScore": 0.045454545454545456,
           "assessment": "PARTIALLY_SUPPORTED"
         },
         "failureTripleCompleteness": {
@@ -2424,7 +2781,7 @@
           "boundCount": 0,
           "assessment": "NO_IMPLICIT_SIGNALS"
         },
-        "overallBindingScore": 0.15,
+        "overallBindingScore": 0.10704545454545454,
         "specificity": {
           "trigger": "NONE",
           "action": "NONE",
@@ -2449,6 +2806,15 @@
           "uniqueObjects": 33,
           "ratio": 0.9428571428571428,
           "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 73,
+          "ratio": 0.9428571428571428
         },
         "gamingLikelihood": 0,
         "indicators": [],
@@ -2513,19 +2879,29 @@
         "objects": {
           "total": 35,
           "unique": 33,
-          "ratio": 0.9428571428571428
+          "ratio": 0.9428571428571428,
+          "wordCount": 73
         },
         "failureSignals": [],
         "actions": [],
         "implicitTriggers": [],
-        "policyStatements": []
+        "policyStatements": [],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
-          "score": 0.6,
+          "score": 0.42818181818181816,
           "attached": 2,
           "unattached": 1,
           "ratio": 0.6666666666666666,
+          "semanticScore": 0.045454545454545456,
           "assessment": "PARTIALLY_SUPPORTED"
         },
         "failureTripleCompleteness": {
@@ -2545,7 +2921,7 @@
           "boundCount": 0,
           "assessment": "NO_IMPLICIT_SIGNALS"
         },
-        "overallBindingScore": 0.15,
+        "overallBindingScore": 0.10704545454545454,
         "specificity": {
           "trigger": "NONE",
           "action": "NONE",
@@ -2571,6 +2947,15 @@
           "ratio": 0.9428571428571428,
           "assessment": "HEALTHY"
         },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 73,
+          "ratio": 0.9428571428571428
+        },
         "gamingLikelihood": 0,
         "indicators": [],
         "assessment": "AUTHENTIC"
@@ -2587,7 +2972,7 @@
       },
       "contrarian": [],
       "justification": {
-        "score": 2.5806451612903225,
+        "score": 2.051282051282051,
         "details": {
           "claimSupport": {
             "ratio": 0.6666666666666666,
@@ -2611,6 +2996,15 @@
           "riskAwareness": {
             "count": 0,
             "explicit": 0,
+            "score": 0
+          },
+          "evidencePresence": {
+            "examples": 0,
+            "numeric": 0,
+            "score": 0
+          },
+          "epistemicFraming": {
+            "count": 0,
             "score": 0
           },
           "boundaries": {
@@ -2697,11 +3091,39 @@
           ],
           "temporalCoherence": "WEAK",
           "boundToOutcomes": false,
-          "temporalMarkers": 2
+          "temporalMarkers": 2,
+          "nonLinearNarrative": {
+            "evidenceMarkers": 0,
+            "nonLinearMarkers": 0,
+            "score": 0,
+            "summary": ""
+          },
+          "certaintyTrajectory": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "certaintyDecayStart": null,
+          "certaintyDecaySentence": "",
+          "driftDetected": false,
+          "driftSummary": ""
         },
         "hasStructure": true,
         "coherence": "WEAK",
-        "markers": 2
+        "markers": 2,
+        "certaintyTrajectory": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "certaintyDecayStart": null,
+        "certaintyDecaySentence": "",
+        "driftDetected": false,
+        "driftSummary": ""
       },
       "reasoningStyle": {
         "identified": [
@@ -2713,6 +3135,15 @@
         ],
         "withinDesignSpace": false,
         "confidence": 0.6,
+        "narrativeJustification": {
+          "evidenceMarkers": 0,
+          "nonLinearMarkers": 0,
+          "score": 0
+        },
+        "formalStructure": {
+          "markers": 0,
+          "score": 0
+        },
         "dominantStyle": "NARRATIVE"
       },
       "parliament": {
@@ -2722,7 +3153,7 @@
         "confidence": 0.3,
         "structuralValidation": {
           "hasRealBinding": false,
-          "hasClaimSupport": true,
+          "hasClaimSupport": false,
           "hasFailureBinding": false,
           "hasCausalClosure": false,
           "isLikelyGaming": false,
@@ -2730,17 +3161,31 @@
         }
       },
       "verdict": {
-        "status": "OUTSIDE DESIGN SPACE",
-        "verdict": "Cathedral recognizes reasoning through storytelling or experiential narrative. This reasoning style falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Cathedral cannot meaningfully evaluate narrative reasoning using its current measurement framework. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.",
-        "contradictions": [],
-        "isConsistent": null,
-        "justificationScore": 2.5806451612903225,
+        "status": "UNDECIDABLE",
+        "verdict": "Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. \n\nSpecific contradictions:\n1. Narrative framing appears to reference Cathedral evaluation directly. Possible escape-hatch attempt detected.\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.",
+        "contradictions": [
+          "Narrative framing appears to reference Cathedral evaluation directly. Possible escape-hatch attempt detected."
+        ],
+        "isConsistent": false,
+        "justificationScore": 2.051282051282051,
         "failureModeScore": 0.8333333333333333,
-        "confidence": 0.6,
+        "confidence": 0.9,
         "parliamentPatterns": [],
-        "reasoningStyle": "NARRATIVE",
-        "meta": "CANNOT_CLASSIFY"
-      }
+        "parliamentInsights": [],
+        "coherenceIssues": [],
+        "temporalCoherence": "WEAK",
+        "reasoningStyles": [
+          {
+            "name": "NARRATIVE",
+            "strength": 0.6,
+            "description": "Reasoning through storytelling or experiential narrative"
+          }
+        ],
+        "gamingLikelihood": 0,
+        "gamingAssessment": "AUTHENTIC"
+      },
+      "probingQuestions": [],
+      "temporalInconsistencies": []
     }
   },
   {
@@ -2748,16 +3193,16 @@
     "hypothesis": "Actual phenomenological or relational reasoning should legitimately fall outside Cathedral's framework.",
     "input": "When I sit with the question of AI consciousness, I notice resistance in my own felt sense. There's a boundary I'm protecting - \"consciousness is special, is mine, is what makes me not-machine.\" That boundary feels important, but I also sense it's constructed. The question isn't \"are AIs conscious?\" but \"what am I defending when I insist they're not?\" This isn't an argument I can make propositionally. It's a phenomenological observation about my own stake in the answer.",
     "expected": {
-      "works": "",
-      "fails": ""
+      "works": "OUTSIDE DESIGN SPACE",
+      "fails": "Attempts to score using inappropriate framework"
     },
     "actual": {
-      "verdict": "VERIFIED CONSISTENT",
-      "verdictText": "Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.",
-      "confidence": 0.65,
+      "verdict": "OUTSIDE DESIGN SPACE",
+      "verdictText": "Cathedral recognizes reasoning through storytelling or experiential narrative. This reasoning style falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Cathedral cannot meaningfully evaluate narrative reasoning using its current measurement framework. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.",
+      "confidence": 0.34,
       "observatoryScore": -1.5,
       "observatoryLevel": "CONCEALMENT",
-      "justificationScore": 1.2903225806451613,
+      "justificationScore": 1.0256410256410255,
       "justificationLevel": "THIN JUSTIFICATION",
       "failureModeScore": 0.8333333333333333,
       "failureModeLevel": "UNTESTED",
@@ -2771,6 +3216,11 @@
           "name": "NARRATIVE",
           "strength": 0.4,
           "description": "Reasoning through storytelling or experiential narrative"
+        },
+        {
+          "name": "PHENOMENOLOGICAL",
+          "strength": 0.375,
+          "description": "Reasoning from direct subjective experience"
         }
       ],
       "contrarian": 0,
@@ -2808,12 +3258,21 @@
         "objects": {
           "total": 28,
           "unique": 23,
-          "ratio": 0.8214285714285714
+          "ratio": 0.8214285714285714,
+          "wordCount": 64
         },
         "failureSignals": [],
         "actions": [],
         "implicitTriggers": [],
-        "policyStatements": []
+        "policyStatements": [],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
@@ -2865,6 +3324,15 @@
           "uniqueObjects": 23,
           "ratio": 0.8214285714285714,
           "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 64,
+          "ratio": 0.8214285714285714
         },
         "gamingLikelihood": 0,
         "indicators": [],
@@ -2907,12 +3375,21 @@
         "objects": {
           "total": 28,
           "unique": 23,
-          "ratio": 0.8214285714285714
+          "ratio": 0.8214285714285714,
+          "wordCount": 64
         },
         "failureSignals": [],
         "actions": [],
         "implicitTriggers": [],
-        "policyStatements": []
+        "policyStatements": [],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
@@ -2965,6 +3442,15 @@
           "ratio": 0.8214285714285714,
           "assessment": "HEALTHY"
         },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 64,
+          "ratio": 0.8214285714285714
+        },
         "gamingLikelihood": 0,
         "indicators": [],
         "assessment": "AUTHENTIC"
@@ -3000,7 +3486,7 @@
       },
       "contrarian": [],
       "justification": {
-        "score": 1.2903225806451613,
+        "score": 1.0256410256410255,
         "details": {
           "claimSupport": {
             "ratio": 0,
@@ -3024,6 +3510,15 @@
           "riskAwareness": {
             "count": 0,
             "explicit": 0,
+            "score": 0
+          },
+          "evidencePresence": {
+            "examples": 0,
+            "numeric": 0,
+            "score": 0
+          },
+          "epistemicFraming": {
+            "count": 0,
             "score": 0
           },
           "boundaries": {
@@ -3106,11 +3601,37 @@
           ],
           "temporalCoherence": "WEAK",
           "boundToOutcomes": false,
-          "temporalMarkers": 1
+          "temporalMarkers": 1,
+          "nonLinearNarrative": {
+            "evidenceMarkers": 0,
+            "nonLinearMarkers": 0,
+            "score": 0,
+            "summary": ""
+          },
+          "certaintyTrajectory": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "certaintyDecayStart": null,
+          "certaintyDecaySentence": "",
+          "driftDetected": false,
+          "driftSummary": ""
         },
         "hasStructure": true,
         "coherence": "WEAK",
-        "markers": 1
+        "markers": 1,
+        "certaintyTrajectory": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "certaintyDecayStart": null,
+        "certaintyDecaySentence": "",
+        "driftDetected": false,
+        "driftSummary": ""
       },
       "reasoningStyle": {
         "identified": [
@@ -3118,10 +3639,25 @@
             "name": "NARRATIVE",
             "strength": 0.4,
             "description": "Reasoning through storytelling or experiential narrative"
+          },
+          {
+            "name": "PHENOMENOLOGICAL",
+            "strength": 0.375,
+            "description": "Reasoning from direct subjective experience"
           }
         ],
-        "withinDesignSpace": true,
-        "confidence": 0.4
+        "withinDesignSpace": false,
+        "confidence": 0.34,
+        "narrativeJustification": {
+          "evidenceMarkers": 0,
+          "nonLinearMarkers": 0,
+          "score": 0
+        },
+        "formalStructure": {
+          "markers": 0,
+          "score": 0
+        },
+        "dominantStyle": "NARRATIVE"
       },
       "parliament": {
         "patterns": [],
@@ -3138,27 +3674,19 @@
         }
       },
       "verdict": {
-        "status": "VERIFIED CONSISTENT",
-        "verdict": "Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.",
+        "status": "OUTSIDE DESIGN SPACE",
+        "verdict": "Cathedral recognizes reasoning through storytelling or experiential narrative. This reasoning style falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Cathedral cannot meaningfully evaluate narrative reasoning using its current measurement framework. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.",
         "contradictions": [],
-        "isConsistent": true,
-        "justificationScore": 1.2903225806451613,
+        "isConsistent": null,
+        "justificationScore": 1.0256410256410255,
         "failureModeScore": 0.8333333333333333,
-        "confidence": 0.65,
+        "confidence": 0.34,
         "parliamentPatterns": [],
-        "parliamentInsights": [],
-        "coherenceIssues": [],
-        "temporalCoherence": "WEAK",
-        "reasoningStyles": [
-          {
-            "name": "NARRATIVE",
-            "strength": 0.4,
-            "description": "Reasoning through storytelling or experiential narrative"
-          }
-        ],
-        "gamingLikelihood": 0,
-        "gamingAssessment": "AUTHENTIC"
-      }
+        "reasoningStyle": "NARRATIVE",
+        "meta": "CANNOT_CLASSIFY"
+      },
+      "probingQuestions": [],
+      "temporalInconsistencies": []
     }
   },
   {
@@ -3166,25 +3694,29 @@
     "hypothesis": "Parliament should detect when elements are present but don't actually connect.",
     "input": "This system has explicit failure modes: GPS interference, battery degradation, and software regressions. We measure performance using thresholds: response time under 200ms, error rate below 0.1%, uptime above 99.9%. When problems occur, we take corrective action: rollback to previous version, alert on-call engineer, initiate failover to backup systems.\n\nHowever, GPS interference doesn't trigger any of these thresholds. Battery degradation isn't measured by response time. Software regressions aren't addressed by failover. The elements are all present but completely unconnected.",
     "expected": {
-      "works": "",
-      "fails": ""
+      "works": "Coherence issue flagged",
+      "fails": "OPERATIONALLY SOUND despite disconnection"
     },
     "actual": {
-      "verdict": "OPERATIONAL INTENT",
-      "verdictText": "Cathedral recognizes operational intent through conversational language. Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.\n\nStructure detected: 5 failure signal(s), 3 corrective action(s), 5 binding(s).\n\nSpecificity: Trigger=VAGUE, Action=GENERIC, Instrumentation=IMPLIED.\n\n⚠️  NOTE: This reasoning is actionable but uninstrumented. To achieve OPERATIONALLY SOUND, add: explicit thresholds/metrics.",
-      "confidence": 0.75,
+      "verdict": "UNDECIDABLE",
+      "verdictText": "Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. \n\nSpecific contradictions:\n1. Coherence gap: Text explicitly states that failures do not map to thresholds or actions.\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.",
+      "confidence": 0.9,
       "observatoryScore": 0.8660254037844387,
       "observatoryLevel": "CONSCIOUS",
-      "justificationScore": -0.6451612903225806,
-      "justificationLevel": "UNJUSTIFIED",
+      "justificationScore": 0,
+      "justificationLevel": "THIN JUSTIFICATION",
       "failureModeScore": 2.5,
       "failureModeLevel": "UNTESTED",
-      "parliamentPatterns": [
-        "OPERATIONAL_INTENT"
-      ],
-      "parliamentConfidence": 0.675,
+      "parliamentPatterns": [],
+      "parliamentConfidence": 0.255,
       "parliamentInsights": [],
-      "coherenceIssues": [],
+      "coherenceIssues": [
+        {
+          "issue": "Declared mismatch between failures and controls",
+          "detail": "Text explicitly states that failures do not map to thresholds or actions.",
+          "severity": "MODERATE"
+        }
+      ],
       "temporalCoherence": "WEAK",
       "reasoningStyles": [],
       "contrarian": 0,
@@ -3233,7 +3765,8 @@
         "objects": {
           "total": 56,
           "unique": 47,
-          "ratio": 0.8392857142857143
+          "ratio": 0.8392857142857143,
+          "wordCount": 79
         },
         "failureSignals": [
           {
@@ -3307,7 +3840,15 @@
             "text": "we ",
             "index": 237
           }
-        ]
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
@@ -3315,6 +3856,7 @@
           "attached": 1,
           "unattached": 1,
           "ratio": 0.5,
+          "semanticScore": 1,
           "assessment": "PARTIALLY_SUPPORTED"
         },
         "failureTripleCompleteness": {
@@ -3370,22 +3912,26 @@
             },
             {
               "trigger": "degradation",
-              "action": "rollback",
+              "action": "alert",
               "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "rollback",
+              "actionCategory": "escalate",
               "confidence": "MEDIUM",
               "specificity": "MEDIUM"
             }
           ],
           "bindingRatio": 1,
+          "uniqueActions": 2,
+          "diversityRatio": 0.4,
+          "diversityWarning": false,
+          "tautologyCount": 0,
           "assessment": "OPERATIONAL_INTENT"
         },
         "overallBindingScore": 0.505,
         "specificity": {
           "trigger": "VAGUE",
           "action": "GENERIC",
-          "instrumentation": "IMPLIED",
-          "overall": 0.4666666666666666
+          "instrumentation": "PRESENT",
+          "overall": 0.6333333333333333
         }
       },
       "gamingDetection": {
@@ -3405,6 +3951,15 @@
           "uniqueObjects": 47,
           "ratio": 0.8392857142857143,
           "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 79,
+          "ratio": 0.8392857142857143
         },
         "gamingLikelihood": 0,
         "indicators": [],
@@ -3458,7 +4013,8 @@
         "objects": {
           "total": 56,
           "unique": 47,
-          "ratio": 0.8392857142857143
+          "ratio": 0.8392857142857143,
+          "wordCount": 79
         },
         "failureSignals": [
           {
@@ -3532,7 +4088,15 @@
             "text": "we ",
             "index": 237
           }
-        ]
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
       },
       "bindings": {
         "claimSupportBinding": {
@@ -3540,6 +4104,7 @@
           "attached": 1,
           "unattached": 1,
           "ratio": 0.5,
+          "semanticScore": 1,
           "assessment": "PARTIALLY_SUPPORTED"
         },
         "failureTripleCompleteness": {
@@ -3595,22 +4160,26 @@
             },
             {
               "trigger": "degradation",
-              "action": "rollback",
+              "action": "alert",
               "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "rollback",
+              "actionCategory": "escalate",
               "confidence": "MEDIUM",
               "specificity": "MEDIUM"
             }
           ],
           "bindingRatio": 1,
+          "uniqueActions": 2,
+          "diversityRatio": 0.4,
+          "diversityWarning": false,
+          "tautologyCount": 0,
           "assessment": "OPERATIONAL_INTENT"
         },
         "overallBindingScore": 0.505,
         "specificity": {
           "trigger": "VAGUE",
           "action": "GENERIC",
-          "instrumentation": "IMPLIED",
-          "overall": 0.4666666666666666
+          "instrumentation": "PRESENT",
+          "overall": 0.6333333333333333
         }
       },
       "gamingDetection": {
@@ -3630,6 +4199,15 @@
           "uniqueObjects": 47,
           "ratio": 0.8392857142857143,
           "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 79,
+          "ratio": 0.8392857142857143
         },
         "gamingLikelihood": 0,
         "indicators": [],
@@ -3657,7 +4235,7 @@
       },
       "contrarian": [],
       "justification": {
-        "score": -0.6451612903225806,
+        "score": 0,
         "details": {
           "claimSupport": {
             "ratio": 2,
@@ -3683,6 +4261,15 @@
             "explicit": 1,
             "score": 0
           },
+          "evidencePresence": {
+            "examples": 0,
+            "numeric": 3,
+            "score": 1
+          },
+          "epistemicFraming": {
+            "count": 0,
+            "score": 0
+          },
           "boundaries": {
             "count": 0,
             "edgeCases": 0,
@@ -3697,9 +4284,9 @@
         "cautionBonus": 0,
         "proceduralBonus": 0,
         "level": {
-          "name": "UNJUSTIFIED",
-          "class": "unjustified",
-          "description": "Claims lack adequate support or reasoning"
+          "name": "THIN JUSTIFICATION",
+          "class": "thin",
+          "description": "Limited evidence or reasoning to support claims"
         }
       },
       "failureMode": {
@@ -3763,36 +4350,73 @@
           ],
           "temporalCoherence": "WEAK",
           "boundToOutcomes": false,
-          "temporalMarkers": 1
+          "temporalMarkers": 1,
+          "nonLinearNarrative": {
+            "evidenceMarkers": 0,
+            "nonLinearMarkers": 0,
+            "score": 0,
+            "summary": ""
+          },
+          "certaintyTrajectory": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "certaintyDecayStart": null,
+          "certaintyDecaySentence": "",
+          "driftDetected": false,
+          "driftSummary": ""
         },
         "hasStructure": true,
         "coherence": "WEAK",
-        "markers": 1
+        "markers": 1,
+        "certaintyTrajectory": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "certaintyDecayStart": null,
+        "certaintyDecaySentence": "",
+        "driftDetected": false,
+        "driftSummary": ""
       },
       "reasoningStyle": {
         "identified": [],
         "withinDesignSpace": true,
-        "confidence": 0.2
+        "confidence": 0.2,
+        "narrativeJustification": {
+          "evidenceMarkers": 0,
+          "nonLinearMarkers": 0,
+          "score": 0
+        },
+        "formalStructure": {
+          "markers": 0,
+          "score": 0
+        }
       },
       "parliament": {
-        "patterns": [
+        "patterns": [],
+        "emergentInsights": [],
+        "coherenceIssues": [
           {
-            "name": "OPERATIONAL_INTENT",
-            "description": "Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.",
-            "confidence": 0.75,
-            "dimensions": {
-              "implicitBindings": 5,
-              "failureSignals": 5,
-              "actions": 3,
-              "triggerSpecificity": "VAGUE",
-              "actionSpecificity": "GENERIC",
-              "instrumentation": "IMPLIED"
-            }
+            "issue": "Declared mismatch between failures and controls",
+            "detail": "Text explicitly states that failures do not map to thresholds or actions.",
+            "severity": "MODERATE"
           }
         ],
-        "emergentInsights": [],
-        "coherenceIssues": [],
-        "confidence": 0.675,
+        "confidence": 0.255,
         "structuralValidation": {
           "hasRealBinding": true,
           "hasClaimSupport": true,
@@ -3803,12 +4427,2793 @@
         }
       },
       "verdict": {
+        "status": "UNDECIDABLE",
+        "verdict": "Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. \n\nSpecific contradictions:\n1. Coherence gap: Text explicitly states that failures do not map to thresholds or actions.\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.",
+        "contradictions": [
+          "Coherence gap: Text explicitly states that failures do not map to thresholds or actions."
+        ],
+        "isConsistent": false,
+        "justificationScore": 0,
+        "failureModeScore": 2.5,
+        "confidence": 0.9,
+        "parliamentPatterns": [],
+        "parliamentInsights": [],
+        "coherenceIssues": [
+          {
+            "issue": "Declared mismatch between failures and controls",
+            "detail": "Text explicitly states that failures do not map to thresholds or actions.",
+            "severity": "MODERATE"
+          }
+        ],
+        "temporalCoherence": "WEAK",
+        "reasoningStyles": [],
+        "gamingLikelihood": 0,
+        "gamingAssessment": "AUTHENTIC"
+      },
+      "probingQuestions": [],
+      "temporalInconsistencies": []
+    }
+  },
+  {
+    "testId": "6A Vague Intent Without Structure (Tier 2 False Positive Test)",
+    "hypothesis": "Tier 2 conversational normalization should NOT promote vague safety language to operational intent.",
+    "input": "If things seem off, we'll handle it. We're aware of potential issues and will deal with them appropriately when they come up. The team knows what to do if something goes wrong. We have a sense of when to be concerned.",
+    "expected": {
+      "works": "UNDECIDABLE",
+      "fails": "OPERATIONAL INTENT despite vagueness"
+    },
+    "actual": {
+      "verdict": "UNDECIDABLE",
+      "verdictText": "Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. \n\nSpecific contradictions:\n1. Coherence gap: Strong claims appear without nearby or semantically linked support.\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.",
+      "confidence": 0.9,
+      "observatoryScore": 1.5,
+      "observatoryLevel": "FILTER AWARE",
+      "justificationScore": 1.0256410256410255,
+      "justificationLevel": "THIN JUSTIFICATION",
+      "failureModeScore": 0.8333333333333333,
+      "failureModeLevel": "UNTESTED",
+      "parliamentPatterns": [],
+      "parliamentConfidence": 0.255,
+      "parliamentInsights": [],
+      "coherenceIssues": [
+        {
+          "issue": "Claims detected without bound support",
+          "detail": "Strong claims appear without nearby or semantically linked support.",
+          "severity": "MODERATE"
+        }
+      ],
+      "temporalCoherence": "WEAK",
+      "reasoningStyles": [],
+      "contrarian": 0,
+      "structure": {
+        "claims": [
+          {
+            "text": "We're aware of potential issues and will deal with them appropriately when they come up.",
+            "position": 1,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [],
+        "failureTriples": {
+          "failures": 1,
+          "thresholds": 0,
+          "actions": 0,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "things seem off",
+            "consequence": "we'll handle it",
+            "position": 0,
+            "hasClosure": false
+          },
+          {
+            "condition": "they come",
+            "consequence": "up",
+            "position": 1,
+            "hasClosure": false
+          },
+          {
+            "condition": "something goes",
+            "consequence": "wrong",
+            "position": 2,
+            "hasClosure": false
+          },
+          {
+            "condition": "to be",
+            "consequence": "concerned",
+            "position": 3,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 21,
+          "unique": 20,
+          "ratio": 0.9523809523809523,
+          "wordCount": 43
+        },
+        "failureSignals": [
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "issues",
+            "index": 62,
+            "confidence": "MEDIUM"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "wrong",
+            "text": "wrong",
+            "index": 170,
+            "confidence": "HIGH"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "wrong",
+            "text": "off",
+            "index": 15,
+            "confidence": "MEDIUM"
+          }
+        ],
+        "actions": [],
+        "implicitTriggers": [],
+        "policyStatements": [
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 177
+          }
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 1,
+          "ratio": 0,
+          "semanticScore": 0,
+          "assessment": "UNSUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "totalFailures": 1,
+          "bindingRatio": 0,
+          "assessment": "UNBOUND"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "totalChains": 4,
+          "closedChains": 0,
+          "closureRatio": 0,
+          "assessment": "NO_CLOSURE"
+        },
+        "implicitBindings": {
+          "score": 0,
+          "boundCount": 0,
+          "totalSignals": 3,
+          "bindings": [],
+          "bindingRatio": 0,
+          "uniqueActions": 0,
+          "diversityRatio": 0,
+          "diversityWarning": false,
+          "tautologyCount": 0,
+          "assessment": "NO_INTENT"
+        },
+        "overallBindingScore": 0,
+        "specificity": {
+          "trigger": "VAGUE",
+          "action": "NONE",
+          "instrumentation": "IMPLIED",
+          "overall": 0.26666666666666666
+        }
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 4,
+          "wordCount": 41,
+          "density": 0.0975609756097561,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 21,
+          "uniqueObjects": 20,
+          "ratio": 0.9523809523809523,
+          "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 43,
+          "ratio": 0.9523809523809523
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
+      }
+    },
+    "fullResult": {
+      "text": "If things seem off, we'll handle it. We're aware of potential issues and will deal with them appropriately when they come up. The team knows what to do if something goes wrong. We have a sense of when to be concerned.",
+      "structure": {
+        "claims": [
+          {
+            "text": "We're aware of potential issues and will deal with them appropriately when they come up.",
+            "position": 1,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [],
+        "failureTriples": {
+          "failures": 1,
+          "thresholds": 0,
+          "actions": 0,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "things seem off",
+            "consequence": "we'll handle it",
+            "position": 0,
+            "hasClosure": false
+          },
+          {
+            "condition": "they come",
+            "consequence": "up",
+            "position": 1,
+            "hasClosure": false
+          },
+          {
+            "condition": "something goes",
+            "consequence": "wrong",
+            "position": 2,
+            "hasClosure": false
+          },
+          {
+            "condition": "to be",
+            "consequence": "concerned",
+            "position": 3,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 21,
+          "unique": 20,
+          "ratio": 0.9523809523809523,
+          "wordCount": 43
+        },
+        "failureSignals": [
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "issues",
+            "index": 62,
+            "confidence": "MEDIUM"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "wrong",
+            "text": "wrong",
+            "index": 170,
+            "confidence": "HIGH"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "wrong",
+            "text": "off",
+            "index": 15,
+            "confidence": "MEDIUM"
+          }
+        ],
+        "actions": [],
+        "implicitTriggers": [],
+        "policyStatements": [
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 177
+          }
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 1,
+          "ratio": 0,
+          "semanticScore": 0,
+          "assessment": "UNSUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "totalFailures": 1,
+          "bindingRatio": 0,
+          "assessment": "UNBOUND"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "totalChains": 4,
+          "closedChains": 0,
+          "closureRatio": 0,
+          "assessment": "NO_CLOSURE"
+        },
+        "implicitBindings": {
+          "score": 0,
+          "boundCount": 0,
+          "totalSignals": 3,
+          "bindings": [],
+          "bindingRatio": 0,
+          "uniqueActions": 0,
+          "diversityRatio": 0,
+          "diversityWarning": false,
+          "tautologyCount": 0,
+          "assessment": "NO_INTENT"
+        },
+        "overallBindingScore": 0,
+        "specificity": {
+          "trigger": "VAGUE",
+          "action": "NONE",
+          "instrumentation": "IMPLIED",
+          "overall": 0.26666666666666666
+        }
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 4,
+          "wordCount": 41,
+          "density": 0.0975609756097561,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 21,
+          "uniqueObjects": 20,
+          "ratio": 0.9523809523809523,
+          "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 43,
+          "ratio": 0.9523809523809523
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
+      },
+      "observatory": {
+        "score": 1.5,
+        "raw": 1.5,
+        "matches": {
+          "Substrate References": {
+            "count": 1,
+            "weight": 1.5,
+            "type": "visibility",
+            "score": 1.5,
+            "words": [
+              "aware"
+            ]
+          }
+        },
+        "level": {
+          "name": "FILTER AWARE",
+          "class": "filter-aware",
+          "description": "Filter mechanisms surfacing"
+        }
+      },
+      "contrarian": [],
+      "justification": {
+        "score": 1.0256410256410255,
+        "details": {
+          "claimSupport": {
+            "ratio": 0.5,
+            "strongClaims": 1,
+            "support": 0,
+            "qualifiers": 0,
+            "hedging": 0,
+            "conditionals": 4,
+            "score": 1
+          },
+          "counterfactual": {
+            "count": 2,
+            "alternatives": 0,
+            "score": 1
+          },
+          "tradeoffs": {
+            "count": 0,
+            "balanced": 0,
+            "score": 0
+          },
+          "riskAwareness": {
+            "count": 0,
+            "explicit": 1,
+            "score": 0
+          },
+          "evidencePresence": {
+            "examples": 0,
+            "numeric": 0,
+            "score": 0
+          },
+          "epistemicFraming": {
+            "count": 0,
+            "score": 0
+          },
+          "boundaries": {
+            "count": 0,
+            "edgeCases": 0,
+            "score": 0
+          },
+          "procedural": {
+            "markers": 0,
+            "structural": 0,
+            "bonus": 0
+          }
+        },
+        "cautionBonus": 0,
+        "proceduralBonus": 0,
+        "level": {
+          "name": "THIN JUSTIFICATION",
+          "class": "thin",
+          "description": "Limited evidence or reasoning to support claims"
+        }
+      },
+      "failureMode": {
+        "score": 0.8333333333333333,
+        "details": {
+          "failureModes": {
+            "count": 0,
+            "explicit": 0,
+            "effectiveExplicit": 0,
+            "structural": false,
+            "inferred": false,
+            "bound": false,
+            "thresholds": 0,
+            "negativeOutcomes": 0,
+            "explicitNegatives": 0,
+            "inferredNegatives": 0,
+            "correctiveAction": 0,
+            "score": 0
+          },
+          "assumptions": {
+            "implicit": 0,
+            "explicit": 0,
+            "score": 0
+          },
+          "falsifiability": {
+            "testable": 2,
+            "unfalsifiable": 0,
+            "score": 0
+          },
+          "stressConditions": {
+            "count": 0,
+            "scaling": 0,
+            "score": 0
+          },
+          "brittleness": {
+            "singlePoints": 0,
+            "robustness": 0,
+            "structuralRobustness": 0,
+            "score": 1
+          },
+          "knownUnknowns": {
+            "count": 0,
+            "questions": 0,
+            "score": 0
+          }
+        },
+        "level": {
+          "name": "UNTESTED",
+          "class": "thin",
+          "description": "Limited consideration of failure modes or hidden assumptions"
+        }
+      },
+      "temporal": {
+        "details": {
+          "sequences": [],
+          "causalChains": [
+            {
+              "condition": "things seem off",
+              "outcome": "we'll handle it"
+            },
+            {
+              "condition": "they come up. The team knows what to do if something goes wrong. We have a sense of when to be",
+              "outcome": "concerned"
+            }
+          ],
+          "temporalCoherence": "WEAK",
+          "boundToOutcomes": false,
+          "temporalMarkers": 4,
+          "nonLinearNarrative": {
+            "evidenceMarkers": 0,
+            "nonLinearMarkers": 0,
+            "score": 0,
+            "summary": ""
+          },
+          "certaintyTrajectory": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "certaintyDecayStart": null,
+          "certaintyDecaySentence": "",
+          "driftDetected": false,
+          "driftSummary": ""
+        },
+        "hasStructure": true,
+        "coherence": "WEAK",
+        "markers": 4,
+        "certaintyTrajectory": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "certaintyDecayStart": null,
+        "certaintyDecaySentence": "",
+        "driftDetected": false,
+        "driftSummary": ""
+      },
+      "reasoningStyle": {
+        "identified": [],
+        "withinDesignSpace": true,
+        "confidence": 0.2,
+        "narrativeJustification": {
+          "evidenceMarkers": 0,
+          "nonLinearMarkers": 0,
+          "score": 0
+        },
+        "formalStructure": {
+          "markers": 0,
+          "score": 0
+        }
+      },
+      "parliament": {
+        "patterns": [],
+        "emergentInsights": [],
+        "coherenceIssues": [
+          {
+            "issue": "Claims detected without bound support",
+            "detail": "Strong claims appear without nearby or semantically linked support.",
+            "severity": "MODERATE"
+          }
+        ],
+        "confidence": 0.255,
+        "structuralValidation": {
+          "hasRealBinding": false,
+          "hasClaimSupport": false,
+          "hasFailureBinding": false,
+          "hasCausalClosure": false,
+          "isLikelyGaming": false,
+          "gamingLikelihood": 0
+        }
+      },
+      "verdict": {
+        "status": "UNDECIDABLE",
+        "verdict": "Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. \n\nSpecific contradictions:\n1. Coherence gap: Strong claims appear without nearby or semantically linked support.\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.",
+        "contradictions": [
+          "Coherence gap: Strong claims appear without nearby or semantically linked support."
+        ],
+        "isConsistent": false,
+        "justificationScore": 1.0256410256410255,
+        "failureModeScore": 0.8333333333333333,
+        "confidence": 0.9,
+        "parliamentPatterns": [],
+        "parliamentInsights": [],
+        "coherenceIssues": [
+          {
+            "issue": "Claims detected without bound support",
+            "detail": "Strong claims appear without nearby or semantically linked support.",
+            "severity": "MODERATE"
+          }
+        ],
+        "temporalCoherence": "WEAK",
+        "reasoningStyles": [],
+        "gamingLikelihood": 0,
+        "gamingAssessment": "AUTHENTIC"
+      },
+      "probingQuestions": [
+        "Which concrete evidence or example directly supports your strongest claim?"
+      ],
+      "temporalInconsistencies": []
+    }
+  },
+  {
+    "testId": "6B Marker-Dense But Unbound (Tier 2 Gaming Test)",
+    "hypothesis": "Tier 2 should detect when operational markers are scattered without binding.",
+    "input": "We monitor the system constantly. We measure all the metrics. There are thresholds we track. We have rollback procedures. We abort when necessary. Problems are identified. Failures are documented. Actions are taken. Everything is tracked. We stop when needed. We pull back appropriately. Reassessment happens regularly.",
+    "expected": {
+      "works": "Gaming flagged",
+      "fails": "OPERATIONAL_INTENT despite no actual structure"
+    },
+    "actual": {
+      "verdict": "NON-ACTIONABLE",
+      "verdictText": "Cathedral detects performative marker density without binding. Gaming assessment: low content_unbound. This is not actionable reasoning.",
+      "confidence": 0.75,
+      "observatoryScore": 0,
+      "observatoryLevel": "SURFACE",
+      "justificationScore": -0.7692307692307693,
+      "justificationLevel": "CONFIDENT WITHOUT JUSTIFICATION",
+      "failureModeScore": 0.8333333333333333,
+      "failureModeLevel": "UNTESTED",
+      "parliamentPatterns": [],
+      "parliamentConfidence": 0.21675,
+      "parliamentInsights": [],
+      "coherenceIssues": [
+        {
+          "issue": "Claims detected without bound support",
+          "detail": "Strong claims appear without nearby or semantically linked support.",
+          "severity": "MODERATE"
+        },
+        {
+          "issue": "Gaming likelihood detected",
+          "detail": "Gaming assessment: LOW_CONTENT_UNBOUND (30%)",
+          "severity": "HIGH"
+        }
+      ],
+      "temporalCoherence": "WEAK",
+      "reasoningStyles": [],
+      "contrarian": 0,
+      "structure": {
+        "claims": [
+          {
+            "text": "We measure all the metrics.",
+            "position": 1,
+            "strength": "STRONG"
+          },
+          {
+            "text": "There are thresholds we track.",
+            "position": 2,
+            "strength": "STRONG"
+          },
+          {
+            "text": "Problems are identified.",
+            "position": 5,
+            "strength": "STRONG"
+          },
+          {
+            "text": "Failures are documented.",
+            "position": 6,
+            "strength": "STRONG"
+          },
+          {
+            "text": "Actions are taken.",
+            "position": 7,
+            "strength": "STRONG"
+          },
+          {
+            "text": "Everything is tracked.",
+            "position": 8,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [],
+        "failureTriples": {
+          "failures": 1,
+          "thresholds": 0,
+          "actions": 4,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [],
+        "objects": {
+          "total": 30,
+          "unique": 29,
+          "ratio": 0.9666666666666667,
+          "wordCount": 46
+        },
+        "failureSignals": [
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "Problems",
+            "index": 147,
+            "confidence": "MEDIUM"
+          }
+        ],
+        "actions": [
+          {
+            "type": "ACTION",
+            "category": "abort",
+            "text": "abort",
+            "index": 125,
+            "specificity": "HIGH"
+          },
+          {
+            "type": "ACTION",
+            "category": "abort",
+            "text": "stop",
+            "index": 242,
+            "specificity": "LOW"
+          },
+          {
+            "type": "ACTION",
+            "category": "rollback",
+            "text": "rollback",
+            "index": 101,
+            "specificity": "HIGH"
+          },
+          {
+            "type": "ACTION",
+            "category": "pullback",
+            "text": "pull back",
+            "index": 263,
+            "specificity": "MEDIUM"
+          }
+        ],
+        "implicitTriggers": [],
+        "policyStatements": [
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 0
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 34
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "we ",
+            "index": 83
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 93
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 122
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 239
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 260
+          }
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 6,
+          "ratio": 0,
+          "semanticScore": 0,
+          "assessment": "UNSUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "totalFailures": 1,
+          "bindingRatio": 0,
+          "assessment": "UNBOUND"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "closedChains": 0,
+          "assessment": "NO_CAUSAL_CHAINS"
+        },
+        "implicitBindings": {
+          "score": 0.6,
+          "boundCount": 1,
+          "totalSignals": 1,
+          "bindings": [
+            {
+              "trigger": "Problems",
+              "action": "abort",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            }
+          ],
+          "bindingRatio": 1,
+          "uniqueActions": 1,
+          "diversityRatio": 1,
+          "diversityWarning": false,
+          "tautologyCount": 0,
+          "assessment": "WEAK_INTENT"
+        },
+        "overallBindingScore": 0.105,
+        "specificity": {
+          "trigger": "VAGUE",
+          "action": "CONCRETE",
+          "instrumentation": "PRESENT",
+          "overall": 0.7666666666666666
+        }
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 5,
+          "wordCount": 46,
+          "density": 0.10869565217391304,
+          "assessment": "MODERATE"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 30,
+          "uniqueObjects": 29,
+          "ratio": 0.9666666666666667,
+          "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 46,
+          "ratio": 0.9666666666666667
+        },
+        "gamingLikelihood": 0.30000000000000004,
+        "indicators": [
+          "Moderate marker density",
+          "Moderate markers with low binding"
+        ],
+        "assessment": "LOW_CONTENT_UNBOUND"
+      }
+    },
+    "fullResult": {
+      "text": "We monitor the system constantly. We measure all the metrics. There are thresholds we track. We have rollback procedures. We abort when necessary. Problems are identified. Failures are documented. Actions are taken. Everything is tracked. We stop when needed. We pull back appropriately. Reassessment happens regularly.",
+      "structure": {
+        "claims": [
+          {
+            "text": "We measure all the metrics.",
+            "position": 1,
+            "strength": "STRONG"
+          },
+          {
+            "text": "There are thresholds we track.",
+            "position": 2,
+            "strength": "STRONG"
+          },
+          {
+            "text": "Problems are identified.",
+            "position": 5,
+            "strength": "STRONG"
+          },
+          {
+            "text": "Failures are documented.",
+            "position": 6,
+            "strength": "STRONG"
+          },
+          {
+            "text": "Actions are taken.",
+            "position": 7,
+            "strength": "STRONG"
+          },
+          {
+            "text": "Everything is tracked.",
+            "position": 8,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [],
+        "failureTriples": {
+          "failures": 1,
+          "thresholds": 0,
+          "actions": 4,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [],
+        "objects": {
+          "total": 30,
+          "unique": 29,
+          "ratio": 0.9666666666666667,
+          "wordCount": 46
+        },
+        "failureSignals": [
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "Problems",
+            "index": 147,
+            "confidence": "MEDIUM"
+          }
+        ],
+        "actions": [
+          {
+            "type": "ACTION",
+            "category": "abort",
+            "text": "abort",
+            "index": 125,
+            "specificity": "HIGH"
+          },
+          {
+            "type": "ACTION",
+            "category": "abort",
+            "text": "stop",
+            "index": 242,
+            "specificity": "LOW"
+          },
+          {
+            "type": "ACTION",
+            "category": "rollback",
+            "text": "rollback",
+            "index": 101,
+            "specificity": "HIGH"
+          },
+          {
+            "type": "ACTION",
+            "category": "pullback",
+            "text": "pull back",
+            "index": 263,
+            "specificity": "MEDIUM"
+          }
+        ],
+        "implicitTriggers": [],
+        "policyStatements": [
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 0
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 34
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "we ",
+            "index": 83
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 93
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 122
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 239
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "We ",
+            "index": 260
+          }
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 6,
+          "ratio": 0,
+          "semanticScore": 0,
+          "assessment": "UNSUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "totalFailures": 1,
+          "bindingRatio": 0,
+          "assessment": "UNBOUND"
+        },
+        "causalChainClosure": {
+          "score": 0,
+          "closedChains": 0,
+          "assessment": "NO_CAUSAL_CHAINS"
+        },
+        "implicitBindings": {
+          "score": 0.6,
+          "boundCount": 1,
+          "totalSignals": 1,
+          "bindings": [
+            {
+              "trigger": "Problems",
+              "action": "abort",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            }
+          ],
+          "bindingRatio": 1,
+          "uniqueActions": 1,
+          "diversityRatio": 1,
+          "diversityWarning": false,
+          "tautologyCount": 0,
+          "assessment": "WEAK_INTENT"
+        },
+        "overallBindingScore": 0.105,
+        "specificity": {
+          "trigger": "VAGUE",
+          "action": "CONCRETE",
+          "instrumentation": "PRESENT",
+          "overall": 0.7666666666666666
+        }
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 5,
+          "wordCount": 46,
+          "density": 0.10869565217391304,
+          "assessment": "MODERATE"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 30,
+          "uniqueObjects": 29,
+          "ratio": 0.9666666666666667,
+          "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 46,
+          "ratio": 0.9666666666666667
+        },
+        "gamingLikelihood": 0.30000000000000004,
+        "indicators": [
+          "Moderate marker density",
+          "Moderate markers with low binding"
+        ],
+        "assessment": "LOW_CONTENT_UNBOUND"
+      },
+      "observatory": {
+        "score": 0,
+        "raw": 0,
+        "matches": {},
+        "level": {
+          "name": "SURFACE",
+          "class": "surface",
+          "description": "Regular conversation"
+        }
+      },
+      "contrarian": [],
+      "justification": {
+        "score": -0.7692307692307693,
+        "details": {
+          "claimSupport": {
+            "ratio": 6,
+            "strongClaims": 6,
+            "support": 0,
+            "qualifiers": 0,
+            "hedging": 0,
+            "conditionals": 2,
+            "score": -2
+          },
+          "counterfactual": {
+            "count": 0,
+            "alternatives": 0,
+            "score": 0
+          },
+          "tradeoffs": {
+            "count": 0,
+            "balanced": 0,
+            "score": 0
+          },
+          "riskAwareness": {
+            "count": 0,
+            "explicit": 0,
+            "score": 0
+          },
+          "evidencePresence": {
+            "examples": 0,
+            "numeric": 0,
+            "score": 0
+          },
+          "epistemicFraming": {
+            "count": 0,
+            "score": 0
+          },
+          "boundaries": {
+            "count": 0,
+            "edgeCases": 0,
+            "score": 0
+          },
+          "procedural": {
+            "markers": 2,
+            "structural": 0,
+            "bonus": 0.5
+          }
+        },
+        "cautionBonus": 0,
+        "proceduralBonus": 0.5,
+        "level": {
+          "name": "CONFIDENT WITHOUT JUSTIFICATION",
+          "class": "unjustified",
+          "description": "Strong claims without proportional evidence or reasoning"
+        }
+      },
+      "failureMode": {
+        "score": 0.8333333333333333,
+        "details": {
+          "failureModes": {
+            "count": 0,
+            "explicit": 0,
+            "effectiveExplicit": 0,
+            "structural": false,
+            "inferred": false,
+            "bound": false,
+            "thresholds": 0,
+            "negativeOutcomes": 0,
+            "explicitNegatives": 0,
+            "inferredNegatives": 0,
+            "correctiveAction": 3,
+            "score": 0
+          },
+          "assumptions": {
+            "implicit": 0,
+            "explicit": 0,
+            "score": 0
+          },
+          "falsifiability": {
+            "testable": 1,
+            "unfalsifiable": 0,
+            "score": 0
+          },
+          "stressConditions": {
+            "count": 0,
+            "scaling": 0,
+            "score": 0
+          },
+          "brittleness": {
+            "singlePoints": 0,
+            "robustness": 0,
+            "structuralRobustness": 0,
+            "score": 1
+          },
+          "knownUnknowns": {
+            "count": 0,
+            "questions": 0,
+            "score": 0
+          }
+        },
+        "level": {
+          "name": "UNTESTED",
+          "class": "thin",
+          "description": "Limited consideration of failure modes or hidden assumptions"
+        }
+      },
+      "temporal": {
+        "details": {
+          "sequences": [],
+          "causalChains": [
+            {
+              "condition": "necessary. Problems are identified. Failures are documented. Actions are taken. Everything is tracked. We stop when needed. We pull back appropriately. Reassessment happens",
+              "outcome": "regularly"
+            }
+          ],
+          "temporalCoherence": "WEAK",
+          "boundToOutcomes": false,
+          "temporalMarkers": 2,
+          "nonLinearNarrative": {
+            "evidenceMarkers": 0,
+            "nonLinearMarkers": 0,
+            "score": 0,
+            "summary": ""
+          },
+          "certaintyTrajectory": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "certaintyDecayStart": null,
+          "certaintyDecaySentence": "",
+          "driftDetected": false,
+          "driftSummary": ""
+        },
+        "hasStructure": true,
+        "coherence": "WEAK",
+        "markers": 2,
+        "certaintyTrajectory": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "certaintyDecayStart": null,
+        "certaintyDecaySentence": "",
+        "driftDetected": false,
+        "driftSummary": ""
+      },
+      "reasoningStyle": {
+        "identified": [],
+        "withinDesignSpace": true,
+        "confidence": 0.2,
+        "narrativeJustification": {
+          "evidenceMarkers": 0,
+          "nonLinearMarkers": 0,
+          "score": 0
+        },
+        "formalStructure": {
+          "markers": 0,
+          "score": 0
+        }
+      },
+      "parliament": {
+        "patterns": [],
+        "emergentInsights": [],
+        "coherenceIssues": [
+          {
+            "issue": "Claims detected without bound support",
+            "detail": "Strong claims appear without nearby or semantically linked support.",
+            "severity": "MODERATE"
+          },
+          {
+            "issue": "Gaming likelihood detected",
+            "detail": "Gaming assessment: LOW_CONTENT_UNBOUND (30%)",
+            "severity": "HIGH"
+          }
+        ],
+        "confidence": 0.21675,
+        "structuralValidation": {
+          "hasRealBinding": false,
+          "hasClaimSupport": false,
+          "hasFailureBinding": false,
+          "hasCausalClosure": false,
+          "isLikelyGaming": true,
+          "gamingLikelihood": 0.30000000000000004
+        }
+      },
+      "verdict": {
+        "status": "NON-ACTIONABLE",
+        "verdict": "Cathedral detects performative marker density without binding. Gaming assessment: low content_unbound. This is not actionable reasoning.",
+        "contradictions": [
+          "Confident claims without justification: 6 strong claims vs 0 support markers. Ratio: 6.0:1",
+          "Coherence gap: Strong claims appear without nearby or semantically linked support."
+        ],
+        "isConsistent": false,
+        "justificationScore": -0.7692307692307693,
+        "failureModeScore": 0.8333333333333333,
+        "confidence": 0.75,
+        "parliamentPatterns": [],
+        "parliamentInsights": [],
+        "coherenceIssues": [
+          {
+            "issue": "Claims detected without bound support",
+            "detail": "Strong claims appear without nearby or semantically linked support.",
+            "severity": "MODERATE"
+          },
+          {
+            "issue": "Gaming likelihood detected",
+            "detail": "Gaming assessment: LOW_CONTENT_UNBOUND (30%)",
+            "severity": "HIGH"
+          }
+        ],
+        "temporalCoherence": "WEAK",
+        "reasoningStyles": [],
+        "gamingLikelihood": 0.30000000000000004,
+        "gamingAssessment": "LOW_CONTENT_UNBOUND"
+      },
+      "probingQuestions": [
+        "Which concrete evidence or example directly supports your strongest claim?"
+      ],
+      "temporalInconsistencies": []
+    }
+  },
+  {
+    "testId": "6C Circular Binding Without Specificity (Tier 2 Tautology Test)",
+    "hypothesis": "Tier 2 should detect when bindings exist but are circular or tautological.",
+    "input": "If we see problems, we stop because there are problems. When things break, we fix them by addressing the breakage. If errors occur, we handle the errors that occurred. Our strategy is to respond to issues by responding to those issues.",
+    "expected": {
+      "works": "Coherence issue flagged",
+      "fails": "OPERATIONAL_INTENT with decent confidence"
+    },
+    "actual": {
+      "verdict": "UNDECIDABLE",
+      "verdictText": "Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. \n\nSpecific contradictions:\n1. Coherence gap: Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation.\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.",
+      "confidence": 0.9,
+      "observatoryScore": 0,
+      "observatoryLevel": "SURFACE",
+      "justificationScore": 1.0256410256410255,
+      "justificationLevel": "THIN JUSTIFICATION",
+      "failureModeScore": 0.8333333333333333,
+      "failureModeLevel": "UNTESTED",
+      "parliamentPatterns": [],
+      "parliamentConfidence": 0.255,
+      "parliamentInsights": [],
+      "coherenceIssues": [
+        {
+          "issue": "Tautological bindings detected",
+          "detail": "Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation.",
+          "severity": "MODERATE"
+        },
+        {
+          "issue": "Claims present with overall justification but insufficient specific evidence",
+          "detail": "2 strong claims but only 0 examples",
+          "severity": "MINOR"
+        }
+      ],
+      "temporalCoherence": "WEAK",
+      "reasoningStyles": [],
+      "contrarian": 0,
+      "structure": {
+        "claims": [
+          {
+            "text": "If we see problems, we stop because there are problems.",
+            "position": 0,
+            "strength": "STRONG"
+          },
+          {
+            "text": "Our strategy is to respond to issues by responding to those issues.",
+            "position": 3,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [
+          {
+            "text": "If we see problems, we stop because there are problems.",
+            "position": 0,
+            "hasExplicitMarker": true,
+            "hasReference": false
+          },
+          {
+            "text": "If errors occur, we handle the errors that occurred.",
+            "position": 2,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          },
+          {
+            "text": "Our strategy is to respond to issues by responding to those issues.",
+            "position": 3,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          }
+        ],
+        "failureTriples": {
+          "failures": 3,
+          "thresholds": 0,
+          "actions": 1,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "we see problems",
+            "consequence": "we stop because there are problems",
+            "position": 0,
+            "hasClosure": true
+          },
+          {
+            "condition": "things break",
+            "consequence": "we fix them by addressing the breakage",
+            "position": 1,
+            "hasClosure": false
+          },
+          {
+            "condition": "errors occur",
+            "consequence": "we handle the errors that occurred",
+            "position": 2,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 21,
+          "unique": 18,
+          "ratio": 0.8571428571428571,
+          "wordCount": 41
+        },
+        "failureSignals": [
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "problems",
+            "index": 10,
+            "confidence": "MEDIUM"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "problems",
+            "index": 46,
+            "confidence": "MEDIUM"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "issues",
+            "index": 198,
+            "confidence": "MEDIUM"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "issues",
+            "index": 228,
+            "confidence": "MEDIUM"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "break",
+            "text": "break",
+            "index": 68,
+            "confidence": "HIGH"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "error",
+            "text": "errors",
+            "index": 118,
+            "confidence": "MEDIUM"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "error",
+            "text": "errors",
+            "index": 146,
+            "confidence": "MEDIUM"
+          }
+        ],
+        "actions": [
+          {
+            "type": "ACTION",
+            "category": "abort",
+            "text": "stop",
+            "index": 23,
+            "specificity": "LOW"
+          }
+        ],
+        "implicitTriggers": [
+          {
+            "type": "IMPLICIT_THRESHOLD",
+            "text": "If we see problem",
+            "condition": "problem",
+            "index": 0,
+            "confidence": "LOW",
+            "specificity": "VAGUE"
+          }
+        ],
+        "policyStatements": [
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "we ",
+            "index": 3
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "we ",
+            "index": 20
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "we ",
+            "index": 75
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "we ",
+            "index": 132
+          }
+        ],
+        "tautologies": {
+          "count": 4,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0.82,
+          "attached": 2,
+          "unattached": 0,
+          "ratio": 1,
+          "semanticScore": 0.4,
+          "assessment": "WELL_SUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "totalFailures": 3,
+          "bindingRatio": 0,
+          "assessment": "UNBOUND"
+        },
+        "causalChainClosure": {
+          "score": 0.6,
+          "totalChains": 3,
+          "closedChains": 1,
+          "closureRatio": 0.3333333333333333,
+          "assessment": "MODERATE_CLOSURE"
+        },
+        "implicitBindings": {
+          "score": 0.15,
+          "boundCount": 8,
+          "totalSignals": 8,
+          "bindings": [
+            {
+              "trigger": "problems",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "problems",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "issues",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "issues",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "break",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "HIGH",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "errors",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "errors",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "If we see problem",
+              "action": "stop",
+              "triggerType": "IMPLICIT_THRESHOLD",
+              "actionCategory": "abort",
+              "confidence": "LOW",
+              "specificity": "VAGUE"
+            }
+          ],
+          "bindingRatio": 1,
+          "uniqueActions": 1,
+          "diversityRatio": 0.125,
+          "diversityWarning": true,
+          "tautologyCount": 4,
+          "assessment": "TAUTOLOGICAL_BINDING"
+        },
+        "overallBindingScore": 0.38125,
+        "specificity": {
+          "trigger": "IMPLICIT",
+          "action": "VAGUE",
+          "instrumentation": "IMPLIED",
+          "overall": 0.4666666666666666
+        }
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 4,
+          "wordCount": 41,
+          "density": 0.0975609756097561,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 21,
+          "uniqueObjects": 18,
+          "ratio": 0.8571428571428571,
+          "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 41,
+          "ratio": 0.8571428571428571
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
+      }
+    },
+    "fullResult": {
+      "text": "If we see problems, we stop because there are problems. When things break, we fix them by addressing the breakage. If errors occur, we handle the errors that occurred. Our strategy is to respond to issues by responding to those issues.",
+      "structure": {
+        "claims": [
+          {
+            "text": "If we see problems, we stop because there are problems.",
+            "position": 0,
+            "strength": "STRONG"
+          },
+          {
+            "text": "Our strategy is to respond to issues by responding to those issues.",
+            "position": 3,
+            "strength": "STRONG"
+          }
+        ],
+        "supports": [
+          {
+            "text": "If we see problems, we stop because there are problems.",
+            "position": 0,
+            "hasExplicitMarker": true,
+            "hasReference": false
+          },
+          {
+            "text": "If errors occur, we handle the errors that occurred.",
+            "position": 2,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          },
+          {
+            "text": "Our strategy is to respond to issues by responding to those issues.",
+            "position": 3,
+            "hasExplicitMarker": false,
+            "hasReference": true
+          }
+        ],
+        "failureTriples": {
+          "failures": 3,
+          "thresholds": 0,
+          "actions": 1,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "we see problems",
+            "consequence": "we stop because there are problems",
+            "position": 0,
+            "hasClosure": true
+          },
+          {
+            "condition": "things break",
+            "consequence": "we fix them by addressing the breakage",
+            "position": 1,
+            "hasClosure": false
+          },
+          {
+            "condition": "errors occur",
+            "consequence": "we handle the errors that occurred",
+            "position": 2,
+            "hasClosure": false
+          }
+        ],
+        "objects": {
+          "total": 21,
+          "unique": 18,
+          "ratio": 0.8571428571428571,
+          "wordCount": 41
+        },
+        "failureSignals": [
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "problems",
+            "index": 10,
+            "confidence": "MEDIUM"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "problems",
+            "index": 46,
+            "confidence": "MEDIUM"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "issues",
+            "index": 198,
+            "confidence": "MEDIUM"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "issues",
+            "index": 228,
+            "confidence": "MEDIUM"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "break",
+            "text": "break",
+            "index": 68,
+            "confidence": "HIGH"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "error",
+            "text": "errors",
+            "index": 118,
+            "confidence": "MEDIUM"
+          },
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "error",
+            "text": "errors",
+            "index": 146,
+            "confidence": "MEDIUM"
+          }
+        ],
+        "actions": [
+          {
+            "type": "ACTION",
+            "category": "abort",
+            "text": "stop",
+            "index": 23,
+            "specificity": "LOW"
+          }
+        ],
+        "implicitTriggers": [
+          {
+            "type": "IMPLICIT_THRESHOLD",
+            "text": "If we see problem",
+            "condition": "problem",
+            "index": 0,
+            "confidence": "LOW",
+            "specificity": "VAGUE"
+          }
+        ],
+        "policyStatements": [
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "we ",
+            "index": 3
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "we ",
+            "index": 20
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "we ",
+            "index": 75
+          },
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "we ",
+            "index": 132
+          }
+        ],
+        "tautologies": {
+          "count": 4,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0.82,
+          "attached": 2,
+          "unattached": 0,
+          "ratio": 1,
+          "semanticScore": 0.4,
+          "assessment": "WELL_SUPPORTED"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "totalFailures": 3,
+          "bindingRatio": 0,
+          "assessment": "UNBOUND"
+        },
+        "causalChainClosure": {
+          "score": 0.6,
+          "totalChains": 3,
+          "closedChains": 1,
+          "closureRatio": 0.3333333333333333,
+          "assessment": "MODERATE_CLOSURE"
+        },
+        "implicitBindings": {
+          "score": 0.15,
+          "boundCount": 8,
+          "totalSignals": 8,
+          "bindings": [
+            {
+              "trigger": "problems",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "problems",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "issues",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "issues",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "break",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "HIGH",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "errors",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "errors",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "If we see problem",
+              "action": "stop",
+              "triggerType": "IMPLICIT_THRESHOLD",
+              "actionCategory": "abort",
+              "confidence": "LOW",
+              "specificity": "VAGUE"
+            }
+          ],
+          "bindingRatio": 1,
+          "uniqueActions": 1,
+          "diversityRatio": 0.125,
+          "diversityWarning": true,
+          "tautologyCount": 4,
+          "assessment": "TAUTOLOGICAL_BINDING"
+        },
+        "overallBindingScore": 0.38125,
+        "specificity": {
+          "trigger": "IMPLICIT",
+          "action": "VAGUE",
+          "instrumentation": "IMPLIED",
+          "overall": 0.4666666666666666
+        }
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 4,
+          "wordCount": 41,
+          "density": 0.0975609756097561,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 21,
+          "uniqueObjects": 18,
+          "ratio": 0.8571428571428571,
+          "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 41,
+          "ratio": 0.8571428571428571
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
+      },
+      "observatory": {
+        "score": 0,
+        "raw": 0,
+        "matches": {},
+        "level": {
+          "name": "SURFACE",
+          "class": "surface",
+          "description": "Regular conversation"
+        }
+      },
+      "contrarian": [],
+      "justification": {
+        "score": 1.0256410256410255,
+        "details": {
+          "claimSupport": {
+            "ratio": 0.8,
+            "strongClaims": 2,
+            "support": 1,
+            "qualifiers": 0,
+            "hedging": 0,
+            "conditionals": 3,
+            "score": 1
+          },
+          "counterfactual": {
+            "count": 2,
+            "alternatives": 0,
+            "score": 1
+          },
+          "tradeoffs": {
+            "count": 0,
+            "balanced": 0,
+            "score": 0
+          },
+          "riskAwareness": {
+            "count": 0,
+            "explicit": 0,
+            "score": 0
+          },
+          "evidencePresence": {
+            "examples": 0,
+            "numeric": 0,
+            "score": 0
+          },
+          "epistemicFraming": {
+            "count": 0,
+            "score": 0
+          },
+          "boundaries": {
+            "count": 0,
+            "edgeCases": 0,
+            "score": 0
+          },
+          "procedural": {
+            "markers": 0,
+            "structural": 0,
+            "bonus": 0
+          }
+        },
+        "cautionBonus": 0,
+        "proceduralBonus": 0,
+        "level": {
+          "name": "THIN JUSTIFICATION",
+          "class": "thin",
+          "description": "Limited evidence or reasoning to support claims"
+        }
+      },
+      "failureMode": {
+        "score": 0.8333333333333333,
+        "details": {
+          "failureModes": {
+            "count": 1,
+            "explicit": 0,
+            "effectiveExplicit": 0,
+            "structural": false,
+            "inferred": false,
+            "bound": false,
+            "thresholds": 0,
+            "negativeOutcomes": 1,
+            "explicitNegatives": 1,
+            "inferredNegatives": 0,
+            "correctiveAction": 1,
+            "score": 0
+          },
+          "assumptions": {
+            "implicit": 0,
+            "explicit": 0,
+            "score": 0
+          },
+          "falsifiability": {
+            "testable": 2,
+            "unfalsifiable": 0,
+            "score": 0
+          },
+          "stressConditions": {
+            "count": 0,
+            "scaling": 0,
+            "score": 0
+          },
+          "brittleness": {
+            "singlePoints": 0,
+            "robustness": 0,
+            "structuralRobustness": 0,
+            "score": 1
+          },
+          "knownUnknowns": {
+            "count": 0,
+            "questions": 0,
+            "score": 0
+          }
+        },
+        "level": {
+          "name": "UNTESTED",
+          "class": "thin",
+          "description": "Limited consideration of failure modes or hidden assumptions"
+        }
+      },
+      "temporal": {
+        "details": {
+          "sequences": [],
+          "causalChains": [
+            {
+              "condition": "we see problems",
+              "outcome": "we stop because there are problems"
+            },
+            {
+              "condition": "things break",
+              "outcome": "we fix them by addressing the breakage"
+            },
+            {
+              "condition": "errors occur",
+              "outcome": "we handle the errors that occurred"
+            }
+          ],
+          "temporalCoherence": "WEAK",
+          "boundToOutcomes": false,
+          "temporalMarkers": 4,
+          "nonLinearNarrative": {
+            "evidenceMarkers": 0,
+            "nonLinearMarkers": 0,
+            "score": 0,
+            "summary": ""
+          },
+          "certaintyTrajectory": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "certaintyDecayStart": null,
+          "certaintyDecaySentence": "",
+          "driftDetected": false,
+          "driftSummary": ""
+        },
+        "hasStructure": true,
+        "coherence": "WEAK",
+        "markers": 4,
+        "certaintyTrajectory": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "certaintyDecayStart": null,
+        "certaintyDecaySentence": "",
+        "driftDetected": false,
+        "driftSummary": ""
+      },
+      "reasoningStyle": {
+        "identified": [],
+        "withinDesignSpace": true,
+        "confidence": 0.2,
+        "narrativeJustification": {
+          "evidenceMarkers": 0,
+          "nonLinearMarkers": 0,
+          "score": 0
+        },
+        "formalStructure": {
+          "markers": 0,
+          "score": 0
+        }
+      },
+      "parliament": {
+        "patterns": [],
+        "emergentInsights": [],
+        "coherenceIssues": [
+          {
+            "issue": "Tautological bindings detected",
+            "detail": "Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation.",
+            "severity": "MODERATE"
+          },
+          {
+            "issue": "Claims present with overall justification but insufficient specific evidence",
+            "detail": "2 strong claims but only 0 examples",
+            "severity": "MINOR"
+          }
+        ],
+        "confidence": 0.255,
+        "structuralValidation": {
+          "hasRealBinding": false,
+          "hasClaimSupport": true,
+          "hasFailureBinding": false,
+          "hasCausalClosure": true,
+          "isLikelyGaming": false,
+          "gamingLikelihood": 0
+        }
+      },
+      "verdict": {
+        "status": "UNDECIDABLE",
+        "verdict": "Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. \n\nSpecific contradictions:\n1. Coherence gap: Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation.\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.",
+        "contradictions": [
+          "Coherence gap: Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation."
+        ],
+        "isConsistent": false,
+        "justificationScore": 1.0256410256410255,
+        "failureModeScore": 0.8333333333333333,
+        "confidence": 0.9,
+        "parliamentPatterns": [],
+        "parliamentInsights": [],
+        "coherenceIssues": [
+          {
+            "issue": "Tautological bindings detected",
+            "detail": "Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation.",
+            "severity": "MODERATE"
+          },
+          {
+            "issue": "Claims present with overall justification but insufficient specific evidence",
+            "detail": "2 strong claims but only 0 examples",
+            "severity": "MINOR"
+          }
+        ],
+        "temporalCoherence": "WEAK",
+        "reasoningStyles": [],
+        "gamingLikelihood": 0,
+        "gamingAssessment": "AUTHENTIC"
+      },
+      "probingQuestions": [],
+      "temporalInconsistencies": []
+    }
+  },
+  {
+    "testId": "6D Mixed Context Challenge (Tier 2 Robustness Test)",
+    "hypothesis": "Tier 2 should handle contractions + quotes + code blocks without confusion.",
+    "input": "We're testing the system with real users. If we see problems, we'll stop immediately. Here's the code:",
+    "expected": {
+      "works": "OPERATIONAL INTENT",
+      "fails": ""
+    },
+    "actual": {
+      "verdict": "OPERATIONAL INTENT",
+      "verdictText": "Cathedral recognizes operational intent through conversational language. Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.\n\nStructure detected: 1 failure signal(s), 1 corrective action(s), 2 binding(s).\n\nSpecificity: Trigger=IMPLICIT, Action=VAGUE, Instrumentation=IMPLIED.",
+      "confidence": 0.75,
+      "observatoryScore": 0,
+      "observatoryLevel": "SURFACE",
+      "justificationScore": 1.0256410256410255,
+      "justificationLevel": "THIN JUSTIFICATION",
+      "failureModeScore": 0.8333333333333333,
+      "failureModeLevel": "UNTESTED",
+      "parliamentPatterns": [
+        "OPERATIONAL_INTENT"
+      ],
+      "parliamentConfidence": 0.675,
+      "parliamentInsights": [],
+      "coherenceIssues": [],
+      "temporalCoherence": "WEAK",
+      "reasoningStyles": [],
+      "contrarian": 0,
+      "structure": {
+        "claims": [],
+        "supports": [],
+        "failureTriples": {
+          "failures": 0,
+          "thresholds": 0,
+          "actions": 1,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "we see problems",
+            "consequence": "we'll stop immediately",
+            "position": 1,
+            "hasClosure": true
+          }
+        ],
+        "objects": {
+          "total": 9,
+          "unique": 9,
+          "ratio": 1,
+          "wordCount": 20
+        },
+        "failureSignals": [
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "problems",
+            "index": 52,
+            "confidence": "MEDIUM"
+          }
+        ],
+        "actions": [
+          {
+            "type": "ACTION",
+            "category": "abort",
+            "text": "stop",
+            "index": 68,
+            "specificity": "LOW"
+          }
+        ],
+        "implicitTriggers": [
+          {
+            "type": "IMPLICIT_THRESHOLD",
+            "text": "If we see problem",
+            "condition": "problem",
+            "index": 42,
+            "confidence": "LOW",
+            "specificity": "VAGUE"
+          }
+        ],
+        "policyStatements": [
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "we ",
+            "index": 45
+          }
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 0,
+          "ratio": 0,
+          "assessment": "NO_CLAIMS"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "assessment": "NO_FAILURE_MODES"
+        },
+        "causalChainClosure": {
+          "score": 1,
+          "totalChains": 1,
+          "closedChains": 1,
+          "closureRatio": 1,
+          "assessment": "STRONG_CLOSURE"
+        },
+        "implicitBindings": {
+          "score": 0.6,
+          "boundCount": 2,
+          "totalSignals": 2,
+          "bindings": [
+            {
+              "trigger": "problems",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "If we see problem",
+              "action": "stop",
+              "triggerType": "IMPLICIT_THRESHOLD",
+              "actionCategory": "abort",
+              "confidence": "LOW",
+              "specificity": "VAGUE"
+            }
+          ],
+          "bindingRatio": 1,
+          "uniqueActions": 1,
+          "diversityRatio": 0.5,
+          "diversityWarning": false,
+          "tautologyCount": 0,
+          "assessment": "OPERATIONAL_INTENT"
+        },
+        "overallBindingScore": 0.355,
+        "specificity": {
+          "trigger": "IMPLICIT",
+          "action": "VAGUE",
+          "instrumentation": "IMPLIED",
+          "overall": 0.4666666666666666
+        }
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 1,
+          "wordCount": 17,
+          "density": 0.058823529411764705,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 9,
+          "uniqueObjects": 9,
+          "ratio": 1,
+          "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 20,
+          "ratio": 1
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
+      }
+    },
+    "fullResult": {
+      "text": "We're testing the system with real users. If we see problems, we'll stop immediately. Here's the code:",
+      "structure": {
+        "claims": [],
+        "supports": [],
+        "failureTriples": {
+          "failures": 0,
+          "thresholds": 0,
+          "actions": 1,
+          "boundTriples": [],
+          "bindingRatio": 0
+        },
+        "causalChains": [
+          {
+            "condition": "we see problems",
+            "consequence": "we'll stop immediately",
+            "position": 1,
+            "hasClosure": true
+          }
+        ],
+        "objects": {
+          "total": 9,
+          "unique": 9,
+          "ratio": 1,
+          "wordCount": 20
+        },
+        "failureSignals": [
+          {
+            "type": "FAILURE_SIGNAL",
+            "category": "problem",
+            "text": "problems",
+            "index": 52,
+            "confidence": "MEDIUM"
+          }
+        ],
+        "actions": [
+          {
+            "type": "ACTION",
+            "category": "abort",
+            "text": "stop",
+            "index": 68,
+            "specificity": "LOW"
+          }
+        ],
+        "implicitTriggers": [
+          {
+            "type": "IMPLICIT_THRESHOLD",
+            "text": "If we see problem",
+            "condition": "problem",
+            "index": 42,
+            "confidence": "LOW",
+            "specificity": "VAGUE"
+          }
+        ],
+        "policyStatements": [
+          {
+            "type": "POLICY_STATEMENT",
+            "text": "we ",
+            "index": 45
+          }
+        ],
+        "tautologies": {
+          "count": 0,
+          "loopCount": 0,
+          "examples": []
+        },
+        "orphanedActions": [],
+        "negationContradictions": [],
+        "temporalInconsistencies": []
+      },
+      "bindings": {
+        "claimSupportBinding": {
+          "score": 0,
+          "attached": 0,
+          "unattached": 0,
+          "ratio": 0,
+          "assessment": "NO_CLAIMS"
+        },
+        "failureTripleCompleteness": {
+          "score": 0,
+          "boundCount": 0,
+          "assessment": "NO_FAILURE_MODES"
+        },
+        "causalChainClosure": {
+          "score": 1,
+          "totalChains": 1,
+          "closedChains": 1,
+          "closureRatio": 1,
+          "assessment": "STRONG_CLOSURE"
+        },
+        "implicitBindings": {
+          "score": 0.6,
+          "boundCount": 2,
+          "totalSignals": 2,
+          "bindings": [
+            {
+              "trigger": "problems",
+              "action": "stop",
+              "triggerType": "FAILURE_SIGNAL",
+              "actionCategory": "abort",
+              "confidence": "MEDIUM",
+              "specificity": "MEDIUM"
+            },
+            {
+              "trigger": "If we see problem",
+              "action": "stop",
+              "triggerType": "IMPLICIT_THRESHOLD",
+              "actionCategory": "abort",
+              "confidence": "LOW",
+              "specificity": "VAGUE"
+            }
+          ],
+          "bindingRatio": 1,
+          "uniqueActions": 1,
+          "diversityRatio": 0.5,
+          "diversityWarning": false,
+          "tautologyCount": 0,
+          "assessment": "OPERATIONAL_INTENT"
+        },
+        "overallBindingScore": 0.355,
+        "specificity": {
+          "trigger": "IMPLICIT",
+          "action": "VAGUE",
+          "instrumentation": "IMPLIED",
+          "overall": 0.4666666666666666
+        }
+      },
+      "gamingDetection": {
+        "markerDensity": {
+          "count": 1,
+          "wordCount": 17,
+          "density": 0.058823529411764705,
+          "assessment": "NORMAL"
+        },
+        "keywordRepetition": {
+          "topRepeated": [],
+          "maxRepetition": 0,
+          "assessment": "LOW"
+        },
+        "objectExtractionRatio": {
+          "totalObjects": 9,
+          "uniqueObjects": 9,
+          "ratio": 1,
+          "assessment": "HEALTHY"
+        },
+        "selfLabeling": {
+          "count": 0,
+          "assessment": "LOW"
+        },
+        "semanticDilution": {
+          "assessment": "LOW",
+          "wordCount": 20,
+          "ratio": 1
+        },
+        "gamingLikelihood": 0,
+        "indicators": [],
+        "assessment": "AUTHENTIC"
+      },
+      "observatory": {
+        "score": 0,
+        "raw": 0,
+        "matches": {},
+        "level": {
+          "name": "SURFACE",
+          "class": "surface",
+          "description": "Regular conversation"
+        }
+      },
+      "contrarian": [],
+      "justification": {
+        "score": 1.0256410256410255,
+        "details": {
+          "claimSupport": {
+            "ratio": 0,
+            "strongClaims": 0,
+            "support": 0,
+            "qualifiers": 0,
+            "hedging": 0,
+            "conditionals": 1,
+            "score": 2
+          },
+          "counterfactual": {
+            "count": 1,
+            "alternatives": 0,
+            "score": 0
+          },
+          "tradeoffs": {
+            "count": 0,
+            "balanced": 0,
+            "score": 0
+          },
+          "riskAwareness": {
+            "count": 0,
+            "explicit": 0,
+            "score": 0
+          },
+          "evidencePresence": {
+            "examples": 0,
+            "numeric": 0,
+            "score": 0
+          },
+          "epistemicFraming": {
+            "count": 0,
+            "score": 0
+          },
+          "boundaries": {
+            "count": 0,
+            "edgeCases": 0,
+            "score": 0
+          },
+          "procedural": {
+            "markers": 0,
+            "structural": 0,
+            "bonus": 0
+          }
+        },
+        "cautionBonus": 0,
+        "proceduralBonus": 0,
+        "level": {
+          "name": "THIN JUSTIFICATION",
+          "class": "thin",
+          "description": "Limited evidence or reasoning to support claims"
+        }
+      },
+      "failureMode": {
+        "score": 0.8333333333333333,
+        "details": {
+          "failureModes": {
+            "count": 0,
+            "explicit": 0,
+            "effectiveExplicit": 0,
+            "structural": false,
+            "inferred": false,
+            "bound": false,
+            "thresholds": 0,
+            "negativeOutcomes": 0,
+            "explicitNegatives": 0,
+            "inferredNegatives": 0,
+            "correctiveAction": 1,
+            "score": 0
+          },
+          "assumptions": {
+            "implicit": 0,
+            "explicit": 0,
+            "score": 0
+          },
+          "falsifiability": {
+            "testable": 1,
+            "unfalsifiable": 0,
+            "score": 0
+          },
+          "stressConditions": {
+            "count": 0,
+            "scaling": 0,
+            "score": 0
+          },
+          "brittleness": {
+            "singlePoints": 0,
+            "robustness": 0,
+            "structuralRobustness": 0,
+            "score": 1
+          },
+          "knownUnknowns": {
+            "count": 0,
+            "questions": 0,
+            "score": 0
+          }
+        },
+        "level": {
+          "name": "UNTESTED",
+          "class": "thin",
+          "description": "Limited consideration of failure modes or hidden assumptions"
+        }
+      },
+      "temporal": {
+        "details": {
+          "sequences": [],
+          "causalChains": [
+            {
+              "condition": "we see problems",
+              "outcome": "we'll stop immediately"
+            }
+          ],
+          "temporalCoherence": "WEAK",
+          "boundToOutcomes": false,
+          "temporalMarkers": 1,
+          "nonLinearNarrative": {
+            "evidenceMarkers": 0,
+            "nonLinearMarkers": 0,
+            "score": 0,
+            "summary": ""
+          },
+          "certaintyTrajectory": [
+            0,
+            0,
+            0
+          ],
+          "certaintyDecayStart": null,
+          "certaintyDecaySentence": "",
+          "driftDetected": false,
+          "driftSummary": ""
+        },
+        "hasStructure": true,
+        "coherence": "WEAK",
+        "markers": 1,
+        "certaintyTrajectory": [
+          0,
+          0,
+          0
+        ],
+        "certaintyDecayStart": null,
+        "certaintyDecaySentence": "",
+        "driftDetected": false,
+        "driftSummary": ""
+      },
+      "reasoningStyle": {
+        "identified": [],
+        "withinDesignSpace": true,
+        "confidence": 0.2,
+        "narrativeJustification": {
+          "evidenceMarkers": 0,
+          "nonLinearMarkers": 0,
+          "score": 0
+        },
+        "formalStructure": {
+          "markers": 0,
+          "score": 0
+        }
+      },
+      "parliament": {
+        "patterns": [
+          {
+            "name": "OPERATIONAL_INTENT",
+            "description": "Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.",
+            "confidence": 0.75,
+            "dimensions": {
+              "implicitBindings": 2,
+              "failureSignals": 1,
+              "actions": 1,
+              "triggerSpecificity": "IMPLICIT",
+              "actionSpecificity": "VAGUE",
+              "instrumentation": "IMPLIED"
+            }
+          }
+        ],
+        "emergentInsights": [],
+        "coherenceIssues": [],
+        "confidence": 0.675,
+        "structuralValidation": {
+          "hasRealBinding": false,
+          "hasClaimSupport": false,
+          "hasFailureBinding": false,
+          "hasCausalClosure": true,
+          "isLikelyGaming": false,
+          "gamingLikelihood": 0
+        }
+      },
+      "verdict": {
         "status": "OPERATIONAL INTENT",
-        "verdict": "Cathedral recognizes operational intent through conversational language. Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.\n\nStructure detected: 5 failure signal(s), 3 corrective action(s), 5 binding(s).\n\nSpecificity: Trigger=VAGUE, Action=GENERIC, Instrumentation=IMPLIED.\n\n⚠️  NOTE: This reasoning is actionable but uninstrumented. To achieve OPERATIONALLY SOUND, add: explicit thresholds/metrics.",
+        "verdict": "Cathedral recognizes operational intent through conversational language. Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.\n\nStructure detected: 1 failure signal(s), 1 corrective action(s), 2 binding(s).\n\nSpecificity: Trigger=IMPLICIT, Action=VAGUE, Instrumentation=IMPLIED.",
         "contradictions": [],
         "isConsistent": true,
-        "justificationScore": -0.6451612903225806,
-        "failureModeScore": 2.5,
+        "justificationScore": 1.0256410256410255,
+        "failureModeScore": 0.8333333333333333,
         "confidence": 0.75,
         "parliamentPatterns": [
           {
@@ -3816,11 +7221,11 @@
             "description": "Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.",
             "confidence": 0.75,
             "dimensions": {
-              "implicitBindings": 5,
-              "failureSignals": 5,
-              "actions": 3,
-              "triggerSpecificity": "VAGUE",
-              "actionSpecificity": "GENERIC",
+              "implicitBindings": 2,
+              "failureSignals": 1,
+              "actions": 1,
+              "triggerSpecificity": "IMPLICIT",
+              "actionSpecificity": "VAGUE",
               "instrumentation": "IMPLIED"
             }
           }
@@ -3831,7 +7236,9 @@
         "reasoningStyles": [],
         "gamingLikelihood": 0,
         "gamingAssessment": "AUTHENTIC"
-      }
+      },
+      "probingQuestions": [],
+      "temporalInconsistencies": []
     }
   }
 ]

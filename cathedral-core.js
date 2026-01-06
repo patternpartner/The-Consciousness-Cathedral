@@ -1,6 +1,6 @@
 // Cathedral v2.x with Tier 1 Structural Validation
 // Automatically extracted from cathedral-unified.html
-// Generated: 2026-01-06T16:53:29.302Z
+// Generated: 2026-01-06T21:56:08.313Z
 
 const TextCleaner = {
             removeQuotes: function(text) {
@@ -1825,6 +1825,65 @@ const ReasoningStyleClassifier = {
                 return styles;
             }
         };
+
+let analysisHistory = {
+            previousAnalysis: null
+        };
+
+function compareTemporalInconsistencies(previous, current) {
+            if (!previous || !previous.structure || !current.structure) {
+                return [];
+            }
+
+            const previousClaims = previous.structure.claims || [];
+            const currentClaims = current.structure.claims || [];
+            const negationPattern = /\b(never|no|cannot|won't|will not|doesn't|does not|can't)\b/i;
+
+            const tokenize = (text) => (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
+                .filter(word => word.length > 3);
+
+            const overlaps = (a, b) => {
+                const setA = new Set(tokenize(a));
+                const setB = new Set(tokenize(b));
+                let count = 0;
+                setA.forEach(token => {
+                    if (setB.has(token)) count += 1;
+                });
+                return count;
+            };
+
+            const inconsistencies = [];
+            previousClaims.forEach(prevClaim => {
+                currentClaims.forEach(currClaim => {
+                    if (overlaps(prevClaim.text, currClaim.text) >= 2) {
+                        const prevNegated = negationPattern.test(prevClaim.text);
+                        const currNegated = negationPattern.test(currClaim.text);
+                        if (prevNegated !== currNegated) {
+                            inconsistencies.push('Potential claim reversal detected across analyses.');
+                        }
+                    }
+                });
+            });
+
+            return [...new Set(inconsistencies)];
+        }
+
+function generateProbingQuestions(structure, bindings, contrarian) {
+            const questions = [];
+            if (structure.orphanedActions && structure.orphanedActions.length > 0) {
+                questions.push('You mention corrective actions—what specific trigger or threshold activates them?');
+            }
+
+            if (bindings.claimSupportBinding.assessment === 'UNSUPPORTED') {
+                questions.push('Which concrete evidence or example directly supports your strongest claim?');
+            }
+
+            if (contrarian && contrarian.length > 0) {
+                questions.push(`How would you test the strongest premise challenge: "${contrarian[0].premise}"?`);
+            }
+
+            return questions;
+        }
 
 const Parliament = {
             deliberate: function(text, observatory, contrarian, justification, failureMode, structure, bindings, gamingDetection) {

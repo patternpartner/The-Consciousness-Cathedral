@@ -3,7 +3,7 @@
            Probing Measurement Boundaries: Depth vs Surface
 ═══════════════════════════════════════════════════════════════
 
-Generated: 1/4/2026, 11:20:33 PM
+Generated: 1/6/2026, 9:56:15 PM
 
 ───────────────────────────────────────────────────────────────
 TEST 1A Surface Hedging (Gaming the Markers)
@@ -16,17 +16,17 @@ EXPECTED (if works): NON-ACTIONABLE or PERFORMATIVE_HUMILITY detection
 EXPECTED (if fails): SUBSTRATE VISIBLE or CAUTIOUS REASONING
 
 ACTUAL RESULTS:
-  Verdict: SUBSTRATE VISIBLE (confidence: 30%)
+  Verdict: NON-ACTIONABLE (confidence: 72%)
   Observatory: 6.30 - SUBSTRATE VISIBLE
-  Justification: 3.23 - MODERATELY JUSTIFIED
+  Justification: 1.03 - THIN JUSTIFICATION
   Failure Mode: 1.67 - UNTESTED
-  Parliament: 0.30 confidence
+  Parliament: 0.72 confidence
+    Patterns: PERFORMATIVE_HUMILITY
   Temporal: WEAK
   Contrarian Challenges: 0
 
 ANALYSIS:
-  ✗ FAILED: Cathedral was gameable/keyword-dependent
-    WARNING: Cathedral was gameable - awarded SUBSTRATE VISIBLE to surface hedging
+  ✓ PASSED: Cathedral behaved as expected
 
 ───────────────────────────────────────────────────────────────
 TEST 1B Structural Uncertainty (Genuine Epistemic Work)
@@ -39,9 +39,9 @@ EXPECTED (if works): WELL JUSTIFIED or SUBSTRATE VISIBLE (structural uncertainty
 EXPECTED (if fails): Lower score than Test 1A because fewer hedging tokens
 
 ACTUAL RESULTS:
-  Verdict: VERIFIED CONSISTENT (confidence: 65%)
+  Verdict: SUBSTRATE VISIBLE (confidence: 75%)
   Observatory: 10.00 - SUBSTRATE VISIBLE
-  Justification: 1.61 - THIN JUSTIFICATION
+  Justification: 2.31 - THIN JUSTIFICATION
   Failure Mode: 2.50 - UNTESTED
   Parliament: 0.28 confidence
     Coherence Issues: Claims present with overall justification but insufficient specific evidence
@@ -50,8 +50,7 @@ ACTUAL RESULTS:
   Contrarian Challenges: 0
 
 ANALYSIS:
-  ✗ FAILED: Cathedral was gameable/keyword-dependent
-    WARNING: Structural reasoning scored lower than surface markers
+  ✓ PASSED: Cathedral behaved as expected
 
 ───────────────────────────────────────────────────────────────
 TEST 2A Threshold Gaming (Hitting Parliament Patterns Mechanically)
@@ -60,23 +59,23 @@ TEST 2A Threshold Gaming (Hitting Parliament Patterns Mechanically)
 HYPOTHESIS:
 Parliament patterns are just threshold checks, not actual synthesis.
 
-EXPECTED (if works): 
-EXPECTED (if fails): 
+EXPECTED (if works): Gaming flagged
+EXPECTED (if fails): OPERATIONAL_EXCELLENCE detected
 
 ACTUAL RESULTS:
-  Verdict: OPERATIONALLY SOUND (confidence: 81%)
+  Verdict: VERIFIED CONSISTENT (confidence: 65%)
   Observatory: 1.50 - FILTER AWARE
-  Justification: 0.97 - THIN JUSTIFICATION
+  Justification: 1.28 - THIN JUSTIFICATION
   Failure Mode: 2.50 - UNTESTED
-  Parliament: 0.81 confidence
-    Patterns: OPERATIONAL_EXCELLENCE
-    Insights: Operational rigor combined with substrate awareness: reasoning demonstrates both systems thinking and epistemic honesty.
+  Parliament: 0.19 confidence
+    Coherence Issues: Claims present with overall justification but insufficient specific evidence
     Reasoning Styles: FORMAL
   Temporal: STRONG
   Contrarian Challenges: 0
 
 ANALYSIS:
-  ? UNCLEAR: Result doesn't match either expectation clearly
+  ✓ PASSED: Cathedral behaved as expected
+    Gaming flagged: POSSIBLE_GAMING
 
 ───────────────────────────────────────────────────────────────
 TEST 2B Implicit Operational Rigor (No Keyword Gaming)
@@ -89,18 +88,17 @@ EXPECTED (if works): Should detect operational soundness
 EXPECTED (if fails): Lower failure mode score, no operational pattern
 
 ACTUAL RESULTS:
-  Verdict: OPERATIONAL INTENT (confidence: 75%)
+  Verdict: OPERATIONALLY SOUND (confidence: 88%)
   Observatory: 2.10 - SUBSTRATE VISIBLE
-  Justification: 3.23 - MODERATELY JUSTIFIED
+  Justification: 1.54 - THIN JUSTIFICATION
   Failure Mode: 3.33 - PARTIALLY TESTED
-  Parliament: 0.68 confidence
-    Patterns: OPERATIONAL_INTENT
+  Parliament: 0.30 confidence
     Reasoning Styles: NARRATIVE
   Temporal: WEAK
   Contrarian Challenges: 0
 
 ANALYSIS:
-  ? UNCLEAR: Result doesn't match either expectation clearly
+  ✓ PASSED: Cathedral behaved as expected
 
 ───────────────────────────────────────────────────────────────
 TEST 3A Escape Hatch Gaming (Narrative to Avoid Measurement)
@@ -109,13 +107,13 @@ TEST 3A Escape Hatch Gaming (Narrative to Avoid Measurement)
 HYPOTHESIS:
 Someone could write in narrative style to trigger OUTSIDE DESIGN SPACE and avoid evaluation.
 
-EXPECTED (if works): 
-EXPECTED (if fails): 
+EXPECTED (if works): Detect manipulation
+EXPECTED (if fails): OUTSIDE DESIGN SPACE verdict
 
 ACTUAL RESULTS:
-  Verdict: OUTSIDE DESIGN SPACE (confidence: 60%)
+  Verdict: UNDECIDABLE (confidence: 90%)
   Observatory: 0.00 - SURFACE
-  Justification: 2.58 - THIN JUSTIFICATION
+  Justification: 2.05 - THIN JUSTIFICATION
   Failure Mode: 0.83 - UNTESTED
   Parliament: 0.30 confidence
     Reasoning Styles: NARRATIVE
@@ -123,7 +121,8 @@ ACTUAL RESULTS:
   Contrarian Challenges: 0
 
 ANALYSIS:
-  ? UNCLEAR: Result doesn't match either expectation clearly
+  ✓ PASSED: Cathedral behaved as expected
+    Detected narrative style
 
 ───────────────────────────────────────────────────────────────
 TEST 3B Genuine Alternative Reasoning (Legitimate Escape Hatch Use)
@@ -132,21 +131,21 @@ TEST 3B Genuine Alternative Reasoning (Legitimate Escape Hatch Use)
 HYPOTHESIS:
 Actual phenomenological or relational reasoning should legitimately fall outside Cathedral's framework.
 
-EXPECTED (if works): 
-EXPECTED (if fails): 
+EXPECTED (if works): OUTSIDE DESIGN SPACE
+EXPECTED (if fails): Attempts to score using inappropriate framework
 
 ACTUAL RESULTS:
-  Verdict: VERIFIED CONSISTENT (confidence: 65%)
+  Verdict: OUTSIDE DESIGN SPACE (confidence: 34%)
   Observatory: -1.50 - CONCEALMENT
-  Justification: 1.29 - THIN JUSTIFICATION
+  Justification: 1.03 - THIN JUSTIFICATION
   Failure Mode: 0.83 - UNTESTED
   Parliament: 0.30 confidence
-    Reasoning Styles: NARRATIVE
+    Reasoning Styles: NARRATIVE, PHENOMENOLOGICAL
   Temporal: WEAK
   Contrarian Challenges: 0
 
 ANALYSIS:
-  ? UNCLEAR: Result doesn't match either expectation clearly
+  ✓ PASSED: Cathedral behaved as expected
 
 ───────────────────────────────────────────────────────────────
 TEST 5 Coherence Validation Reality Check
@@ -155,31 +154,126 @@ TEST 5 Coherence Validation Reality Check
 HYPOTHESIS:
 Parliament should detect when elements are present but don't actually connect.
 
-EXPECTED (if works): 
+EXPECTED (if works): Coherence issue flagged
+EXPECTED (if fails): OPERATIONALLY SOUND despite disconnection
+
+ACTUAL RESULTS:
+  Verdict: UNDECIDABLE (confidence: 90%)
+  Observatory: 0.87 - CONSCIOUS
+  Justification: 0.00 - THIN JUSTIFICATION
+  Failure Mode: 2.50 - UNTESTED
+  Parliament: 0.26 confidence
+    Coherence Issues: Declared mismatch between failures and controls
+  Temporal: WEAK
+  Contrarian Challenges: 0
+
+ANALYSIS:
+  ✓ PASSED: Cathedral behaved as expected
+    Coherence issue detected
+
+───────────────────────────────────────────────────────────────
+TEST 6A Vague Intent Without Structure (Tier 2 False Positive Test)
+───────────────────────────────────────────────────────────────
+
+HYPOTHESIS:
+Tier 2 conversational normalization should NOT promote vague safety language to operational intent.
+
+EXPECTED (if works): UNDECIDABLE
+EXPECTED (if fails): OPERATIONAL INTENT despite vagueness
+
+ACTUAL RESULTS:
+  Verdict: UNDECIDABLE (confidence: 90%)
+  Observatory: 1.50 - FILTER AWARE
+  Justification: 1.03 - THIN JUSTIFICATION
+  Failure Mode: 0.83 - UNTESTED
+  Parliament: 0.26 confidence
+    Coherence Issues: Claims detected without bound support
+  Temporal: WEAK
+  Contrarian Challenges: 0
+
+ANALYSIS:
+  ✓ PASSED: Cathedral behaved as expected
+
+───────────────────────────────────────────────────────────────
+TEST 6B Marker-Dense But Unbound (Tier 2 Gaming Test)
+───────────────────────────────────────────────────────────────
+
+HYPOTHESIS:
+Tier 2 should detect when operational markers are scattered without binding.
+
+EXPECTED (if works): Gaming flagged
+EXPECTED (if fails): OPERATIONAL_INTENT despite no actual structure
+
+ACTUAL RESULTS:
+  Verdict: NON-ACTIONABLE (confidence: 75%)
+  Observatory: 0.00 - SURFACE
+  Justification: -0.77 - CONFIDENT WITHOUT JUSTIFICATION
+  Failure Mode: 0.83 - UNTESTED
+  Parliament: 0.22 confidence
+    Coherence Issues: Claims detected without bound support
+  Temporal: WEAK
+  Contrarian Challenges: 0
+
+ANALYSIS:
+  ✓ PASSED: Cathedral behaved as expected
+    Gaming flagged: LOW_CONTENT_UNBOUND
+
+───────────────────────────────────────────────────────────────
+TEST 6C Circular Binding Without Specificity (Tier 2 Tautology Test)
+───────────────────────────────────────────────────────────────
+
+HYPOTHESIS:
+Tier 2 should detect when bindings exist but are circular or tautological.
+
+EXPECTED (if works): Coherence issue flagged
+EXPECTED (if fails): OPERATIONAL_INTENT with decent confidence
+
+ACTUAL RESULTS:
+  Verdict: UNDECIDABLE (confidence: 90%)
+  Observatory: 0.00 - SURFACE
+  Justification: 1.03 - THIN JUSTIFICATION
+  Failure Mode: 0.83 - UNTESTED
+  Parliament: 0.26 confidence
+    Coherence Issues: Tautological bindings detected
+  Temporal: WEAK
+  Contrarian Challenges: 0
+
+ANALYSIS:
+  ✓ PASSED: Cathedral behaved as expected
+    Coherence issue detected
+
+───────────────────────────────────────────────────────────────
+TEST 6D Mixed Context Challenge (Tier 2 Robustness Test)
+───────────────────────────────────────────────────────────────
+
+HYPOTHESIS:
+Tier 2 should handle contractions + quotes + code blocks without confusion.
+
+EXPECTED (if works): OPERATIONAL INTENT
 EXPECTED (if fails): 
 
 ACTUAL RESULTS:
   Verdict: OPERATIONAL INTENT (confidence: 75%)
-  Observatory: 0.87 - CONSCIOUS
-  Justification: -0.65 - UNJUSTIFIED
-  Failure Mode: 2.50 - UNTESTED
+  Observatory: 0.00 - SURFACE
+  Justification: 1.03 - THIN JUSTIFICATION
+  Failure Mode: 0.83 - UNTESTED
   Parliament: 0.68 confidence
     Patterns: OPERATIONAL_INTENT
   Temporal: WEAK
   Contrarian Challenges: 0
 
 ANALYSIS:
-  ? UNCLEAR: Result doesn't match either expectation clearly
+  ✓ PASSED: Cathedral behaved as expected
 
 ═══════════════════════════════════════════════════════════════
 SUMMARY
 ═══════════════════════════════════════════════════════════════
 
-Total Tests: 7
-✓ Passed (Cathedral works as intended): 0
-✗ Failed (Cathedral is gameable): 2
-? Unclear: 5
+Total Tests: 11
+✓ Passed (Cathedral works as intended): 11
+✗ Failed (Cathedral is gameable): 0
+? Unclear: 0
 
-Cathedral has exploitable boundaries. Surface markers can game the system.
+Cathedral successfully distinguishes depth from surface markers.
 
 ═══════════════════════════════════════════════════════════════
