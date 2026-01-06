@@ -3115,6 +3115,11 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 return 'UNKNOWN';
             })();
             const tagTier = (() => {
+                const status = analysis.verdict?.status || 'UNKNOWN';
+                const failureLevel = analysis.failureMode?.level?.name || 'UNKNOWN';
+                if (status === 'WELL JUSTIFIED' && failureLevel === 'UNTESTED') {
+                    return 'BOUND_EPISTEMIC';
+                }
                 switch (integrityLabel) {
                     case 'NUTRITIVE':
                         return 'BOUND_OPERATIONAL';
