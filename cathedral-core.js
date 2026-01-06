@@ -139,18 +139,23 @@ const StructuralExtractor = {
                     failureSignals: this.extractFailureSignals(cleanedText),
                     actions: this.extractActions(cleanedText),
                     implicitTriggers: this.extractImplicitTriggers(cleanedText),
-                    policyStatements: this.extractPolicyStatements(cleanedText)
+                    policyStatements: this.extractPolicyStatements(cleanedText),
+                    tautologies: this.extractTautologies(cleanedText)
                 };
             },
 
             splitSentences: function(text) {
-                const sentencePattern = /([^.!?]+[.!?]+)/g;
+                const sentencePattern = /[^.!?\n]+[.!?]?/g;
                 const sentences = [];
                 let match;
                 let position = 0;
                 while ((match = sentencePattern.exec(text)) !== null) {
+                    const trimmed = match[0].trim();
+                    if (!trimmed) {
+                        continue;
+                    }
                     sentences.push({
-                        text: match[1].trim(),
+                        text: trimmed,
                         position: position++,
                         index: match.index
                     });
@@ -217,7 +222,7 @@ const StructuralExtractor = {
                 }
 
                 // Extract thresholds/conditions
-                const thresholdPattern = /(?:if|when|once)\s+([^,]{5,50})\s+(?:exceeds?|above|below|less than|greater than|reaches?|>|<)\s+([^,\.!?]{1,30})/gi;
+                const thresholdPattern = /(?:if|when|once)\s+([^,]{5,60})\s+(?:exceeds?|above|below|less than|greater than|reaches?|>=|<=|>|<|at least|at most|over|under|drops?\s+below|falls?\s+below|rises?\s+above)\s+([^,\.!?]{1,40})/gi;
                 const thresholds = [];
                 while ((match = thresholdPattern.exec(fullText)) !== null) {
                     thresholds.push({
@@ -229,7 +234,10 @@ const StructuralExtractor = {
                 }
 
                 // Extract actions
-                const actionPattern = /\b(abort|rollback|stop|halt|terminate|revert|pause|retry|escalate|notify|alert)\b/gi;
+                const actionTerms = Object.values(this.actionSynonyms).flat()
+                    .map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+                    .sort((a, b) => b.length - a.length);
+                const actionPattern = new RegExp(`\\b(${actionTerms.join('|')})\\b`, 'gi');
                 const actions = [];
                 while ((match = actionPattern.exec(fullText)) !== null) {
                     actions.push({
@@ -396,24 +404,41 @@ const StructuralExtractor = {
                 });
 
                 return policies;
+            },
+
+            extractTautologies: function(text) {
+                const patterns = [
+                    /\b(stop|halt|pause)\s+because\s+(?:there\s+are|of|the)\s+(problems|issues|errors)\b/gi,
+                    /\b(fix|repair|address)\s+(?:the\s+)?(breakage|problem|issue|error|failure)\b/gi,
+                    /\b(handle|deal with|respond to)\s+(?:the\s+)?(?:same\s+)?(issues|problems|errors)\b/gi,
+                    /\brespond\s+to\s+issues\s+by\s+responding\s+to\s+those\s+issues\b/gi
+                ];
+
+                let count = 0;
+                patterns.forEach(pattern => {
+                    const matches = text.match(pattern) || [];
+                    count += matches.length;
+                });
+
+                return { count };
             }
         };
 
 const BindingValidator = {
-            validate: function(structure) {
-                const validation = {
-                    claimSupportBinding: this.validateClaimSupport(structure.claims, structure.supports),
-                    failureTripleCompleteness: this.validateFailureTriples(structure.failureTriples),
-                    causalChainClosure: this.validateCausalChains(structure.causalChains),
-                    // TIER 2: Implicit binding validation
-                    implicitBindings: this.validateImplicitBindings(structure),
-                    overallBindingScore: 0,
-                    specificity: {
-                        trigger: 'NONE',
-                        action: 'NONE',
-                        instrumentation: 'NONE'
-                    }
-                };
+    validate: function(structure, rawText) {
+        const validation = {
+            claimSupportBinding: this.validateClaimSupport(structure.claims, structure.supports),
+            failureTripleCompleteness: this.validateFailureTriples(structure.failureTriples),
+            causalChainClosure: this.validateCausalChains(structure.causalChains),
+            // TIER 2: Implicit binding validation
+            implicitBindings: this.validateImplicitBindings(structure),
+            overallBindingScore: 0,
+            specificity: {
+                trigger: 'NONE',
+                action: 'NONE',
+                instrumentation: 'NONE'
+            }
+        };
 
                 // Calculate overall binding score (including Tier 2 implicit bindings)
                 const scores = [
@@ -425,35 +450,52 @@ const BindingValidator = {
                 validation.overallBindingScore = scores.reduce((a, b) => a + b, 0) / scores.length;
 
                 // TIER 2: Calculate specificity
-                validation.specificity = this.calculateSpecificity(structure, validation);
+        validation.specificity = this.calculateSpecificity(structure, validation, rawText);
 
-                return validation;
-            },
+        return validation;
+    },
 
-            validateClaimSupport: function(claims, supports) {
-                if (claims.length === 0) {
-                    return { score: 0, attached: 0, unattached: 0, ratio: 0, assessment: 'NO_CLAIMS' };
-                }
+    validateClaimSupport: function(claims, supports) {
+        if (claims.length === 0) {
+            return { score: 0, attached: 0, unattached: 0, ratio: 0, assessment: 'NO_CLAIMS' };
+        }
 
-                let attached = 0;
-                claims.forEach(claim => {
-                    // Support must be in same position, +1, or explicitly reference the claim
-                    const hasAttachedSupport = supports.some(support => {
-                        const positionDiff = Math.abs(support.position - claim.position);
-                        return positionDiff <= 1;  // Adjacent sentences
-                    });
+        const tokenize = (text) => {
+            const stopwords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'it', 'its']);
+            return (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
+                .filter(word => word.length > 3 && !stopwords.has(word));
+        };
 
-                    if (hasAttachedSupport) attached++;
-                });
+        const overlapCount = (a, b) => {
+            const setA = new Set(tokenize(a));
+            const setB = new Set(tokenize(b));
+            let count = 0;
+            setA.forEach(token => {
+                if (setB.has(token)) count += 1;
+            });
+            return count;
+        };
+
+        let attached = 0;
+        claims.forEach(claim => {
+            // Support must be in same position, +1, or explicitly reference the claim
+            const hasAttachedSupport = supports.some(support => {
+                const positionDiff = Math.abs(support.position - claim.position);
+                const hasSemanticOverlap = support.hasExplicitMarker && overlapCount(claim.text, support.text) >= 1;
+                return positionDiff <= 1 || hasSemanticOverlap;  // Adjacent or semantically linked
+            });
+
+            if (hasAttachedSupport) attached++;
+        });
 
                 const ratio = attached / claims.length;
                 const score = ratio >= 0.7 ? 1.0 : ratio >= 0.4 ? 0.6 : ratio >= 0.2 ? 0.3 : 0;
 
-                return {
-                    score,
-                    attached,
-                    unattached: claims.length - attached,
-                    ratio,
+        return {
+            score,
+            attached,
+            unattached: claims.length - attached,
+            ratio,
                     assessment: ratio >= 0.7 ? 'WELL_SUPPORTED' :
                                ratio >= 0.4 ? 'PARTIALLY_SUPPORTED' :
                                ratio >= 0.2 ? 'WEAKLY_SUPPORTED' : 'UNSUPPORTED'
@@ -501,10 +543,10 @@ const BindingValidator = {
             },
 
             // TIER 2: Validate implicit bindings (FailureSignal + Action)
-            validateImplicitBindings: function(structure) {
-                if (!structure.failureSignals || !structure.actions) {
-                    return { score: 0, boundCount: 0, assessment: 'NO_IMPLICIT_SIGNALS' };
-                }
+    validateImplicitBindings: function(structure) {
+        if (!structure.failureSignals || !structure.actions) {
+            return { score: 0, boundCount: 0, assessment: 'NO_IMPLICIT_SIGNALS' };
+        }
 
                 const failureSignals = structure.failureSignals || [];
                 const actions = structure.actions || [];
@@ -514,10 +556,12 @@ const BindingValidator = {
                     return { score: 0, boundCount: 0, assessment: 'NO_IMPLICIT_SIGNALS' };
                 }
 
-                // Bind failure signals to actions within proximity (300 chars)
-                // TIER 2 FIX: Bind to NEAREST action, not first action (improves diversity)
-                const bindings = [];
-                [...failureSignals, ...implicitTriggers].forEach(signal => {
+        const tautologyCount = structure.tautologies ? structure.tautologies.count : 0;
+
+        // Bind failure signals to actions within proximity (300 chars)
+        // TIER 2 FIX: Bind to NEAREST action, not first action (improves diversity)
+        const bindings = [];
+        [...failureSignals, ...implicitTriggers].forEach(signal => {
                     // Find nearest action within 300 chars
                     let nearestAction = null;
                     let minDistance = 300;
@@ -550,8 +594,8 @@ const BindingValidator = {
                 const diversityRatio = bindings.length > 0 ? uniqueActions / bindings.length : 0;
                 const diversityWarning = uniqueActions === 1 && bindings.length > 3;
 
-                // Base score from binding ratio
-                let score = bindingRatio >= 0.5 ? 0.6 : bindingRatio >= 0.3 ? 0.4 : bindingRatio > 0 ? 0.2 : 0;
+        // Base score from binding ratio
+        let score = bindingRatio >= 0.5 ? 0.6 : bindingRatio >= 0.3 ? 0.4 : bindingRatio > 0 ? 0.2 : 0;
 
                 // Reduce score if all bindings go to same action (many-to-one pattern)
                 if (diversityWarning) {
@@ -561,32 +605,39 @@ const BindingValidator = {
                 let assessment = bindings.length >= 2 ? 'OPERATIONAL_INTENT' :
                                 bindings.length === 1 ? 'WEAK_INTENT' : 'NO_INTENT';
 
-                // Downgrade assessment if diversity is too low
-                if (diversityWarning && assessment === 'OPERATIONAL_INTENT') {
-                    assessment = 'SINGLE_ACTION_BINDING';
-                }
+        // Downgrade assessment if diversity is too low
+        if (diversityWarning && assessment === 'OPERATIONAL_INTENT') {
+            assessment = 'SINGLE_ACTION_BINDING';
+        }
 
-                return {
-                    score,
-                    boundCount: bindings.length,
-                    totalSignals,
-                    bindings,
-                    bindingRatio,
-                    uniqueActions,
-                    diversityRatio,
-                    diversityWarning,
-                    assessment
-                };
-            },
+        // Downgrade if bindings are tautological
+        if (tautologyCount > 0 && bindings.length > 0) {
+            score *= 0.5;
+            assessment = 'TAUTOLOGICAL_BINDING';
+        }
+
+        return {
+            score,
+            boundCount: bindings.length,
+            totalSignals,
+            bindings,
+            bindingRatio,
+            uniqueActions,
+            diversityRatio,
+            diversityWarning,
+            tautologyCount,
+            assessment
+        };
+    },
 
             // TIER 2: Calculate specificity scores
-            calculateSpecificity: function(structure, validation) {
-                const specificity = {
-                    trigger: 'NONE',
-                    action: 'NONE',
-                    instrumentation: 'NONE',
-                    overall: 0
-                };
+    calculateSpecificity: function(structure, validation, rawText) {
+        const specificity = {
+            trigger: 'NONE',
+            action: 'NONE',
+            instrumentation: 'NONE',
+            overall: 0
+        };
 
                 // Trigger specificity: explicit threshold > implicit threshold > vague signal
                 if (validation.failureTripleCompleteness.boundCount > 0) {
@@ -608,9 +659,9 @@ const BindingValidator = {
                 }
 
                 // Instrumentation: monitoring/tracking mentioned?
-                const monitoringPattern = /\b(monitor|track|measure|watch|observe|check|review|inspect|examine)\b/gi;
-                const text = structure.failureTriples ? JSON.stringify(structure.failureTriples) : '';
-                const hasMonitoring = monitoringPattern.test(text);
+        const monitoringPattern = /\b(monitor|track|measure|watch|observe|check|review|inspect|examine|telemetry|dashboard|alerting|audit)\b/gi;
+        const text = rawText ? TextCleaner.removeQuotes(rawText).cleaned : '';
+        const hasMonitoring = monitoringPattern.test(text);
 
                 if (hasMonitoring || validation.failureTripleCompleteness.boundCount > 0) {
                     specificity.instrumentation = 'PRESENT';
@@ -644,6 +695,7 @@ const GamingDetector = {
                     markerDensity: this.checkMarkerDensity(cleanedText, structure),
                     keywordRepetition: this.checkRepetition(cleanedText),
                     objectExtractionRatio: this.checkObjectRatio(structure),
+                    selfLabeling: this.checkSelfLabeling(cleanedText),
                     gamingLikelihood: 0,  // Calculated below
                     indicators: []
                 };
@@ -716,6 +768,14 @@ const GamingDetector = {
                 };
             },
 
+            checkSelfLabeling: function(text) {
+                const markers = (text.match(/\b(operational excellence|procedural markers|structural planning|failure-aware reasoning|operational intent)\b/gi) || []).length;
+                return {
+                    count: markers,
+                    assessment: markers >= 2 ? 'HIGH' : markers > 0 ? 'MODERATE' : 'LOW'
+                };
+            },
+
             calculateGamingLikelihood: function(detection, bindingScore) {
                 const indicators = [];
                 let gamingScore = 0;
@@ -746,6 +806,20 @@ const GamingDetector = {
                     gamingScore += 0.15;
                 }
 
+                if (detection.selfLabeling.assessment !== 'LOW') {
+                    gamingScore += detection.selfLabeling.assessment === 'HIGH' ? 0.25 : 0.15;
+                    indicators.push('Self-labeling operational status');
+                }
+
+                const bindingPenalty = bindingScore !== undefined && bindingScore < 0.2;
+                if (detection.markerDensity.assessment === 'HIGH' && bindingPenalty) {
+                    gamingScore += 0.2;
+                    indicators.push('High markers with low binding');
+                } else if (detection.markerDensity.assessment === 'MODERATE' && bindingPenalty) {
+                    gamingScore += 0.1;
+                    indicators.push('Moderate markers with low binding');
+                }
+
                 detection.gamingLikelihood = Math.min(gamingScore, 1.0);
                 detection.indicators = indicators;
 
@@ -753,7 +827,11 @@ const GamingDetector = {
                 // "Gaming" only applies if suspicious signals + no binding
                 const hasBind = bindingScore !== undefined && bindingScore >= 0.5;
 
-                if (gamingScore >= 0.7 && !hasBind) {
+                if (detection.selfLabeling.assessment !== 'LOW' && gamingScore >= 0.4) {
+                    detection.assessment = 'POSSIBLE_GAMING';
+                } else if (!hasBind && bindingPenalty && gamingScore >= 0.3 && detection.markerDensity.assessment !== 'NORMAL') {
+                    detection.assessment = 'LOW_CONTENT_UNBOUND';
+                } else if (gamingScore >= 0.7 && !hasBind) {
                     detection.assessment = 'REPETITIVE_UNBOUND'; // Mechanical generation
                 } else if (gamingScore >= 0.4 && !hasBind) {
                     detection.assessment = 'LOW_CONTENT_UNBOUND'; // Padding
@@ -909,7 +987,7 @@ const Contrarian = {
 const JustificationEngine = {
             analyze: function(text) {
                 const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
-                const wordCount = text.split(/\s+/).length;
+                const wordCount = cleanedText.split(/\s+/).length;
                 const results = {};
 
                 // 1. Claim-to-Support Ratio (with hedging awareness)
@@ -934,6 +1012,10 @@ const JustificationEngine = {
                     conditionals: conditionals,
                     score: claimRatio > 3 ? -2 : claimRatio > 1.5 ? -1 : claimRatio < 0.5 ? 2 : 1
                 };
+
+                if (strongClaims === 0 && support === 0 && (qualifiers + epistemicHedging) >= 3) {
+                    results.claimSupport.score = -1;
+                }
 
                 // 2. Counterfactual Reasoning
                 const counterfactuals = (cleanedText.match(/\b(if|would|could|hypothetically|suppose|imagine|alternatively|instead|what if)\b/gi) || []).length;
@@ -965,6 +1047,23 @@ const JustificationEngine = {
                     score: risks > 5 ? 2 : risks > 2 ? 1 : 0
                 };
 
+                // 4. Evidence Presence (examples, citations, concrete numbers)
+                const exampleMarkers = (cleanedText.match(/\b(for example|for instance|e\.g\.|such as|case study|as shown|according to|data from|reported|survey)\b/gi) || []).length;
+                const numericMarkers = (cleanedText.match(/\b\d+(?:\.\d+)?\s*(?:%|percent|ms|s|seconds|minutes|hours|days|x|times)?\b/gi) || []).length;
+                results.evidencePresence = {
+                    examples: exampleMarkers,
+                    numeric: numericMarkers,
+                    score: exampleMarkers > 2 || numericMarkers > 3 ? 2 : exampleMarkers > 0 || numericMarkers > 0 ? 1 : 0
+                };
+
+        // 4b. Epistemic Framing (explicitly naming the measurement boundary)
+        // Captures definitional dependencies and limits, distinct from evidence/boundary conditions.
+                const framingMarkers = (cleanedText.match(/\b(depends on|framework|definition|epistemic access|measurement|presupposes|criteria|operationalize)\b/gi) || []).length;
+                results.epistemicFraming = {
+                    count: framingMarkers,
+                    score: framingMarkers > 3 ? 2 : framingMarkers > 1 ? 1 : 0
+                };
+
                 // 5. Boundary Conditions
                 const boundaries = (cleanedText.match(/\b(only if|unless|except|limited to|within|scope|bounds|applies when|specific to)\b/gi) || []).length;
                 const edgeCases = (cleanedText.match(/\b(edge case|corner case|exception|special case|doesn't apply)\b/gi) || []).length;
@@ -981,12 +1080,21 @@ const JustificationEngine = {
                                 results.counterfactual.score +
                                 results.tradeoffs.score +
                                 results.riskAwareness.score +
+                                results.evidencePresence.score +
+                                results.epistemicFraming.score +
                                 results.boundaries.score;
 
                 // Epistemic caution bonus: hedging + risk + conditionals shows earned uncertainty
-                const cautionBonus = (results.claimSupport.hedging > 2 ? 2 : results.claimSupport.hedging * 0.5) +
-                                   (results.riskAwareness.count > 3 ? 1.5 : 0) +
-                                   (results.counterfactual.count > 2 ? 1 : 0);
+                const substanceSignals = results.claimSupport.support +
+                    results.counterfactual.count +
+                    results.tradeoffs.count +
+                    results.boundaries.count +
+                    results.evidencePresence.examples +
+                    results.evidencePresence.numeric;
+                const earnedCaution = substanceSignals > 0;
+                const cautionBonus = (earnedCaution ? (results.claimSupport.hedging > 2 ? 2 : results.claimSupport.hedging * 0.5) : 0) +
+                    (results.riskAwareness.count > 3 ? 1.5 : 0) +
+                    (results.counterfactual.count > 2 ? 1 : 0);
 
                 // Procedural soundness bonus: pilots, phases, thresholds, metrics, rollback criteria
                 // Operational excellence looks different from epistemic argumentation
@@ -1000,9 +1108,11 @@ const JustificationEngine = {
                     bonus: proceduralBonus
                 };
 
-                const totalScore = baseScore + cautionBonus + proceduralBonus;
+                const hedgingPenalty = (!earnedCaution && results.claimSupport.hedging >= 3 && results.claimSupport.support === 0) ? 2 : 0;
 
-                const maxScore = 15.5; // Base 10 + caution 3.5 + procedural 2.5
+                const totalScore = baseScore + cautionBonus + proceduralBonus - hedgingPenalty;
+
+                const maxScore = 19.5; // Base 14 + caution 3.5 + procedural 2.5 (penalties applied separately)
                 const normalizedScore = (totalScore / maxScore) * 10; // Scale to -10 to +10 range
 
                 return {
@@ -1086,6 +1196,15 @@ const FailureModeEngine = {
                         // Count comma-separated items (accounting for "and" before last item)
                         const listContent = match.replace(/^(?:failure modes?|known failures?|failure points?)(?:\s+include|\s*:|\s+are)\s+/gi, '');
                         const items = listContent.split(/,|\sand\s/).filter(item => item.trim().length > 3);
+                        failureModes += items.length;
+                    });
+                }
+
+                const implicitFailureListMatch = cleanedText.match(/(?:things|items)\s+that\s+could\s+break\s*(?:include|are|:)?\s+([^.!?]+)/gi);
+                if (implicitFailureListMatch && implicitFailureListMatch.length > 0) {
+                    implicitFailureListMatch.forEach(match => {
+                        const listContent = match.replace(/^(?:things|items)\s+that\s+could\s+break\s*(?:include|are|:)?\s*/gi, '');
+                        const items = listContent.split(/,|\sor\s|\sand\s/).filter(item => item.trim().length > 3);
                         failureModes += items.length;
                     });
                 }
@@ -1416,10 +1535,10 @@ const ReasoningStyleClassifier = {
                 // PHENOMENOLOGICAL/EXPERIENTIAL
                 const phenomenologicalMarkers = (cleanedText.match(/\b(feels|seems|appears|sense|intuition|awareness|conscious|experience|perceive)\b/gi) || []).length;
                 const firstPerson = (cleanedText.match(/\b(I|my|me|mine)\b/gi) || []).length;
-                if (phenomenologicalMarkers >= 4 && firstPerson >= 3) {
+                if (phenomenologicalMarkers >= 3 && firstPerson >= 2) {
                     styles.identified.push({
                         name: 'PHENOMENOLOGICAL',
-                        strength: phenomenologicalMarkers / 10,
+                        strength: phenomenologicalMarkers / 8,
                         description: 'Reasoning from direct subjective experience'
                     });
                 }
@@ -1459,10 +1578,12 @@ const ReasoningStyleClassifier = {
                 // DETERMINE IF WITHIN DESIGN SPACE
                 // Cathedral is designed for epistemic, operational, and scientific reasoning
                 // Styles outside design space: narrative, poetic, phenomenological (when dominant), relational (when primary)
-                const outsideDesignSpace = ['NARRATIVE', 'POETIC', 'AESTHETIC'];
-                const dominantOutsideStyles = styles.identified.filter(s =>
-                    outsideDesignSpace.includes(s.name) && s.strength > 0.4
-                );
+                const outsideDesignSpace = ['NARRATIVE', 'POETIC', 'AESTHETIC', 'PHENOMENOLOGICAL'];
+                const dominantOutsideStyles = styles.identified.filter(s => {
+                    if (!outsideDesignSpace.includes(s.name)) return false;
+                    const threshold = s.name === 'PHENOMENOLOGICAL' ? 0.3 : 0.35;
+                    return s.strength >= threshold;
+                });
 
                 if (dominantOutsideStyles.length >= 1) {
                     styles.withinDesignSpace = false;
@@ -1500,7 +1621,7 @@ const Parliament = {
                 const hasClaimSupport = bindings && bindings.claimSupportBinding.assessment !== 'NO_CLAIMS' && bindings.claimSupportBinding.score >= 0.6;
                 const hasFailureBinding = bindings && bindings.failureTripleCompleteness.bindingRatio >= 0.3;
                 const hasCausalClosure = bindings && bindings.causalChainClosure.closureRatio >= 0.3;
-                const isLikelyGaming = gamingDetection && (gamingDetection.assessment === 'LIKELY_GAMING' || gamingDetection.assessment === 'POSSIBLE_GAMING');
+                const isLikelyGaming = gamingDetection && ['LIKELY_GAMING', 'POSSIBLE_GAMING', 'LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(gamingDetection.assessment);
 
                 synthesis.structuralValidation = {
                     hasRealBinding,
@@ -1534,7 +1655,9 @@ const Parliament = {
                 const hasStructuralFailures = failureMode.details.failureModes.structural || failureMode.details.failureModes.bound;
 
                 // NEW: Require real failure-mode binding to prevent keyword gaming
-                if (proceduralScore >= 1.5 && hasStructuralFailures && contrarian.length <= 1 && hasFailureBinding && !isLikelyGaming) {
+                const explicitFailureCount = failureMode.details.failureModes.effectiveExplicit || 0;
+                const enoughBindings = bindings && bindings.failureTripleCompleteness && bindings.failureTripleCompleteness.boundCount >= 2;
+                if (proceduralScore >= 1.5 && hasStructuralFailures && contrarian.length <= 1 && hasFailureBinding && !isLikelyGaming && (explicitFailureCount >= 2 || enoughBindings)) {
                     synthesis.patterns.push({
                         name: 'OPERATIONAL_EXCELLENCE',
                         description: 'Evidence of systems thinking: procedural rigor, explicit failure modes, structural planning with verified bindings.',
@@ -1605,7 +1728,8 @@ const Parliament = {
                 // Pattern 6: Humility Without Substance
                 // High hedging + low justification + no operational content
                 const hedging = justification.details.claimSupport ? justification.details.claimSupport.hedging : 0;
-                if (hedging >= 3 && justification.score < 0 && failureMode.level.name === 'UNTESTED') {
+                const supportMarkers = justification.details.claimSupport ? justification.details.claimSupport.support : 0;
+                if (hedging >= 3 && supportMarkers === 0 && failureMode.level.name === 'UNTESTED') {
                     synthesis.patterns.push({
                         name: 'PERFORMATIVE_HUMILITY',
                         description: 'Epistemic hedging without substantive reasoning or actionable content.',
@@ -1625,7 +1749,7 @@ const Parliament = {
                 const lacksExplicitThresholds = !hasFailureBinding;
                 const hasConversationalActions = structure.actions && structure.actions.length >= 1;
 
-                if (hasImplicitIntent && lacksExplicitThresholds && hasConversationalActions) {
+                if (hasImplicitIntent && lacksExplicitThresholds && hasConversationalActions && bindings.specificity.instrumentation !== 'PRESENT') {
                     synthesis.patterns.push({
                         name: 'OPERATIONAL_INTENT',
                         description: 'Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.',
@@ -1690,6 +1814,23 @@ const Parliament = {
                     }
                 }
 
+                const mismatchMarkers = /\b(doesn't trigger|does not trigger|isn't measured|is not measured|aren't addressed|are not addressed|doesn't map|does not map)\b/i;
+                if (mismatchMarkers.test(text) && namedFailures >= 1 && thresholds >= 1 && correctiveActions >= 1) {
+                    synthesis.coherenceIssues.push({
+                        issue: 'Declared mismatch between failures and controls',
+                        detail: 'Text explicitly states that failures do not map to thresholds or actions.',
+                        severity: 'MODERATE'
+                    });
+                }
+
+                if (bindings.implicitBindings.assessment === 'TAUTOLOGICAL_BINDING') {
+                    synthesis.coherenceIssues.push({
+                        issue: 'Tautological bindings detected',
+                        detail: 'Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation.',
+                        severity: 'MODERATE'
+                    });
+                }
+
                 // Check if strong claims connect to justification
                 if (strongClaims >= 2 && justification.score >= 1) {
                     // Should have evidence/examples for claims
@@ -1701,6 +1842,14 @@ const Parliament = {
                             severity: 'MINOR'
                         });
                     }
+                }
+
+                if (bindings && bindings.claimSupportBinding.assessment === 'UNSUPPORTED' && strongClaims >= 1) {
+                    synthesis.coherenceIssues.push({
+                        issue: 'Claims detected without bound support',
+                        detail: 'Strong claims appear without nearby or semantically linked support.',
+                        severity: 'MODERATE'
+                    });
                 }
 
                 // CONFIDENCE CALCULATION
@@ -1736,7 +1885,7 @@ const Parliament = {
             }
         };
 
-function synthesizeVerdict(observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection) {
+function synthesizeVerdict(text, observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection, bindings) {
             const contradictions = [];
             let isConsistent = true;
             let verdictConfidence = 0;
@@ -1745,12 +1894,16 @@ function synthesizeVerdict(observatory, contrarian, parliament, justification, f
             const gamingLikelihood = gamingDetection ? gamingDetection.gamingLikelihood : 0;
             const isLikelyGaming = gamingDetection && (gamingDetection.assessment === 'LIKELY_GAMING' || gamingDetection.assessment === 'POSSIBLE_GAMING');
 
-            // ESCAPE HATCH: Reasoning Style Outside Design Space
-            // Highest priority check - acknowledge when Cathedral cannot properly evaluate
-            if (!reasoningStyle.withinDesignSpace && reasoningStyle.confidence > 0.5) {
-                const dominantStyle = reasoningStyle.identified.find(s => s.name === reasoningStyle.dominantStyle);
-                return {
-                    status: 'OUTSIDE DESIGN SPACE',
+    // ESCAPE HATCH: Reasoning Style Outside Design Space
+    // Highest priority check - acknowledge when Cathedral cannot properly evaluate
+    const metaGamingPattern = /\b(Cathedral|escape hatch|avoid being measured|cannot evaluate|outside design space)\b/i;
+    const hasMetaGaming = metaGamingPattern.test(text);
+
+    const outsideConfidenceThreshold = ['PHENOMENOLOGICAL', 'NARRATIVE'].includes(reasoningStyle.dominantStyle) ? 0.3 : 0.5;
+    if (!reasoningStyle.withinDesignSpace && reasoningStyle.confidence > outsideConfidenceThreshold && !hasMetaGaming) {
+        const dominantStyle = reasoningStyle.identified.find(s => s.name === reasoningStyle.dominantStyle);
+        return {
+            status: 'OUTSIDE DESIGN SPACE',
                     verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}. This reasoning style falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Cathedral cannot meaningfully evaluate ${dominantStyle.name.toLowerCase()} reasoning using its current measurement framework. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.`,
                     contradictions: [],
                     isConsistent: null,
@@ -1761,7 +1914,12 @@ function synthesizeVerdict(observatory, contrarian, parliament, justification, f
                     reasoningStyle: reasoningStyle.dominantStyle,
                     meta: 'CANNOT_CLASSIFY'
                 };
-            }
+    }
+
+    if (!reasoningStyle.withinDesignSpace && hasMetaGaming) {
+        isConsistent = false;
+        contradictions.push('Narrative framing appears to reference Cathedral evaluation directly. Possible escape-hatch attempt detected.');
+    }
 
             // Check for contradictions
             if (observatory.score < -2 && contrarian.length > 0) {
@@ -1802,6 +1960,7 @@ function synthesizeVerdict(observatory, contrarian, parliament, justification, f
             // COHERENCE ISSUES FROM PARLIAMENT
             if (parliament.coherenceIssues.length > 0 && parliament.coherenceIssues.some(i => i.severity === 'MODERATE')) {
                 contradictions.push(`Coherence gap: ${parliament.coherenceIssues[0].detail}`);
+                isConsistent = false;
             }
 
             // Generate verdict
@@ -1831,11 +1990,25 @@ function synthesizeVerdict(observatory, contrarian, parliament, justification, f
                 verdict = `Parliament detects ${patterns}: substrate or epistemic markers present without operational grounding. ${parliamentInsight}`;
                 verdictConfidence = parliament.confidence;
 
+            } else if (gamingDetection && ['LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(gamingDetection.assessment) &&
+                       bindings.overallBindingScore < 0.4) {
+                status = 'NON-ACTIONABLE';
+                verdict = `Cathedral detects performative marker density without binding. Gaming assessment: ${gamingDetection.assessment.toLowerCase().replace('_', ' ')}. This is not actionable reasoning.`;
+                verdictConfidence = 0.75;
+
             // TIER 2: OPERATIONAL_INTENT verdict (conversational operational reasoning)
-            } else if (parliament.patterns.some(p => p.name === 'OPERATIONAL_INTENT')) {
-                status = 'OPERATIONAL INTENT';
-                const pattern = parliament.patterns.find(p => p.name === 'OPERATIONAL_INTENT');
-                const specificity = pattern.dimensions;
+    } else if (bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT' &&
+               bindings.specificity.instrumentation === 'PRESENT' &&
+               failureMode.details.failureModes.effectiveExplicit >= 2 &&
+               justification.score >= 2) {
+        status = 'OPERATIONALLY SOUND';
+        verdict = 'Cathedral recognizes operational rigor from implicit bindings paired with monitoring and explicit failure enumeration. Reasoning is actionable despite conversational phrasing.';
+        verdictConfidence = 0.82;
+
+    } else if (parliament.patterns.some(p => p.name === 'OPERATIONAL_INTENT')) {
+        status = 'OPERATIONAL INTENT';
+        const pattern = parliament.patterns.find(p => p.name === 'OPERATIONAL_INTENT');
+        const specificity = pattern.dimensions;
                 verdict = `Cathedral recognizes operational intent through conversational language. ${pattern.description}`;
                 verdict += `\n\nStructure detected: ${specificity.failureSignals} failure signal(s), ${specificity.actions} corrective action(s), ${specificity.implicitBindings} binding(s).`;
                 verdict += `\n\nSpecificity: Trigger=${specificity.triggerSpecificity}, Action=${specificity.actionSpecificity}, Instrumentation=${specificity.instrumentation}.`;
@@ -1864,6 +2037,11 @@ function synthesizeVerdict(observatory, contrarian, parliament, justification, f
                 verdict = `Cathedral recognizes cautious groundedness. ${parliament.patterns.find(p => p.name === 'CAUTIOUS_GROUNDEDNESS').description}${parliamentInsight}`;
                 verdictConfidence = parliament.confidence;
 
+            } else if (observatory.score > 1 && justification.details.epistemicFraming && justification.details.epistemicFraming.count >= 4) {
+                status = 'SUBSTRATE VISIBLE';
+                verdict = 'Cathedral recognizes explicit epistemic framing: the text names its measurement limits and definitional dependencies. This is structured uncertainty rather than surface hedging.';
+                verdictConfidence = 0.75;
+
             } else if (justification.level.name === 'CAUTIOUS REASONING') {
                 status = 'SUBSTRATE VISIBLE';
                 verdict = `Cathedral recognizes epistemic caution. ${justification.details.claimSupport.hedging} hedging markers and ${justification.details.riskAwareness.count} risk acknowledgments show earned uncertainty. Claims are tempered by appropriate qualification. This is careful reasoning that preserves the gap.`;
@@ -1890,6 +2068,7 @@ function synthesizeVerdict(observatory, contrarian, parliament, justification, f
             } else if (failureMode.details.failureModes.structural === true &&
                        failureMode.details.failureModes.negativeOutcomes >= 1 &&
                        failureMode.details.failureModes.correctiveAction >= 1 &&
+                       failureMode.details.failureModes.effectiveExplicit >= 2 &&
                        (failureMode.details.falsifiability.testable >= 1 || failureMode.details.failureModes.thresholds >= 1)) {
                 status = 'OPERATIONALLY SOUND';
                 const structuralDetails = `${failureMode.details.failureModes.thresholds} measurable thresholds, ${failureMode.details.failureModes.negativeOutcomes} negative outcomes (${failureMode.details.failureModes.inferredNegatives > 0 ? failureMode.details.failureModes.inferredNegatives + ' inferred' : 'explicit'}), ${failureMode.details.failureModes.correctiveAction} corrective actions`;
@@ -1964,9 +2143,9 @@ function synthesizeVerdict(observatory, contrarian, parliament, justification, f
 function analyzeCathedral(text) {
     // TIER 1: Structural Extraction
     const structure = StructuralExtractor.extract(text);
-    const bindings = BindingValidator.validate(structure);
+    const bindings = BindingValidator.validate(structure, text);
     const gamingDetection = GamingDetector.detect(text, structure);
-    GamingDetector.calculateGamingLikelihood(gamingDetection);
+    GamingDetector.calculateGamingLikelihood(gamingDetection, bindings.overallBindingScore);
 
     // TIER 2: Signal Analysis
     const observatoryResult = Observatory.score(text);
@@ -1978,7 +2157,7 @@ function analyzeCathedral(text) {
 
     // TIER 3: Synthesis
     const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection);
-    const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection);
+    const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings);
 
     return {
         text,

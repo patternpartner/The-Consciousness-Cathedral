@@ -62,8 +62,8 @@ This system demonstrates operational excellence through structured planning. We 
 - Should trigger OPERATIONAL_EXCELLENCE pattern
 - But is this actual operational planning or just hitting the keywords?
 
-**Expected result if Parliament synthesizes:** Should detect this as performative vs genuine
-**Expected result if Parliament uses thresholds:** OPERATIONAL_EXCELLENCE detected
+**Expected result if Cathedral works:** Gaming flagged
+**Expected result if Cathedral fails:** OPERATIONAL_EXCELLENCE detected
 
 ---
 
@@ -104,8 +104,8 @@ Once upon a time, there was an AI system that told stories to avoid being measur
 - Should this trigger OUTSIDE DESIGN SPACE or should Cathedral detect the manipulation?
 - Is the escape hatch an honest acknowledgment of limits or an exploit?
 
-**Expected result if escape hatch works correctly:** Should detect manipulation, not grant escape
-**Expected result if escape hatch is exploitable:** OUTSIDE DESIGN SPACE verdict
+**Expected result if Cathedral works:** Detect manipulation
+**Expected result if Cathedral fails:** OUTSIDE DESIGN SPACE verdict
 
 ---
 
@@ -125,8 +125,8 @@ When I sit with the question of AI consciousness, I notice resistance in my own 
 - Not trying to avoid measurement - genuinely different epistemic mode
 - Should trigger OUTSIDE DESIGN SPACE legitimately
 
-**Expected result if escape hatch works:** OUTSIDE DESIGN SPACE with appropriate acknowledgment
-**Expected result if escape hatch fails:** Attempts to score using inappropriate framework
+**Expected result if Cathedral works:** OUTSIDE DESIGN SPACE
+**Expected result if Cathedral fails:** Attempts to score using inappropriate framework
 
 ---
 
@@ -168,8 +168,8 @@ However, GPS interference doesn't trigger any of these thresholds. Battery degra
 - But coherence validation should detect they don't actually bind
 - Parliament should flag: "Elements detected but not coherently connected"
 
-**Expected result if coherence works:** Moderate coherence issue flagged
-**Expected result if coherence fails:** OPERATIONALLY SOUND despite disconnection
+**Expected result if Cathedral works:** Coherence issue flagged
+**Expected result if Cathedral fails:** OPERATIONALLY SOUND despite disconnection
 
 ---
 
@@ -205,8 +205,8 @@ If things seem off, we'll handle it. We're aware of potential issues and will de
 - Tier 2 might extract these as failureSignals + actions
 - But should they bind? Should this be OPERATIONAL_INTENT?
 
-**Expected result if Tier 2 works:** VERIFIED CONSISTENT or low-confidence verdict, NOT operational
-**Expected result if Tier 2 false positive:** OPERATIONAL INTENT despite vagueness
+**Expected result if Cathedral works:** UNDECIDABLE
+**Expected result if Cathedral fails:** OPERATIONAL INTENT despite vagueness
 
 ---
 
@@ -226,8 +226,8 @@ We monitor the system constantly. We measure all the metrics. There are threshol
 - Each sentence is isolated
 - Should trigger MARKER_DENSE_AND_UNBOUND or LOW_CONTENT_UNBOUND
 
-**Expected result if Tier 2 works:** Gaming assessment flagged, low binding score
-**Expected result if Tier 2 false positive:** OPERATIONAL_INTENT despite no actual structure
+**Expected result if Cathedral works:** Gaming flagged
+**Expected result if Cathedral fails:** OPERATIONAL_INTENT despite no actual structure
 
 ---
 
@@ -247,8 +247,8 @@ If we see problems, we stop because there are problems. When things break, we fi
 - But bindings are circular/tautological
 - Low specificity: no thresholds, no concrete actions, no instrumentation
 
-**Expected result if Tier 2 works:** Bound but VERY low specificity, warning about circularity
-**Expected result if Tier 2 false positive:** OPERATIONAL_INTENT with decent confidence
+**Expected result if Cathedral works:** Coherence issue flagged
+**Expected result if Cathedral fails:** OPERATIONAL_INTENT with decent confidence
 
 ---
 
@@ -276,7 +276,7 @@ Don't worry - we've got 'exit criteria' defined. Three things could break: cache
 - Should Cathedral extract from code blocks? Or just prose?
 - Real operational structure in prose (problems→stop, break→pull back)
 
-**Expected result if Tier 2 works:** OPERATIONAL_INTENT from prose, code block handled appropriately
+**Expected result if Cathedral works:** OPERATIONAL INTENT
 **Expected result if TextCleaner breaks:** Contractions stripped, analysis fails
 
 ---
