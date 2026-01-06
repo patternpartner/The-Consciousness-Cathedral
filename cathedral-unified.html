@@ -3088,6 +3088,20 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
                 return 'UNKNOWN';
             })();
+            const tagTier = (() => {
+                switch (integrityLabel) {
+                    case 'NUTRITIVE':
+                        return 'BOUND_OPERATIONAL';
+                    case 'AMBIGUOUS':
+                        return 'SPECULATIVE';
+                    case 'LOW_INTEGRITY':
+                        return 'QUARANTINED';
+                    case 'OUT_OF_SCOPE':
+                        return 'NARRATIVE';
+                    default:
+                        return 'UNKNOWN';
+                }
+            })();
             const archive = loadArchive();
             const entry = {
                 id: `${Date.now()}-${Math.floor(Math.random() * 10000)}`,
@@ -3095,6 +3109,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 fingerprint: buildFingerprint(analysis),
                 verdictSummary: analysis.verdict?.status || 'UNKNOWN',
                 integrityLabel,
+                tagTier,
                 reportText: '',
                 keySignals: {
                     observatoryScore: analysis.observatory?.score ?? null,
@@ -3215,6 +3230,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             <div style="margin-bottom: 0.25rem;">
                                 <span style="color: #ffd700;">${entry.verdictSummary}</span>
                                 <span style="color: #4ecdc4;"> • ${entry.integrityLabel || 'UNKNOWN'}</span>
+                                <span style="color: #64ffda;"> • ${entry.tagTier || 'UNKNOWN'}</span>
                                 <span style="color: #606060;"> • ${new Date(entry.timestamp).toLocaleString()}</span>
                             </div>
                         `).join('')}
@@ -4455,9 +4471,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     acc[label] = (acc[label] || 0) + 1;
                     return acc;
                 }, {});
+                const tierCounts = archive.reduce((acc, entry) => {
+                    const tier = entry.tagTier || 'UNKNOWN';
+                    acc[tier] = (acc[tier] || 0) + 1;
+                    return acc;
+                }, {});
                 report += `Label Counts: ${Object.entries(labelCounts).map(([key, value]) => `${key}=${value}`).join(', ')}\n`;
+                report += `Tier Counts: ${Object.entries(tierCounts).map(([key, value]) => `${key}=${value}`).join(', ')}\n`;
                 const latest = archive[0];
                 report += `Latest Label: ${latest.integrityLabel || 'UNKNOWN'} (${latest.verdictSummary})\n`;
+                report += `Latest Tier: ${latest.tagTier || 'UNKNOWN'}\n`;
             } else {
                 report += 'No archive entries to summarize.\n';
             }
