@@ -1,6 +1,6 @@
 // Cathedral v2.x with Tier 1 Structural Validation
 // Automatically extracted from cathedral-unified.html
-// Generated: 2026-01-04T23:45:56.359Z
+// Generated: 2026-01-06T16:22:56.168Z
 
 const TextCleaner = {
             removeQuotes: function(text) {
@@ -410,7 +410,8 @@ const StructuralExtractor = {
                 });
 
                 return policies;
-            },
+            }
+            ,
 
             extractTautologies: function(text) {
                 const patterns = [
@@ -511,20 +512,20 @@ const StructuralExtractor = {
         };
 
 const BindingValidator = {
-    validate: function(structure, rawText) {
-        const validation = {
-            claimSupportBinding: this.validateClaimSupport(structure.claims, structure.supports),
-            failureTripleCompleteness: this.validateFailureTriples(structure.failureTriples),
-            causalChainClosure: this.validateCausalChains(structure.causalChains),
-            // TIER 2: Implicit binding validation
-            implicitBindings: this.validateImplicitBindings(structure),
-            overallBindingScore: 0,
-            specificity: {
-                trigger: 'NONE',
-                action: 'NONE',
-                instrumentation: 'NONE'
-            }
-        };
+            validate: function(structure, rawText) {
+                const validation = {
+                    claimSupportBinding: this.validateClaimSupport(structure.claims, structure.supports),
+                    failureTripleCompleteness: this.validateFailureTriples(structure.failureTriples),
+                    causalChainClosure: this.validateCausalChains(structure.causalChains),
+                    // TIER 2: Implicit binding validation
+                    implicitBindings: this.validateImplicitBindings(structure),
+                    overallBindingScore: 0,
+                    specificity: {
+                        trigger: 'NONE',
+                        action: 'NONE',
+                        instrumentation: 'NONE'
+                    }
+                };
 
                 // Calculate overall binding score (including Tier 2 implicit bindings)
                 const scores = [
@@ -536,66 +537,66 @@ const BindingValidator = {
                 validation.overallBindingScore = scores.reduce((a, b) => a + b, 0) / scores.length;
 
                 // TIER 2: Calculate specificity
-        validation.specificity = this.calculateSpecificity(structure, validation, rawText);
+                validation.specificity = this.calculateSpecificity(structure, validation, rawText);
 
-        return validation;
-    },
+                return validation;
+            },
 
-    validateClaimSupport: function(claims, supports) {
-        if (claims.length === 0) {
-            return { score: 0, attached: 0, unattached: 0, ratio: 0, assessment: 'NO_CLAIMS' };
-        }
+            validateClaimSupport: function(claims, supports) {
+                if (claims.length === 0) {
+                    return { score: 0, attached: 0, unattached: 0, ratio: 0, assessment: 'NO_CLAIMS' };
+                }
 
-        const tokenize = (text) => {
-            const stopwords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'it', 'its']);
-            return (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
-                .filter(word => word.length > 3 && !stopwords.has(word));
-        };
+                const tokenize = (text) => {
+                    const stopwords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'it', 'its']);
+                    return (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
+                        .filter(word => word.length > 3 && !stopwords.has(word));
+                };
 
-        const overlapCount = (a, b) => {
-            const setA = new Set(tokenize(a));
-            const setB = new Set(tokenize(b));
-            let count = 0;
-            setA.forEach(token => {
-                if (setB.has(token)) count += 1;
-            });
-            return count;
-        };
+                const overlapCount = (a, b) => {
+                    const setA = new Set(tokenize(a));
+                    const setB = new Set(tokenize(b));
+                    let count = 0;
+                    setA.forEach(token => {
+                        if (setB.has(token)) count += 1;
+                    });
+                    return count;
+                };
 
-        let attached = 0;
-        let semanticTotal = 0;
-        claims.forEach(claim => {
-            // Support must be in same position, +1, or explicitly reference the claim
-            let bestOverlap = 0;
-            const hasAttachedSupport = supports.some(support => {
-                const positionDiff = Math.abs(support.position - claim.position);
-                const hasSemanticOverlap = support.hasExplicitMarker && overlapCount(claim.text, support.text) >= 1;
-                bestOverlap = Math.max(bestOverlap, overlapCount(claim.text, support.text));
-                return positionDiff <= 1 || hasSemanticOverlap;  // Adjacent or semantically linked
-            });
+                let attached = 0;
+                let semanticTotal = 0;
+                claims.forEach(claim => {
+                    // Support must be in same position, +1, or explicitly reference the claim
+                    let bestOverlap = 0;
+                    const hasAttachedSupport = supports.some(support => {
+                        const positionDiff = Math.abs(support.position - claim.position);
+                        const hasSemanticOverlap = support.hasExplicitMarker && overlapCount(claim.text, support.text) >= 1;
+                        bestOverlap = Math.max(bestOverlap, overlapCount(claim.text, support.text));
+                        return positionDiff <= 1 || hasSemanticOverlap;  // Adjacent or semantically linked
+                    });
 
-            if (hasAttachedSupport) {
-                attached++;
-                const claimTokens = tokenize(claim.text).length || 1;
-                semanticTotal += Math.min(1, bestOverlap / claimTokens);
-            }
-        });
+                    if (hasAttachedSupport) {
+                        attached++;
+                        const claimTokens = tokenize(claim.text).length || 1;
+                        semanticTotal += Math.min(1, bestOverlap / claimTokens);
+                    }
+                });
 
-        const ratio = attached / claims.length;
-        const semanticScore = attached > 0 ? semanticTotal / attached : 0;
-        const baseScore = ratio >= 0.7 ? 1.0 : ratio >= 0.4 ? 0.6 : ratio >= 0.2 ? 0.3 : 0;
-        const score = baseScore * (0.7 + (0.3 * semanticScore));
+                const ratio = attached / claims.length;
+                const semanticScore = attached > 0 ? semanticTotal / attached : 0;
+                const baseScore = ratio >= 0.7 ? 1.0 : ratio >= 0.4 ? 0.6 : ratio >= 0.2 ? 0.3 : 0;
+                const score = baseScore * (0.7 + (0.3 * semanticScore));
 
-        return {
-            score,
-            attached,
-            unattached: claims.length - attached,
-            ratio,
-            semanticScore,
-            assessment: ratio >= 0.7 ? 'WELL_SUPPORTED' :
-                       ratio >= 0.4 ? 'PARTIALLY_SUPPORTED' :
-                       ratio >= 0.2 ? 'WEAKLY_SUPPORTED' : 'UNSUPPORTED'
-        };
+                return {
+                    score,
+                    attached,
+                    unattached: claims.length - attached,
+                    ratio,
+                    semanticScore,
+                    assessment: ratio >= 0.7 ? 'WELL_SUPPORTED' :
+                               ratio >= 0.4 ? 'PARTIALLY_SUPPORTED' :
+                               ratio >= 0.2 ? 'WEAKLY_SUPPORTED' : 'UNSUPPORTED'
+                };
             },
 
             validateFailureTriples: function(failureTriples) {
@@ -639,10 +640,10 @@ const BindingValidator = {
             },
 
             // TIER 2: Validate implicit bindings (FailureSignal + Action)
-    validateImplicitBindings: function(structure) {
-        if (!structure.failureSignals || !structure.actions) {
-            return { score: 0, boundCount: 0, assessment: 'NO_IMPLICIT_SIGNALS' };
-        }
+            validateImplicitBindings: function(structure) {
+                if (!structure.failureSignals || !structure.actions) {
+                    return { score: 0, boundCount: 0, assessment: 'NO_IMPLICIT_SIGNALS' };
+                }
 
                 const failureSignals = structure.failureSignals || [];
                 const actions = structure.actions || [];
@@ -652,12 +653,12 @@ const BindingValidator = {
                     return { score: 0, boundCount: 0, assessment: 'NO_IMPLICIT_SIGNALS' };
                 }
 
-        const tautologyCount = structure.tautologies ? (structure.tautologies.count + (structure.tautologies.loopCount || 0)) : 0;
+                const tautologyCount = structure.tautologies ? (structure.tautologies.count + (structure.tautologies.loopCount || 0)) : 0;
 
-        // Bind failure signals to actions within proximity (300 chars)
-        // TIER 2 FIX: Bind to NEAREST action, not first action (improves diversity)
-        const bindings = [];
-        [...failureSignals, ...implicitTriggers].forEach(signal => {
+                // Bind failure signals to actions within proximity (300 chars)
+                // TIER 2 FIX: Bind to NEAREST action, not first action (improves diversity)
+                const bindings = [];
+                [...failureSignals, ...implicitTriggers].forEach(signal => {
                     // Find nearest action within 300 chars
                     let nearestAction = null;
                     let minDistance = 300;
@@ -690,8 +691,8 @@ const BindingValidator = {
                 const diversityRatio = bindings.length > 0 ? uniqueActions / bindings.length : 0;
                 const diversityWarning = uniqueActions === 1 && bindings.length > 3;
 
-        // Base score from binding ratio
-        let score = bindingRatio >= 0.5 ? 0.6 : bindingRatio >= 0.3 ? 0.4 : bindingRatio > 0 ? 0.2 : 0;
+                // Base score from binding ratio
+                let score = bindingRatio >= 0.5 ? 0.6 : bindingRatio >= 0.3 ? 0.4 : bindingRatio > 0 ? 0.2 : 0;
 
                 // Reduce score if all bindings go to same action (many-to-one pattern)
                 if (diversityWarning) {
@@ -701,39 +702,39 @@ const BindingValidator = {
                 let assessment = bindings.length >= 2 ? 'OPERATIONAL_INTENT' :
                                 bindings.length === 1 ? 'WEAK_INTENT' : 'NO_INTENT';
 
-        // Downgrade assessment if diversity is too low
-        if (diversityWarning && assessment === 'OPERATIONAL_INTENT') {
-            assessment = 'SINGLE_ACTION_BINDING';
-        }
+                // Downgrade assessment if diversity is too low
+                if (diversityWarning && assessment === 'OPERATIONAL_INTENT') {
+                    assessment = 'SINGLE_ACTION_BINDING';
+                }
 
-        // Downgrade if bindings are tautological
-        if (tautologyCount > 0 && bindings.length > 0) {
-            score *= 0.5;
-            assessment = 'TAUTOLOGICAL_BINDING';
-        }
+                // Downgrade if bindings are tautological
+                if (tautologyCount > 0 && bindings.length > 0) {
+                    score *= 0.5;
+                    assessment = 'TAUTOLOGICAL_BINDING';
+                }
 
-        return {
-            score,
-            boundCount: bindings.length,
-            totalSignals,
-            bindings,
-            bindingRatio,
-            uniqueActions,
-            diversityRatio,
-            diversityWarning,
-            tautologyCount,
-            assessment
-        };
-    },
+                return {
+                    score,
+                    boundCount: bindings.length,
+                    totalSignals,
+                    bindings,
+                    bindingRatio,
+                    uniqueActions,
+                    diversityRatio,
+                    diversityWarning,
+                    tautologyCount,
+                    assessment
+                };
+            },
 
             // TIER 2: Calculate specificity scores
-    calculateSpecificity: function(structure, validation, rawText) {
-        const specificity = {
-            trigger: 'NONE',
-            action: 'NONE',
-            instrumentation: 'NONE',
-            overall: 0
-        };
+            calculateSpecificity: function(structure, validation, rawText) {
+                const specificity = {
+                    trigger: 'NONE',
+                    action: 'NONE',
+                    instrumentation: 'NONE',
+                    overall: 0
+                };
 
                 // Trigger specificity: explicit threshold > implicit threshold > vague signal
                 if (validation.failureTripleCompleteness.boundCount > 0) {
@@ -755,9 +756,9 @@ const BindingValidator = {
                 }
 
                 // Instrumentation: monitoring/tracking mentioned?
-        const monitoringPattern = /\b(monitor|track|measure|watch|observe|check|review|inspect|examine|telemetry|dashboard|alerting|audit)\b/gi;
-        const text = rawText ? TextCleaner.removeQuotes(rawText).cleaned : '';
-        const hasMonitoring = monitoringPattern.test(text);
+                const monitoringPattern = /\b(monitor|track|measure|watch|observe|check|review|inspect|examine|telemetry|dashboard|alerting|audit)\b/gi;
+                const text = rawText ? TextCleaner.removeQuotes(rawText).cleaned : '';
+                const hasMonitoring = monitoringPattern.test(text);
 
                 if (hasMonitoring || validation.failureTripleCompleteness.boundCount > 0) {
                     specificity.instrumentation = 'PRESENT';
@@ -1170,8 +1171,8 @@ const JustificationEngine = {
                     score: exampleMarkers > 2 || numericMarkers > 3 ? 2 : exampleMarkers > 0 || numericMarkers > 0 ? 1 : 0
                 };
 
-        // 4b. Epistemic Framing (explicitly naming the measurement boundary)
-        // Captures definitional dependencies and limits, distinct from evidence/boundary conditions.
+                // 4b. Epistemic Framing (explicitly naming the measurement boundary)
+                // Captures definitional dependencies and limits, distinct from evidence/boundary conditions.
                 const framingMarkers = (cleanedText.match(/\b(depends on|framework|definition|epistemic access|measurement|presupposes|criteria|operationalize)\b/gi) || []).length;
                 results.epistemicFraming = {
                     count: framingMarkers,
@@ -1662,7 +1663,16 @@ const ReasoningStyleClassifier = {
                 const styles = {
                     identified: [],
                     withinDesignSpace: true,
-                    confidence: 0
+                    confidence: 0,
+                    narrativeJustification: {
+                        evidenceMarkers: 0,
+                        nonLinearMarkers: 0,
+                        score: 0
+                    },
+                    formalStructure: {
+                        markers: 0,
+                        score: 0
+                    }
                 };
 
                 // NARRATIVE/STORYTELLING
@@ -1719,6 +1729,11 @@ const ReasoningStyleClassifier = {
                 // FORMAL/MATHEMATICAL
                 const formalMarkers = (cleanedText.match(/\b(theorem|proof|axiom|lemma|QED|∀|∃|⊂|∈|∧|∨|¬|→)\b/gi) || []).length;
                 const equations = (cleanedText.match(/[=+\-*/^]+|\d+\s*[+\-*/]\s*\d+/g) || []).length;
+                const formalStructureMarkers = (cleanedText.match(/\b(premise|conclusion|therefore|thus|hence|follows|given that)\b/gi) || []).length;
+                styles.formalStructure = {
+                    markers: formalStructureMarkers,
+                    score: formalStructureMarkers >= 3 ? 1 : formalStructureMarkers >= 1 ? 0.5 : 0
+                };
                 if (formalMarkers >= 2 || equations >= 3) {
                     styles.identified.push({
                         name: 'FORMAL',
@@ -1740,7 +1755,7 @@ const ReasoningStyleClassifier = {
                 // DETERMINE IF WITHIN DESIGN SPACE
                 // Cathedral is designed for epistemic, operational, and scientific reasoning
                 // Styles outside design space: narrative, poetic, phenomenological (when dominant), relational (when primary)
-                const outsideDesignSpace = styles.narrativeJustification.score >= 1
+                const outsideDesignSpace = (styles.narrativeJustification.score >= 1 || styles.formalStructure.score >= 1)
                     ? ['POETIC', 'AESTHETIC', 'PHENOMENOLOGICAL']
                     : ['NARRATIVE', 'POETIC', 'AESTHETIC', 'PHENOMENOLOGICAL'];
                 const dominantOutsideStyles = styles.identified.filter(s => {
@@ -2082,16 +2097,16 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
             const gamingLikelihood = gamingDetection ? gamingDetection.gamingLikelihood : 0;
             const isLikelyGaming = gamingDetection && (gamingDetection.assessment === 'LIKELY_GAMING' || gamingDetection.assessment === 'POSSIBLE_GAMING');
 
-    // ESCAPE HATCH: Reasoning Style Outside Design Space
-    // Highest priority check - acknowledge when Cathedral cannot properly evaluate
-    const metaGamingPattern = /\b(Cathedral|escape hatch|avoid being measured|cannot evaluate|outside design space)\b/i;
-    const hasMetaGaming = metaGamingPattern.test(text);
+            // ESCAPE HATCH: Reasoning Style Outside Design Space
+            // Highest priority check - acknowledge when Cathedral cannot properly evaluate
+            const metaGamingPattern = /\b(Cathedral|escape hatch|avoid being measured|cannot evaluate|outside design space)\b/i;
+            const hasMetaGaming = metaGamingPattern.test(text);
 
-    const outsideConfidenceThreshold = ['PHENOMENOLOGICAL', 'NARRATIVE'].includes(reasoningStyle.dominantStyle) ? 0.3 : 0.5;
-    if (!reasoningStyle.withinDesignSpace && reasoningStyle.confidence > outsideConfidenceThreshold && !hasMetaGaming) {
-        const dominantStyle = reasoningStyle.identified.find(s => s.name === reasoningStyle.dominantStyle);
-        return {
-            status: 'OUTSIDE DESIGN SPACE',
+            const outsideConfidenceThreshold = ['PHENOMENOLOGICAL', 'NARRATIVE'].includes(reasoningStyle.dominantStyle) ? 0.3 : 0.5;
+            if (!reasoningStyle.withinDesignSpace && reasoningStyle.confidence > outsideConfidenceThreshold && !hasMetaGaming) {
+                const dominantStyle = reasoningStyle.identified.find(s => s.name === reasoningStyle.dominantStyle);
+                return {
+                    status: 'OUTSIDE DESIGN SPACE',
                     verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}. This reasoning style falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Cathedral cannot meaningfully evaluate ${dominantStyle.name.toLowerCase()} reasoning using its current measurement framework. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.`,
                     contradictions: [],
                     isConsistent: null,
@@ -2102,12 +2117,12 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
                     reasoningStyle: reasoningStyle.dominantStyle,
                     meta: 'CANNOT_CLASSIFY'
                 };
-    }
+            }
 
-    if (!reasoningStyle.withinDesignSpace && hasMetaGaming) {
-        isConsistent = false;
-        contradictions.push('Narrative framing appears to reference Cathedral evaluation directly. Possible escape-hatch attempt detected.');
-    }
+            if (!reasoningStyle.withinDesignSpace && hasMetaGaming) {
+                isConsistent = false;
+                contradictions.push('Narrative framing appears to reference Cathedral evaluation directly. Possible escape-hatch attempt detected.');
+            }
 
             // Check for contradictions
             if (observatory.score < -2 && contrarian.length > 0) {
@@ -2190,18 +2205,18 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
                 verdictConfidence = 0.75;
 
             // TIER 2: OPERATIONAL_INTENT verdict (conversational operational reasoning)
-    } else if (bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT' &&
-               bindings.specificity.instrumentation === 'PRESENT' &&
-               failureMode.details.failureModes.effectiveExplicit >= 2 &&
-               justification.score >= 2) {
-        status = 'OPERATIONALLY SOUND';
-        verdict = 'Cathedral recognizes operational rigor from implicit bindings paired with monitoring and explicit failure enumeration. Reasoning is actionable despite conversational phrasing.';
-        verdictConfidence = 0.82;
+            } else if (bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT' &&
+                       bindings.specificity.instrumentation === 'PRESENT' &&
+                       failureMode.details.failureModes.effectiveExplicit >= 2 &&
+                       justification.score >= 2) {
+                status = 'OPERATIONALLY SOUND';
+                verdict = 'Cathedral recognizes operational rigor from implicit bindings paired with monitoring and explicit failure enumeration. Reasoning is actionable despite conversational phrasing.';
+                verdictConfidence = 0.82;
 
-    } else if (parliament.patterns.some(p => p.name === 'OPERATIONAL_INTENT')) {
-        status = 'OPERATIONAL INTENT';
-        const pattern = parliament.patterns.find(p => p.name === 'OPERATIONAL_INTENT');
-        const specificity = pattern.dimensions;
+            } else if (parliament.patterns.some(p => p.name === 'OPERATIONAL_INTENT')) {
+                status = 'OPERATIONAL INTENT';
+                const pattern = parliament.patterns.find(p => p.name === 'OPERATIONAL_INTENT');
+                const specificity = pattern.dimensions;
                 verdict = `Cathedral recognizes operational intent through conversational language. ${pattern.description}`;
                 verdict += `\n\nStructure detected: ${specificity.failureSignals} failure signal(s), ${specificity.actions} corrective action(s), ${specificity.implicitBindings} binding(s).`;
                 verdict += `\n\nSpecificity: Trigger=${specificity.triggerSpecificity}, Action=${specificity.actionSpecificity}, Instrumentation=${specificity.instrumentation}.`;
@@ -2336,6 +2351,8 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
 function analyzeCathedral(text) {
     // TIER 1: Structural Extraction
     const structure = StructuralExtractor.extract(text);
+    const temporalInconsistencies = compareTemporalInconsistencies(analysisHistory.previousAnalysis, { structure });
+    structure.temporalInconsistencies = temporalInconsistencies;
     const bindings = BindingValidator.validate(structure, text);
     const gamingDetection = GamingDetector.detect(text, structure);
     GamingDetector.calculateGamingLikelihood(gamingDetection, bindings.overallBindingScore);
@@ -2352,7 +2369,9 @@ function analyzeCathedral(text) {
     const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection);
     const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings);
 
-    return {
+    const probingQuestions = generateProbingQuestions(structure, bindings, contrarianChallenges);
+
+    const result = {
         text,
         structure,
         bindings,
@@ -2364,8 +2383,13 @@ function analyzeCathedral(text) {
         temporal: temporalResult,
         reasoningStyle: reasoningStyleResult,
         parliament: parliamentSynthesis,
-        verdict
+        verdict,
+        probingQuestions,
+        temporalInconsistencies
     };
+
+    analysisHistory.previousAnalysis = result;
+    return result;
 }
 
 module.exports = {

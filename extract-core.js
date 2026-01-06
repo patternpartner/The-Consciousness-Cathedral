@@ -43,6 +43,9 @@ extractEngine('JustificationEngine', /const JustificationEngine = \{[\s\S]*?\n  
 extractEngine('FailureModeEngine', /const FailureModeEngine = \{[\s\S]*?\n        \};/);
 extractEngine('TemporalEngine', /const TemporalEngine = \{[\s\S]*?\n        \};/);
 extractEngine('ReasoningStyleClassifier', /const ReasoningStyleClassifier = \{[\s\S]*?\n        \};/);
+extractEngine('analysisHistory', /let analysisHistory = \{[\s\S]*?\n\};/);
+extractEngine('compareTemporalInconsistencies', /function compareTemporalInconsistencies[\s\S]*?\n\}/);
+extractEngine('generateProbingQuestions', /function generateProbingQuestions[\s\S]*?\n\}/);
 extractEngine('Parliament', /const Parliament = \{[\s\S]*?\n        \};/);
 
 // Extract synthesizeVerdict function
@@ -56,9 +59,11 @@ output += `// Main analysis function
 function analyzeCathedral(text) {
     // TIER 1: Structural Extraction
     const structure = StructuralExtractor.extract(text);
-    const bindings = BindingValidator.validate(structure);
+    const temporalInconsistencies = compareTemporalInconsistencies(analysisHistory.previousAnalysis, { structure });
+    structure.temporalInconsistencies = temporalInconsistencies;
+    const bindings = BindingValidator.validate(structure, text);
     const gamingDetection = GamingDetector.detect(text, structure);
-    GamingDetector.calculateGamingLikelihood(gamingDetection);
+    GamingDetector.calculateGamingLikelihood(gamingDetection, bindings.overallBindingScore);
 
     // TIER 2: Signal Analysis
     const observatoryResult = Observatory.score(text);
@@ -70,9 +75,11 @@ function analyzeCathedral(text) {
 
     // TIER 3: Synthesis
     const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection);
-    const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection);
+    const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings);
 
-    return {
+    const probingQuestions = generateProbingQuestions(structure, bindings, contrarianChallenges);
+
+    const result = {
         text,
         structure,
         bindings,
@@ -84,8 +91,13 @@ function analyzeCathedral(text) {
         temporal: temporalResult,
         reasoningStyle: reasoningStyleResult,
         parliament: parliamentSynthesis,
-        verdict
+        verdict,
+        probingQuestions,
+        temporalInconsistencies
     };
+
+    analysisHistory.previousAnalysis = result;
+    return result;
 }
 
 module.exports = {

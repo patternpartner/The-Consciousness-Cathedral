@@ -2570,7 +2570,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const styles = {
                     identified: [],
                     withinDesignSpace: true,
-                    confidence: 0
+                    confidence: 0,
+                    narrativeJustification: {
+                        evidenceMarkers: 0,
+                        nonLinearMarkers: 0,
+                        score: 0
+                    },
+                    formalStructure: {
+                        markers: 0,
+                        score: 0
+                    }
                 };
 
                 // NARRATIVE/STORYTELLING
@@ -2627,6 +2636,11 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // FORMAL/MATHEMATICAL
                 const formalMarkers = (cleanedText.match(/\b(theorem|proof|axiom|lemma|QED|∀|∃|⊂|∈|∧|∨|¬|→)\b/gi) || []).length;
                 const equations = (cleanedText.match(/[=+\-*/^]+|\d+\s*[+\-*/]\s*\d+/g) || []).length;
+                const formalStructureMarkers = (cleanedText.match(/\b(premise|conclusion|therefore|thus|hence|follows|given that)\b/gi) || []).length;
+                styles.formalStructure = {
+                    markers: formalStructureMarkers,
+                    score: formalStructureMarkers >= 3 ? 1 : formalStructureMarkers >= 1 ? 0.5 : 0
+                };
                 if (formalMarkers >= 2 || equations >= 3) {
                     styles.identified.push({
                         name: 'FORMAL',
@@ -2648,7 +2662,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // DETERMINE IF WITHIN DESIGN SPACE
                 // Cathedral is designed for epistemic, operational, and scientific reasoning
                 // Styles outside design space: narrative, poetic, phenomenological (when dominant), relational (when primary)
-                const outsideDesignSpace = styles.narrativeJustification.score >= 1
+                const outsideDesignSpace = (styles.narrativeJustification.score >= 1 || styles.formalStructure.score >= 1)
                     ? ['POETIC', 'AESTHETIC', 'PHENOMENOLOGICAL']
                     : ['NARRATIVE', 'POETIC', 'AESTHETIC', 'PHENOMENOLOGICAL'];
                 const dominantOutsideStyles = styles.identified.filter(s => {
@@ -2939,6 +2953,64 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
         // Global storage for current analysis results
         let currentAnalysis = null;
+        let analysisHistory = {
+            previousAnalysis: null
+        };
+
+        function compareTemporalInconsistencies(previous, current) {
+            if (!previous || !previous.structure || !current.structure) {
+                return [];
+            }
+
+            const previousClaims = previous.structure.claims || [];
+            const currentClaims = current.structure.claims || [];
+            const negationPattern = /\b(never|no|cannot|won't|will not|doesn't|does not|can't)\b/i;
+
+            const tokenize = (text) => (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
+                .filter(word => word.length > 3);
+
+            const overlaps = (a, b) => {
+                const setA = new Set(tokenize(a));
+                const setB = new Set(tokenize(b));
+                let count = 0;
+                setA.forEach(token => {
+                    if (setB.has(token)) count += 1;
+                });
+                return count;
+            };
+
+            const inconsistencies = [];
+            previousClaims.forEach(prevClaim => {
+                currentClaims.forEach(currClaim => {
+                    if (overlaps(prevClaim.text, currClaim.text) >= 2) {
+                        const prevNegated = negationPattern.test(prevClaim.text);
+                        const currNegated = negationPattern.test(currClaim.text);
+                        if (prevNegated !== currNegated) {
+                            inconsistencies.push('Potential claim reversal detected across analyses.');
+                        }
+                    }
+                });
+            });
+
+            return [...new Set(inconsistencies)];
+        }
+
+        function generateProbingQuestions(structure, bindings, contrarian) {
+            const questions = [];
+            if (structure.orphanedActions && structure.orphanedActions.length > 0) {
+                questions.push('You mention corrective actions—what specific trigger or threshold activates them?');
+            }
+
+            if (bindings.claimSupportBinding.assessment === 'UNSUPPORTED') {
+                questions.push('Which concrete evidence or example directly supports your strongest claim?');
+            }
+
+            if (contrarian && contrarian.length > 0) {
+                questions.push(`How would you test the strongest premise challenge: "${contrarian[0].premise}"?`);
+            }
+
+            return questions;
+        }
 
         // Main Analysis Function
         function analyzeText() {
@@ -2953,6 +3025,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             // TIER 1: Structural Extraction
             const structure = StructuralExtractor.extract(text);
+            const temporalInconsistencies = compareTemporalInconsistencies(analysisHistory.previousAnalysis, { structure });
+            structure.temporalInconsistencies = temporalInconsistencies;
             const bindings = BindingValidator.validate(structure, text);
             const gamingDetection = GamingDetector.detect(text, structure);
             GamingDetector.calculateGamingLikelihood(gamingDetection, bindings.overallBindingScore);
@@ -2970,6 +3044,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings);
 
             // Store for report generation
+            const probingQuestions = generateProbingQuestions(structure, bindings, contrarianChallenges);
             currentAnalysis = {
                 text: text,
                 structure: structure,
@@ -2983,8 +3058,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 temporal: temporalResult,
                 reasoningStyle: reasoningStyleResult,
                 verdict: verdict,
-                sanitization: sanitizationLog
+                sanitization: sanitizationLog,
+                probingQuestions: probingQuestions,
+                temporalInconsistencies: temporalInconsistencies
             };
+
+            analysisHistory.previousAnalysis = currentAnalysis;
 
             // Display sanitization transparency
             displaySanitization(sanitizationLog);
@@ -3152,6 +3231,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
                     html += `</div>`;
                 });
+            }
+
+            if (currentAnalysis && currentAnalysis.probingQuestions && currentAnalysis.probingQuestions.length > 0) {
+                html += '<div class="breakdown-item" style="margin-top: 1rem;">';
+                html += '<strong>🧭 Active Probing Questions:</strong><br>';
+                currentAnalysis.probingQuestions.forEach((question) => {
+                    html += `<span style="color: #a0a0a0;">• ${question}</span><br>`;
+                });
+                html += '</div>';
             }
 
             document.getElementById('contrarianResults').innerHTML = html;
@@ -3608,6 +3696,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 `;
             }
 
+            if (currentAnalysis && currentAnalysis.temporalInconsistencies && currentAnalysis.temporalInconsistencies.length > 0) {
+                html += `
+                    <div style="margin-top: 0.75rem; padding: 0.5rem; border-left: 3px solid #ff6b6b; color: #ff6b6b;">
+                        <strong>Cross-Analysis Temporal Inconsistencies:</strong><br>
+                        ${currentAnalysis.temporalInconsistencies.map(item => `• ${item}`).join('<br>')}
+                    </div>
+                `;
+            }
+
             document.getElementById('temporalResults').innerHTML = html;
         }
 
@@ -3634,6 +3731,14 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         <div style="margin-top: 0.75rem; color: #a0a0a0;">
                             Narrative justification signals: ${result.narrativeJustification.evidenceMarkers} evidence marker(s),
                             ${result.narrativeJustification.nonLinearMarkers} non-linear cue(s).
+                        </div>
+                    `;
+                }
+
+                if (result.formalStructure && result.formalStructure.score > 0) {
+                    html += `
+                        <div style="margin-top: 0.5rem; color: #a0a0a0;">
+                            Formal structure markers: ${result.formalStructure.markers}.
                         </div>
                     `;
                 }
@@ -3818,6 +3923,14 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 });
             }
 
+            if (currentAnalysis.probingQuestions && currentAnalysis.probingQuestions.length > 0) {
+                report += 'Active Probing Questions:\n';
+                currentAnalysis.probingQuestions.forEach((question, i) => {
+                    report += `  ${i + 1}. ${question}\n`;
+                });
+                report += '\n';
+            }
+
             // JUSTIFICATION ENGINE
             report += '───────────────────────────────────────────────────────────────\n';
             report += '⚖️ JUSTIFICATION ENGINE - Truth-Tracking Layer\n';
@@ -3932,6 +4045,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += `Temporal Markers: ${temporal.markers}\n`;
             if (temporal.driftDetected) {
                 report += `Certainty Drift: ${temporal.driftSummary}\n`;
+            }
+            if (currentAnalysis.temporalInconsistencies && currentAnalysis.temporalInconsistencies.length > 0) {
+                report += 'Cross-Analysis Temporal Inconsistencies:\n';
+                currentAnalysis.temporalInconsistencies.forEach((item, i) => {
+                    report += `  ${i + 1}. ${item}\n`;
+                });
             }
             report += '\n';
 
