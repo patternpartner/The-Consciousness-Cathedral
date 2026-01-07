@@ -3195,8 +3195,33 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const entry = archive.find(item => item.id === currentAnalysis.archiveId);
             if (!entry) return;
             entry.outcome = outcome;
+            applyPromotionRules(entry);
             saveArchive(archive);
             updateArchiveDisplay();
+        }
+
+        function applyPromotionRules(entry) {
+            if (!entry || entry.promotion) return;
+            if (!entry.keySignals) return;
+
+            const justificationScore = entry.keySignals.justificationScore ?? 0;
+            const failureModeScore = entry.keySignals.failureModeScore ?? 0;
+            const temporalCoherence = entry.keySignals.temporalCoherence || 'UNKNOWN';
+
+            if (entry.tagTier === 'SPECULATIVE' && entry.outcome === 'accurate' && justificationScore >= 3) {
+                const nextTier = (failureModeScore >= 3 && ['STRONG', 'MODERATE'].includes(temporalCoherence))
+                    ? 'BOUND_OPERATIONAL'
+                    : 'BOUND_EPISTEMIC';
+                entry.promotion = {
+                    from: entry.tagTier,
+                    to: nextTier,
+                    reason: nextTier === 'BOUND_OPERATIONAL'
+                        ? 'Accurate outcome with failure-mode rigor and temporal structure.'
+                        : 'Accurate outcome with strong justification.',
+                    at: new Date().toISOString()
+                };
+                entry.tagTier = nextTier;
+            }
         }
 
         function runRecursiveAudit(archive) {
@@ -3205,7 +3230,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     warning: 'Not enough archived analyses to evaluate system drift.',
                     verdicts: {},
                     trend: null,
-                    outcomes: {}
+                    outcomes: {},
+                    promotions: 0
                 };
             }
             const verdicts = archive.reduce((acc, entry) => {
@@ -3230,6 +3256,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 ? `System-level filter surfacing: ${dominantVerdict[0]} dominates (${Math.round((dominantVerdict[1] / total) * 100)}%).`
                 : null;
 
+            const promotions = archive.filter(entry => entry.promotion).length;
+
             return {
                 warning,
                 verdicts,
@@ -3238,6 +3266,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     failureModeAvg: failureAvg.toFixed(2)
                 },
                 outcomes,
+                promotions,
                 recent
             };
         }
@@ -3292,6 +3321,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     <div style="color: #a0a0a0;">Failure mode avg (last 10): ${audit.trend?.failureModeAvg ?? 'n/a'}</div>
                     <div style="color: #a0a0a0; margin-top: 0.25rem;">Outcome feedback: ${outcomeSummary}</div>
                     <div style="color: #a0a0a0; margin-top: 0.25rem;">Bridge candidates (speculative): ${bridgeCount}</div>
+                    <div style="color: #a0a0a0; margin-top: 0.25rem;">Promotions recorded: ${audit.promotions ?? 0}</div>
                 `;
             } else {
                 auditEl.innerHTML = `
@@ -3300,6 +3330,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     <div style="color: #a0a0a0;">Failure mode avg (last 10): ${audit.trend?.failureModeAvg ?? 'n/a'}</div>
                     <div style="color: #a0a0a0; margin-top: 0.25rem;">Outcome feedback: ${outcomeSummary}</div>
                     <div style="color: #a0a0a0; margin-top: 0.25rem;">Bridge candidates (speculative): ${bridgeCount}</div>
+                    <div style="color: #a0a0a0; margin-top: 0.25rem;">Promotions recorded: ${audit.promotions ?? 0}</div>
                 `;
             }
         }
@@ -4511,6 +4542,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 ).length;
                 report += `Bridge Candidates (Speculative): ${bridgeCandidates}\n`;
             }
+            report += `Promotions Recorded: ${audit.promotions ?? 0}\n`;
             report += '\n';
 
             report += '───────────────────────────────────────────────────────────────\n';
