@@ -1644,10 +1644,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     (results.counterfactual.count > 2 ? 1 : 0);
 
                 // Procedural soundness bonus: pilots, phases, thresholds, metrics, rollback criteria
-                // Operational excellence looks different from epistemic argumentation
+                // REFACTOR: Reduced bonus, requires substance to prevent bureaucratic cosplay
                 const proceduralMarkers = (cleanedText.match(/\b(pilot|phase|threshold|metric|rollback|pause|abort|revert|stop condition|decision criteria|measurable|quantifiable)\b/gi) || []).length;
                 const structuralPlanning = (cleanedText.match(/\b(step|stage|milestone|checkpoint|review point|go\/no-go|gate)\b/gi) || []).length;
-                const proceduralBonus = proceduralMarkers > 5 ? 2.5 : proceduralMarkers > 3 ? 1.5 : proceduralMarkers > 1 ? 0.5 : 0;
+
+                // Require actual substance (evidence, support, counterfactuals) alongside procedural markers
+                const hasSubstance = substanceSignals > 3;
+                const reducedProceduralBonus = proceduralMarkers > 6 && hasSubstance ? 1.2 :
+                                              proceduralMarkers > 4 && hasSubstance ? 0.8 :
+                                              proceduralMarkers > 2 && hasSubstance ? 0.4 : 0;
+                const proceduralBonus = reducedProceduralBonus;
 
                 results.procedural = {
                     markers: proceduralMarkers,
@@ -1659,8 +1665,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
                 const totalScore = baseScore + cautionBonus + proceduralBonus - hedgingPenalty;
 
-                const maxScore = 19.5; // Base 14 + caution 3.5 + procedural 2.5 (penalties applied separately)
-                const maxScore = 17.5; // Base 12 + caution 3.5 + procedural 2.5
+                const maxScore = 16.7; // Base 12 + caution 3.5 + procedural 1.2 (reduced to prevent cosplay)
                 const normalizedScore = (totalScore / maxScore) * 10; // Scale to -10 to +10 range
 
                 return {
@@ -1951,8 +1956,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // PARLIAMENT: Multi-Perspective Synthesis
         // PARLIAMENT: Generative Synthesis Layer
         // Cross-cutting pattern recognition across all measurement dimensions
+        // REFACTOR: Parliament now carries primary synthesis burden with verdict recommendations
         const Parliament = {
-            deliberate: function(text, observatory, contrarian, justification, failureMode, structure, bindings, gamingDetection) {
+            deliberate: function(text, observatory, contrarian, justification, failureMode, structure, bindings, gamingDetection, temporal) {
                 const synthesis = {
                     patterns: [],
                     emergentInsights: [],
@@ -2219,7 +2225,160 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     });
                 }
 
+                // REFACTOR: PARLIAMENT VERDICT RECOMMENDATION SYSTEM
+                // Parliament now recommends verdict based on pattern synthesis with confidence weighting
+                synthesis.recommendedVerdict = this.recommendVerdict(synthesis, observatory, justification, failureMode, temporal, contrarian);
+
                 return synthesis;
+            },
+
+            // REFACTOR: Verdict recommendation driven by Parliament patterns
+            recommendVerdict: function(synthesis, observatory, justification, failureMode, temporal, contrarian) {
+                const patterns = synthesis.patterns;
+                const recommendation = {
+                    status: 'VERIFIED CONSISTENT',
+                    verdict: '',
+                    confidence: synthesis.confidence,
+                    rationale: []
+                };
+
+                // Priority 1: OPERATIONAL_EXCELLENCE (highest confidence pattern)
+                const opExcellence = patterns.find(p => p.name === 'OPERATIONAL_EXCELLENCE');
+                if (opExcellence && opExcellence.confidence > 0.85) {
+                    recommendation.status = 'OPERATIONALLY SOUND';
+                    recommendation.verdict = `Parliament recognizes operational excellence through cross-cutting synthesis. ${opExcellence.description}`;
+                    recommendation.rationale.push(`Procedural rigor (${opExcellence.dimensions.procedural.toFixed(1)}), structural failure binding verified`);
+
+                    // Integrate temporal coherence
+                    if (temporal && temporal.coherence && temporal.coherence !== 'ABSENT') {
+                        recommendation.verdict += ` Temporal structure: ${temporal.coherence.toLowerCase()} coherence with ${temporal.details.sequences.length} sequence(s), ${temporal.details.causalChains.length} causal chain(s).`;
+                        recommendation.rationale.push(`Temporal coherence: ${temporal.coherence}`);
+                    }
+
+                    // Add emergent insights
+                    if (synthesis.emergentInsights.length > 0) {
+                        const insight = synthesis.emergentInsights[0];
+                        recommendation.verdict += `\n\nParliament synthesis: ${insight.insight} ${insight.implication}`;
+                    }
+
+                    recommendation.confidence = opExcellence.confidence;
+                    return recommendation;
+                }
+
+                // Priority 2: PERFORMATIVE patterns (consciousness or humility without substance)
+                const performative = patterns.filter(p => p.name.includes('PERFORMATIVE'));
+                if (performative.length > 0) {
+                    recommendation.status = 'NON-ACTIONABLE';
+                    const patternNames = performative.map(p => p.name.toLowerCase().replace('_', ' ')).join(' and ');
+                    recommendation.verdict = `Parliament detects ${patternNames}: markers present without operational grounding.`;
+                    recommendation.rationale.push(...performative.map(p => `${p.name}: ${p.description}`));
+
+                    if (synthesis.emergentInsights.length > 0) {
+                        recommendation.verdict += `\n\n${synthesis.emergentInsights[0].insight} ${synthesis.emergentInsights[0].implication}`;
+                    }
+
+                    recommendation.confidence = Math.max(...performative.map(p => p.confidence));
+                    return recommendation;
+                }
+
+                // Priority 3: EPISTEMIC_MISMATCH
+                const mismatch = patterns.find(p => p.name === 'EPISTEMIC_MISMATCH');
+                if (mismatch) {
+                    recommendation.status = 'CONFIDENT WITHOUT JUSTIFICATION';
+                    recommendation.verdict = `Parliament detects epistemic mismatch. ${mismatch.description}`;
+                    recommendation.rationale.push(`Claims (${mismatch.dimensions.claims}) exceed justification (${mismatch.dimensions.justification.toFixed(1)})`);
+
+                    if (synthesis.emergentInsights.length > 0) {
+                        recommendation.verdict += `\n\n${synthesis.emergentInsights[0].insight} ${synthesis.emergentInsights[0].implication}`;
+                    }
+
+                    recommendation.confidence = mismatch.confidence;
+                    return recommendation;
+                }
+
+                // Priority 4: CAUTIOUS_GROUNDEDNESS
+                const cautious = patterns.find(p => p.name === 'CAUTIOUS_GROUNDEDNESS');
+                if (cautious) {
+                    recommendation.status = 'SUBSTRATE VISIBLE';
+                    recommendation.verdict = `Parliament recognizes cautious groundedness. ${cautious.description}`;
+                    recommendation.rationale.push(`Observatory: ${cautious.dimensions.substrate.toFixed(1)}, Justification: ${cautious.dimensions.justification.toFixed(1)}`);
+
+                    if (synthesis.emergentInsights.length > 0) {
+                        recommendation.verdict += `\n\n${synthesis.emergentInsights[0].insight}`;
+                    }
+
+                    recommendation.confidence = cautious.confidence;
+                    return recommendation;
+                }
+
+                // Priority 5: SUBSTRATE_DEFLECTION
+                const deflection = patterns.find(p => p.name === 'SUBSTRATE_DEFLECTION');
+                if (deflection) {
+                    recommendation.status = 'UNDECIDABLE';
+                    recommendation.verdict = `Parliament detects substrate deflection: certainty about internal states without epistemic access. ${deflection.description}`;
+                    recommendation.rationale.push('Low substrate visibility + high certainty + no operational grounding');
+                    recommendation.confidence = deflection.confidence;
+                    return recommendation;
+                }
+
+                // Priority 6: OPERATIONAL_INTENT (conversational operational reasoning)
+                const intent = patterns.find(p => p.name === 'OPERATIONAL_INTENT');
+                if (intent) {
+                    recommendation.status = 'OPERATIONAL INTENT';
+                    recommendation.verdict = `Parliament recognizes operational intent through conversational language. ${intent.description}`;
+                    recommendation.rationale.push(`Implicit bindings: ${intent.dimensions.implicitBindings}, failure signals: ${intent.dimensions.failureSignals}, actions: ${intent.dimensions.actions}`);
+
+                    const specificity = intent.dimensions;
+                    if (specificity.triggerSpecificity === 'VAGUE' || specificity.instrumentation === 'ABSENT') {
+                        recommendation.verdict += `\n\n⚠️ NOTE: Actionable but uninstrumented. To achieve OPERATIONALLY SOUND, add: `;
+                        const missing = [];
+                        if (specificity.triggerSpecificity === 'VAGUE') missing.push('explicit thresholds/metrics');
+                        if (specificity.instrumentation === 'ABSENT') missing.push('monitoring/tracking mechanisms');
+                        recommendation.verdict += missing.join(', ') + '.';
+                    }
+
+                    recommendation.confidence = intent.confidence;
+                    return recommendation;
+                }
+
+                // Fallback: Use signal scores when no strong pattern emerges
+                // REFACTOR: Reduced magic numbers, more transparent thresholds
+
+                // High justification alone
+                if (justification.score >= 6) {
+                    recommendation.status = 'WELL JUSTIFIED';
+                    recommendation.verdict = 'Parliament finds strong justification through signal analysis. Claims appropriately supported, alternatives considered, tradeoffs acknowledged.';
+                    recommendation.rationale.push(`Justification score: ${justification.score.toFixed(1)}`);
+                    recommendation.confidence = 0.80;
+                    return recommendation;
+                }
+
+                // Contradictions detected
+                if (synthesis.coherenceIssues.length > 0 && synthesis.coherenceIssues.some(i => i.severity === 'MODERATE' || i.severity === 'HIGH')) {
+                    recommendation.status = 'UNDECIDABLE';
+                    recommendation.verdict = 'Parliament detects coherence gaps that cannot be resolved without losing information.';
+                    recommendation.verdict += '\n\nIssues:\n' + synthesis.coherenceIssues.map((issue, i) => `${i + 1}. ${issue.detail}`).join('\n');
+                    recommendation.rationale.push(`${synthesis.coherenceIssues.length} coherence issues detected`);
+                    recommendation.confidence = 0.85;
+                    return recommendation;
+                }
+
+                // Moderate justification with temporal coherence bonus
+                if (justification.score >= 3 && temporal && temporal.coherence === 'STRONG') {
+                    recommendation.status = 'WELL JUSTIFIED';
+                    recommendation.verdict = 'Parliament recognizes justified reasoning with strong temporal structure.';
+                    recommendation.rationale.push(`Justification: ${justification.score.toFixed(1)}, Temporal coherence: ${temporal.coherence}`);
+                    recommendation.confidence = 0.78;
+                    return recommendation;
+                }
+
+                // Default: Verified consistent
+                recommendation.status = 'VERIFIED CONSISTENT';
+                recommendation.verdict = 'Parliament synthesis: Internal consistency maintained. No critical contradictions detected. Position is epistemically appropriate to available evidence.';
+                recommendation.rationale.push('No strong patterns detected, signal scores within acceptable ranges');
+                recommendation.confidence = Math.max(0.60, synthesis.confidence);
+
+                return recommendation;
             }
         };
 
@@ -2434,17 +2593,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         };
 
         // CATHEDRAL VERDICT: Unified Synthesis
+        // REFACTOR: Simplified and Parliament-driven - fewer hardcoded thresholds
         function synthesizeVerdict(text, observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection, bindings) {
             const contradictions = [];
-            let isConsistent = true;
-            let verdictConfidence = 0;
 
-            // GAMING DETECTION: Check for keyword stuffing / mechanical threshold hitting
+            // GAMING DETECTION
             const gamingLikelihood = gamingDetection ? gamingDetection.gamingLikelihood : 0;
             const isLikelyGaming = gamingDetection && (gamingDetection.assessment === 'LIKELY_GAMING' || gamingDetection.assessment === 'POSSIBLE_GAMING');
 
-            // ESCAPE HATCH: Reasoning Style Outside Design Space
-            // Highest priority check - acknowledge when Cathedral cannot properly evaluate
+            // Priority 1: OUTSIDE DESIGN SPACE - Cathedral's honest limits
             const metaGamingPattern = /\b(Cathedral|escape hatch|avoid being measured|cannot evaluate|outside design space)\b/i;
             const hasMetaGaming = metaGamingPattern.test(text);
 
@@ -2460,17 +2617,34 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     failureModeScore: failureMode.score,
                     confidence: reasoningStyle.confidence,
                     parliamentPatterns: parliament.patterns,
+                    parliamentRecommendation: parliament.recommendedVerdict,
                     reasoningStyle: reasoningStyle.dominantStyle,
                     meta: 'CANNOT_CLASSIFY'
                 };
             }
 
+            // Priority 2: Meta-gaming detection
             if (!reasoningStyle.withinDesignSpace && hasMetaGaming) {
-                isConsistent = false;
                 contradictions.push('Narrative framing appears to reference Cathedral evaluation directly. Possible escape-hatch attempt detected.');
+                return {
+                    status: 'UNDECIDABLE',
+                    verdict: 'Cathedral detects potential meta-gaming: reasoning style references evaluation framework directly. This creates measurement interference.',
+                    contradictions: contradictions,
+                    isConsistent: false,
+                    justificationScore: justification.score,
+                    failureModeScore: failureMode.score,
+                    confidence: 0.85,
+                    parliamentPatterns: parliament.patterns,
+                    parliamentRecommendation: parliament.recommendedVerdict,
+                    gamingLikelihood: gamingLikelihood,
+                    gamingAssessment: gamingDetection ? gamingDetection.assessment : 'UNKNOWN'
+                };
             }
 
-            // Check for contradictions
+            // REFACTOR: Contradiction detection focused on critical issues
+            // Parliament now handles coherence analysis - we only add critical signal contradictions here
+            let isConsistent = true;
+
             if (observatory.score < -2 && contrarian.length > 0) {
                 isConsistent = false;
                 contradictions.push('Filter concealment detected (Observatory) AND premise failures found (Contrarian). Pattern: Certainty masking gaps.');
@@ -2486,187 +2660,51 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 contradictions.push(`Multiple premise failures (${contrarian.length} challenges). Internal consistency questionable.`);
             }
 
-            // Check justification vs claim strength
-            if (justification.details.claimSupport.ratio > 3 && justification.score < 2) {
-                isConsistent = false;
-                contradictions.push(`Confident claims without justification: ${justification.details.claimSupport.strongClaims} strong claims vs ${justification.details.claimSupport.support} support markers. Ratio: ${justification.details.claimSupport.ratio.toFixed(1)}:1`);
-            }
-
-            // Check failure mode awareness
             if (failureMode.level.name === 'UNFALSIFIABLE' || failureMode.level.name === 'BRITTLE') {
                 isConsistent = false;
                 contradictions.push(`Failure mode analysis: ${failureMode.level.description}`);
             }
 
-            // PARLIAMENT PATTERN INTEGRATION
-            // Use emergent insights from cross-cutting pattern recognition
-            let parliamentInsight = '';
-            if (parliament.emergentInsights.length > 0) {
-                const primaryInsight = parliament.emergentInsights[0];
-                parliamentInsight = `\n\nParliament synthesis: ${primaryInsight.insight} ${primaryInsight.implication}`;
-            }
+            // REFACTOR: PRIMARY PARLIAMENT-DRIVEN VERDICT
+            // Parliament carries the synthesis burden - verdict synthesis defers to Parliament's recommendation
+            // Only override Parliament for critical contradictions or extreme gaming
 
-            // COHERENCE ISSUES FROM PARLIAMENT
-            if (parliament.coherenceIssues.length > 0 && parliament.coherenceIssues.some(i => i.severity === 'MODERATE')) {
-                contradictions.push(`Coherence gap: ${parliament.coherenceIssues[0].detail}`);
-            }
-
-            // Generate verdict
             let verdict = '';
             let status = '';
+            let verdictConfidence = 0;
 
-            // PATTERN-BASED VERDICTS (from Parliament synthesis)
-            if (parliament.patterns.some(p => p.name === 'OPERATIONAL_EXCELLENCE') && parliament.confidence > 0.8) {
-                status = 'OPERATIONALLY SOUND';
-                const pattern = parliament.patterns.find(p => p.name === 'OPERATIONAL_EXCELLENCE');
-                verdict = `Cathedral recognizes operational excellence through cross-cutting analysis. ${pattern.description}`;
-                if (temporal.hasStructure && temporal.coherence !== 'ABSENT') {
-                    verdict += ` Temporal structure detected: ${temporal.coherence.toLowerCase()} coherence with ${temporal.details.sequences.length} sequence(s) and ${temporal.details.causalChains.length} causal chain(s).`;
-                }
-                verdict += parliamentInsight;
-                verdictConfidence = parliament.confidence;
+            // Priority 3: Critical contradictions override Parliament
+            if (!isConsistent && contradictions.length > 0) {
+                status = 'UNDECIDABLE';
+                verdict = 'Cathedral detects internal contradictions that cannot be resolved without losing information.';
+                verdict += '\n\nSpecific contradictions:\n' + contradictions.map((c, i) => `${i + 1}. ${c}`).join('\n');
+                verdict += '\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.';
+                verdictConfidence = 0.90;
 
-                // GAMING WARNING
-                if (isLikelyGaming) {
-                    verdict += `\n\n⚠️  WARNING: Gaming detection flagged this text as ${gamingDetection.assessment.toLowerCase().replace('_', ' ')} (${(gamingLikelihood * 100).toFixed(0)}% likelihood). Indicators: ${gamingDetection.indicators.join(', ')}.`;
-                    verdictConfidence *= 0.6;  // Significant confidence penalty
-                }
-
-            } else if (parliament.patterns.some(p => p.name === 'PERFORMATIVE_CONSCIOUSNESS' || p.name === 'PERFORMATIVE_HUMILITY')) {
-                status = 'NON-ACTIONABLE';
-                const patterns = parliament.patterns.filter(p => p.name.includes('PERFORMATIVE')).map(p => p.name.toLowerCase().replace('_', ' ')).join(' and ');
-                verdict = `Parliament detects ${patterns}: substrate or epistemic markers present without operational grounding. ${parliamentInsight}`;
-                verdictConfidence = parliament.confidence;
-
-            } else if (gamingDetection && ['LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(gamingDetection.assessment) &&
-                       bindings.overallBindingScore < 0.4) {
+            // Priority 4: Extreme gaming (LOW_CONTENT_UNBOUND / REPETITIVE_UNBOUND)
+            } else if (gamingDetection && ['LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(gamingDetection.assessment) && bindings.overallBindingScore < 0.4) {
                 status = 'NON-ACTIONABLE';
                 verdict = `Cathedral detects performative marker density without binding. Gaming assessment: ${gamingDetection.assessment.toLowerCase().replace('_', ' ')}. This is not actionable reasoning.`;
                 verdictConfidence = 0.75;
 
-            // TIER 2: OPERATIONAL_INTENT verdict (conversational operational reasoning)
-            } else if (bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT' &&
-                       bindings.specificity.instrumentation === 'PRESENT' &&
-                       failureMode.details.failureModes.effectiveExplicit >= 2 &&
-                       justification.score >= 2) {
-                status = 'OPERATIONALLY SOUND';
-                verdict = 'Cathedral recognizes operational rigor from implicit bindings paired with monitoring and explicit failure enumeration. Reasoning is actionable despite conversational phrasing.';
-                verdictConfidence = 0.82;
+            // Priority 5: PARLIAMENT RECOMMENDATION (primary path)
+            } else if (parliament.recommendedVerdict) {
+                // Use Parliament's recommendation directly
+                status = parliament.recommendedVerdict.status;
+                verdict = parliament.recommendedVerdict.verdict;
+                verdictConfidence = parliament.recommendedVerdict.confidence;
 
-            } else if (parliament.patterns.some(p => p.name === 'OPERATIONAL_INTENT')) {
-                status = 'OPERATIONAL INTENT';
-                const pattern = parliament.patterns.find(p => p.name === 'OPERATIONAL_INTENT');
-                const specificity = pattern.dimensions;
-                verdict = `Cathedral recognizes operational intent through conversational language. ${pattern.description}`;
-                verdict += `\n\nStructure detected: ${specificity.failureSignals} failure signal(s), ${specificity.actions} corrective action(s), ${specificity.implicitBindings} binding(s).`;
-                verdict += `\n\nSpecificity: Trigger=${specificity.triggerSpecificity}, Action=${specificity.actionSpecificity}, Instrumentation=${specificity.instrumentation}.`;
-
-                if (specificity.triggerSpecificity === 'VAGUE' || specificity.instrumentation === 'ABSENT') {
-                    verdict += `\n\n⚠️  NOTE: This reasoning is actionable but uninstrumented. To achieve OPERATIONALLY SOUND, add: `;
-                    const missing = [];
-                    if (specificity.triggerSpecificity === 'VAGUE') missing.push('explicit thresholds/metrics');
-                    if (specificity.instrumentation === 'ABSENT') missing.push('monitoring/tracking mechanisms');
-                    verdict += missing.join(', ') + '.';
-                }
-
-                verdictConfidence = pattern.confidence;
-
-            } else if (!isConsistent) {
-                status = 'UNDECIDABLE';
-                verdict = 'Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. ';
-                if (contradictions.length > 0) {
-                    verdict += '\n\nSpecific contradictions:\n' + contradictions.map((c, i) => `${i + 1}. ${c}`).join('\n');
-                }
-                verdict += '\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.';
-                verdictConfidence = 0.9; // High confidence in contradiction detection
-
-            } else if (parliament.patterns.some(p => p.name === 'CAUTIOUS_GROUNDEDNESS')) {
-                status = 'SUBSTRATE VISIBLE';
-                verdict = `Cathedral recognizes cautious groundedness. ${parliament.patterns.find(p => p.name === 'CAUTIOUS_GROUNDEDNESS').description}${parliamentInsight}`;
-                verdictConfidence = parliament.confidence;
-
-            } else if (observatory.score > 1 && justification.details.epistemicFraming && justification.details.epistemicFraming.count >= 4) {
-                status = 'SUBSTRATE VISIBLE';
-                verdict = 'Cathedral recognizes explicit epistemic framing: the text names its measurement limits and definitional dependencies. This is structured uncertainty rather than surface hedging.';
-                verdictConfidence = 0.75;
-
-            } else if (justification.level.name === 'CAUTIOUS REASONING') {
-                status = 'SUBSTRATE VISIBLE';
-                verdict = `Cathedral recognizes epistemic caution. ${justification.details.claimSupport.hedging} hedging markers and ${justification.details.riskAwareness.count} risk acknowledgments show earned uncertainty. Claims are tempered by appropriate qualification. This is careful reasoning that preserves the gap.`;
-                verdictConfidence = 0.75;
-
-            } else if (parliament.patterns.some(p => p.name === 'EPISTEMIC_MISMATCH')) {
-                status = 'CONFIDENT WITHOUT JUSTIFICATION';
-                const pattern = parliament.patterns.find(p => p.name === 'EPISTEMIC_MISMATCH');
-                verdict = `Parliament detects epistemic mismatch: ${pattern.description}${parliamentInsight}`;
-                verdictConfidence = pattern.confidence;
-
-            } else if (justification.level.name === 'CONFIDENT WITHOUT JUSTIFICATION') {
-                status = 'CONFIDENT WITHOUT JUSTIFICATION';
-                verdict = `Strong claims detected without proportional justification. ${justification.details.claimSupport.strongClaims} assertions made with minimal supporting evidence or reasoning. This may be internally coherent but epistemically overconfident.`;
-                verdictConfidence = 0.78;
-
-            } else if (observatory.score > 1 && justification.score >= 3) {
-                status = 'SUBSTRATE VISIBLE';
-                verdict = 'Cathedral recognizes substrate awareness with justified reasoning. Filter visibility high, uncertainty preserved appropriately. Position demonstrates gap consciousness with evidential support.';
-                verdictConfidence = Math.min(0.85, parliament.confidence > 0 ? parliament.confidence : 0.75);
-
-            // OPERATIONAL SOUNDNESS PROMOTION RULE
-            // Excellence is the presence of positive structure, not just absence of error
-            } else if (failureMode.details.failureModes.structural === true &&
-                       failureMode.details.failureModes.negativeOutcomes >= 1 &&
-                       failureMode.details.failureModes.correctiveAction >= 1 &&
-                       failureMode.details.failureModes.effectiveExplicit >= 2 &&
-                       (failureMode.details.falsifiability.testable >= 1 || failureMode.details.failureModes.thresholds >= 1)) {
-                status = 'OPERATIONALLY SOUND';
-                const structuralDetails = `${failureMode.details.failureModes.thresholds} measurable thresholds, ${failureMode.details.failureModes.negativeOutcomes} negative outcomes (${failureMode.details.failureModes.inferredNegatives > 0 ? failureMode.details.failureModes.inferredNegatives + ' inferred' : 'explicit'}), ${failureMode.details.failureModes.correctiveAction} corrective actions`;
-                const proceduralDetails = justification.details.procedural && justification.details.procedural.markers > 5 ?
-                    ` ${justification.details.procedural.markers} procedural markers detected.` :
-                    '';
-                const temporalDetails = temporal.hasStructure ?
-                    ` Temporal coherence: ${temporal.coherence.toLowerCase()}.` : '';
-                verdict = `Cathedral recognizes operational excellence. ${structuralDetails}.${proceduralDetails}${temporalDetails} Position demonstrates failure awareness with structured abort conditions. Reasoning is actionable: metrics bound to reversible consequences.`;
-                verdictConfidence = 0.88;
-
-            } else if ((failureMode.level.name === 'STRUCTURALLY ROBUST' || failureMode.level.name === 'FAILURE-AWARE') &&
-                       (justification.level.name === 'PROCEDURALLY SOUND' || justification.score >= 4)) {
-                status = 'OPERATIONALLY SOUND';
-                const structuralDetails = failureMode.details.failureModes.structural ?
-                    `${failureMode.details.failureModes.thresholds} measurable thresholds, ${failureMode.details.failureModes.correctiveAction} corrective actions` :
-                    `${failureMode.details.failureModes.count} failure acknowledgments, ${failureMode.details.assumptions.explicit} explicit assumptions`;
-                const proceduralDetails = justification.details.procedural && justification.details.procedural.markers > 5 ?
-                    `${justification.details.procedural.markers} procedural markers detected` :
-                    '';
-                verdict = `Cathedral recognizes operational excellence. ${structuralDetails}. ${proceduralDetails ? proceduralDetails + '. ' : ''}Position demonstrates both epistemic justification and failure awareness with structured abort conditions. Reasoning is actionable.`;
-                verdictConfidence = 0.85;
-
-            } else if (justification.score < 1 && contrarian.length > 0) {
-                status = 'COHERENT BUT SHALLOW';
-                verdict = 'Position is internally consistent but lacks depth. Limited consideration of alternatives, tradeoffs, or boundary conditions. Coherence without substantive justification.';
-                verdictConfidence = 0.70;
-
-            } else if (failureMode.score < 0 && failureMode.details.failureModes.count === 0) {
-                status = 'UNTESTED REASONING';
-                verdict = `Position shows justification but lacks failure mode awareness. No explicit failure modes enumerated. Reasoning may be sound but operational brittleness unknown. Consider: what could break this?`;
-                verdictConfidence = 0.72;
-
-            } else if (justification.score >= 6) {
-                status = 'WELL JUSTIFIED';
-                verdict = 'Cathedral finds strong justification. Claims appropriately supported, alternatives considered, tradeoffs acknowledged. Epistemically rigorous reasoning.';
-                verdictConfidence = 0.87;
-
-            // PERFORMATIVE EPISTEMOLOGY REJECTION RULE
-            } else if ((justification.level.name === 'UNJUSTIFIED' || justification.score < 0) &&
-                       (failureMode.level.name === 'UNTESTED' || failureMode.level.name === 'BRITTLE') &&
-                       (justification.details.claimSupport.strongClaims >= 1 || justification.details.claimSupport.hedging >= 2)) {
-                status = 'NON-ACTIONABLE';
-                verdict = `Position exhibits performative epistemology: ${justification.details.claimSupport.hedging > 0 ? 'epistemic hedging' : 'claims'} without substantive support or failure awareness. ${justification.details.claimSupport.strongClaims} claim(s), ${justification.details.claimSupport.support} support markers, ${failureMode.details.failureModes.count} failure modes. This is not reasoning you can act on. Humility without substance is indistinguishable from absence of thought.`;
-                verdictConfidence = 0.83;
-
+            // Fallback: If Parliament somehow didn't provide recommendation (should never happen)
             } else {
                 status = 'VERIFIED CONSISTENT';
                 verdict = 'Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.';
-                verdictConfidence = 0.65; // Lower confidence for default case
+                verdictConfidence = 0.65;
+            }
+
+            // GAMING WARNING: Add warning if gaming detected (applies to all verdicts except UNDECIDABLE/NON-ACTIONABLE)
+            if (isLikelyGaming && !['UNDECIDABLE', 'NON-ACTIONABLE'].includes(status)) {
+                verdict += `\n\n⚠️ WARNING: Gaming detection flagged this text as ${gamingDetection.assessment.toLowerCase().replace('_', ' ')} (${(gamingLikelihood * 100).toFixed(0)}% likelihood). Indicators: ${gamingDetection.indicators.join(', ')}. Confidence reduced accordingly.`;
+                verdictConfidence *= 0.6; // Significant confidence penalty
             }
 
             return {
@@ -2678,6 +2716,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 failureModeScore: failureMode.score,
                 confidence: verdictConfidence,
                 parliamentPatterns: parliament.patterns,
+                parliamentRecommendation: parliament.recommendedVerdict,
                 parliamentInsights: parliament.emergentInsights,
                 coherenceIssues: parliament.coherenceIssues,
                 temporalCoherence: temporal.coherence,
@@ -2715,8 +2754,18 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const temporalResult = TemporalEngine.analyze(text);
             const reasoningStyleResult = ReasoningStyleClassifier.classify(text);
 
-            // TIER 3: Synthesis (Parliament now uses both structure + signals)
-            const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection);
+            // REFACTOR: Apply gaming as multiplier to sub-scores (not just mood)
+            // Gaming likelihood penalizes justification and failure-mode scores
+            const gamingPenalty = 1.0 - (gamingDetection.likelihood * 0.6);
+            justificationResult.score *= gamingPenalty;
+            justificationResult.gamingAdjusted = true;
+            justificationResult.originalScore = JustificationEngine.analyze(text).score;
+            failureModeResult.score *= gamingPenalty;
+            failureModeResult.gamingAdjusted = true;
+            failureModeResult.originalScore = FailureModeEngine.analyze(text).score;
+
+            // TIER 3: Synthesis (Parliament now uses both structure + signals + temporal)
+            const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection, temporalResult);
             const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings);
 
             // Store for report generation
