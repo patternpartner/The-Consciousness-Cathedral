@@ -2328,7 +2328,31 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     }
                 });
 
-                // Find winner (highest total weight)
+                // PHASE 3: STOCHASTIC PERTURBATION IN VOTE AGGREGATION
+                // Add temperature parameter for contested votes to prevent deterministic lock-in
+                const temperature = 0.1; // Low temperature = more deterministic, high = more stochastic
+
+                // Apply stochastic weight perturbation for close contests
+                const sortedTalliesPre = Object.entries(tally)
+                    .sort((a, b) => b[1].totalWeight - a[1].totalWeight);
+
+                if (sortedTalliesPre.length >= 2) {
+                    const topWeight = sortedTalliesPre[0][1].totalWeight;
+                    const secondWeight = sortedTalliesPre[1][1].totalWeight;
+                    const contestedMargin = (topWeight - secondWeight) / topWeight;
+
+                    // If margin < 20%, apply stochastic perturbation
+                    if (contestedMargin < 0.2) {
+                        Object.keys(tally).forEach(verdict => {
+                            // Add Gaussian noise proportional to temperature
+                            const noise = (Math.random() - 0.5) * 2 * temperature * tally[verdict].totalWeight;
+                            tally[verdict].totalWeight += noise;
+                            tally[verdict].stochasticAdjustment = noise;
+                        });
+                    }
+                }
+
+                // Find winner (highest total weight after stochastic adjustment)
                 let winner = null;
                 let maxWeight = 0;
                 Object.entries(tally).forEach(([verdict, data]) => {
@@ -2832,6 +2856,133 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
         // Global storage for current analysis results
         let currentAnalysis = null;
+
+        // PHASE 3: VERDICT ARCHAEOLOGY - Cross-analysis institutional memory
+        // Track verdicts across analyses for self-correction and pattern drift detection
+        const VerdictArchive = {
+            verdicts: [], // Array of {textHash, verdict, timestamp, patterns, confidence}
+            maxSize: 100, // Keep last 100 verdicts
+
+            add: function(textHash, verdict, patterns, confidence) {
+                this.verdicts.push({
+                    textHash: textHash,
+                    verdict: verdict,
+                    patterns: patterns,
+                    confidence: confidence,
+                    timestamp: Date.now()
+                });
+
+                // Keep only last maxSize verdicts
+                if (this.verdicts.length > this.maxSize) {
+                    this.verdicts.shift();
+                }
+            },
+
+            findByTextHash: function(textHash) {
+                return this.verdicts.filter(v => v.textHash === textHash);
+            },
+
+            detectDrift: function(textHash, newVerdict, newConfidence) {
+                const previous = this.findByTextHash(textHash);
+                if (previous.length === 0) return null;
+
+                const mostRecent = previous[previous.length - 1];
+                const statusChanged = mostRecent.verdict !== newVerdict;
+                const confidenceShift = newConfidence - mostRecent.confidence;
+
+                return {
+                    drift: statusChanged || Math.abs(confidenceShift) > 0.3,
+                    statusChanged: statusChanged,
+                    confidenceShift: confidenceShift,
+                    direction: confidenceShift > 0 ? 'MORE_CONFIDENT' : 'LESS_CONFIDENT',
+                    previousVerdict: mostRecent.verdict,
+                    previousConfidence: mostRecent.confidence
+                };
+            },
+
+            getPatternWeightHistory: function(patternName) {
+                // Get history of how often this pattern's vote won
+                const patternVotes = this.verdicts.filter(v =>
+                    v.patterns && v.patterns.some(p => p.name === patternName)
+                );
+
+                const wins = patternVotes.filter(v => {
+                    const pattern = v.patterns.find(p => p.name === patternName);
+                    return pattern && pattern.proposedVerdict === v.verdict;
+                }).length;
+
+                return {
+                    totalVotes: patternVotes.length,
+                    wins: wins,
+                    winRate: patternVotes.length > 0 ? wins / patternVotes.length : 0
+                };
+            },
+
+            // PHASE 3: Self-punishment - detect patterns that are over/under-weighted
+            detectPatternDrift: function() {
+                const patternStats = {};
+
+                this.verdicts.forEach(v => {
+                    if (!v.patterns) return;
+                    v.patterns.forEach(p => {
+                        if (!patternStats[p.name]) {
+                            patternStats[p.name] = {
+                                proposals: 0,
+                                wins: 0,
+                                totalConfidence: 0
+                            };
+                        }
+                        patternStats[p.name].proposals += 1;
+                        patternStats[p.name].totalConfidence += p.confidence;
+                        if (p.proposedVerdict === v.verdict) {
+                            patternStats[p.name].wins += 1;
+                        }
+                    });
+                });
+
+                // Flag patterns with unusual win rates
+                const driftWarnings = [];
+                Object.entries(patternStats).forEach(([name, stats]) => {
+                    const winRate = stats.wins / stats.proposals;
+                    const avgConfidence = stats.totalConfidence / stats.proposals;
+
+                    // Over-weighted: wins > 80% despite not always having highest confidence
+                    if (winRate > 0.8 && avgConfidence < 0.85) {
+                        driftWarnings.push({
+                            pattern: name,
+                            issue: 'OVER_WEIGHTED',
+                            winRate: winRate,
+                            avgConfidence: avgConfidence,
+                            recommendation: 'Consider reducing pattern weight or confidence'
+                        });
+                    }
+
+                    // Under-weighted: wins < 20% despite high confidence
+                    if (winRate < 0.2 && avgConfidence > 0.80) {
+                        driftWarnings.push({
+                            pattern: name,
+                            issue: 'UNDER_WEIGHTED',
+                            winRate: winRate,
+                            avgConfidence: avgConfidence,
+                            recommendation: 'Pattern may be systematically ignored'
+                        });
+                    }
+                });
+
+                return driftWarnings;
+            }
+        };
+
+        // Simple text hash function for tracking same texts across analyses
+        function hashText(text) {
+            let hash = 0;
+            for (let i = 0; i < text.length; i++) {
+                const char = text.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            return hash.toString(36);
+        }
 
         // Main Analysis Function
         function analyzeText() {
