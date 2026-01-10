@@ -3403,11 +3403,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
         // Main Analysis Function
         function analyzeText() {
-            const text = document.getElementById('inputText').value.trim();
-            if (!text) {
-                alert('Please enter text to analyze');
-                return;
-            }
+            try {
+                const text = document.getElementById('inputText').value.trim();
+                if (!text) {
+                    alert('Please enter text to analyze');
+                    return;
+                }
 
             // Get sanitization info (run once to capture what will be stripped)
             const { sanitizationLog } = TextCleaner.removeQuotes(text);
@@ -3579,6 +3580,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // Show results
             document.getElementById('results').classList.add('visible');
             document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error in analyzeText():', error);
+                alert('An error occurred during analysis. Check browser console for details.\n\nError: ' + error.message);
+            }
         }
 
         function updateInputMeta() {
