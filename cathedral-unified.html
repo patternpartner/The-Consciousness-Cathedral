@@ -2411,6 +2411,25 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
 
                 // GENERATE VERDICT FROM WINNING BALLOT(S)
+                // Guard against no winner (e.g., all patterns abstained)
+                if (!winner || !tally[winner]) {
+                    return {
+                        verdict: 'UNDECIDABLE',
+                        confidence: 0.0,
+                        votingRecord: {
+                            ballots: ballots,
+                            tally: tally,
+                            winner: null,
+                            margin: 'N/A',
+                            unanimity: false,
+                            minorityOpinions: [],
+                            stochasticityApplied: false,
+                            temperature: 0
+                        },
+                        deliberationSummary: 'No patterns proposed verdicts with sufficient confidence. Cathedral abstains from judgment.'
+                    };
+                }
+
                 const winningBallots = ballots.filter(b => b.proposedVerdict === winner);
                 let verdictConfidence = tally[winner].totalWeight / tally[winner].votes; // Average confidence
 
