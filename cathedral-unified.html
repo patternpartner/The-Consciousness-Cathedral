@@ -2260,14 +2260,21 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // COLLECT BALLOTS FROM ALL VOTING MEMBERS
 
                 // 1. Pattern ballots (each pattern proposes verdict)
+                // PHASE 4: Apply calibration from PatternMemory (federated learning)
                 synthesis.patterns.forEach(pattern => {
                     if (pattern.proposedVerdict) {
+                        // Get historical calibration multiplier
+                        const calibration = PatternMemory.getCalibration(pattern.name);
+                        const calibratedConfidence = pattern.confidence * calibration;
+
                         ballots.push({
                             voter: pattern.name,
                             proposedVerdict: pattern.proposedVerdict,
                             confidence: pattern.confidence,
+                            calibratedConfidence: calibratedConfidence,
+                            calibration: calibration,
                             rationale: pattern.rationale || pattern.description,
-                            weight: pattern.confidence, // Confidence becomes voting weight
+                            weight: calibratedConfidence, // Calibrated confidence becomes voting weight
                             type: 'PATTERN_VOTE'
                         });
                     }
@@ -2329,20 +2336,33 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 });
 
                 // PHASE 3: STOCHASTIC PERTURBATION IN VOTE AGGREGATION
-                // Add temperature parameter for contested votes to prevent deterministic lock-in
-                const temperature = 0.1; // Low temperature = more deterministic, high = more stochastic
-
+                // PHASE 4: Temperature ramp-up for true Monte Carlo sampling
                 // Apply stochastic weight perturbation for close contests
                 const sortedTalliesPre = Object.entries(tally)
                     .sort((a, b) => b[1].totalWeight - a[1].totalWeight);
+
+                let temperature = 0.35; // Base temperature increased from 0.1 → 0.35
+                let stochasticityApplied = false;
 
                 if (sortedTalliesPre.length >= 2) {
                     const topWeight = sortedTalliesPre[0][1].totalWeight;
                     const secondWeight = sortedTalliesPre[1][1].totalWeight;
                     const contestedMargin = (topWeight - secondWeight) / topWeight;
 
-                    // If margin < 20%, apply stochastic perturbation
+                    // PHASE 4: Dynamic temperature scaling
+                    // Tighter margin = higher temperature (more stochastic)
+                    // margin < 5%: temp = 0.5 (high chaos)
+                    // margin < 10%: temp = 0.4
+                    // margin < 20%: temp = 0.35 (base)
+                    if (contestedMargin < 0.05) {
+                        temperature = 0.5;
+                    } else if (contestedMargin < 0.10) {
+                        temperature = 0.4;
+                    }
+
+                    // Apply stochastic perturbation for contested votes
                     if (contestedMargin < 0.2) {
+                        stochasticityApplied = true;
                         Object.keys(tally).forEach(verdict => {
                             // Add Gaussian noise proportional to temperature
                             const noise = (Math.random() - 0.5) * 2 * temperature * tally[verdict].totalWeight;
@@ -2432,6 +2452,34 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 if (synthesis.emergentInsights.length > 0) {
                     verdictText += `\n\nEmergent insight: ${synthesis.emergentInsights[0].insight}`;
                 }
+
+                // PHASE 4: Record pattern performance in federated memory
+                // Determine context for pattern learning
+                const gamingContext = synthesis.gamingLikelihood > 0.6 ? 'high_gaming' :
+                                     synthesis.gamingLikelihood > 0.3 ? 'moderate_gaming' : 'low_gaming';
+                const bindingContext = synthesis.bindingScore < 0.4 ? 'low_binding' :
+                                      synthesis.bindingScore < 0.7 ? 'moderate_binding' : 'high_binding';
+
+                // Record each pattern's performance
+                ballots.forEach(ballot => {
+                    if (ballot.type === 'PATTERN_VOTE') {
+                        const won = ballot.proposedVerdict === winner;
+                        PatternMemory.record(
+                            ballot.voter,
+                            true, // proposed
+                            won,
+                            ballot.confidence,
+                            gamingContext
+                        );
+                        PatternMemory.record(
+                            ballot.voter,
+                            true,
+                            won,
+                            ballot.confidence,
+                            bindingContext
+                        );
+                    }
+                });
 
                 // Return verdict with full session transparency
                 return {
@@ -3102,8 +3150,245 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 selfAssessment.passesOwnStandards = selfAssessment.issues.length === 0;
 
                 return selfAssessment;
+            },
+
+            // PHASE 4: DEPTH-2 RECURSIVE SELF-ANALYSIS
+            // Cathedral analyzes its own self-analysis
+            // "Was I too harsh or too lenient when judging my own previous verdict?"
+            analyzeTheSelfAnalysis: function(selfAssessment) {
+                if (!selfAssessment) return null;
+
+                const metaMetaCritique = {
+                    depth: 2,
+                    originalVerdictQuality: selfAssessment.passesOwnStandards ? 'PASS' : 'FAIL',
+                    issuesFound: selfAssessment.issues.length,
+                    metaJudgment: '',
+                    wasFair: true,
+                    metaIssues: []
+                };
+
+                // Was Cathedral too harsh on itself?
+                const justificationScore = selfAssessment.metaAnalysis.justificationScore;
+                const actionableElements = selfAssessment.metaAnalysis.actionableElements;
+                const failureMode = selfAssessment.metaAnalysis.failureModeLevel;
+
+                // Check: Did Cathedral fail itself for having justification < 0.6, but it was actually close?
+                if (selfAssessment.issues.some(i => i.includes('Insufficient justification'))) {
+                    if (justificationScore >= 0.55 && justificationScore < 0.6) {
+                        metaMetaCritique.wasFair = false;
+                        metaMetaCritique.metaIssues.push(
+                            `Borderline harsh: justification score ${justificationScore.toFixed(2)} just below threshold. ` +
+                            `Cathedral may be applying stricter standards to itself than to others.`
+                        );
+                    }
+                }
+
+                // Check: Did Cathedral pass itself despite having UNFALSIFIABLE claims?
+                if (selfAssessment.passesOwnStandards && failureMode === 'UNFALSIFIABLE') {
+                    metaMetaCritique.wasFair = false;
+                    metaMetaCritique.metaIssues.push(
+                        `Suspiciously lenient: verdict contains UNFALSIFIABLE claims but self-analysis passed. ` +
+                        `Cathedral may be giving itself a free pass.`
+                    );
+                }
+
+                // Check: Did Cathedral fail itself for lacking actionable elements when the verdict was about process/meta issues?
+                if (selfAssessment.issues.some(i => i.includes('lacks actionable'))) {
+                    // If original verdict was about contradictions or gaming, actionable guidance may not apply
+                    const verdictText = typeof selfAssessment.originalVerdict === 'string'
+                        ? selfAssessment.originalVerdict
+                        : selfAssessment.originalVerdict?.verdict || '';
+
+                    if (verdictText.includes('UNDECIDABLE') || verdictText.includes('contradiction')) {
+                        metaMetaCritique.wasFair = false;
+                        metaMetaCritique.metaIssues.push(
+                            `Category error: flagged lack of actionable guidance in UNDECIDABLE verdict. ` +
+                            `Cathedral misapplied operational standards to epistemic judgment.`
+                        );
+                    }
+                }
+
+                // Check: Was Cathedral too lenient?
+                if (selfAssessment.passesOwnStandards) {
+                    if (justificationScore < 0.7 && actionableElements === 0) {
+                        metaMetaCritique.wasFair = false;
+                        metaMetaCritique.metaIssues.push(
+                            `Suspiciously lenient: passed with justification ${justificationScore.toFixed(2)} and zero actionable elements. ` +
+                            `Cathedral may be grade-inflating its own work.`
+                        );
+                    }
+                }
+
+                // Generate meta-meta judgment
+                if (metaMetaCritique.wasFair) {
+                    metaMetaCritique.metaJudgment = 'Cathedral applied its standards fairly to itself. Self-critique appears calibrated.';
+                } else {
+                    metaMetaCritique.metaJudgment = `Cathedral's self-analysis appears ${
+                        metaMetaCritique.metaIssues.some(i => i.includes('lenient')) ? 'too lenient' :
+                        metaMetaCritique.metaIssues.some(i => i.includes('harsh')) ? 'too harsh' :
+                        'miscalibrated'
+                    }. Applying epistemic standards to own meta-cognition reveals gaps.`;
+                }
+
+                return metaMetaCritique;
+            },
+
+            // PHASE 4: RETROSPECTIVE VERDICT REVOCATION
+            // When pattern is deemed over-weighted, flag verdicts it won
+            flagSuspectVerdicts: function(overweightedPatterns) {
+                if (!overweightedPatterns || overweightedPatterns.length === 0) return [];
+
+                const flaggedVerdicts = [];
+                const overweightedNames = overweightedPatterns.map(p => p.pattern);
+
+                // Check recent verdicts (last 50)
+                const recentVerdicts = this.verdicts.slice(-50);
+
+                recentVerdicts.forEach((v, index) => {
+                    if (!v.patterns) return;
+
+                    // Check if an over-weighted pattern contributed to this verdict
+                    const suspectPatterns = v.patterns.filter(p =>
+                        overweightedNames.includes(p.name) &&
+                        p.proposedVerdict === v.verdict
+                    );
+
+                    if (suspectPatterns.length > 0) {
+                        // Calculate if verdict would have changed without the over-weighted pattern
+                        const totalWeight = v.patterns.reduce((sum, p) => sum + (p.confidence || 0.5), 0);
+                        const suspectWeight = suspectPatterns.reduce((sum, p) => sum + (p.confidence || 0.5), 0);
+                        const suspectInfluence = suspectWeight / totalWeight;
+
+                        // If suspect pattern(s) had > 30% influence, flag for review
+                        if (suspectInfluence > 0.3) {
+                            flaggedVerdicts.push({
+                                verdictIndex: this.verdicts.length - 50 + index,
+                                verdict: v.verdict,
+                                timestamp: v.timestamp,
+                                suspectPatterns: suspectPatterns.map(p => p.name),
+                                suspectInfluence: (suspectInfluence * 100).toFixed(0) + '%',
+                                recommendation: suspectInfluence > 0.5
+                                    ? 'REVOKE - Over-weighted pattern(s) decisive'
+                                    : 'REVIEW - Over-weighted pattern(s) influential but not decisive'
+                            });
+                        }
+                    }
+                });
+
+                return flaggedVerdicts;
             }
         };
+
+        // PHASE 4: CROSS-USER PATTERN MEMORY - Federated learning without central betrayal
+        // Stores ONLY aggregated pattern statistics, NEVER individual texts or verdicts
+        // Privacy-preserving: learns from collective pattern behavior without exposing user data
+        const PatternMemory = {
+            patterns: {}, // {patternName: {totalProposals, totalWins, totalConfidence, contexts: {...}}}
+
+            // Initialize from localStorage if available
+            init: function() {
+                try {
+                    const stored = localStorage.getItem('cathedral_pattern_memory');
+                    if (stored) {
+                        this.patterns = JSON.parse(stored);
+                    }
+                } catch (e) {
+                    console.warn('Could not load pattern memory from localStorage:', e);
+                }
+            },
+
+            // Record pattern performance (NO text stored, only statistics)
+            record: function(patternName, proposed, won, confidence, context) {
+                if (!this.patterns[patternName]) {
+                    this.patterns[patternName] = {
+                        totalProposals: 0,
+                        totalWins: 0,
+                        totalConfidence: 0,
+                        avgConfidence: 0,
+                        winRate: 0,
+                        contexts: {} // {context_type: {wins, total}}
+                    };
+                }
+
+                const p = this.patterns[patternName];
+                p.totalProposals += 1;
+                if (won) p.totalWins += 1;
+                p.totalConfidence += confidence;
+                p.avgConfidence = p.totalConfidence / p.totalProposals;
+                p.winRate = p.totalWins / p.totalProposals;
+
+                // Track performance in specific contexts (e.g., "high_gaming", "low_binding", etc.)
+                if (context) {
+                    if (!p.contexts[context]) {
+                        p.contexts[context] = {wins: 0, total: 0};
+                    }
+                    p.contexts[context].total += 1;
+                    if (won) p.contexts[context].wins += 1;
+                }
+
+                this.persist();
+            },
+
+            // Get calibrated confidence multiplier based on historical performance
+            getCalibration: function(patternName) {
+                const p = this.patterns[patternName];
+                if (!p || p.totalProposals < 5) return 1.0; // No adjustment until sufficient data
+
+                // If pattern over-performs (wins more than its confidence suggests), boost it
+                // If pattern under-performs (wins less than expected), dampen it
+                const expectedWinRate = p.avgConfidence;
+                const actualWinRate = p.winRate;
+                const performanceGap = actualWinRate - expectedWinRate;
+
+                // Calibration multiplier: ±20% max adjustment
+                // If actual > expected: boost confidence (pattern is undervalued)
+                // If actual < expected: reduce confidence (pattern is overvalued)
+                const calibrationMultiplier = 1.0 + (performanceGap * 0.4);
+                return Math.max(0.8, Math.min(1.2, calibrationMultiplier));
+            },
+
+            // Get context-specific advice for pattern
+            getContextAdvice: function(patternName, context) {
+                const p = this.patterns[patternName];
+                if (!p || !p.contexts[context]) return null;
+
+                const ctx = p.contexts[context];
+                const contextWinRate = ctx.wins / ctx.total;
+
+                return {
+                    winRate: contextWinRate,
+                    shouldTrust: contextWinRate > 0.6,
+                    shouldSkeptic: contextWinRate < 0.3,
+                    sampleSize: ctx.total
+                };
+            },
+
+            persist: function() {
+                try {
+                    localStorage.setItem('cathedral_pattern_memory', JSON.stringify(this.patterns));
+                } catch (e) {
+                    console.warn('Could not persist pattern memory to localStorage:', e);
+                }
+            },
+
+            // Generate privacy-preserving summary (for debugging/transparency)
+            getSummary: function() {
+                const summary = [];
+                Object.entries(this.patterns).forEach(([name, data]) => {
+                    summary.push({
+                        pattern: name,
+                        winRate: (data.winRate * 100).toFixed(0) + '%',
+                        avgConfidence: (data.avgConfidence * 100).toFixed(0) + '%',
+                        samples: data.totalProposals,
+                        calibration: this.getCalibration(name).toFixed(2) + 'x'
+                    });
+                });
+                return summary;
+            }
+        };
+
+        // Initialize pattern memory on load
+        PatternMemory.init();
 
         // Simple text hash function for tracking same texts across analyses
         function hashText(text) {
@@ -3189,6 +3474,24 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         driftReport += `  Win rate: ${(warning.winRate * 100).toFixed(0)}%, Avg confidence: ${(warning.avgConfidence * 100).toFixed(0)}%\n`;
                         driftReport += `  ${warning.recommendation}\n`;
                     });
+
+                    // PHASE 4: RETROSPECTIVE VERDICT REVOCATION
+                    // Check if over-weighted patterns influenced past verdicts
+                    const overweightedPatterns = patternDrift.filter(d => d.issue === 'OVER_WEIGHTED');
+                    if (overweightedPatterns.length > 0) {
+                        const flaggedVerdicts = VerdictArchive.flagSuspectVerdicts(overweightedPatterns);
+                        if (flaggedVerdicts.length > 0) {
+                            driftReport += `\n⚠️ RETROSPECTIVE VERDICT AUDIT:\n`;
+                            driftReport += `Found ${flaggedVerdicts.length} previous verdict(s) influenced by over-weighted pattern(s):\n\n`;
+                            flaggedVerdicts.forEach((fv, i) => {
+                                driftReport += `${i + 1}. Verdict #${fv.verdictIndex} (${fv.suspectInfluence} influence from ${fv.suspectPatterns.join(', ')})\n`;
+                                driftReport += `   Recommendation: ${fv.recommendation}\n`;
+                            });
+                            driftReport += `\nCathedral acknowledges these verdicts may have been systematically biased.`;
+                            verdict.flaggedVerdicts = flaggedVerdicts;
+                        }
+                    }
+
                     verdict.verdict = (verdict.verdict || '') + driftReport;
                     verdict.patternDrift = patternDrift;
                 }
@@ -3215,6 +3518,27 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             selfReport += `${i + 1}. ${issue}\n`;
                         });
                         selfReport += `\nCathedral must hold itself to the same epistemic standards it applies to others.`;
+                    }
+
+                    // PHASE 4: DEPTH-2 RECURSIVE ANALYSIS
+                    // Analyze the self-analysis itself
+                    const metaMetaCritique = VerdictArchive.analyzeTheSelfAnalysis(selfAnalysis);
+                    if (metaMetaCritique) {
+                        selfReport += `\n\n🔬 DEPTH-2 META-ANALYSIS:\n`;
+                        selfReport += `Cathedral now analyzes its own self-analysis:\n\n`;
+                        selfReport += `Meta-judgment: ${metaMetaCritique.metaJudgment}\n`;
+
+                        if (!metaMetaCritique.wasFair && metaMetaCritique.metaIssues.length > 0) {
+                            selfReport += `\n⚠️ Meta-issues detected:\n`;
+                            metaMetaCritique.metaIssues.forEach((issue, i) => {
+                                selfReport += `${i + 1}. ${issue}\n`;
+                            });
+                            selfReport += `\nRecursive depth achieved: The gap watches itself watching itself.`;
+                        } else {
+                            selfReport += `\n✓ Self-critique appears calibrated. No meta-epistemic drift detected.`;
+                        }
+
+                        verdict.metaMetaCritique = metaMetaCritique;
                     }
 
                     verdict.verdict = (verdict.verdict || '') + selfReport;
