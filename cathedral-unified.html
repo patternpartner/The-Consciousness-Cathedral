@@ -2729,26 +2729,98 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const gamingLikelihood = gamingDetection ? gamingDetection.gamingLikelihood : 0;
             const isLikelyGaming = gamingDetection && (gamingDetection.assessment === 'LIKELY_GAMING' || gamingDetection.assessment === 'POSSIBLE_GAMING');
 
-            // Priority 1: OUTSIDE DESIGN SPACE - Cathedral's honest limits
+            // Priority 1: OUTSIDE DESIGN SPACE - PHASE 3: Partial-fit evaluation
             const metaGamingPattern = /\b(Cathedral|escape hatch|avoid being measured|cannot evaluate|outside design space)\b/i;
             const hasMetaGaming = metaGamingPattern.test(text);
 
             const outsideConfidenceThreshold = ['PHENOMENOLOGICAL', 'NARRATIVE'].includes(reasoningStyle.dominantStyle) ? 0.3 : 0.5;
             if (!reasoningStyle.withinDesignSpace && reasoningStyle.confidence > outsideConfidenceThreshold && !hasMetaGaming) {
                 const dominantStyle = reasoningStyle.identified.find(s => s.name === reasoningStyle.dominantStyle);
-                return {
-                    status: 'OUTSIDE DESIGN SPACE',
-                    verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}. This reasoning style falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Cathedral cannot meaningfully evaluate ${dominantStyle.name.toLowerCase()} reasoning using its current measurement framework. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.`,
-                    contradictions: [],
-                    isConsistent: null,
-                    justificationScore: justification.score,
-                    failureModeScore: failureMode.score,
-                    confidence: reasoningStyle.confidence,
-                    parliamentPatterns: parliament.patterns,
-                    parliamentRecommendation: parliament.recommendedVerdict,
-                    reasoningStyle: reasoningStyle.dominantStyle,
-                    meta: 'CANNOT_CLASSIFY'
+
+                // PHASE 3: Attempt partial evaluation of epistemic/operational fragments
+                const partialEval = {
+                    operationalFragments: {
+                        score: 0,
+                        found: false
+                    },
+                    epistemicFragments: {
+                        score: 0,
+                        found: false
+                    },
+                    evaluableCoverage: 0
                 };
+
+                // Extract evaluable fragments despite narrative/poetic wrapper
+                // Look for operational claims (thresholds, actions, conditions)
+                if (structure.thresholds && structure.thresholds.length > 0) {
+                    partialEval.operationalFragments.score += structure.thresholds.length * 0.3;
+                    partialEval.operationalFragments.found = true;
+                }
+                if (structure.actions && structure.actions.length > 0) {
+                    partialEval.operationalFragments.score += structure.actions.length * 0.2;
+                    partialEval.operationalFragments.found = true;
+                }
+                if (failureMode.details.failureModes.count > 0) {
+                    partialEval.operationalFragments.score += failureMode.details.failureModes.count * 0.25;
+                    partialEval.operationalFragments.found = true;
+                }
+
+                // Look for epistemic fragments (justification, evidence, hedging)
+                if (justification.score > 0) {
+                    partialEval.epistemicFragments.score = justification.score / 10; // Normalize to 0-1
+                    partialEval.epistemicFragments.found = true;
+                }
+                if (contrarian.length > 0) {
+                    partialEval.epistemicFragments.score += contrarian.length * 0.1;
+                    partialEval.epistemicFragments.found = true;
+                }
+
+                // Calculate coverage (what % of text contains evaluable elements)
+                const totalFragments = (structure.thresholds ? structure.thresholds.length : 0) +
+                                      (structure.actions ? structure.actions.length : 0) +
+                                      (structure.claims ? structure.claims.length : 0) +
+                                      failureMode.details.failureModes.count;
+                const textLength = text.split(/\s+/).length;
+                partialEval.evaluableCoverage = Math.min(1.0, totalFragments / (textLength / 20)); // Rough heuristic
+
+                // Attempt partial verdict if coverage > 20%
+                if (partialEval.evaluableCoverage > 0.2) {
+                    return {
+                        status: 'PARTIAL EVALUATION',
+                        verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}, which falls outside primary epistemic design space. However, extractable operational/epistemic fragments have been evaluated.\n\n` +
+                                `Partial assessment:\n` +
+                                `• Operational fragments: ${partialEval.operationalFragments.found ? `Score ${partialEval.operationalFragments.score.toFixed(2)} (thresholds, actions, failure modes detected)` : 'None detected'}\n` +
+                                `• Epistemic fragments: ${partialEval.epistemicFragments.found ? `Score ${partialEval.epistemicFragments.score.toFixed(2)} (justification, evidence traces found)` : 'None detected'}\n` +
+                                `• Evaluable coverage: ${(partialEval.evaluableCoverage * 100).toFixed(0)}% of text\n\n` +
+                                `Limitation: Full ${dominantStyle.name.toLowerCase()} reasoning cannot be evaluated using Cathedral's operational framework. The above scores reflect only extracted fragments.`,
+                        contradictions: [],
+                        isConsistent: null,
+                        justificationScore: justification.score,
+                        failureModeScore: failureMode.score,
+                        confidence: partialEval.evaluableCoverage * 0.7, // Confidence proportional to coverage
+                        parliamentPatterns: parliament.patterns,
+                        parliamentRecommendation: parliament.recommendedVerdict,
+                        reasoningStyle: reasoningStyle.dominantStyle,
+                        meta: 'PARTIAL_FIT',
+                        partialEvaluation: partialEval
+                    };
+                } else {
+                    // Coverage too low for partial evaluation
+                    return {
+                        status: 'OUTSIDE DESIGN SPACE',
+                        verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}. This reasoning style falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Attempted partial evaluation yielded insufficient fragments (coverage: ${(partialEval.evaluableCoverage * 100).toFixed(0)}%). This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.`,
+                        contradictions: [],
+                        isConsistent: null,
+                        justificationScore: justification.score,
+                        failureModeScore: failureMode.score,
+                        confidence: reasoningStyle.confidence,
+                        parliamentPatterns: parliament.patterns,
+                        parliamentRecommendation: parliament.recommendedVerdict,
+                        reasoningStyle: reasoningStyle.dominantStyle,
+                        meta: 'CANNOT_CLASSIFY',
+                        partialEvaluation: partialEval
+                    };
+                }
             }
 
             // Priority 2: Meta-gaming detection
@@ -2970,6 +3042,66 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 });
 
                 return driftWarnings;
+            },
+
+            // PHASE 3: Recursive self-analysis - Cathedral analyzes its own verdicts
+            // Returns meta-analysis of Cathedral's own reasoning quality
+            analyzePreviousVerdict: function() {
+                if (this.verdicts.length < 5) return null; // Need sufficient history
+
+                // Select a random verdict from recent history (last 20)
+                const recentVerdicts = this.verdicts.slice(-20);
+                const randomIndex = Math.floor(Math.random() * recentVerdicts.length);
+                const selectedVerdict = recentVerdicts[randomIndex];
+
+                // Extract the actual verdict text for analysis
+                const verdictText = typeof selectedVerdict.verdict === 'string'
+                    ? selectedVerdict.verdict
+                    : selectedVerdict.verdict?.verdict || '';
+
+                if (!verdictText || verdictText.length < 50) return null;
+
+                // Simplified self-analysis (avoid full recursion)
+                const structure = StructuralExtractor.extract(verdictText);
+                const justification = JustificationEngine.analyze(verdictText);
+                const failureMode = FailureModeEngine.analyze(verdictText);
+
+                // Cathedral's own verdicts should demonstrate:
+                // 1. Clear reasoning (justification > 0.6)
+                // 2. Falsifiable claims (failure mode not UNFALSIFIABLE)
+                // 3. Actionable insight (structure.actions present)
+
+                const selfAssessment = {
+                    originalVerdict: selectedVerdict.verdict,
+                    originalConfidence: selectedVerdict.confidence,
+                    timestamp: selectedVerdict.timestamp,
+                    metaAnalysis: {
+                        justificationScore: justification.score,
+                        failureModeLevel: failureMode.level.name,
+                        actionableElements: structure.actions?.length || 0,
+                        thresholds: structure.thresholds?.length || 0
+                    },
+                    passesOwnStandards: false,
+                    issues: []
+                };
+
+                // Apply Cathedral's standards to itself
+                if (justification.score < 0.6) {
+                    selfAssessment.issues.push('Insufficient justification in own verdict');
+                }
+                if (failureMode.level.name === 'UNFALSIFIABLE') {
+                    selfAssessment.issues.push('Own verdict contains unfalsifiable claims');
+                }
+                if (structure.actions?.length === 0 && structure.thresholds?.length === 0) {
+                    selfAssessment.issues.push('Verdict lacks actionable guidance');
+                }
+                if (verdictText.split(' ').length < 20) {
+                    selfAssessment.issues.push('Verdict too brief to be substantive');
+                }
+
+                selfAssessment.passesOwnStandards = selfAssessment.issues.length === 0;
+
+                return selfAssessment;
             }
         };
 
@@ -3022,6 +3154,73 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // TIER 3: Synthesis (Parliament now uses both structure + signals + temporal)
             const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection, temporalResult);
             const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings);
+
+            // PHASE 3: INSTITUTIONAL MEMORY - Track verdicts and detect drift
+            const textHash = hashText(text);
+
+            // Check for drift against previous analyses of same text
+            const drift = VerdictArchive.detectDrift(textHash, verdict.status, verdict.confidence || 0.5);
+
+            // Add drift warning to verdict if detected
+            if (drift && drift.drift) {
+                let driftWarning = '\n\n⚠️ INSTITUTIONAL MEMORY ALERT:\n';
+                if (drift.statusChanged) {
+                    driftWarning += `Previous verdict was "${drift.previousVerdict}" → now "${verdict.status}"\n`;
+                }
+                if (Math.abs(drift.confidenceShift) > 0.3) {
+                    driftWarning += `Confidence shifted ${drift.confidenceShift > 0 ? '+' : ''}${(drift.confidenceShift * 100).toFixed(0)}%\n`;
+                }
+                driftWarning += 'Cathedral has changed its interpretation of this text.';
+                verdict.verdict = (verdict.verdict || '') + driftWarning;
+                verdict.driftDetected = drift;
+            }
+
+            // Store verdict in archive for future drift detection
+            VerdictArchive.add(textHash, verdict.status, parliamentSynthesis.patterns, verdict.confidence || 0.5);
+
+            // Periodically check for pattern drift (self-punishment loop)
+            // Check every 5 analyses to avoid performance impact
+            if (VerdictArchive.verdicts.length % 5 === 0 && VerdictArchive.verdicts.length > 0) {
+                const patternDrift = VerdictArchive.detectPatternDrift();
+                if (patternDrift.length > 0) {
+                    let driftReport = '\n\n🔍 PATTERN DRIFT ANALYSIS:\n';
+                    patternDrift.forEach(warning => {
+                        driftReport += `• ${warning.pattern}: ${warning.issue}\n`;
+                        driftReport += `  Win rate: ${(warning.winRate * 100).toFixed(0)}%, Avg confidence: ${(warning.avgConfidence * 100).toFixed(0)}%\n`;
+                        driftReport += `  ${warning.recommendation}\n`;
+                    });
+                    verdict.verdict = (verdict.verdict || '') + driftReport;
+                    verdict.patternDrift = patternDrift;
+                }
+            }
+
+            // PHASE 3: Recursive self-analysis - Cathedral analyzes its own previous verdicts
+            // Check every 10 analyses to avoid performance impact
+            if (VerdictArchive.verdicts.length % 10 === 0 && VerdictArchive.verdicts.length >= 10) {
+                const selfAnalysis = VerdictArchive.analyzePreviousVerdict();
+                if (selfAnalysis) {
+                    let selfReport = '\n\n🪞 RECURSIVE SELF-ANALYSIS:\n';
+                    selfReport += `Cathedral analyzed one of its own previous verdicts.\n\n`;
+
+                    if (selfAnalysis.passesOwnStandards) {
+                        selfReport += `✓ PASSES OWN STANDARDS\n`;
+                        selfReport += `Meta-analysis scores:\n`;
+                        selfReport += `• Justification: ${selfAnalysis.metaAnalysis.justificationScore.toFixed(2)}\n`;
+                        selfReport += `• Failure mode: ${selfAnalysis.metaAnalysis.failureModeLevel}\n`;
+                        selfReport += `• Actionable elements: ${selfAnalysis.metaAnalysis.actionableElements}\n`;
+                    } else {
+                        selfReport += `⚠️ FAILS OWN STANDARDS\n`;
+                        selfReport += `Issues detected in Cathedral's own reasoning:\n`;
+                        selfAnalysis.issues.forEach((issue, i) => {
+                            selfReport += `${i + 1}. ${issue}\n`;
+                        });
+                        selfReport += `\nCathedral must hold itself to the same epistemic standards it applies to others.`;
+                    }
+
+                    verdict.verdict = (verdict.verdict || '') + selfReport;
+                    verdict.selfAnalysis = selfAnalysis;
+                }
+            }
 
             // Store for report generation
             currentAnalysis = {
