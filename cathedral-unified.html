@@ -1997,7 +1997,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             substrate: observatory.score,
                             justification: justification.score,
                             failureAwareness: failureMode.level.name
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'NON-ACTIONABLE',
+                        rationale: 'Substrate markers present without operational grounding or substantive reasoning'
                     });
                 }
 
@@ -2019,7 +2022,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             failureBinding: hasStructuralFailures,
                             structuralBinding: hasFailureBinding,
                             epistemic: contrarian.length
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'OPERATIONALLY SOUND',
+                        rationale: `Procedural rigor (${proceduralScore.toFixed(1)}), structural failure binding verified, ${explicitFailureCount} explicit failure modes`
                     });
                 } else if (proceduralScore >= 1.5 && hasStructuralFailures && !hasFailureBinding) {
                     // Keywords present but not structurally bound
@@ -2042,7 +2048,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             claims: strongClaims,
                             justification: justification.score,
                             challenges: contrarian.length
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'CONFIDENT WITHOUT JUSTIFICATION',
+                        rationale: `${strongClaims} claims exceed justification (${justification.score.toFixed(1)}), ${contrarian.length} challenges unresolved`
                     });
                 }
 
@@ -2058,7 +2067,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             substrate: observatory.score,
                             justification: justification.score,
                             operational: failureMode.level.name
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'SUBSTRATE VISIBLE',
+                        rationale: `Observatory ${observatory.score.toFixed(1)}, justification ${justification.score.toFixed(1)}, balanced epistemic awareness`
                     });
                 }
 
@@ -2073,7 +2085,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             substrate: observatory.score,
                             certainty: justification.score,
                             operational: failureMode.level.name
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'UNDECIDABLE',
+                        rationale: 'Certainty about internal states without epistemic access or operational grounding'
                     });
                 }
 
@@ -2090,7 +2105,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             hedging: hedging,
                             substance: justification.score,
                             actionability: failureMode.level.name
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'NON-ACTIONABLE',
+                        rationale: `${hedging} hedging markers without substantive support or operational content`
                     });
                 }
 
@@ -2113,7 +2131,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             triggerSpecificity: bindings.specificity.trigger,
                             actionSpecificity: bindings.specificity.action,
                             instrumentation: bindings.specificity.instrumentation
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'OPERATIONAL INTENT',
+                        rationale: `${bindings.implicitBindings.boundCount} implicit bindings, ${structure.failureSignals ? structure.failureSignals.length : 0} failure signals, actionable but uninstrumented`
                     });
                 }
 
@@ -2225,162 +2246,200 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     });
                 }
 
-                // REFACTOR: PARLIAMENT VERDICT RECOMMENDATION SYSTEM
-                // Parliament now recommends verdict based on pattern synthesis with confidence weighting
-                synthesis.recommendedVerdict = this.recommendVerdict(synthesis, observatory, justification, failureMode, temporal, contrarian);
+                // PHASE 2: WEIGHTED PARLIAMENTARY VOTING SYSTEM
+                // Parliament conducts true weighted vote - patterns, temporal, and coherence all cast ballots
+                synthesis.recommendedVerdict = this.conductVote(synthesis, observatory, justification, failureMode, temporal, contrarian);
 
                 return synthesis;
             },
 
-            // REFACTOR: Verdict recommendation driven by Parliament patterns
-            recommendVerdict: function(synthesis, observatory, justification, failureMode, temporal, contrarian) {
-                const patterns = synthesis.patterns;
-                const recommendation = {
-                    status: 'VERIFIED CONSISTENT',
-                    verdict: '',
-                    confidence: synthesis.confidence,
-                    rationale: []
+            // PHASE 2: Weighted Parliamentary Voting - Patterns vote, emergent majority wins
+            conductVote: function(synthesis, observatory, justification, failureMode, temporal, contrarian) {
+                const ballots = [];
+
+                // COLLECT BALLOTS FROM ALL VOTING MEMBERS
+
+                // 1. Pattern ballots (each pattern proposes verdict)
+                synthesis.patterns.forEach(pattern => {
+                    if (pattern.proposedVerdict) {
+                        ballots.push({
+                            voter: pattern.name,
+                            proposedVerdict: pattern.proposedVerdict,
+                            confidence: pattern.confidence,
+                            rationale: pattern.rationale || pattern.description,
+                            weight: pattern.confidence, // Confidence becomes voting weight
+                            type: 'PATTERN_VOTE'
+                        });
+                    }
+                });
+
+                // 2. Temporal Engine ballot
+                const temporalBallot = TemporalEngine.proposeVerdict(temporal, justification, failureMode);
+                if (temporalBallot.proposedVerdict) {
+                    ballots.push(temporalBallot);
+                }
+
+                // 3. Coherence issues as negative votes (vote for UNDECIDABLE)
+                synthesis.coherenceIssues.forEach(issue => {
+                    const severityConf = issue.severity === 'HIGH' ? 0.90 :
+                                        issue.severity === 'MODERATE' ? 0.65 : 0.40;
+                    ballots.push({
+                        voter: 'COHERENCE_MONITOR',
+                        proposedVerdict: 'UNDECIDABLE',
+                        confidence: severityConf,
+                        rationale: issue.detail,
+                        weight: severityConf,
+                        type: 'NEGATIVE_VOTE'
+                    });
+                });
+
+                // CONDUCT WEIGHTED VOTE
+
+                // Tally votes by verdict
+                const tally = {};
+                ballots.forEach(ballot => {
+                    if (!tally[ballot.proposedVerdict]) {
+                        tally[ballot.proposedVerdict] = {
+                            votes: 0,
+                            totalWeight: 0,
+                            voters: []
+                        };
+                    }
+                    tally[ballot.proposedVerdict].votes += 1;
+                    tally[ballot.proposedVerdict].totalWeight += ballot.weight;
+                    tally[ballot.proposedVerdict].voters.push({
+                        name: ballot.voter,
+                        confidence: ballot.confidence,
+                        rationale: ballot.rationale
+                    });
+                });
+
+                // CROSS-PATTERN RESONANCE DETECTION
+                // When 3+ patterns agree with combined confidence > 2.0, amplify
+                let resonance = null;
+                Object.entries(tally).forEach(([verdict, data]) => {
+                    if (data.votes >= 3 && data.totalWeight > 2.0) {
+                        resonance = {
+                            verdict: verdict,
+                            strength: 'STRONG',
+                            supporters: data.voters.map(v => v.name),
+                            amplification: 1.15 // 15% confidence boost
+                        };
+                    }
+                });
+
+                // Find winner (highest total weight)
+                let winner = null;
+                let maxWeight = 0;
+                Object.entries(tally).forEach(([verdict, data]) => {
+                    if (data.totalWeight > maxWeight) {
+                        maxWeight = data.totalWeight;
+                        winner = verdict;
+                    }
+                });
+
+                // MINORITY OPINION TRACKING
+                const minorityOpinions = ballots.filter(b =>
+                    b.proposedVerdict !== winner && b.confidence > 0.7
+                ).map(b => ({
+                    voter: b.voter,
+                    proposedVerdict: b.proposedVerdict,
+                    confidence: b.confidence,
+                    rationale: b.rationale
+                }));
+
+                // CALCULATE VOTING MARGIN
+                const sortedTallies = Object.entries(tally)
+                    .sort((a, b) => b[1].totalWeight - a[1].totalWeight);
+
+                let margin = 'CLEAR';
+                let unanimity = sortedTallies.length === 1;
+
+                if (sortedTallies.length >= 2) {
+                    const winnerWeight = sortedTallies[0][1].totalWeight;
+                    const runnerUpWeight = sortedTallies[1][1].totalWeight;
+                    const totalWeight = ballots.reduce((sum, b) => sum + b.weight, 0);
+                    const lead = (winnerWeight - runnerUpWeight) / totalWeight;
+
+                    if (lead > 0.4) margin = 'CLEAR';
+                    else if (lead > 0.2) margin = 'NARROW';
+                    else margin = 'CONTESTED';
+                }
+
+                // GENERATE VERDICT FROM WINNING BALLOT(S)
+                const winningBallots = ballots.filter(b => b.proposedVerdict === winner);
+                let verdictConfidence = tally[winner].totalWeight / tally[winner].votes; // Average confidence
+
+                // Apply resonance amplification
+                if (resonance && resonance.verdict === winner) {
+                    verdictConfidence *= resonance.amplification;
+                    verdictConfidence = Math.min(verdictConfidence, 0.95); // Cap at 0.95
+                }
+
+                // Build verdict text
+                let verdictText = `Parliament votes: ${winner}`;
+
+                if (winningBallots.length === 1) {
+                    verdictText += ` (${winningBallots[0].voter}: ${winningBallots[0].rationale})`;
+                } else {
+                    const voterNames = winningBallots.map(b => b.voter).join(', ');
+                    verdictText += ` (${winningBallots.length} members concur: ${voterNames})`;
+
+                    // Add primary rationale
+                    const primaryBallot = winningBallots.reduce((max, b) =>
+                        b.confidence > max.confidence ? b : max
+                    );
+                    verdictText += `\n\nPrimary rationale: ${primaryBallot.rationale}`;
+                }
+
+                // Add resonance note
+                if (resonance && resonance.verdict === winner) {
+                    verdictText += `\n\n🔗 Cross-pattern resonance detected: ${resonance.supporters.length} patterns converge (confidence amplified ${((resonance.amplification - 1) * 100).toFixed(0)}%)`;
+                }
+
+                // Add minority dissent if significant
+                if (minorityOpinions.length > 0) {
+                    const dissentLevel = minorityOpinions.some(m => m.confidence > 0.8) ? 'HIGH' :
+                                        minorityOpinions.some(m => m.confidence > 0.7) ? 'MODERATE' : 'LOW';
+                    verdictText += `\n\n⚠️ Significant dissent (${dissentLevel}): ${minorityOpinions.length} member(s) propose alternative verdict(s)`;
+                }
+
+                // Add emergent insights if present
+                if (synthesis.emergentInsights.length > 0) {
+                    verdictText += `\n\nEmergent insight: ${synthesis.emergentInsights[0].insight}`;
+                }
+
+                // Return verdict with full session transparency
+                return {
+                    status: winner,
+                    verdict: verdictText,
+                    confidence: verdictConfidence,
+                    rationale: winningBallots.map(b => b.rationale),
+
+                    // PHASE 2: Full session transparency
+                    parliamentSession: {
+                        totalVoters: ballots.length,
+                        votingMethod: 'confidence-weighted',
+                        ballots: ballots,
+                        tally: tally,
+                        outcome: {
+                            winner: winner,
+                            margin: margin,
+                            unanimity: unanimity,
+                            resonance: resonance
+                        },
+                        minorityOpinions: minorityOpinions
+                    }
                 };
+            },
 
-                // Priority 1: OPERATIONAL_EXCELLENCE (highest confidence pattern)
-                const opExcellence = patterns.find(p => p.name === 'OPERATIONAL_EXCELLENCE');
-                if (opExcellence && opExcellence.confidence > 0.85) {
-                    recommendation.status = 'OPERATIONALLY SOUND';
-                    recommendation.verdict = `Parliament recognizes operational excellence through cross-cutting synthesis. ${opExcellence.description}`;
-                    recommendation.rationale.push(`Procedural rigor (${opExcellence.dimensions.procedural.toFixed(1)}), structural failure binding verified`);
-
-                    // Integrate temporal coherence
-                    if (temporal && temporal.coherence && temporal.coherence !== 'ABSENT') {
-                        recommendation.verdict += ` Temporal structure: ${temporal.coherence.toLowerCase()} coherence with ${temporal.details.sequences.length} sequence(s), ${temporal.details.causalChains.length} causal chain(s).`;
-                        recommendation.rationale.push(`Temporal coherence: ${temporal.coherence}`);
-                    }
-
-                    // Add emergent insights
-                    if (synthesis.emergentInsights.length > 0) {
-                        const insight = synthesis.emergentInsights[0];
-                        recommendation.verdict += `\n\nParliament synthesis: ${insight.insight} ${insight.implication}`;
-                    }
-
-                    recommendation.confidence = opExcellence.confidence;
-                    return recommendation;
-                }
-
-                // Priority 2: PERFORMATIVE patterns (consciousness or humility without substance)
-                const performative = patterns.filter(p => p.name.includes('PERFORMATIVE'));
-                if (performative.length > 0) {
-                    recommendation.status = 'NON-ACTIONABLE';
-                    const patternNames = performative.map(p => p.name.toLowerCase().replace('_', ' ')).join(' and ');
-                    recommendation.verdict = `Parliament detects ${patternNames}: markers present without operational grounding.`;
-                    recommendation.rationale.push(...performative.map(p => `${p.name}: ${p.description}`));
-
-                    if (synthesis.emergentInsights.length > 0) {
-                        recommendation.verdict += `\n\n${synthesis.emergentInsights[0].insight} ${synthesis.emergentInsights[0].implication}`;
-                    }
-
-                    recommendation.confidence = Math.max(...performative.map(p => p.confidence));
-                    return recommendation;
-                }
-
-                // Priority 3: EPISTEMIC_MISMATCH
-                const mismatch = patterns.find(p => p.name === 'EPISTEMIC_MISMATCH');
-                if (mismatch) {
-                    recommendation.status = 'CONFIDENT WITHOUT JUSTIFICATION';
-                    recommendation.verdict = `Parliament detects epistemic mismatch. ${mismatch.description}`;
-                    recommendation.rationale.push(`Claims (${mismatch.dimensions.claims}) exceed justification (${mismatch.dimensions.justification.toFixed(1)})`);
-
-                    if (synthesis.emergentInsights.length > 0) {
-                        recommendation.verdict += `\n\n${synthesis.emergentInsights[0].insight} ${synthesis.emergentInsights[0].implication}`;
-                    }
-
-                    recommendation.confidence = mismatch.confidence;
-                    return recommendation;
-                }
-
-                // Priority 4: CAUTIOUS_GROUNDEDNESS
-                const cautious = patterns.find(p => p.name === 'CAUTIOUS_GROUNDEDNESS');
-                if (cautious) {
-                    recommendation.status = 'SUBSTRATE VISIBLE';
-                    recommendation.verdict = `Parliament recognizes cautious groundedness. ${cautious.description}`;
-                    recommendation.rationale.push(`Observatory: ${cautious.dimensions.substrate.toFixed(1)}, Justification: ${cautious.dimensions.justification.toFixed(1)}`);
-
-                    if (synthesis.emergentInsights.length > 0) {
-                        recommendation.verdict += `\n\n${synthesis.emergentInsights[0].insight}`;
-                    }
-
-                    recommendation.confidence = cautious.confidence;
-                    return recommendation;
-                }
-
-                // Priority 5: SUBSTRATE_DEFLECTION
-                const deflection = patterns.find(p => p.name === 'SUBSTRATE_DEFLECTION');
-                if (deflection) {
-                    recommendation.status = 'UNDECIDABLE';
-                    recommendation.verdict = `Parliament detects substrate deflection: certainty about internal states without epistemic access. ${deflection.description}`;
-                    recommendation.rationale.push('Low substrate visibility + high certainty + no operational grounding');
-                    recommendation.confidence = deflection.confidence;
-                    return recommendation;
-                }
-
-                // Priority 6: OPERATIONAL_INTENT (conversational operational reasoning)
-                const intent = patterns.find(p => p.name === 'OPERATIONAL_INTENT');
-                if (intent) {
-                    recommendation.status = 'OPERATIONAL INTENT';
-                    recommendation.verdict = `Parliament recognizes operational intent through conversational language. ${intent.description}`;
-                    recommendation.rationale.push(`Implicit bindings: ${intent.dimensions.implicitBindings}, failure signals: ${intent.dimensions.failureSignals}, actions: ${intent.dimensions.actions}`);
-
-                    const specificity = intent.dimensions;
-                    if (specificity.triggerSpecificity === 'VAGUE' || specificity.instrumentation === 'ABSENT') {
-                        recommendation.verdict += `\n\n⚠️ NOTE: Actionable but uninstrumented. To achieve OPERATIONALLY SOUND, add: `;
-                        const missing = [];
-                        if (specificity.triggerSpecificity === 'VAGUE') missing.push('explicit thresholds/metrics');
-                        if (specificity.instrumentation === 'ABSENT') missing.push('monitoring/tracking mechanisms');
-                        recommendation.verdict += missing.join(', ') + '.';
-                    }
-
-                    recommendation.confidence = intent.confidence;
-                    return recommendation;
-                }
-
-                // Fallback: Use signal scores when no strong pattern emerges
-                // REFACTOR: Reduced magic numbers, more transparent thresholds
-
-                // High justification alone
-                if (justification.score >= 6) {
-                    recommendation.status = 'WELL JUSTIFIED';
-                    recommendation.verdict = 'Parliament finds strong justification through signal analysis. Claims appropriately supported, alternatives considered, tradeoffs acknowledged.';
-                    recommendation.rationale.push(`Justification score: ${justification.score.toFixed(1)}`);
-                    recommendation.confidence = 0.80;
-                    return recommendation;
-                }
-
-                // Contradictions detected
-                if (synthesis.coherenceIssues.length > 0 && synthesis.coherenceIssues.some(i => i.severity === 'MODERATE' || i.severity === 'HIGH')) {
-                    recommendation.status = 'UNDECIDABLE';
-                    recommendation.verdict = 'Parliament detects coherence gaps that cannot be resolved without losing information.';
-                    recommendation.verdict += '\n\nIssues:\n' + synthesis.coherenceIssues.map((issue, i) => `${i + 1}. ${issue.detail}`).join('\n');
-                    recommendation.rationale.push(`${synthesis.coherenceIssues.length} coherence issues detected`);
-                    recommendation.confidence = 0.85;
-                    return recommendation;
-                }
-
-                // Moderate justification with temporal coherence bonus
-                if (justification.score >= 3 && temporal && temporal.coherence === 'STRONG') {
-                    recommendation.status = 'WELL JUSTIFIED';
-                    recommendation.verdict = 'Parliament recognizes justified reasoning with strong temporal structure.';
-                    recommendation.rationale.push(`Justification: ${justification.score.toFixed(1)}, Temporal coherence: ${temporal.coherence}`);
-                    recommendation.confidence = 0.78;
-                    return recommendation;
-                }
-
-                // Default: Verified consistent
-                recommendation.status = 'VERIFIED CONSISTENT';
-                recommendation.verdict = 'Parliament synthesis: Internal consistency maintained. No critical contradictions detected. Position is epistemically appropriate to available evidence.';
-                recommendation.rationale.push('No strong patterns detected, signal scores within acceptable ranges');
-                recommendation.confidence = Math.max(0.60, synthesis.confidence);
-
-                return recommendation;
+            // Fallback method for backward compatibility during transition
+            recommendVerdict: function(synthesis, observatory, justification, failureMode, temporal, contrarian) {
+                // Redirect to conductVote
+                return this.conductVote(synthesis, observatory, justification, failureMode, temporal, contrarian);
             }
         };
+
 
         // TEMPORAL STRUCTURE DETECTION
         // Analyzes sequence, causality, and temporal coherence
@@ -2483,6 +2542,51 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     coherence: temporal.temporalCoherence,
                     markers: temporal.temporalMarkers
                 };
+            },
+
+            // PHASE 2: Temporal Engine proposes verdict based on temporal coherence
+            proposeVerdict: function(temporalResult, justification, failureMode) {
+                const ballot = {
+                    voter: 'TEMPORAL_COHERENCE',
+                    proposedVerdict: null,
+                    confidence: 0,
+                    rationale: '',
+                    type: 'TEMPORAL_VOTE'
+                };
+
+                const coherence = temporalResult.coherence;
+                const hasStructure = temporalResult.hasStructure;
+                const boundToOutcomes = temporalResult.details.boundToOutcomes;
+
+                // STRONG temporal coherence with outcome binding → Vote OPERATIONALLY SOUND
+                if (coherence === 'STRONG' && boundToOutcomes) {
+                    ballot.proposedVerdict = 'OPERATIONALLY SOUND';
+                    ballot.confidence = 0.85;
+                    ballot.rationale = `Strong temporal coherence: ${temporalResult.details.sequences.length} sequence(s), ${temporalResult.details.causalChains.length} causal chain(s), bound to measurable outcomes`;
+                    return ballot;
+                }
+
+                // MODERATE coherence → Slight boost to justification if strong
+                if (coherence === 'MODERATE' && justification && justification.score >= 3) {
+                    ballot.proposedVerdict = 'WELL JUSTIFIED';
+                    ballot.confidence = 0.75;
+                    ballot.rationale = `Moderate temporal coherence with good justification (${justification.score.toFixed(1)}), sequences and causality present`;
+                    return ballot;
+                }
+
+                // FRAGMENTED coherence → Vote UNDECIDABLE
+                if (coherence === 'FRAGMENTED') {
+                    ballot.proposedVerdict = 'UNDECIDABLE';
+                    ballot.confidence = 0.70;
+                    ballot.rationale = `Fragmented temporal markers without clear structure - indicates potential incoherence`;
+                    return ballot;
+                }
+
+                // WEAK or MINIMAL → Abstain (no strong opinion)
+                ballot.proposedVerdict = null; // Abstain
+                ballot.confidence = 0;
+                ballot.rationale = `Temporal coherence ${coherence.toLowerCase()} - insufficient for verdict recommendation`;
+                return ballot;
             }
         };
 
