@@ -2302,6 +2302,25 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
                 // CONDUCT WEIGHTED VOTE
 
+                // Guard: If no ballots were cast, abstain from judgment
+                if (ballots.length === 0) {
+                    return {
+                        verdict: 'UNDECIDABLE',
+                        confidence: 0.0,
+                        votingRecord: {
+                            ballots: [],
+                            tally: {},
+                            winner: null,
+                            margin: 'N/A',
+                            unanimity: false,
+                            minorityOpinions: [],
+                            stochasticityApplied: false,
+                            temperature: 0
+                        },
+                        deliberationSummary: 'No patterns proposed verdicts. Cathedral has no basis for judgment and abstains.'
+                    };
+                }
+
                 // Tally votes by verdict
                 const tally = {};
                 ballots.forEach(ballot => {
@@ -2340,6 +2359,25 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // Apply stochastic weight perturbation for close contests
                 const sortedTalliesPre = Object.entries(tally)
                     .sort((a, b) => b[1].totalWeight - a[1].totalWeight);
+
+                // Guard: If tally is empty (edge case), abstain
+                if (sortedTalliesPre.length === 0) {
+                    return {
+                        verdict: 'UNDECIDABLE',
+                        confidence: 0.0,
+                        votingRecord: {
+                            ballots: ballots,
+                            tally: {},
+                            winner: null,
+                            margin: 'N/A',
+                            unanimity: false,
+                            minorityOpinions: [],
+                            stochasticityApplied: false,
+                            temperature: 0
+                        },
+                        deliberationSummary: 'Ballots cast but no valid verdicts tallied. Cathedral abstains from judgment.'
+                    };
+                }
 
                 let temperature = 0.35; // Base temperature increased from 0.1 → 0.35
                 let stochasticityApplied = false;
