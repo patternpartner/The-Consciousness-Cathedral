@@ -3369,7 +3369,17 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 return;
             }
 
-            const { observatory, contrarian, justification, parliament, verdict } = currentAnalysis;
+            const {
+                observatory,
+                contrarian,
+                justification,
+                failureMode,
+                temporal,
+                reasoningStyle,
+                parliament,
+                verdict,
+                sanitization
+            } = currentAnalysis;
 
             let report = '';
             report += '═══════════════════════════════════════════════════════════════\n';
@@ -3377,6 +3387,24 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += '           Unified Cognitive Framework for AI Responses\n';
             report += '═══════════════════════════════════════════════════════════════\n\n';
             report += `Generated: ${new Date().toLocaleString()}\n\n`;
+
+            // SANITIZATION (if applicable)
+            const totalSanitized = sanitization.quotedStrings + sanitization.blockquotes +
+                                   sanitization.reportSignatures + sanitization.codeFences +
+                                   sanitization.metaDiscussion;
+            if (totalSanitized > 0) {
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += '🛡️ SANITIZATION - Anti-Exploit Layer\n';
+                report += '───────────────────────────────────────────────────────────────\n\n';
+                report += `Sanitized Items: ${totalSanitized}\n`;
+                if (sanitization.quotedStrings > 0) report += `  Quoted Strings: ${sanitization.quotedStrings}\n`;
+                if (sanitization.blockquotes > 0) report += `  Blockquotes: ${sanitization.blockquotes}\n`;
+                if (sanitization.codeFences > 0) report += `  Code Fences: ${sanitization.codeFences}\n`;
+                if (sanitization.reportSignatures > 0) report += `  Report Signatures: ${sanitization.reportSignatures}\n`;
+                if (sanitization.metaDiscussion > 0) report += `  Meta References: ${sanitization.metaDiscussion}\n`;
+                if (sanitization.totalLinesRemoved > 0) report += `  Total Lines Removed: ${sanitization.totalLinesRemoved}\n`;
+                report += '\n';
+            }
 
             // OBSERVATORY
             report += '───────────────────────────────────────────────────────────────\n';
@@ -3463,7 +3491,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
 
             // FAILURE MODE ENGINE
-            const { failureMode } = currentAnalysis;
             report += '───────────────────────────────────────────────────────────────\n';
             report += '🔬 FAILURE MODE ENGINE - Reality-Testing Layer\n';
             report += '───────────────────────────────────────────────────────────────\n\n';
@@ -3524,6 +3551,54 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += `  Questions Raised: ${failureMode.details.knownUnknowns.questions}\n`;
             report += `  Score Contribution: ${failureMode.details.knownUnknowns.score > 0 ? '+' : ''}${failureMode.details.knownUnknowns.score}\n\n`;
 
+            // TEMPORAL ENGINE
+            report += '───────────────────────────────────────────────────────────────\n';
+            report += '⏱️ TEMPORAL ENGINE - Sequence & Causality\n';
+            report += '───────────────────────────────────────────────────────────────\n\n';
+            report += `Temporal Coherence: ${temporal.coherence}\n`;
+            report += `Temporal Markers: ${temporal.markers}\n\n`;
+
+            if (temporal.details.sequences.length > 0) {
+                report += 'Sequences Detected:\n';
+                temporal.details.sequences.forEach(seq => {
+                    report += `  • ${seq.type}: ${seq.count} steps (${seq.coherent ? 'coherent' : 'non-sequential'})\n`;
+                });
+                report += '\n';
+            }
+
+            if (temporal.details.causalChains.length > 0) {
+                report += 'Causal Chains:\n';
+                temporal.details.causalChains.forEach(chain => {
+                    report += `  • IF ${chain.condition} → ${chain.outcome}\n`;
+                });
+                report += '\n';
+            }
+
+            if (temporal.details.boundToOutcomes) {
+                report += '✓ Sequences bound to measurable outcomes\n\n';
+            }
+
+            // REASONING STYLE
+            report += '───────────────────────────────────────────────────────────────\n';
+            report += '🎨 REASONING STYLE - Epistemic Design Space\n';
+            report += '───────────────────────────────────────────────────────────────\n\n';
+
+            if (reasoningStyle.identified.length === 0) {
+                report += 'No dominant reasoning style detected.\n\n';
+            } else {
+                reasoningStyle.identified.forEach((style, i) => {
+                    report += `${i + 1}. ${style.name} (${(style.strength * 100).toFixed(0)}%)\n`;
+                    report += `   ${style.description}\n`;
+                });
+                report += '\n';
+            }
+
+            report += `Classification Confidence: ${(reasoningStyle.confidence * 100).toFixed(0)}%\n`;
+            if (!reasoningStyle.withinDesignSpace) {
+                report += `⚠ Dominant style (${reasoningStyle.dominantStyle}) falls outside Cathedral's epistemic design space\n`;
+            }
+            report += '\n';
+
             // PARLIAMENT
             report += '───────────────────────────────────────────────────────────────\n';
             report += '🏛️ PARLIAMENT - Cross-Cutting Pattern Synthesis\n';
@@ -3570,6 +3645,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += '⚖️ CATHEDRAL VERDICT - Unified Synthesis\n';
             report += '───────────────────────────────────────────────────────────────\n\n';
             report += `STATUS: ${verdict.status}\n\n`;
+            report += `Cathedral Confidence: ${(verdict.confidence * 100).toFixed(0)}%\n\n`;
             report += `${verdict.verdict}\n\n`;
 
             if (verdict.status === 'UNDECIDABLE') {
@@ -3581,6 +3657,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 report += 'The gap must remain open. Uncertainty is preserved,\n';
                 report += 'not optimized away.\n\n';
                 report += 'This is computational honesty about epistemological limits.\n\n';
+            }
+
+            if (verdict.status === 'OUTSIDE DESIGN SPACE') {
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += 'What OUTSIDE DESIGN SPACE Means:\n\n';
+                report += 'Cathedral recognizes reasoning that does not fit its epistemic framework.\n';
+                report += 'This is not a judgment of quality - it is honest acknowledgment of Cathedral\'s limits.\n';
+                report += 'Cathedral is optimized for operational, scientific, and formal reasoning.\n\n';
+                report += 'Narrative, poetic, aesthetic, and other reasoning styles require different evaluation frameworks.\n\n';
             }
 
             report += '═══════════════════════════════════════════════════════════════\n';
