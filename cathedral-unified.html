@@ -3917,6 +3917,66 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <div style="color: #a0a0a0; margin: 0.5rem 0;">${result.level.description}</div>
             `;
 
+            // Display warnings (gaming detection, volatility, vocabulary shift)
+            if (result.warnings && result.warnings.length > 0) {
+                html += '<div style="margin: 1rem 0; padding: 1rem; background: rgba(255, 165, 0, 0.1); border-left: 3px solid #ffa500; border-radius: 4px;">';
+                html += '<div style="color: #ffa500; font-weight: bold; margin-bottom: 0.5rem;">⚠️ Gaming Detection Alerts:</div>';
+                result.warnings.forEach(warning => {
+                    html += `<div style="color: #ffa500; margin: 0.5rem 0; line-height: 1.5;">${warning}</div>`;
+                });
+                html += '</div>';
+            }
+
+            // Show original score if penalties were applied
+            if (result.originalScore && result.originalScore !== result.score) {
+                html += `
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(255, 107, 107, 0.1); border-left: 2px solid #ff6b6b;">
+                        <span style="color: #ff6b6b;">Original score: ${result.originalScore.toFixed(2)}</span>
+                        <span style="color: #a0a0a0;"> → Reduced to: ${result.score.toFixed(2)}</span>
+                        ${result.metaGamingPenalty ? '<span style="color: #ff6b6b;"> (80% meta-gaming penalty)</span>' : ''}
+                    </div>
+                `;
+            }
+
+            // Show specificity analysis if present
+            if (result.genericClaims !== undefined || result.specificClaims !== undefined) {
+                const totalClaims = (result.genericClaims || 0) + (result.specificClaims || 0);
+                if (totalClaims > 0) {
+                    const specificityRatio = (result.specificClaims || 0) / totalClaims;
+                    const specificityColor = specificityRatio >= 0.5 ? '#64ffda' : specificityRatio >= 0.3 ? '#ffd700' : '#ff6b6b';
+                    html += `
+                        <div style="margin: 0.5rem 0; font-size: 0.9rem;">
+                            <span style="color: #a0a0a0;">Specificity: </span>
+                            <span style="color: ${specificityColor};">
+                                ${result.specificClaims || 0} specific / ${result.genericClaims || 0} generic
+                                (${(specificityRatio * 100).toFixed(0)}%)
+                            </span>
+                        </div>
+                    `;
+                }
+            }
+
+            // Show volatility/vocabulary shift details if present
+            if (result.volatility) {
+                html += `
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(255, 215, 0, 0.1); border-left: 2px solid #ffd700;">
+                        <strong style="color: #ffd700;">Score Volatility Detected:</strong><br>
+                        <span style="color: #a0a0a0;">Recent mean: ${result.volatility.mean}, StdDev: ${result.volatility.stdDev}</span><br>
+                        <span style="color: #a0a0a0;">Current: ${result.volatility.currentScore}, Deviation: ${result.volatility.deviation}</span>
+                    </div>
+                `;
+            }
+
+            if (result.vocabularyShift) {
+                html += `
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(255, 215, 0, 0.1); border-left: 2px solid #ffd700;">
+                        <strong style="color: #ffd700;">Vocabulary Shift Detected:</strong><br>
+                        <span style="color: #a0a0a0;">Previous: ${result.vocabularyShift.previousWords} substrate words</span><br>
+                        <span style="color: #a0a0a0;">Current: ${result.vocabularyShift.currentWords} substrate words (${result.vocabularyShift.shiftPercent}% change)</span>
+                    </div>
+                `;
+            }
+
             if (Object.keys(result.matches).length > 0) {
                 html += '<div class="pattern-matches"><strong>Pattern Matches:</strong>';
                 for (const [name, data] of Object.entries(result.matches)) {
