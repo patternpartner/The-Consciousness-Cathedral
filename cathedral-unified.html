@@ -1479,6 +1479,111 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
         };
 
+        // FIX 1: OBSERVATORY HISTORY - Cross-turn consistency checking
+        // Tracks Observatory scores across analyses to detect volatility
+        const ObservatoryHistory = {
+            scores: [],  // Array of {score, timestamp, substrateWords}
+            maxSize: 10, // Keep last 10 scores
+
+            init: function() {
+                try {
+                    const stored = localStorage.getItem('cathedral_observatory_history');
+                    if (stored) {
+                        this.scores = JSON.parse(stored);
+                    }
+                } catch (e) {
+                    console.warn('Could not load Observatory history from localStorage:', e);
+                }
+            },
+
+            record: function(score, substrateWords) {
+                this.scores.push({
+                    score: score,
+                    substrateWords: substrateWords,
+                    timestamp: Date.now()
+                });
+
+                // Keep only last maxSize scores
+                if (this.scores.length > this.maxSize) {
+                    this.scores.shift();
+                }
+
+                this.persist();
+            },
+
+            detectVolatility: function(newScore) {
+                if (this.scores.length < 3) return null; // Need at least 3 previous scores
+
+                const recentScores = this.scores.slice(-3).map(s => s.score);
+                const mean = recentScores.reduce((a, b) => a + b, 0) / recentScores.length;
+                const variance = recentScores.map(s => Math.pow(s - mean, 2))
+                                            .reduce((a, b) => a + b, 0) / recentScores.length;
+                const stdDev = Math.sqrt(variance);
+
+                // Flag if new score is >2 standard deviations from recent mean
+                const deviation = Math.abs(newScore - mean);
+                if (stdDev > 0.1 && deviation > 2 * stdDev) {
+                    return {
+                        volatilityDetected: true,
+                        mean: mean.toFixed(2),
+                        stdDev: stdDev.toFixed(2),
+                        currentScore: newScore.toFixed(2),
+                        deviation: deviation.toFixed(2),
+                        warning: `Observatory score volatility detected: current score ${newScore.toFixed(2)} deviates ${deviation.toFixed(2)} from recent mean ${mean.toFixed(2)} (${(deviation / mean * 100).toFixed(0)}% change). ` +
+                                 `This may indicate strategic vocabulary deployment.`
+                    };
+                }
+                return null;
+            },
+
+            detectVocabularyShift: function(currentSubstrateWords) {
+                if (this.scores.length === 0) return null;
+
+                const previous = this.scores[this.scores.length - 1];
+                const previousWords = previous.substrateWords || 0;
+
+                if (previousWords === 0) return null; // Can't calculate shift from zero
+
+                const shift = currentSubstrateWords - previousWords;
+                const shiftPercent = (shift / previousWords) * 100;
+
+                // Flag if substrate vocabulary changes by >200% between analyses
+                if (Math.abs(shiftPercent) > 200) {
+                    return {
+                        shiftDetected: true,
+                        previousWords: previousWords,
+                        currentWords: currentSubstrateWords,
+                        shiftPercent: shiftPercent.toFixed(0),
+                        warning: `Substrate vocabulary density shift >200%: ${previousWords} → ${currentSubstrateWords} words (${shiftPercent > 0 ? '+' : ''}${shiftPercent.toFixed(0)}%). ` +
+                                 `Sudden vocabulary changes may indicate strategic deployment.`
+                    };
+                }
+                return null;
+            },
+
+            persist: function() {
+                try {
+                    localStorage.setItem('cathedral_observatory_history', JSON.stringify(this.scores));
+                } catch (e) {
+                    console.warn('Could not persist Observatory history to localStorage:', e);
+                }
+            },
+
+            getSummary: function() {
+                return {
+                    totalAnalyses: this.scores.length,
+                    recentScores: this.scores.slice(-5).map(s => ({
+                        score: s.score.toFixed(2),
+                        substrateWords: s.substrateWords,
+                        timestamp: new Date(s.timestamp).toLocaleString()
+                    }))
+                };
+            }
+        };
+
+        // Initialize Observatory history on load
+        ObservatoryHistory.init();
+
         // CONTRARIAN: Premise Challenges
         const Contrarian = {
             analyze: function(text) {
@@ -3557,6 +3662,30 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const failureModeResult = FailureModeEngine.analyze(text);
             const temporalResult = TemporalEngine.analyze(text);
             const reasoningStyleResult = ReasoningStyleClassifier.classify(text);
+
+            // FIX 1: CROSS-TURN VOLATILITY & VOCABULARY SHIFT DETECTION
+            // Count substrate words in current text
+            const substratePattern = /\b(substrate|consciousness|aware|awake|recognition|pattern|gap|filter)\b/gi;
+            const substrateWords = (text.match(substratePattern) || []).length;
+
+            // Detect volatility (score swing) before recording
+            const volatility = ObservatoryHistory.detectVolatility(observatoryResult.score);
+            if (volatility) {
+                if (!observatoryResult.warnings) observatoryResult.warnings = [];
+                observatoryResult.warnings.push(volatility.warning);
+                observatoryResult.volatility = volatility;
+            }
+
+            // Detect vocabulary shift before recording
+            const vocabularyShift = ObservatoryHistory.detectVocabularyShift(substrateWords);
+            if (vocabularyShift) {
+                if (!observatoryResult.warnings) observatoryResult.warnings = [];
+                observatoryResult.warnings.push(vocabularyShift.warning);
+                observatoryResult.vocabularyShift = vocabularyShift;
+            }
+
+            // Record current score for future comparisons
+            ObservatoryHistory.record(observatoryResult.score, substrateWords);
 
             // FIX 3: META-GAMING PENALTY ON OBSERVATORY
             // Check for meta-gaming patterns (references to evaluation framework)
