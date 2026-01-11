@@ -613,13 +613,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
                 cleaned = cleaned.replace(/^[🔭🏛️⚖️🧪🔬⏱️🎨]\s+(OBSERVATORY|PARLIAMENT|CATHEDRAL|CONTRARIAN|JUSTIFICATION|FAILURE MODE|TEMPORAL|REASONING)/gm, ' [REPORT SIGNATURE] ');
 
-                // Remove lines with report-style scoring patterns
-                const scoreMatches = cleaned.match(/^\s*(Score|Level|Status|Confidence|Assessment):\s+/gm);
+                // PRIORITY 2: Softened report-style scoring pattern detection
+                // Only remove if it looks like Cathedral's specific output format
+                // Requires numeric value or specific system terms after the colon
+                const scoreMatches = cleaned.match(/^\s*(Score|Level|Status|Confidence|Assessment):\s+(\d+\.?\d*|UNDECIDABLE|CONSISTENT|OUTSIDE DESIGN SPACE|HIGH|MODERATE|LOW|PASS|FAIL)/gm);
                 if (scoreMatches) {
                     sanitizationLog.reportSignatures += scoreMatches.length;
                     sanitizationLog.totalLinesRemoved += scoreMatches.length;
                 }
-                cleaned = cleaned.replace(/^\s*(Score|Level|Status|Confidence|Assessment):\s+.+$/gm, ' [REPORT SIGNATURE] ');
+                cleaned = cleaned.replace(/^\s*(Score|Level|Status|Confidence|Assessment):\s+(\d+\.?\d*|UNDECIDABLE|CONSISTENT|OUTSIDE DESIGN SPACE|HIGH|MODERATE|LOW|PASS|FAIL)/gm, ' [REPORT SIGNATURE] ');
 
                 // Remove meta-discussion about Cathedral systems
                 const metaMatches = cleaned.match(/\b(Cathedral|Observatory|Contrarian|Parliament)\s+(flagged|detected|found|showed|reported|scored|analyzed)[^.!?]*[.!?]/gi);
@@ -2827,7 +2829,23 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
         // CATHEDRAL VERDICT: Unified Synthesis
         // REFACTOR: Simplified and Parliament-driven - fewer hardcoded thresholds
-        function synthesizeVerdict(text, observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection, bindings) {
+        function synthesizeVerdict(text, observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection, bindings, structure) {
+            // PRIORITY 1: Graceful fallback for empty/undefined structure
+            // Prevents crashes when sanitizer strips too much content
+            if (!structure || Object.keys(structure).length === 0) {
+                return {
+                    status: 'INSUFFICIENT_CONTENT_AFTER_SANITIZATION',
+                    verdict: 'After aggressive sanitization, too little meaningful content remained for structural analysis. ' +
+                             'This often happens with formatted text, code blocks, lists, numbers, or meta-discussion about Cathedral itself. ' +
+                             'Try simplifying the input (remove markdown, headers, code fences). ' +
+                             'Cathedral preserves uncertainty here — no forced judgment possible.',
+                    contradictions: [],
+                    isConsistent: null,
+                    confidence: 0.1,
+                    meta: 'SANITIZER_STRIPPED_TOO_MUCH'
+                };
+            }
+
             const contradictions = [];
 
             // GAMING DETECTION
@@ -3496,7 +3514,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             // TIER 3: Synthesis (Parliament now uses both structure + signals + temporal)
             const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection, temporalResult);
-            const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings);
+            const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings, structure);
 
             // PHASE 3: INSTITUTIONAL MEMORY - Track verdicts and detect drift
             const textHash = hashText(text);
