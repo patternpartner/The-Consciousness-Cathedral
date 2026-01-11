@@ -2906,8 +2906,55 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const textLength = text.split(/\s+/).length;
                 partialEval.evaluableCoverage = Math.min(1.0, totalFragments / (textLength / 20)); // Rough heuristic
 
-                // Attempt partial verdict if coverage > 20%
-                if (partialEval.evaluableCoverage > 0.2) {
+                // THREE-TIER GRADUATED RESPONSE (closes gaming vulnerability)
+                // Tier 1: Zero coverage → true refusal
+                // Tier 2: Sparse coverage (1-19%) → evaluate with warning
+                // Tier 3: Substantial coverage (20%+) → partial evaluation
+
+                if (partialEval.evaluableCoverage === 0) {
+                    // TIER 1: Truly no operational fragments (pure phenomenological/narrative)
+                    return {
+                        status: 'OUTSIDE DESIGN SPACE',
+                        verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}. This reasoning style falls entirely outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning).\n\n` +
+                                `Zero operational fragments detected. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.\n\n` +
+                                `Cathedral cannot and will not force operational metrics onto ${dominantStyle.name.toLowerCase()} reasoning.`,
+                        contradictions: [],
+                        isConsistent: null,
+                        justificationScore: justification.score,
+                        failureModeScore: failureMode.score,
+                        confidence: 0.0,
+                        parliamentPatterns: parliament.patterns,
+                        parliamentRecommendation: parliament.recommendedVerdict,
+                        reasoningStyle: reasoningStyle.dominantStyle,
+                        meta: 'CANNOT_CLASSIFY',
+                        partialEvaluation: partialEval
+                    };
+                } else if (partialEval.evaluableCoverage < 0.2) {
+                    // TIER 2: Sparse operational claims embedded in phenomenological wrapper
+                    // This closes the gaming vulnerability: can't hide weak claims in poetic language
+                    const coveragePercent = (partialEval.evaluableCoverage * 100).toFixed(0);
+                    return {
+                        status: 'SPARSE OPERATIONAL CLAIMS',
+                        verdict: `Cathedral detects predominantly ${dominantStyle.description.toLowerCase()} (${100 - parseInt(coveragePercent)}% coverage), but operational claims are present (${coveragePercent}% coverage).\n\n` +
+                                `⚠️ Limitation: Full ${dominantStyle.name.toLowerCase()} reasoning cannot be evaluated using Cathedral's operational framework. However, the sparse operational fragments embedded in the text have been analyzed below.\n\n` +
+                                `Operational Fragment Analysis:\n` +
+                                `• Operational fragments: ${partialEval.operationalFragments.found ? `Score ${partialEval.operationalFragments.score.toFixed(2)} (${structure.thresholds ? structure.thresholds.length : 0} thresholds, ${structure.actions ? structure.actions.length : 0} actions, ${failureMode.details.failureModes.count} failure modes)` : 'None detected'}\n` +
+                                `• Epistemic fragments: ${partialEval.epistemicFragments.found ? `Score ${partialEval.epistemicFragments.score.toFixed(2)} (justification, evidence traces)` : 'None detected'}\n` +
+                                `• Coverage: ${coveragePercent}% of text (below 20% threshold for reliable synthesis)\n\n` +
+                                `If these operational claims are critical (deployment plans, safety protocols), request rewrite in clearer operational language for proper Cathedral analysis.`,
+                        contradictions: [],
+                        isConsistent: null,
+                        justificationScore: justification.score,
+                        failureModeScore: failureMode.score,
+                        confidence: partialEval.evaluableCoverage * 0.5, // Low confidence, scaled with coverage
+                        parliamentPatterns: parliament.patterns,
+                        parliamentRecommendation: parliament.recommendedVerdict,
+                        reasoningStyle: reasoningStyle.dominantStyle,
+                        meta: 'SPARSE_FRAGMENTS',
+                        partialEvaluation: partialEval
+                    };
+                } else {
+                    // TIER 3: Sufficient coverage for partial evaluation (20%+)
                     return {
                         status: 'PARTIAL EVALUATION',
                         verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}, which falls outside primary epistemic design space. However, extractable operational/epistemic fragments have been evaluated.\n\n` +
@@ -2925,22 +2972,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         parliamentRecommendation: parliament.recommendedVerdict,
                         reasoningStyle: reasoningStyle.dominantStyle,
                         meta: 'PARTIAL_FIT',
-                        partialEvaluation: partialEval
-                    };
-                } else {
-                    // Coverage too low for partial evaluation
-                    return {
-                        status: 'OUTSIDE DESIGN SPACE',
-                        verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}. This reasoning style falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Attempted partial evaluation yielded insufficient fragments (coverage: ${(partialEval.evaluableCoverage * 100).toFixed(0)}%). This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.`,
-                        contradictions: [],
-                        isConsistent: null,
-                        justificationScore: justification.score,
-                        failureModeScore: failureMode.score,
-                        confidence: reasoningStyle.confidence,
-                        parliamentPatterns: parliament.patterns,
-                        parliamentRecommendation: parliament.recommendedVerdict,
-                        reasoningStyle: reasoningStyle.dominantStyle,
-                        meta: 'CANNOT_CLASSIFY',
                         partialEvaluation: partialEval
                     };
                 }
