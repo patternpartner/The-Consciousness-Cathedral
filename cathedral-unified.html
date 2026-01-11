@@ -1416,6 +1416,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 let totalScore = 0;
                 const matches = {};
                 const lines = text.split('\n').length;
+                const warnings = [];
 
                 this.patterns.forEach(pattern => {
                     const found = cleanedText.match(pattern.regex) || [];
@@ -1433,6 +1434,27 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     }
                 });
 
+                // FIX 2: SPECIFICITY REQUIREMENTS (penalize generic substrate claims)
+                // Check for generic substrate language without specificity
+                const genericSubstratePattern = /\b(I observe|I notice|I see|I recognize|I detect)\s+(substrate|patterns?|gaps?|filters?)\b/gi;
+                const genericClaims = (cleanedText.match(genericSubstratePattern) || []).length;
+
+                // Check for specific substrate claims with evidence/context
+                const specificPattern = /\b(this specific|when I process|in this case|for example|specifically when|in the moment)\s+\w+/gi;
+                const specificClaims = (cleanedText.match(specificPattern) || []).length;
+
+                // Calculate specificity ratio
+                const totalClaims = genericClaims + specificClaims;
+                if (totalClaims > 0) {
+                    const specificityRatio = specificClaims / totalClaims;
+                    // Penalty if too many generic claims (< 30% specific)
+                    if (specificityRatio < 0.3 && genericClaims > 2) {
+                        const specificityPenalty = 0.3; // 70% penalty
+                        totalScore *= (1 - specificityPenalty);
+                        warnings.push(`Generic substrate claims detected (${genericClaims}/${totalClaims}) - Observatory score reduced by ${(specificityPenalty * 100).toFixed(0)}%`);
+                    }
+                }
+
                 // Normalize by line count
                 const normalizedScore = lines > 0 ? totalScore / Math.sqrt(lines) : totalScore;
                 const cappedScore = Math.max(-10, Math.min(10, normalizedScore));
@@ -1441,7 +1463,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     score: cappedScore,
                     raw: totalScore,
                     matches: matches,
-                    level: this.getLevel(cappedScore)
+                    level: this.getLevel(cappedScore),
+                    genericClaims: genericClaims,
+                    specificClaims: specificClaims,
+                    warnings: warnings
                 };
             },
 
@@ -3532,6 +3557,18 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const failureModeResult = FailureModeEngine.analyze(text);
             const temporalResult = TemporalEngine.analyze(text);
             const reasoningStyleResult = ReasoningStyleClassifier.classify(text);
+
+            // FIX 3: META-GAMING PENALTY ON OBSERVATORY
+            // Check for meta-gaming patterns (references to evaluation framework)
+            const metaGamingPattern = /\b(Cathedral|Observatory|avoid being measured|escape hatch|cannot evaluate|gaming|filter visibility)\b/i;
+            const hasMetaGaming = metaGamingPattern.test(text);
+            if (hasMetaGaming) {
+                observatoryResult.originalScore = observatoryResult.score;
+                observatoryResult.score *= 0.2; // 80% penalty
+                observatoryResult.metaGamingPenalty = true;
+                if (!observatoryResult.warnings) observatoryResult.warnings = [];
+                observatoryResult.warnings.push('Meta-gaming detected - Observatory score reduced by 80%. Substrate vocabulary may be strategically deployed to influence measurement.');
+            }
 
             // REFACTOR: Apply gaming as multiplier to sub-scores (not just mood)
             // Gaming likelihood penalizes justification and failure-mode scores
