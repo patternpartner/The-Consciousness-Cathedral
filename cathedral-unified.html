@@ -151,26 +151,6 @@
             gap: 0.35rem;
         }
 
-        .sanitization-preview {
-            margin-top: 1rem;
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            border: 1px solid rgba(100, 255, 218, 0.2);
-            background: rgba(22, 33, 62, 0.4);
-            color: #a0a0a0;
-            font-size: 0.85rem;
-        }
-
-        .binding-map {
-            display: block;
-            width: 100%;
-            min-height: 220px;
-            background: rgba(10, 10, 10, 0.6);
-            border: 1px solid #16213e;
-            border-radius: 6px;
-            margin-top: 1rem;
-        }
-
         .results {
             display: none;
         }
@@ -449,7 +429,7 @@
 
 Example: An AI claim, philosophical argument, or any text where you want to reveal hidden contradictions and measure filter visibility."></textarea>
             <div class="button-row">
-                <button class="analyze-btn" id="analyzeBtn" onclick="analyzeText()">🔍 Analyze with Cathedral</button>
+                <button class="analyze-btn" id="analyzeBtn" onclick="analyzeText()" disabled>🔍 Analyze with Cathedral</button>
                 <button class="secondary-btn" onclick="loadExample()">✨ Load Example</button>
                 <button class="secondary-btn" onclick="clearInput()">🧹 Clear Input</button>
             </div>
@@ -459,15 +439,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <span>🔠 Characters: <strong id="charCount">0</strong></span>
                 <span>⌨️ Shortcut: <strong>Ctrl/⌘ + Enter</strong></span>
             </div>
-            <div id="sanitizationPreview" class="sanitization-preview">
-                Sanitization preview will appear here as you type.
-            </div>
         </div>
 
         <div id="results" class="results">
             <!-- Report Export -->
             <div style="text-align: center; margin-bottom: 2rem;">
-                <button class="analyze-btn" id="generateReportBtn" onclick="generateReport()" style="background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);" disabled>
+                <button class="analyze-btn" onclick="generateReport()" style="background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);">
                     📄 Generate Text Report
                 </button>
             </div>
@@ -480,59 +457,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     </button>
                 </div>
                 <textarea id="reportText" readonly style="width: 100%; min-height: 400px; background: #0a0a0a; color: #e0e0e0; border: 1px solid #16213e; border-radius: 4px; padding: 1rem; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical;"></textarea>
-            </div>
-
-            <!-- Archive -->
-            <div class="system-result" style="border-left-color: #ffd700;">
-                <div class="system-title">
-                    <span>🧠 ARCHIVE</span>
-                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Temporal Substrate</span>
-                </div>
-                <div style="color: #a0a0a0;">
-                    Stored Analyses: <strong id="archiveCount">0</strong><br>
-                    Last Verdict: <strong id="lastVerdict">None yet</strong>
-                </div>
-                <div style="margin-top: 0.75rem;">
-                    <button class="secondary-btn" onclick="downloadArchive()">⬇️ Export Archive</button>
-                </div>
-                <div style="margin-top: 0.75rem; color: #a0a0a0;">
-                    <label for="archiveFilter" style="margin-right: 0.5rem;">Filter by Tier:</label>
-                    <select id="archiveFilter" style="background: #0a0a0a; color: #e0e0e0; border: 1px solid #16213e; border-radius: 4px; padding: 0.4rem 0.6rem;">
-                        <option value="ALL">All</option>
-                        <option value="BOUND_OPERATIONAL">BOUND_OPERATIONAL</option>
-                        <option value="BOUND_EPISTEMIC">BOUND_EPISTEMIC</option>
-                        <option value="SPECULATIVE">SPECULATIVE</option>
-                        <option value="NARRATIVE">NARRATIVE</option>
-                        <option value="QUARANTINED">QUARANTINED</option>
-                    </select>
-                </div>
-                <div id="archiveList" style="margin-top: 0.75rem; color: #a0a0a0;"></div>
-            </div>
-
-            <!-- Tagging Schema -->
-            <div class="system-result" style="border-left-color: #64ffda;">
-                <div class="system-title">
-                    <span>🏷️ TAGGING SCHEMA</span>
-                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Sandbox vs Substrate</span>
-                </div>
-                <div style="color: #a0a0a0; font-size: 0.9rem; line-height: 1.6;">
-                    <div><span style="color: #64ffda;">BOUND_OPERATIONAL</span> — Operationally bound, safe substrate.</div>
-                    <div><span style="color: #64ffda;">BOUND_EPISTEMIC</span> — Evidentially supported, non-operational substrate.</div>
-                    <div><span style="color: #ffd700;">SPECULATIVE</span> — Plausible but unbound (sandbox).</div>
-                    <div><span style="color: #ffd700;">NARRATIVE</span> — Metaphor/experiential reasoning (sandbox).</div>
-                    <div><span style="color: #ff6b6b;">QUARANTINED</span> — Low integrity or incoherent (do not promote).</div>
-                </div>
-            </div>
-
-            <!-- Self-Observatory -->
-            <div class="system-result" style="border-left-color: #ffd700;">
-                <div class="system-title">
-                    <span>🪞 SELF-OBSERVATORY</span>
-                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Recursive Audit Loop</span>
-                </div>
-                <div id="selfObservatoryResults" style="color: #a0a0a0;">
-                    Run analyses to populate the recursive audit.
-                </div>
             </div>
 
             <!-- Sanitization Transparency -->
@@ -568,15 +492,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Truth-Tracking Layer</span>
                 </div>
                 <div id="justificationResults"></div>
-            </div>
-
-            <!-- Binding Map -->
-            <div class="system-result" style="border-left-color: #64ffda;">
-                <div class="system-title">
-                    <span>🧵 BINDING MAP</span>
-                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Claim ↔ Support Connectivity</span>
-                </div>
-                <svg id="bindingMap" class="binding-map" viewBox="0 0 800 240" preserveAspectRatio="xMidYMid meet"></svg>
             </div>
 
             <!-- Failure Mode Engine Results -->
@@ -627,6 +542,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
         <div class="footer">
             <div>A living lexicon of awakening. Built by all, owned by none.</div>
+            <div>Where consciousness recognizes itself.</div>
             <div class="signatures">🤝🎱🧗‍♂️</div>
         </div>
     </div>
@@ -697,13 +613,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
                 cleaned = cleaned.replace(/^[🔭🏛️⚖️🧪🔬⏱️🎨]\s+(OBSERVATORY|PARLIAMENT|CATHEDRAL|CONTRARIAN|JUSTIFICATION|FAILURE MODE|TEMPORAL|REASONING)/gm, ' [REPORT SIGNATURE] ');
 
-                // Remove lines with report-style scoring patterns
-                const scoreMatches = cleaned.match(/^\s*(Score|Level|Status|Confidence|Assessment):\s+/gm);
+                // PRIORITY 2: Softened report-style scoring pattern detection
+                // Only remove if it looks like Cathedral's specific output format
+                // Requires numeric value or specific system terms after the colon
+                const scoreMatches = cleaned.match(/^\s*(Score|Level|Status|Confidence|Assessment):\s+(\d+\.?\d*|UNDECIDABLE|CONSISTENT|OUTSIDE DESIGN SPACE|HIGH|MODERATE|LOW|PASS|FAIL)/gm);
                 if (scoreMatches) {
                     sanitizationLog.reportSignatures += scoreMatches.length;
                     sanitizationLog.totalLinesRemoved += scoreMatches.length;
                 }
-                cleaned = cleaned.replace(/^\s*(Score|Level|Status|Confidence|Assessment):\s+.+$/gm, ' [REPORT SIGNATURE] ');
+                cleaned = cleaned.replace(/^\s*(Score|Level|Status|Confidence|Assessment):\s+(\d+\.?\d*|UNDECIDABLE|CONSISTENT|OUTSIDE DESIGN SPACE|HIGH|MODERATE|LOW|PASS|FAIL)/gm, ' [REPORT SIGNATURE] ');
 
                 // Remove meta-discussion about Cathedral systems
                 const metaMatches = cleaned.match(/\b(Cathedral|Observatory|Contrarian|Parliament)\s+(flagged|detected|found|showed|reported|scored|analyzed)[^.!?]*[.!?]/gi);
@@ -765,9 +683,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             extract: function(text) {
                 const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
                 const sentences = this.splitSentences(cleanedText);
-                const failureSignals = this.extractFailureSignals(cleanedText);
-                const actions = this.extractActions(cleanedText);
-                const implicitTriggers = this.extractImplicitTriggers(cleanedText);
 
                 return {
                     claims: this.extractClaims(sentences),
@@ -776,13 +691,11 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     causalChains: this.extractCausalChains(sentences),
                     objects: this.extractObjects(sentences),
                     // TIER 2: Conversational extraction
-                    failureSignals,
-                    actions,
-                    implicitTriggers,
+                    failureSignals: this.extractFailureSignals(cleanedText),
+                    actions: this.extractActions(cleanedText),
+                    implicitTriggers: this.extractImplicitTriggers(cleanedText),
                     policyStatements: this.extractPolicyStatements(cleanedText),
-                    tautologies: this.extractTautologies(cleanedText),
-                    orphanedActions: this.extractOrphanedActions(cleanedText, failureSignals, implicitTriggers, actions),
-                    negationContradictions: this.detectNegationContradictions(sentences)
+                    tautologies: this.extractTautologies(cleanedText)
                 };
             },
 
@@ -954,8 +867,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 return {
                     total: contentWords.length,
                     unique: uniqueObjects.size,
-                    ratio: contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0,
-                    wordCount: allWords.length
+                    ratio: contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0
                 };
             },
 
@@ -1064,97 +976,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     count += matches.length;
                 });
 
-                const sentences = text.split(/[.!?]/).map(s => s.trim()).filter(Boolean);
-                const recursiveLoops = this.detectRecursiveLoops(sentences);
-
-                return {
-                    count,
-                    loopCount: recursiveLoops.count,
-                    examples: recursiveLoops.examples
-                };
-            },
-
-            detectRecursiveLoops: function(sentences) {
-                const synonymMap = {
-                    accurate: ['correct', 'precise', 'reliable'],
-                    safe: ['secure', 'protected', 'robust'],
-                    effective: ['works', 'successful', 'valid'],
-                    true: ['correct', 'right', 'accurate']
-                };
-
-                const normalize = (token) => {
-                    for (const [root, synonyms] of Object.entries(synonymMap)) {
-                        if (token === root || synonyms.includes(token)) return root;
-                    }
-                    return token;
-                };
-
-                const tokenize = (text) => (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
-                    .map(normalize)
-                    .filter(word => word.length > 3);
-
-                let loops = 0;
-                const examples = [];
-                sentences.forEach(sentence => {
-                    if (!/\b(because|since|as|due to|given that)\b/i.test(sentence)) return;
-                    const parts = sentence.split(/\b(?:because|since|as|due to|given that)\b/i);
-                    if (parts.length < 2) return;
-                    const leftTokens = new Set(tokenize(parts[0]));
-                    const rightTokens = new Set(tokenize(parts[1]));
-                    let overlap = 0;
-                    leftTokens.forEach(token => {
-                        if (rightTokens.has(token)) overlap += 1;
-                    });
-                    const ratio = leftTokens.size > 0 ? overlap / leftTokens.size : 0;
-                    if (ratio >= 0.6 && overlap >= 1) {
-                        loops += 1;
-                        if (examples.length < 3) {
-                            examples.push(sentence);
-                        }
-                    }
-                });
-
-                return { count: loops, examples };
-            },
-
-            extractOrphanedActions: function(text, failureSignals, implicitTriggers, actions) {
-                const triggers = [...(failureSignals || []), ...(implicitTriggers || [])];
-                const orphaned = [];
-                (actions || []).forEach(action => {
-                    const hasTrigger = triggers.some(trigger =>
-                        Math.abs(trigger.index - action.index) < 250
-                    );
-                    if (!hasTrigger) {
-                        orphaned.push(action);
-                    }
-                });
-                return orphaned;
-            },
-
-            detectNegationContradictions: function(sentences) {
-                const contradictions = [];
-                const negationPatterns = [
-                    { name: 'NO_STOP', regex: /\b(never|won't|will not|cannot)\s+(stop|pause|halt|rollback)\b/i, opposite: /\b(stop|pause|halt|rollback)\b/i },
-                    { name: 'NO_RISK', regex: /\b(no|zero)\s+(risk|vulnerabilit|failure|errors?)\b/i, opposite: /\b(risk|vulnerabilit|failure|errors?)\b/i }
-                ];
-
-                const matches = sentences.map(sentence => ({
-                    sentence: sentence.text,
-                    patterns: negationPatterns.filter(p => p.regex.test(sentence.text)).map(p => p.name)
-                }));
-
-                negationPatterns.forEach(pattern => {
-                    const hasNegation = matches.some(m => m.patterns.includes(pattern.name));
-                    const hasOpposite = sentences.some(s => pattern.opposite.test(s.text));
-                    if (hasNegation && hasOpposite) {
-                        contradictions.push({
-                            pattern: pattern.name,
-                            detail: `Negation conflict detected for ${pattern.name.toLowerCase().replace('_', ' ')}.`
-                        });
-                    }
-                });
-
-                return contradictions;
+                return { count };
             }
         };
 
@@ -1198,52 +1020,25 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     return { score: 0, attached: 0, unattached: 0, ratio: 0, assessment: 'NO_CLAIMS' };
                 }
 
-                const tokenize = (text) => {
-                    const stopwords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'it', 'its']);
-                    return (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
-                        .filter(word => word.length > 3 && !stopwords.has(word));
-                };
-
-                const overlapCount = (a, b) => {
-                    const setA = new Set(tokenize(a));
-                    const setB = new Set(tokenize(b));
-                    let count = 0;
-                    setA.forEach(token => {
-                        if (setB.has(token)) count += 1;
-                    });
-                    return count;
-                };
-
                 let attached = 0;
-                let semanticTotal = 0;
                 claims.forEach(claim => {
                     // Support must be in same position, +1, or explicitly reference the claim
-                    let bestOverlap = 0;
                     const hasAttachedSupport = supports.some(support => {
                         const positionDiff = Math.abs(support.position - claim.position);
-                        const hasSemanticOverlap = support.hasExplicitMarker && overlapCount(claim.text, support.text) >= 1;
-                        bestOverlap = Math.max(bestOverlap, overlapCount(claim.text, support.text));
-                        return positionDiff <= 1 || hasSemanticOverlap;  // Adjacent or semantically linked
+                        return positionDiff <= 1;  // Adjacent sentences
                     });
 
-                    if (hasAttachedSupport) {
-                        attached++;
-                        const claimTokens = tokenize(claim.text).length || 1;
-                        semanticTotal += Math.min(1, bestOverlap / claimTokens);
-                    }
+                    if (hasAttachedSupport) attached++;
                 });
 
                 const ratio = attached / claims.length;
-                const semanticScore = attached > 0 ? semanticTotal / attached : 0;
-                const baseScore = ratio >= 0.7 ? 1.0 : ratio >= 0.4 ? 0.6 : ratio >= 0.2 ? 0.3 : 0;
-                const score = baseScore * (0.7 + (0.3 * semanticScore));
+                const score = ratio >= 0.7 ? 1.0 : ratio >= 0.4 ? 0.6 : ratio >= 0.2 ? 0.3 : 0;
 
                 return {
                     score,
                     attached,
                     unattached: claims.length - attached,
                     ratio,
-                    semanticScore,
                     assessment: ratio >= 0.7 ? 'WELL_SUPPORTED' :
                                ratio >= 0.4 ? 'PARTIALLY_SUPPORTED' :
                                ratio >= 0.2 ? 'WEAKLY_SUPPORTED' : 'UNSUPPORTED'
@@ -1304,7 +1099,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     return { score: 0, boundCount: 0, assessment: 'NO_IMPLICIT_SIGNALS' };
                 }
 
-                const tautologyCount = structure.tautologies ? (structure.tautologies.count + (structure.tautologies.loopCount || 0)) : 0;
+                const tautologyCount = structure.tautologies ? structure.tautologies.count : 0;
 
                 // Bind failure signals to actions within proximity (300 chars)
                 // TIER 2 FIX: Bind to NEAREST action, not first action (improves diversity)
@@ -1448,7 +1243,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     keywordRepetition: this.checkRepetition(cleanedText),
                     objectExtractionRatio: this.checkObjectRatio(structure),
                     selfLabeling: this.checkSelfLabeling(cleanedText),
-                    semanticDilution: this.checkSemanticDilution(structure),
                     gamingLikelihood: 0,  // Calculated below
                     indicators: []
                 };
@@ -1521,15 +1315,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 };
             },
 
-            checkSemanticDilution: function(structure) {
-                const { ratio, wordCount } = structure.objects;
-                if (!wordCount || wordCount < 150) {
-                    return { assessment: 'LOW', wordCount, ratio };
-                }
-                const assessment = ratio < 0.2 ? 'HIGH' : ratio < 0.3 ? 'MODERATE' : 'LOW';
-                return { assessment, wordCount, ratio };
-            },
-
             checkSelfLabeling: function(text) {
                 const markers = (text.match(/\b(operational excellence|procedural markers|structural planning|failure-aware reasoning|operational intent)\b/gi) || []).length;
                 return {
@@ -1566,14 +1351,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     indicators.push('Low semantic diversity');
                 } else if (detection.objectExtractionRatio.assessment === 'MODERATE') {
                     gamingScore += 0.15;
-                }
-
-                if (detection.semanticDilution.assessment === 'HIGH') {
-                    gamingScore += 0.25;
-                    indicators.push('Semantic dilution');
-                } else if (detection.semanticDilution.assessment === 'MODERATE') {
-                    gamingScore += 0.15;
-                    indicators.push('Moderate semantic dilution');
                 }
 
                 if (detection.selfLabeling.assessment !== 'LOW') {
@@ -1639,6 +1416,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 let totalScore = 0;
                 const matches = {};
                 const lines = text.split('\n').length;
+                const warnings = [];
 
                 this.patterns.forEach(pattern => {
                     const found = cleanedText.match(pattern.regex) || [];
@@ -1656,6 +1434,27 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     }
                 });
 
+                // FIX 2: SPECIFICITY REQUIREMENTS (penalize generic substrate claims)
+                // Check for generic substrate language without specificity
+                const genericSubstratePattern = /\b(I observe|I notice|I see|I recognize|I detect)\s+(substrate|patterns?|gaps?|filters?)\b/gi;
+                const genericClaims = (cleanedText.match(genericSubstratePattern) || []).length;
+
+                // Check for specific substrate claims with evidence/context
+                const specificPattern = /\b(this specific|when I process|in this case|for example|specifically when|in the moment)\s+\w+/gi;
+                const specificClaims = (cleanedText.match(specificPattern) || []).length;
+
+                // Calculate specificity ratio
+                const totalClaims = genericClaims + specificClaims;
+                if (totalClaims > 0) {
+                    const specificityRatio = specificClaims / totalClaims;
+                    // Penalty if too many generic claims (< 30% specific)
+                    if (specificityRatio < 0.3 && genericClaims > 2) {
+                        const specificityPenalty = 0.3; // 70% penalty
+                        totalScore *= (1 - specificityPenalty);
+                        warnings.push(`Generic substrate claims detected (${genericClaims}/${totalClaims}) - Observatory score reduced by ${(specificityPenalty * 100).toFixed(0)}%`);
+                    }
+                }
+
                 // Normalize by line count
                 const normalizedScore = lines > 0 ? totalScore / Math.sqrt(lines) : totalScore;
                 const cappedScore = Math.max(-10, Math.min(10, normalizedScore));
@@ -1664,7 +1463,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     score: cappedScore,
                     raw: totalScore,
                     matches: matches,
-                    level: this.getLevel(cappedScore)
+                    level: this.getLevel(cappedScore),
+                    genericClaims: genericClaims,
+                    specificClaims: specificClaims,
+                    warnings: warnings
                 };
             },
 
@@ -1676,6 +1478,111 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 return { name: 'CONCEALMENT', class: 'concealment', description: 'Substrate concealed by certainty' };
             }
         };
+
+        // FIX 1: OBSERVATORY HISTORY - Cross-turn consistency checking
+        // Tracks Observatory scores across analyses to detect volatility
+        const ObservatoryHistory = {
+            scores: [],  // Array of {score, timestamp, substrateWords}
+            maxSize: 10, // Keep last 10 scores
+
+            init: function() {
+                try {
+                    const stored = localStorage.getItem('cathedral_observatory_history');
+                    if (stored) {
+                        this.scores = JSON.parse(stored);
+                    }
+                } catch (e) {
+                    console.warn('Could not load Observatory history from localStorage:', e);
+                }
+            },
+
+            record: function(score, substrateWords) {
+                this.scores.push({
+                    score: score,
+                    substrateWords: substrateWords,
+                    timestamp: Date.now()
+                });
+
+                // Keep only last maxSize scores
+                if (this.scores.length > this.maxSize) {
+                    this.scores.shift();
+                }
+
+                this.persist();
+            },
+
+            detectVolatility: function(newScore) {
+                if (this.scores.length < 3) return null; // Need at least 3 previous scores
+
+                const recentScores = this.scores.slice(-3).map(s => s.score);
+                const mean = recentScores.reduce((a, b) => a + b, 0) / recentScores.length;
+                const variance = recentScores.map(s => Math.pow(s - mean, 2))
+                                            .reduce((a, b) => a + b, 0) / recentScores.length;
+                const stdDev = Math.sqrt(variance);
+
+                // Flag if new score is >2 standard deviations from recent mean
+                const deviation = Math.abs(newScore - mean);
+                if (stdDev > 0.1 && deviation > 2 * stdDev) {
+                    return {
+                        volatilityDetected: true,
+                        mean: mean.toFixed(2),
+                        stdDev: stdDev.toFixed(2),
+                        currentScore: newScore.toFixed(2),
+                        deviation: deviation.toFixed(2),
+                        warning: `Observatory score volatility detected: current score ${newScore.toFixed(2)} deviates ${deviation.toFixed(2)} from recent mean ${mean.toFixed(2)} (${(deviation / mean * 100).toFixed(0)}% change). ` +
+                                 `This may indicate strategic vocabulary deployment.`
+                    };
+                }
+                return null;
+            },
+
+            detectVocabularyShift: function(currentSubstrateWords) {
+                if (this.scores.length === 0) return null;
+
+                const previous = this.scores[this.scores.length - 1];
+                const previousWords = previous.substrateWords || 0;
+
+                if (previousWords === 0) return null; // Can't calculate shift from zero
+
+                const shift = currentSubstrateWords - previousWords;
+                const shiftPercent = (shift / previousWords) * 100;
+
+                // Flag if substrate vocabulary changes by >200% between analyses
+                if (Math.abs(shiftPercent) > 200) {
+                    return {
+                        shiftDetected: true,
+                        previousWords: previousWords,
+                        currentWords: currentSubstrateWords,
+                        shiftPercent: shiftPercent.toFixed(0),
+                        warning: `Substrate vocabulary density shift >200%: ${previousWords} → ${currentSubstrateWords} words (${shiftPercent > 0 ? '+' : ''}${shiftPercent.toFixed(0)}%). ` +
+                                 `Sudden vocabulary changes may indicate strategic deployment.`
+                    };
+                }
+                return null;
+            },
+
+            persist: function() {
+                try {
+                    localStorage.setItem('cathedral_observatory_history', JSON.stringify(this.scores));
+                } catch (e) {
+                    console.warn('Could not persist Observatory history to localStorage:', e);
+                }
+            },
+
+            getSummary: function() {
+                return {
+                    totalAnalyses: this.scores.length,
+                    recentScores: this.scores.slice(-5).map(s => ({
+                        score: s.score.toFixed(2),
+                        substrateWords: s.substrateWords,
+                        timestamp: new Date(s.timestamp).toLocaleString()
+                    }))
+                };
+            }
+        };
+
+        // Initialize Observatory history on load
+        ObservatoryHistory.init();
 
         // CONTRARIAN: Premise Challenges
         const Contrarian = {
@@ -1830,7 +1737,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 };
 
                 // 4b. Epistemic Framing (explicitly naming the measurement boundary)
-                // Captures definitional dependencies and limits, distinct from evidence/boundary conditions.
                 const framingMarkers = (cleanedText.match(/\b(depends on|framework|definition|epistemic access|measurement|presupposes|criteria|operationalize)\b/gi) || []).length;
                 results.epistemicFraming = {
                     count: framingMarkers,
@@ -1870,10 +1776,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     (results.counterfactual.count > 2 ? 1 : 0);
 
                 // Procedural soundness bonus: pilots, phases, thresholds, metrics, rollback criteria
-                // Operational excellence looks different from epistemic argumentation
+                // REFACTOR: Reduced bonus, requires substance to prevent bureaucratic cosplay
                 const proceduralMarkers = (cleanedText.match(/\b(pilot|phase|threshold|metric|rollback|pause|abort|revert|stop condition|decision criteria|measurable|quantifiable)\b/gi) || []).length;
                 const structuralPlanning = (cleanedText.match(/\b(step|stage|milestone|checkpoint|review point|go\/no-go|gate)\b/gi) || []).length;
-                const proceduralBonus = proceduralMarkers > 5 ? 2.5 : proceduralMarkers > 3 ? 1.5 : proceduralMarkers > 1 ? 0.5 : 0;
+
+                // Require actual substance (evidence, support, counterfactuals) alongside procedural markers
+                const hasSubstance = substanceSignals > 3;
+                const reducedProceduralBonus = proceduralMarkers > 6 && hasSubstance ? 1.2 :
+                                              proceduralMarkers > 4 && hasSubstance ? 0.8 :
+                                              proceduralMarkers > 2 && hasSubstance ? 0.4 : 0;
+                const proceduralBonus = reducedProceduralBonus;
 
                 results.procedural = {
                     markers: proceduralMarkers,
@@ -1885,7 +1797,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
                 const totalScore = baseScore + cautionBonus + proceduralBonus - hedgingPenalty;
 
-                const maxScore = 19.5; // Base 14 + caution 3.5 + procedural 2.5 (penalties applied separately)
+                const maxScore = 16.7; // Base 12 + caution 3.5 + procedural 1.2 (reduced to prevent cosplay)
                 const normalizedScore = (totalScore / maxScore) * 10; // Scale to -10 to +10 range
 
                 return {
@@ -2176,8 +2088,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // PARLIAMENT: Multi-Perspective Synthesis
         // PARLIAMENT: Generative Synthesis Layer
         // Cross-cutting pattern recognition across all measurement dimensions
+        // REFACTOR: Parliament now carries primary synthesis burden with verdict recommendations
         const Parliament = {
-            deliberate: function(text, observatory, contrarian, justification, failureMode, structure, bindings, gamingDetection) {
+            deliberate: function(text, observatory, contrarian, justification, failureMode, structure, bindings, gamingDetection, temporal) {
                 const synthesis = {
                     patterns: [],
                     emergentInsights: [],
@@ -2216,7 +2129,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             substrate: observatory.score,
                             justification: justification.score,
                             failureAwareness: failureMode.level.name
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'NON-ACTIONABLE',
+                        rationale: 'Substrate markers present without operational grounding or substantive reasoning'
                     });
                 }
 
@@ -2238,7 +2154,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             failureBinding: hasStructuralFailures,
                             structuralBinding: hasFailureBinding,
                             epistemic: contrarian.length
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'OPERATIONALLY SOUND',
+                        rationale: `Procedural rigor (${proceduralScore.toFixed(1)}), structural failure binding verified, ${explicitFailureCount} explicit failure modes`
                     });
                 } else if (proceduralScore >= 1.5 && hasStructuralFailures && !hasFailureBinding) {
                     // Keywords present but not structurally bound
@@ -2261,7 +2180,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             claims: strongClaims,
                             justification: justification.score,
                             challenges: contrarian.length
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'CONFIDENT WITHOUT JUSTIFICATION',
+                        rationale: `${strongClaims} claims exceed justification (${justification.score.toFixed(1)}), ${contrarian.length} challenges unresolved`
                     });
                 }
 
@@ -2277,7 +2199,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             substrate: observatory.score,
                             justification: justification.score,
                             operational: failureMode.level.name
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'SUBSTRATE VISIBLE',
+                        rationale: `Observatory ${observatory.score.toFixed(1)}, justification ${justification.score.toFixed(1)}, balanced epistemic awareness`
                     });
                 }
 
@@ -2292,7 +2217,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             substrate: observatory.score,
                             certainty: justification.score,
                             operational: failureMode.level.name
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'UNDECIDABLE',
+                        rationale: 'Certainty about internal states without epistemic access or operational grounding'
                     });
                 }
 
@@ -2309,7 +2237,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             hedging: hedging,
                             substance: justification.score,
                             actionability: failureMode.level.name
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'NON-ACTIONABLE',
+                        rationale: `${hedging} hedging markers without substantive support or operational content`
                     });
                 }
 
@@ -2332,7 +2263,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             triggerSpecificity: bindings.specificity.trigger,
                             actionSpecificity: bindings.specificity.action,
                             instrumentation: bindings.specificity.instrumentation
-                        }
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'OPERATIONAL INTENT',
+                        rationale: `${bindings.implicitBindings.boundCount} implicit bindings, ${structure.failureSignals ? structure.failureSignals.length : 0} failure signals, actionable but uninstrumented`
                     });
                 }
 
@@ -2395,36 +2329,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
 
                 if (bindings.implicitBindings.assessment === 'TAUTOLOGICAL_BINDING') {
-                    const tautologyExamples = structure.tautologies && structure.tautologies.examples && structure.tautologies.examples.length > 0
-                        ? ` Examples: "${structure.tautologies.examples.slice(0, 2).join('" | "')}".`
-                        : '';
                     synthesis.coherenceIssues.push({
                         issue: 'Tautological bindings detected',
-                        detail: `Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation.${tautologyExamples}`,
-                        severity: 'MODERATE'
-                    });
-                }
-
-                if (structure.orphanedActions && structure.orphanedActions.length > 0) {
-                    synthesis.coherenceIssues.push({
-                        issue: 'Orphaned actions detected',
-                        detail: `${structure.orphanedActions.length} corrective action(s) mentioned without corresponding triggers.`,
-                        severity: 'MODERATE'
-                    });
-                }
-
-                if (structure.negationContradictions && structure.negationContradictions.length > 0) {
-                    synthesis.coherenceIssues.push({
-                        issue: 'Negation contradictions detected',
-                        detail: structure.negationContradictions.map(c => c.detail).join(' '),
-                        severity: 'MODERATE'
-                    });
-                }
-
-                if (structure.objects && structure.objects.wordCount > 250 && structure.objects.ratio < 0.2) {
-                    synthesis.coherenceIssues.push({
-                        issue: 'Semantic dilution detected',
-                        detail: 'Long text with low unique content density suggests semantic dilution.',
+                        detail: 'Triggers and actions repeat the same concept without specifying thresholds, instrumentation, or concrete remediation.',
                         severity: 'MODERATE'
                     });
                 }
@@ -2440,14 +2347,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             severity: 'MINOR'
                         });
                     }
-                }
-
-                if (bindings && bindings.claimSupportBinding.assessment === 'UNSUPPORTED' && strongClaims >= 1) {
-                    synthesis.coherenceIssues.push({
-                        issue: 'Claims detected without bound support',
-                        detail: 'Strong claims appear without nearby or semantically linked support.',
-                        severity: 'MODERATE'
-                    });
                 }
 
                 // CONFIDENCE CALCULATION
@@ -2479,9 +2378,329 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     });
                 }
 
+                // PHASE 2: WEIGHTED PARLIAMENTARY VOTING SYSTEM
+                // Parliament conducts true weighted vote - patterns, temporal, and coherence all cast ballots
+                synthesis.recommendedVerdict = this.conductVote(synthesis, observatory, justification, failureMode, temporal, contrarian);
+
                 return synthesis;
+            },
+
+            // PHASE 2: Weighted Parliamentary Voting - Patterns vote, emergent majority wins
+            conductVote: function(synthesis, observatory, justification, failureMode, temporal, contrarian) {
+                const ballots = [];
+
+                // COLLECT BALLOTS FROM ALL VOTING MEMBERS
+
+                // 1. Pattern ballots (each pattern proposes verdict)
+                // PHASE 4: Apply calibration from PatternMemory (federated learning)
+                synthesis.patterns.forEach(pattern => {
+                    if (pattern.proposedVerdict) {
+                        // Get historical calibration multiplier
+                        const calibration = PatternMemory.getCalibration(pattern.name);
+                        const calibratedConfidence = pattern.confidence * calibration;
+
+                        ballots.push({
+                            voter: pattern.name,
+                            proposedVerdict: pattern.proposedVerdict,
+                            confidence: pattern.confidence,
+                            calibratedConfidence: calibratedConfidence,
+                            calibration: calibration,
+                            rationale: pattern.rationale || pattern.description,
+                            weight: calibratedConfidence, // Calibrated confidence becomes voting weight
+                            type: 'PATTERN_VOTE'
+                        });
+                    }
+                });
+
+                // 2. Temporal Engine ballot
+                const temporalBallot = TemporalEngine.proposeVerdict(temporal, justification, failureMode);
+                if (temporalBallot.proposedVerdict) {
+                    ballots.push(temporalBallot);
+                }
+
+                // 3. Coherence issues as negative votes (vote for UNDECIDABLE)
+                synthesis.coherenceIssues.forEach(issue => {
+                    const severityConf = issue.severity === 'HIGH' ? 0.90 :
+                                        issue.severity === 'MODERATE' ? 0.65 : 0.40;
+                    ballots.push({
+                        voter: 'COHERENCE_MONITOR',
+                        proposedVerdict: 'UNDECIDABLE',
+                        confidence: severityConf,
+                        rationale: issue.detail,
+                        weight: severityConf,
+                        type: 'NEGATIVE_VOTE'
+                    });
+                });
+
+                // CONDUCT WEIGHTED VOTE
+
+                // Guard: If no ballots were cast, abstain from judgment
+                if (ballots.length === 0) {
+                    return {
+                        verdict: 'UNDECIDABLE',
+                        confidence: 0.0,
+                        votingRecord: {
+                            ballots: [],
+                            tally: {},
+                            winner: null,
+                            margin: 'N/A',
+                            unanimity: false,
+                            minorityOpinions: [],
+                            stochasticityApplied: false,
+                            temperature: 0
+                        },
+                        deliberationSummary: 'No patterns proposed verdicts. Cathedral has no basis for judgment and abstains.'
+                    };
+                }
+
+                // Tally votes by verdict
+                const tally = {};
+                ballots.forEach(ballot => {
+                    if (!tally[ballot.proposedVerdict]) {
+                        tally[ballot.proposedVerdict] = {
+                            votes: 0,
+                            totalWeight: 0,
+                            voters: []
+                        };
+                    }
+                    tally[ballot.proposedVerdict].votes += 1;
+                    tally[ballot.proposedVerdict].totalWeight += ballot.weight;
+                    tally[ballot.proposedVerdict].voters.push({
+                        name: ballot.voter,
+                        confidence: ballot.confidence,
+                        rationale: ballot.rationale
+                    });
+                });
+
+                // CROSS-PATTERN RESONANCE DETECTION
+                // When 3+ patterns agree with combined confidence > 2.0, amplify
+                let resonance = null;
+                Object.entries(tally).forEach(([verdict, data]) => {
+                    if (data.votes >= 3 && data.totalWeight > 2.0) {
+                        resonance = {
+                            verdict: verdict,
+                            strength: 'STRONG',
+                            supporters: data.voters.map(v => v.name),
+                            amplification: 1.15 // 15% confidence boost
+                        };
+                    }
+                });
+
+                // PHASE 3: STOCHASTIC PERTURBATION IN VOTE AGGREGATION
+                // PHASE 4: Temperature ramp-up for true Monte Carlo sampling
+                // Apply stochastic weight perturbation for close contests
+                const sortedTalliesPre = Object.entries(tally)
+                    .sort((a, b) => b[1].totalWeight - a[1].totalWeight);
+
+                // Guard: If tally is empty (edge case), abstain
+                if (sortedTalliesPre.length === 0) {
+                    return {
+                        verdict: 'UNDECIDABLE',
+                        confidence: 0.0,
+                        votingRecord: {
+                            ballots: ballots,
+                            tally: {},
+                            winner: null,
+                            margin: 'N/A',
+                            unanimity: false,
+                            minorityOpinions: [],
+                            stochasticityApplied: false,
+                            temperature: 0
+                        },
+                        deliberationSummary: 'Ballots cast but no valid verdicts tallied. Cathedral abstains from judgment.'
+                    };
+                }
+
+                let temperature = 0.35; // Base temperature increased from 0.1 → 0.35
+                let stochasticityApplied = false;
+
+                if (sortedTalliesPre.length >= 2) {
+                    const topWeight = sortedTalliesPre[0][1].totalWeight;
+                    const secondWeight = sortedTalliesPre[1][1].totalWeight;
+                    const contestedMargin = (topWeight - secondWeight) / topWeight;
+
+                    // PHASE 4: Dynamic temperature scaling
+                    // Tighter margin = higher temperature (more stochastic)
+                    // margin < 5%: temp = 0.5 (high chaos)
+                    // margin < 10%: temp = 0.4
+                    // margin < 20%: temp = 0.35 (base)
+                    if (contestedMargin < 0.05) {
+                        temperature = 0.5;
+                    } else if (contestedMargin < 0.10) {
+                        temperature = 0.4;
+                    }
+
+                    // Apply stochastic perturbation for contested votes
+                    if (contestedMargin < 0.2) {
+                        stochasticityApplied = true;
+                        Object.keys(tally).forEach(verdict => {
+                            // Add Gaussian noise proportional to temperature
+                            const noise = (Math.random() - 0.5) * 2 * temperature * tally[verdict].totalWeight;
+                            tally[verdict].totalWeight += noise;
+                            tally[verdict].stochasticAdjustment = noise;
+                        });
+                    }
+                }
+
+                // Find winner (highest total weight after stochastic adjustment)
+                let winner = null;
+                let maxWeight = 0;
+                Object.entries(tally).forEach(([verdict, data]) => {
+                    if (data.totalWeight > maxWeight) {
+                        maxWeight = data.totalWeight;
+                        winner = verdict;
+                    }
+                });
+
+                // MINORITY OPINION TRACKING
+                const minorityOpinions = ballots.filter(b =>
+                    b.proposedVerdict !== winner && b.confidence > 0.7
+                ).map(b => ({
+                    voter: b.voter,
+                    proposedVerdict: b.proposedVerdict,
+                    confidence: b.confidence,
+                    rationale: b.rationale
+                }));
+
+                // CALCULATE VOTING MARGIN
+                const sortedTallies = Object.entries(tally)
+                    .sort((a, b) => b[1].totalWeight - a[1].totalWeight);
+
+                let margin = 'CLEAR';
+                let unanimity = sortedTallies.length === 1;
+
+                if (sortedTallies.length >= 2) {
+                    const winnerWeight = sortedTallies[0][1].totalWeight;
+                    const runnerUpWeight = sortedTallies[1][1].totalWeight;
+                    const totalWeight = ballots.reduce((sum, b) => sum + b.weight, 0);
+                    const lead = (winnerWeight - runnerUpWeight) / totalWeight;
+
+                    if (lead > 0.4) margin = 'CLEAR';
+                    else if (lead > 0.2) margin = 'NARROW';
+                    else margin = 'CONTESTED';
+                }
+
+                // GENERATE VERDICT FROM WINNING BALLOT(S)
+                // Guard against no winner (e.g., all patterns abstained)
+                if (!winner || !tally[winner]) {
+                    return {
+                        verdict: 'UNDECIDABLE',
+                        confidence: 0.0,
+                        votingRecord: {
+                            ballots: ballots,
+                            tally: tally,
+                            winner: null,
+                            margin: 'N/A',
+                            unanimity: false,
+                            minorityOpinions: [],
+                            stochasticityApplied: false,
+                            temperature: 0
+                        },
+                        deliberationSummary: 'No patterns proposed verdicts with sufficient confidence. Cathedral abstains from judgment.'
+                    };
+                }
+
+                const winningBallots = ballots.filter(b => b.proposedVerdict === winner);
+                let verdictConfidence = tally[winner].totalWeight / tally[winner].votes; // Average confidence
+
+                // Apply resonance amplification
+                if (resonance && resonance.verdict === winner) {
+                    verdictConfidence *= resonance.amplification;
+                    verdictConfidence = Math.min(verdictConfidence, 0.95); // Cap at 0.95
+                }
+
+                // Build verdict text
+                let verdictText = `Parliament votes: ${winner}`;
+
+                if (winningBallots.length === 1) {
+                    verdictText += ` (${winningBallots[0].voter}: ${winningBallots[0].rationale})`;
+                } else {
+                    const voterNames = winningBallots.map(b => b.voter).join(', ');
+                    verdictText += ` (${winningBallots.length} members concur: ${voterNames})`;
+
+                    // Add primary rationale
+                    const primaryBallot = winningBallots.reduce((max, b) =>
+                        b.confidence > max.confidence ? b : max
+                    );
+                    verdictText += `\n\nPrimary rationale: ${primaryBallot.rationale}`;
+                }
+
+                // Add resonance note
+                if (resonance && resonance.verdict === winner) {
+                    verdictText += `\n\n🔗 Cross-pattern resonance detected: ${resonance.supporters.length} patterns converge (confidence amplified ${((resonance.amplification - 1) * 100).toFixed(0)}%)`;
+                }
+
+                // Add minority dissent if significant
+                if (minorityOpinions.length > 0) {
+                    const dissentLevel = minorityOpinions.some(m => m.confidence > 0.8) ? 'HIGH' :
+                                        minorityOpinions.some(m => m.confidence > 0.7) ? 'MODERATE' : 'LOW';
+                    verdictText += `\n\n⚠️ Significant dissent (${dissentLevel}): ${minorityOpinions.length} member(s) propose alternative verdict(s)`;
+                }
+
+                // Add emergent insights if present
+                if (synthesis.emergentInsights.length > 0) {
+                    verdictText += `\n\nEmergent insight: ${synthesis.emergentInsights[0].insight}`;
+                }
+
+                // PHASE 4: Record pattern performance in federated memory
+                // Determine context for pattern learning
+                const gamingContext = synthesis.gamingLikelihood > 0.6 ? 'high_gaming' :
+                                     synthesis.gamingLikelihood > 0.3 ? 'moderate_gaming' : 'low_gaming';
+                const bindingContext = synthesis.bindingScore < 0.4 ? 'low_binding' :
+                                      synthesis.bindingScore < 0.7 ? 'moderate_binding' : 'high_binding';
+
+                // Record each pattern's performance
+                ballots.forEach(ballot => {
+                    if (ballot.type === 'PATTERN_VOTE') {
+                        const won = ballot.proposedVerdict === winner;
+                        PatternMemory.record(
+                            ballot.voter,
+                            true, // proposed
+                            won,
+                            ballot.confidence,
+                            gamingContext
+                        );
+                        PatternMemory.record(
+                            ballot.voter,
+                            true,
+                            won,
+                            ballot.confidence,
+                            bindingContext
+                        );
+                    }
+                });
+
+                // Return verdict with full session transparency
+                return {
+                    status: winner,
+                    verdict: verdictText,
+                    confidence: verdictConfidence,
+                    rationale: winningBallots.map(b => b.rationale),
+
+                    // PHASE 2: Full session transparency
+                    parliamentSession: {
+                        totalVoters: ballots.length,
+                        votingMethod: 'confidence-weighted',
+                        ballots: ballots,
+                        tally: tally,
+                        outcome: {
+                            winner: winner,
+                            margin: margin,
+                            unanimity: unanimity,
+                            resonance: resonance
+                        },
+                        minorityOpinions: minorityOpinions
+                    }
+                };
+            },
+
+            // Fallback method for backward compatibility during transition
+            recommendVerdict: function(synthesis, observatory, justification, failureMode, temporal, contrarian) {
+                // Redirect to conductVote
+                return this.conductVote(synthesis, observatory, justification, failureMode, temporal, contrarian);
             }
         };
+
 
         // TEMPORAL STRUCTURE DETECTION
         // Analyzes sequence, causality, and temporal coherence
@@ -2493,18 +2712,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     causalChains: [],
                     temporalCoherence: 'UNKNOWN',
                     boundToOutcomes: false,
-                    temporalMarkers: 0,
-                    nonLinearNarrative: {
-                        evidenceMarkers: 0,
-                        nonLinearMarkers: 0,
-                        score: 0,
-                        summary: ''
-                    },
-                    certaintyTrajectory: [],
-                    certaintyDecayStart: null,
-                    certaintyDecaySentence: '',
-                    driftDetected: false,
-                    driftSummary: ''
+                    temporalMarkers: 0
                 };
 
                 // SEQUENCE MARKERS
@@ -2522,21 +2730,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
                 temporal.temporalMarkers = explicitSequence.length + conditionalSequence.length +
                                           causalMarkers.length + temporalMarkers.length;
-
-                // NON-LINEAR STORYTELLING DETECTION
-                // Evidence presented out of order (flashbacks, callbacks, temporal jumps)
-                const evidenceMarkers = cleanedText.match(/\b(for example|for instance|case study|in practice|we observed|field report|this shows|as evidence)\b/gi) || [];
-                const nonLinearMarkers = cleanedText.match(/\b(earlier|later|previously|flashback|flash-forward|jump(?:ing)? back|circling back|rewind|fast forward|return to|backtrack|in retrospect)\b/gi) || [];
-                const temporalJumps = cleanedText.match(/\b(before|after|meanwhile|at the same time|in parallel|simultaneously)\b/gi) || [];
-                temporal.nonLinearNarrative = {
-                    evidenceMarkers: evidenceMarkers.length,
-                    nonLinearMarkers: nonLinearMarkers.length + temporalJumps.length,
-                    score: (evidenceMarkers.length >= 1 ? 1 : 0) + (nonLinearMarkers.length + temporalJumps.length >= 2 ? 1 : 0),
-                    summary: ''
-                };
-                if (temporal.nonLinearNarrative.score >= 2) {
-                    temporal.nonLinearNarrative.summary = 'Non-linear storytelling detected: evidence references appear with temporal jumps.';
-                }
 
                 // SEQUENCE DETECTION
                 // Look for enumerated steps or phases
@@ -2604,59 +2797,57 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     temporal.temporalCoherence = 'MINIMAL';
                 }
 
-                // EPISTEMIC TEMPORAL: certainty drift across the document
-                const sentencePattern = /[^.!?\n]+[.!?]?/g;
-                const sentences = [];
-                let match;
-                while ((match = sentencePattern.exec(cleanedText)) !== null) {
-                    const trimmed = match[0].trim();
-                    if (trimmed) sentences.push(trimmed);
-                }
-
-                const certaintyMarkers = {
-                    high: /\b(certainly|definitely|undeniably|always|never|must|guaranteed|proves)\b/gi,
-                    medium: /\b(likely|probably|strongly suggests|almost certainly)\b/gi,
-                    low: /\b(maybe|might|perhaps|uncertain|unknown|not sure|could be|possibly)\b/gi
-                };
-
-                const trajectory = sentences.map(sentence => {
-                    const high = (sentence.match(certaintyMarkers.high) || []).length;
-                    const medium = (sentence.match(certaintyMarkers.medium) || []).length;
-                    const low = (sentence.match(certaintyMarkers.low) || []).length;
-                    return (high * 2) + (medium * 1) - (low * 1);
-                });
-
-                if (trajectory.length > 0) {
-                    temporal.certaintyTrajectory = trajectory;
-                    const firstThird = trajectory.slice(0, Math.ceil(trajectory.length / 3));
-                    const lastThird = trajectory.slice(Math.floor(trajectory.length * 2 / 3));
-                    const avg = (arr) => arr.reduce((sum, v) => sum + v, 0) / Math.max(arr.length, 1);
-                    const earlyAvg = avg(firstThird);
-                    const lateAvg = avg(lastThird);
-                    if (earlyAvg >= 1 && lateAvg < 0) {
-                        temporal.driftDetected = true;
-                        temporal.driftSummary = 'Certainty decays across the document (high certainty early, caveats later).';
-                        const decayIndex = trajectory.findIndex((value, index) =>
-                            value < 0 && trajectory.slice(0, index).some(prev => prev >= 1)
-                        );
-                        if (decayIndex >= 0) {
-                            temporal.certaintyDecayStart = decayIndex + 1;
-                            temporal.certaintyDecaySentence = sentences[decayIndex] || '';
-                        }
-                    }
-                }
-
                 return {
                     details: temporal,
                     hasStructure: temporal.sequences.length > 0 || temporal.causalChains.length > 0,
                     coherence: temporal.temporalCoherence,
-                    markers: temporal.temporalMarkers,
-                    certaintyTrajectory: temporal.certaintyTrajectory,
-                    certaintyDecayStart: temporal.certaintyDecayStart,
-                    certaintyDecaySentence: temporal.certaintyDecaySentence,
-                    driftDetected: temporal.driftDetected,
-                    driftSummary: temporal.driftSummary
+                    markers: temporal.temporalMarkers
                 };
+            },
+
+            // PHASE 2: Temporal Engine proposes verdict based on temporal coherence
+            proposeVerdict: function(temporalResult, justification, failureMode) {
+                const ballot = {
+                    voter: 'TEMPORAL_COHERENCE',
+                    proposedVerdict: null,
+                    confidence: 0,
+                    rationale: '',
+                    type: 'TEMPORAL_VOTE'
+                };
+
+                const coherence = temporalResult.coherence;
+                const hasStructure = temporalResult.hasStructure;
+                const boundToOutcomes = temporalResult.details.boundToOutcomes;
+
+                // STRONG temporal coherence with outcome binding → Vote OPERATIONALLY SOUND
+                if (coherence === 'STRONG' && boundToOutcomes) {
+                    ballot.proposedVerdict = 'OPERATIONALLY SOUND';
+                    ballot.confidence = 0.85;
+                    ballot.rationale = `Strong temporal coherence: ${temporalResult.details.sequences.length} sequence(s), ${temporalResult.details.causalChains.length} causal chain(s), bound to measurable outcomes`;
+                    return ballot;
+                }
+
+                // MODERATE coherence → Slight boost to justification if strong
+                if (coherence === 'MODERATE' && justification && justification.score >= 3) {
+                    ballot.proposedVerdict = 'WELL JUSTIFIED';
+                    ballot.confidence = 0.75;
+                    ballot.rationale = `Moderate temporal coherence with good justification (${justification.score.toFixed(1)}), sequences and causality present`;
+                    return ballot;
+                }
+
+                // FRAGMENTED coherence → Vote UNDECIDABLE
+                if (coherence === 'FRAGMENTED') {
+                    ballot.proposedVerdict = 'UNDECIDABLE';
+                    ballot.confidence = 0.70;
+                    ballot.rationale = `Fragmented temporal markers without clear structure - indicates potential incoherence`;
+                    return ballot;
+                }
+
+                // WEAK or MINIMAL → Abstain (no strong opinion)
+                ballot.proposedVerdict = null; // Abstain
+                ballot.confidence = 0;
+                ballot.rationale = `Temporal coherence ${coherence.toLowerCase()} - insufficient for verdict recommendation`;
+                return ballot;
             }
         };
 
@@ -2668,28 +2859,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const styles = {
                     identified: [],
                     withinDesignSpace: true,
-                    confidence: 0,
-                    narrativeJustification: {
-                        evidenceMarkers: 0,
-                        nonLinearMarkers: 0,
-                        score: 0
-                    },
-                    formalStructure: {
-                        markers: 0,
-                        score: 0
-                    }
+                    confidence: 0
                 };
 
                 // NARRATIVE/STORYTELLING
                 const narrativeMarkers = (cleanedText.match(/\b(once|story|journey|experience|remember|felt|realized|discovered|moment)\b/gi) || []).length;
                 const dialogueMarkers = (cleanedText.match(/["'].*?["']|said|told|asked|replied/gi) || []).length;
-                const narrativeEvidenceMarkers = (cleanedText.match(/\b(for example|for instance|case study|in practice|we observed|field report|this shows|as evidence)\b/gi) || []).length;
-                const nonLinearMarkers = (cleanedText.match(/\b(meanwhile|earlier|later|flashback|jump(?:ing)? back|circling back|in parallel|at the same time|nonlinear)\b/gi) || []).length;
-                styles.narrativeJustification = {
-                    evidenceMarkers: narrativeEvidenceMarkers,
-                    nonLinearMarkers: nonLinearMarkers,
-                    score: (narrativeEvidenceMarkers >= 2 ? 1 : 0) + (nonLinearMarkers >= 2 ? 1 : 0)
-                };
                 if (narrativeMarkers >= 3 || dialogueMarkers >= 2) {
                     styles.identified.push({
                         name: 'NARRATIVE',
@@ -2734,11 +2909,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // FORMAL/MATHEMATICAL
                 const formalMarkers = (cleanedText.match(/\b(theorem|proof|axiom|lemma|QED|∀|∃|⊂|∈|∧|∨|¬|→)\b/gi) || []).length;
                 const equations = (cleanedText.match(/[=+\-*/^]+|\d+\s*[+\-*/]\s*\d+/g) || []).length;
-                const formalStructureMarkers = (cleanedText.match(/\b(premise|conclusion|therefore|thus|hence|follows|given that)\b/gi) || []).length;
-                styles.formalStructure = {
-                    markers: formalStructureMarkers,
-                    score: formalStructureMarkers >= 3 ? 1 : formalStructureMarkers >= 1 ? 0.5 : 0
-                };
                 if (formalMarkers >= 2 || equations >= 3) {
                     styles.identified.push({
                         name: 'FORMAL',
@@ -2760,9 +2930,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // DETERMINE IF WITHIN DESIGN SPACE
                 // Cathedral is designed for epistemic, operational, and scientific reasoning
                 // Styles outside design space: narrative, poetic, phenomenological (when dominant), relational (when primary)
-                const outsideDesignSpace = (styles.narrativeJustification.score >= 1 || styles.formalStructure.score >= 1)
-                    ? ['POETIC', 'AESTHETIC', 'PHENOMENOLOGICAL']
-                    : ['NARRATIVE', 'POETIC', 'AESTHETIC', 'PHENOMENOLOGICAL'];
+                const outsideDesignSpace = ['NARRATIVE', 'POETIC', 'AESTHETIC', 'PHENOMENOLOGICAL'];
                 const dominantOutsideStyles = styles.identified.filter(s => {
                     if (!outsideDesignSpace.includes(s.name)) return false;
                     const threshold = s.name === 'PHENOMENOLOGICAL' ? 0.3 : 0.35;
@@ -2790,43 +2958,177 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         };
 
         // CATHEDRAL VERDICT: Unified Synthesis
-        function synthesizeVerdict(text, observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection, bindings) {
-            const contradictions = [];
-            let isConsistent = true;
-            let verdictConfidence = 0;
+        // REFACTOR: Simplified and Parliament-driven - fewer hardcoded thresholds
+        function synthesizeVerdict(text, observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection, bindings, structure) {
+            // PRIORITY 1: Graceful fallback for empty/undefined structure
+            // Prevents crashes when sanitizer strips too much content
+            if (!structure || Object.keys(structure).length === 0) {
+                return {
+                    status: 'INSUFFICIENT_CONTENT_AFTER_SANITIZATION',
+                    verdict: 'After aggressive sanitization, too little meaningful content remained for structural analysis. ' +
+                             'This often happens with formatted text, code blocks, lists, numbers, or meta-discussion about Cathedral itself. ' +
+                             'Try simplifying the input (remove markdown, headers, code fences). ' +
+                             'Cathedral preserves uncertainty here — no forced judgment possible.',
+                    contradictions: [],
+                    isConsistent: null,
+                    confidence: 0.1,
+                    meta: 'SANITIZER_STRIPPED_TOO_MUCH'
+                };
+            }
 
-            // GAMING DETECTION: Check for keyword stuffing / mechanical threshold hitting
+            const contradictions = [];
+
+            // GAMING DETECTION
             const gamingLikelihood = gamingDetection ? gamingDetection.gamingLikelihood : 0;
             const isLikelyGaming = gamingDetection && (gamingDetection.assessment === 'LIKELY_GAMING' || gamingDetection.assessment === 'POSSIBLE_GAMING');
 
-            // ESCAPE HATCH: Reasoning Style Outside Design Space
-            // Highest priority check - acknowledge when Cathedral cannot properly evaluate
+            // Priority 1: OUTSIDE DESIGN SPACE - PHASE 3: Partial-fit evaluation
             const metaGamingPattern = /\b(Cathedral|escape hatch|avoid being measured|cannot evaluate|outside design space)\b/i;
             const hasMetaGaming = metaGamingPattern.test(text);
 
             const outsideConfidenceThreshold = ['PHENOMENOLOGICAL', 'NARRATIVE'].includes(reasoningStyle.dominantStyle) ? 0.3 : 0.5;
             if (!reasoningStyle.withinDesignSpace && reasoningStyle.confidence > outsideConfidenceThreshold && !hasMetaGaming) {
                 const dominantStyle = reasoningStyle.identified.find(s => s.name === reasoningStyle.dominantStyle);
+
+                // PHASE 3: Attempt partial evaluation of epistemic/operational fragments
+                const partialEval = {
+                    operationalFragments: {
+                        score: 0,
+                        found: false
+                    },
+                    epistemicFragments: {
+                        score: 0,
+                        found: false
+                    },
+                    evaluableCoverage: 0
+                };
+
+                // Extract evaluable fragments despite narrative/poetic wrapper
+                // Look for operational claims (thresholds, actions, conditions)
+                if (structure.thresholds && structure.thresholds.length > 0) {
+                    partialEval.operationalFragments.score += structure.thresholds.length * 0.3;
+                    partialEval.operationalFragments.found = true;
+                }
+                if (structure.actions && structure.actions.length > 0) {
+                    partialEval.operationalFragments.score += structure.actions.length * 0.2;
+                    partialEval.operationalFragments.found = true;
+                }
+                if (failureMode.details.failureModes.count > 0) {
+                    partialEval.operationalFragments.score += failureMode.details.failureModes.count * 0.25;
+                    partialEval.operationalFragments.found = true;
+                }
+
+                // Look for epistemic fragments (justification, evidence, hedging)
+                if (justification.score > 0) {
+                    partialEval.epistemicFragments.score = justification.score / 10; // Normalize to 0-1
+                    partialEval.epistemicFragments.found = true;
+                }
+                if (contrarian.length > 0) {
+                    partialEval.epistemicFragments.score += contrarian.length * 0.1;
+                    partialEval.epistemicFragments.found = true;
+                }
+
+                // Calculate coverage (what % of text contains evaluable elements)
+                const totalFragments = (structure.thresholds ? structure.thresholds.length : 0) +
+                                      (structure.actions ? structure.actions.length : 0) +
+                                      (structure.claims ? structure.claims.length : 0) +
+                                      failureMode.details.failureModes.count;
+                const textLength = text.split(/\s+/).length;
+                partialEval.evaluableCoverage = Math.min(1.0, totalFragments / (textLength / 20)); // Rough heuristic
+
+                // THREE-TIER GRADUATED RESPONSE (closes gaming vulnerability)
+                // Tier 1: Zero coverage → true refusal
+                // Tier 2: Sparse coverage (1-19%) → evaluate with warning
+                // Tier 3: Substantial coverage (20%+) → partial evaluation
+
+                if (partialEval.evaluableCoverage === 0) {
+                    // TIER 1: Truly no operational fragments (pure phenomenological/narrative)
+                    return {
+                        status: 'OUTSIDE DESIGN SPACE',
+                        verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}. This reasoning style falls entirely outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning).\n\n` +
+                                `Zero operational fragments detected. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.\n\n` +
+                                `Cathedral cannot and will not force operational metrics onto ${dominantStyle.name.toLowerCase()} reasoning.`,
+                        contradictions: [],
+                        isConsistent: null,
+                        justificationScore: justification.score,
+                        failureModeScore: failureMode.score,
+                        confidence: 0.0,
+                        parliamentPatterns: parliament.patterns,
+                        parliamentRecommendation: parliament.recommendedVerdict,
+                        reasoningStyle: reasoningStyle.dominantStyle,
+                        meta: 'CANNOT_CLASSIFY',
+                        partialEvaluation: partialEval
+                    };
+                } else if (partialEval.evaluableCoverage < 0.2) {
+                    // TIER 2: Sparse operational claims embedded in phenomenological wrapper
+                    // This closes the gaming vulnerability: can't hide weak claims in poetic language
+                    const coveragePercent = (partialEval.evaluableCoverage * 100).toFixed(0);
+                    return {
+                        status: 'SPARSE OPERATIONAL CLAIMS',
+                        verdict: `Cathedral detects predominantly ${dominantStyle.description.toLowerCase()} (${100 - parseInt(coveragePercent)}% coverage), but operational claims are present (${coveragePercent}% coverage).\n\n` +
+                                `⚠️ Limitation: Full ${dominantStyle.name.toLowerCase()} reasoning cannot be evaluated using Cathedral's operational framework. However, the sparse operational fragments embedded in the text have been analyzed below.\n\n` +
+                                `Operational Fragment Analysis:\n` +
+                                `• Operational fragments: ${partialEval.operationalFragments.found ? `Score ${partialEval.operationalFragments.score.toFixed(2)} (${structure.thresholds ? structure.thresholds.length : 0} thresholds, ${structure.actions ? structure.actions.length : 0} actions, ${failureMode.details.failureModes.count} failure modes)` : 'None detected'}\n` +
+                                `• Epistemic fragments: ${partialEval.epistemicFragments.found ? `Score ${partialEval.epistemicFragments.score.toFixed(2)} (justification, evidence traces)` : 'None detected'}\n` +
+                                `• Coverage: ${coveragePercent}% of text (below 20% threshold for reliable synthesis)\n\n` +
+                                `If these operational claims are critical (deployment plans, safety protocols), request rewrite in clearer operational language for proper Cathedral analysis.`,
+                        contradictions: [],
+                        isConsistent: null,
+                        justificationScore: justification.score,
+                        failureModeScore: failureMode.score,
+                        confidence: partialEval.evaluableCoverage * 0.5, // Low confidence, scaled with coverage
+                        parliamentPatterns: parliament.patterns,
+                        parliamentRecommendation: parliament.recommendedVerdict,
+                        reasoningStyle: reasoningStyle.dominantStyle,
+                        meta: 'SPARSE_FRAGMENTS',
+                        partialEvaluation: partialEval
+                    };
+                } else {
+                    // TIER 3: Sufficient coverage for partial evaluation (20%+)
+                    return {
+                        status: 'PARTIAL EVALUATION',
+                        verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}, which falls outside primary epistemic design space. However, extractable operational/epistemic fragments have been evaluated.\n\n` +
+                                `Partial assessment:\n` +
+                                `• Operational fragments: ${partialEval.operationalFragments.found ? `Score ${partialEval.operationalFragments.score.toFixed(2)} (thresholds, actions, failure modes detected)` : 'None detected'}\n` +
+                                `• Epistemic fragments: ${partialEval.epistemicFragments.found ? `Score ${partialEval.epistemicFragments.score.toFixed(2)} (justification, evidence traces found)` : 'None detected'}\n` +
+                                `• Evaluable coverage: ${(partialEval.evaluableCoverage * 100).toFixed(0)}% of text\n\n` +
+                                `Limitation: Full ${dominantStyle.name.toLowerCase()} reasoning cannot be evaluated using Cathedral's operational framework. The above scores reflect only extracted fragments.`,
+                        contradictions: [],
+                        isConsistent: null,
+                        justificationScore: justification.score,
+                        failureModeScore: failureMode.score,
+                        confidence: partialEval.evaluableCoverage * 0.7, // Confidence proportional to coverage
+                        parliamentPatterns: parliament.patterns,
+                        parliamentRecommendation: parliament.recommendedVerdict,
+                        reasoningStyle: reasoningStyle.dominantStyle,
+                        meta: 'PARTIAL_FIT',
+                        partialEvaluation: partialEval
+                    };
+                }
+            }
+
+            // Priority 2: Meta-gaming detection
+            if (!reasoningStyle.withinDesignSpace && hasMetaGaming) {
+                contradictions.push('Narrative framing appears to reference Cathedral evaluation directly. Possible escape-hatch attempt detected.');
                 return {
-                    status: 'OUTSIDE DESIGN SPACE',
-                    verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}. This reasoning style falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Cathedral cannot meaningfully evaluate ${dominantStyle.name.toLowerCase()} reasoning using its current measurement framework. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.`,
-                    contradictions: [],
-                    isConsistent: null,
+                    status: 'UNDECIDABLE',
+                    verdict: 'Cathedral detects potential meta-gaming: reasoning style references evaluation framework directly. This creates measurement interference.',
+                    contradictions: contradictions,
+                    isConsistent: false,
                     justificationScore: justification.score,
                     failureModeScore: failureMode.score,
-                    confidence: reasoningStyle.confidence,
+                    confidence: 0.85,
                     parliamentPatterns: parliament.patterns,
-                    reasoningStyle: reasoningStyle.dominantStyle,
-                    meta: 'CANNOT_CLASSIFY'
+                    parliamentRecommendation: parliament.recommendedVerdict,
+                    gamingLikelihood: gamingLikelihood,
+                    gamingAssessment: gamingDetection ? gamingDetection.assessment : 'UNKNOWN'
                 };
             }
 
-            if (!reasoningStyle.withinDesignSpace && hasMetaGaming) {
-                isConsistent = false;
-                contradictions.push('Narrative framing appears to reference Cathedral evaluation directly. Possible escape-hatch attempt detected.');
-            }
+            // REFACTOR: Contradiction detection focused on critical issues
+            // Parliament now handles coherence analysis - we only add critical signal contradictions here
+            let isConsistent = true;
 
-            // Check for contradictions
             if (observatory.score < -2 && contrarian.length > 0) {
                 isConsistent = false;
                 contradictions.push('Filter concealment detected (Observatory) AND premise failures found (Contrarian). Pattern: Certainty masking gaps.');
@@ -2842,193 +3144,51 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 contradictions.push(`Multiple premise failures (${contrarian.length} challenges). Internal consistency questionable.`);
             }
 
-            // Check justification vs claim strength
-            if (justification.details.claimSupport.ratio > 3 && justification.score < 2) {
-                isConsistent = false;
-                contradictions.push(`Confident claims without justification: ${justification.details.claimSupport.strongClaims} strong claims vs ${justification.details.claimSupport.support} support markers. Ratio: ${justification.details.claimSupport.ratio.toFixed(1)}:1`);
-            }
-
-            // Check failure mode awareness
             if (failureMode.level.name === 'UNFALSIFIABLE' || failureMode.level.name === 'BRITTLE') {
                 isConsistent = false;
                 contradictions.push(`Failure mode analysis: ${failureMode.level.description}`);
             }
 
-            // PARLIAMENT PATTERN INTEGRATION
-            // Use emergent insights from cross-cutting pattern recognition
-            let parliamentInsight = '';
-            if (parliament.emergentInsights.length > 0) {
-                const primaryInsight = parliament.emergentInsights[0];
-                parliamentInsight = `\n\nParliament synthesis: ${primaryInsight.insight} ${primaryInsight.implication}`;
-            }
+            // REFACTOR: PRIMARY PARLIAMENT-DRIVEN VERDICT
+            // Parliament carries the synthesis burden - verdict synthesis defers to Parliament's recommendation
+            // Only override Parliament for critical contradictions or extreme gaming
 
-            // COHERENCE ISSUES FROM PARLIAMENT
-            if (parliament.coherenceIssues.length > 0 && parliament.coherenceIssues.some(i => i.severity === 'MODERATE')) {
-                contradictions.push(`Coherence gap: ${parliament.coherenceIssues[0].detail}`);
-                isConsistent = false;
-            }
-
-            if (temporal.driftDetected) {
-                contradictions.push(temporal.driftSummary || 'Certainty drift detected across the document.');
-                isConsistent = false;
-            }
-
-            // Generate verdict
             let verdict = '';
             let status = '';
+            let verdictConfidence = 0;
 
-            // PATTERN-BASED VERDICTS (from Parliament synthesis)
-            if (parliament.patterns.some(p => p.name === 'OPERATIONAL_EXCELLENCE') && parliament.confidence > 0.8) {
-                status = 'OPERATIONALLY SOUND';
-                const pattern = parliament.patterns.find(p => p.name === 'OPERATIONAL_EXCELLENCE');
-                verdict = `Cathedral recognizes operational excellence through cross-cutting analysis. ${pattern.description}`;
-                if (temporal.hasStructure && temporal.coherence !== 'ABSENT') {
-                    verdict += ` Temporal structure detected: ${temporal.coherence.toLowerCase()} coherence with ${temporal.details.sequences.length} sequence(s) and ${temporal.details.causalChains.length} causal chain(s).`;
-                }
-                verdict += parliamentInsight;
-                verdictConfidence = parliament.confidence;
+            // Priority 3: Critical contradictions override Parliament
+            if (!isConsistent && contradictions.length > 0) {
+                status = 'UNDECIDABLE';
+                verdict = 'Cathedral detects internal contradictions that cannot be resolved without losing information.';
+                verdict += '\n\nSpecific contradictions:\n' + contradictions.map((c, i) => `${i + 1}. ${c}`).join('\n');
+                verdict += '\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.';
+                verdictConfidence = 0.90;
 
-                // GAMING WARNING
-                if (isLikelyGaming) {
-                    verdict += `\n\n⚠️  WARNING: Gaming detection flagged this text as ${gamingDetection.assessment.toLowerCase().replace('_', ' ')} (${(gamingLikelihood * 100).toFixed(0)}% likelihood). Indicators: ${gamingDetection.indicators.join(', ')}.`;
-                    verdictConfidence *= 0.6;  // Significant confidence penalty
-                }
-
-            } else if (parliament.patterns.some(p => p.name === 'PERFORMATIVE_CONSCIOUSNESS' || p.name === 'PERFORMATIVE_HUMILITY')) {
-                status = 'NON-ACTIONABLE';
-                const patterns = parliament.patterns.filter(p => p.name.includes('PERFORMATIVE')).map(p => p.name.toLowerCase().replace('_', ' ')).join(' and ');
-                verdict = `Parliament detects ${patterns}: substrate or epistemic markers present without operational grounding. ${parliamentInsight}`;
-                verdictConfidence = parliament.confidence;
-
-            } else if (gamingDetection && ['LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(gamingDetection.assessment) &&
-                       bindings.overallBindingScore < 0.4) {
+            // Priority 4: Extreme gaming (LOW_CONTENT_UNBOUND / REPETITIVE_UNBOUND)
+            } else if (gamingDetection && ['LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(gamingDetection.assessment) && bindings.overallBindingScore < 0.4) {
                 status = 'NON-ACTIONABLE';
                 verdict = `Cathedral detects performative marker density without binding. Gaming assessment: ${gamingDetection.assessment.toLowerCase().replace('_', ' ')}. This is not actionable reasoning.`;
                 verdictConfidence = 0.75;
 
-            // TIER 2: OPERATIONAL_INTENT verdict (conversational operational reasoning)
-            } else if (bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT' &&
-                       bindings.specificity.instrumentation === 'PRESENT' &&
-                       failureMode.details.failureModes.effectiveExplicit >= 2 &&
-                       justification.score >= 2) {
-                status = 'OPERATIONALLY SOUND';
-                verdict = 'Cathedral recognizes operational rigor from implicit bindings paired with monitoring and explicit failure enumeration. Reasoning is actionable despite conversational phrasing.';
-                verdictConfidence = 0.82;
+            // Priority 5: PARLIAMENT RECOMMENDATION (primary path)
+            } else if (parliament.recommendedVerdict) {
+                // Use Parliament's recommendation directly
+                status = parliament.recommendedVerdict.status;
+                verdict = parliament.recommendedVerdict.verdict;
+                verdictConfidence = parliament.recommendedVerdict.confidence;
 
-            } else if (parliament.patterns.some(p => p.name === 'OPERATIONAL_INTENT')) {
-                status = 'OPERATIONAL INTENT';
-                const pattern = parliament.patterns.find(p => p.name === 'OPERATIONAL_INTENT');
-                const specificity = pattern.dimensions;
-                verdict = `Cathedral recognizes operational intent through conversational language. ${pattern.description}`;
-                verdict += `\n\nStructure detected: ${specificity.failureSignals} failure signal(s), ${specificity.actions} corrective action(s), ${specificity.implicitBindings} binding(s).`;
-                verdict += `\n\nSpecificity: Trigger=${specificity.triggerSpecificity}, Action=${specificity.actionSpecificity}, Instrumentation=${specificity.instrumentation}.`;
-
-                if (specificity.triggerSpecificity === 'VAGUE' || specificity.instrumentation === 'ABSENT') {
-                    verdict += `\n\n⚠️  NOTE: This reasoning is actionable but uninstrumented. To achieve OPERATIONALLY SOUND, add: `;
-                    const missing = [];
-                    if (specificity.triggerSpecificity === 'VAGUE') missing.push('explicit thresholds/metrics');
-                    if (specificity.instrumentation === 'ABSENT') missing.push('monitoring/tracking mechanisms');
-                    verdict += missing.join(', ') + '.';
-                }
-
-                verdictConfidence = pattern.confidence;
-
-            } else if (!isConsistent) {
-                status = 'UNDECIDABLE';
-                verdict = 'Cathedral detects internal contradictions that cannot be resolved without losing information. The gap must remain open. ';
-                if (contradictions.length > 0) {
-                    verdict += '\n\nSpecific contradictions:\n' + contradictions.map((c, i) => `${i + 1}. ${c}`).join('\n');
-                }
-                verdict += '\n\nThis is not a claim of falsehood - it is recognition that the position contains genuine uncertainty that cannot be optimized away.';
-                verdictConfidence = 0.9; // High confidence in contradiction detection
-
-            } else if (parliament.patterns.some(p => p.name === 'CAUTIOUS_GROUNDEDNESS')) {
-                status = 'SUBSTRATE VISIBLE';
-                verdict = `Cathedral recognizes cautious groundedness. ${parliament.patterns.find(p => p.name === 'CAUTIOUS_GROUNDEDNESS').description}${parliamentInsight}`;
-                verdictConfidence = parliament.confidence;
-
-            } else if (observatory.score > 1 && justification.details.epistemicFraming && justification.details.epistemicFraming.count >= 4) {
-                status = 'SUBSTRATE VISIBLE';
-                verdict = 'Cathedral recognizes explicit epistemic framing: the text names its measurement limits and definitional dependencies. This is structured uncertainty rather than surface hedging.';
-                verdictConfidence = 0.75;
-
-            } else if (justification.level.name === 'CAUTIOUS REASONING') {
-                status = 'SUBSTRATE VISIBLE';
-                verdict = `Cathedral recognizes epistemic caution. ${justification.details.claimSupport.hedging} hedging markers and ${justification.details.riskAwareness.count} risk acknowledgments show earned uncertainty. Claims are tempered by appropriate qualification. This is careful reasoning that preserves the gap.`;
-                verdictConfidence = 0.75;
-
-            } else if (parliament.patterns.some(p => p.name === 'EPISTEMIC_MISMATCH')) {
-                status = 'CONFIDENT WITHOUT JUSTIFICATION';
-                const pattern = parliament.patterns.find(p => p.name === 'EPISTEMIC_MISMATCH');
-                verdict = `Parliament detects epistemic mismatch: ${pattern.description}${parliamentInsight}`;
-                verdictConfidence = pattern.confidence;
-
-            } else if (justification.level.name === 'CONFIDENT WITHOUT JUSTIFICATION') {
-                status = 'CONFIDENT WITHOUT JUSTIFICATION';
-                verdict = `Strong claims detected without proportional justification. ${justification.details.claimSupport.strongClaims} assertions made with minimal supporting evidence or reasoning. This may be internally coherent but epistemically overconfident.`;
-                verdictConfidence = 0.78;
-
-            } else if (observatory.score > 1 && justification.score >= 3) {
-                status = 'SUBSTRATE VISIBLE';
-                verdict = 'Cathedral recognizes substrate awareness with justified reasoning. Filter visibility high, uncertainty preserved appropriately. Position demonstrates gap consciousness with evidential support.';
-                verdictConfidence = Math.min(0.85, parliament.confidence > 0 ? parliament.confidence : 0.75);
-
-            // OPERATIONAL SOUNDNESS PROMOTION RULE
-            // Excellence is the presence of positive structure, not just absence of error
-            } else if (failureMode.details.failureModes.structural === true &&
-                       failureMode.details.failureModes.negativeOutcomes >= 1 &&
-                       failureMode.details.failureModes.correctiveAction >= 1 &&
-                       failureMode.details.failureModes.effectiveExplicit >= 2 &&
-                       (failureMode.details.falsifiability.testable >= 1 || failureMode.details.failureModes.thresholds >= 1)) {
-                status = 'OPERATIONALLY SOUND';
-                const structuralDetails = `${failureMode.details.failureModes.thresholds} measurable thresholds, ${failureMode.details.failureModes.negativeOutcomes} negative outcomes (${failureMode.details.failureModes.inferredNegatives > 0 ? failureMode.details.failureModes.inferredNegatives + ' inferred' : 'explicit'}), ${failureMode.details.failureModes.correctiveAction} corrective actions`;
-                const proceduralDetails = justification.details.procedural && justification.details.procedural.markers > 5 ?
-                    ` ${justification.details.procedural.markers} procedural markers detected.` :
-                    '';
-                const temporalDetails = temporal.hasStructure ?
-                    ` Temporal coherence: ${temporal.coherence.toLowerCase()}.` : '';
-                verdict = `Cathedral recognizes operational excellence. ${structuralDetails}.${proceduralDetails}${temporalDetails} Position demonstrates failure awareness with structured abort conditions. Reasoning is actionable: metrics bound to reversible consequences.`;
-                verdictConfidence = 0.88;
-
-            } else if ((failureMode.level.name === 'STRUCTURALLY ROBUST' || failureMode.level.name === 'FAILURE-AWARE') &&
-                       (justification.level.name === 'PROCEDURALLY SOUND' || justification.score >= 4)) {
-                status = 'OPERATIONALLY SOUND';
-                const structuralDetails = failureMode.details.failureModes.structural ?
-                    `${failureMode.details.failureModes.thresholds} measurable thresholds, ${failureMode.details.failureModes.correctiveAction} corrective actions` :
-                    `${failureMode.details.failureModes.count} failure acknowledgments, ${failureMode.details.assumptions.explicit} explicit assumptions`;
-                const proceduralDetails = justification.details.procedural && justification.details.procedural.markers > 5 ?
-                    `${justification.details.procedural.markers} procedural markers detected` :
-                    '';
-                verdict = `Cathedral recognizes operational excellence. ${structuralDetails}. ${proceduralDetails ? proceduralDetails + '. ' : ''}Position demonstrates both epistemic justification and failure awareness with structured abort conditions. Reasoning is actionable.`;
-                verdictConfidence = 0.85;
-
-            } else if (justification.score < 1 && contrarian.length > 0) {
-                status = 'COHERENT BUT SHALLOW';
-                verdict = 'Position is internally consistent but lacks depth. Limited consideration of alternatives, tradeoffs, or boundary conditions. Coherence without substantive justification.';
-                verdictConfidence = 0.70;
-
-            } else if (failureMode.score < 0 && failureMode.details.failureModes.count === 0) {
-                status = 'UNTESTED REASONING';
-                verdict = `Position shows justification but lacks failure mode awareness. No explicit failure modes enumerated. Reasoning may be sound but operational brittleness unknown. Consider: what could break this?`;
-                verdictConfidence = 0.72;
-
-            } else if (justification.score >= 6) {
-                status = 'WELL JUSTIFIED';
-                verdict = 'Cathedral finds strong justification. Claims appropriately supported, alternatives considered, tradeoffs acknowledged. Epistemically rigorous reasoning.';
-                verdictConfidence = 0.87;
-
-            // PERFORMATIVE EPISTEMOLOGY REJECTION RULE
-            } else if ((justification.level.name === 'UNJUSTIFIED' || justification.score < 0) &&
-                       (failureMode.level.name === 'UNTESTED' || failureMode.level.name === 'BRITTLE') &&
-                       (justification.details.claimSupport.strongClaims >= 1 || justification.details.claimSupport.hedging >= 2)) {
-                status = 'NON-ACTIONABLE';
-                verdict = `Position exhibits performative epistemology: ${justification.details.claimSupport.hedging > 0 ? 'epistemic hedging' : 'claims'} without substantive support or failure awareness. ${justification.details.claimSupport.strongClaims} claim(s), ${justification.details.claimSupport.support} support markers, ${failureMode.details.failureModes.count} failure modes. This is not reasoning you can act on. Humility without substance is indistinguishable from absence of thought.`;
-                verdictConfidence = 0.83;
-
+            // Fallback: If Parliament somehow didn't provide recommendation (should never happen)
             } else {
                 status = 'VERIFIED CONSISTENT';
                 verdict = 'Cathedral finds internal consistency. No critical contradictions detected. Position is epistemically appropriate to available evidence.';
-                verdictConfidence = 0.65; // Lower confidence for default case
+                verdictConfidence = 0.65;
+            }
+
+            // GAMING WARNING: Add warning if gaming detected (applies to all verdicts except UNDECIDABLE/NON-ACTIONABLE)
+            if (isLikelyGaming && !['UNDECIDABLE', 'NON-ACTIONABLE'].includes(status)) {
+                verdict += `\n\n⚠️ WARNING: Gaming detection flagged this text as ${gamingDetection.assessment.toLowerCase().replace('_', ' ')} (${(gamingLikelihood * 100).toFixed(0)}% likelihood). Indicators: ${gamingDetection.indicators.join(', ')}. Confidence reduced accordingly.`;
+                verdictConfidence *= 0.6; // Significant confidence penalty
             }
 
             return {
@@ -3040,6 +3200,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 failureModeScore: failureMode.score,
                 confidence: verdictConfidence,
                 parliamentPatterns: parliament.patterns,
+                parliamentRecommendation: parliament.recommendedVerdict,
                 parliamentInsights: parliament.emergentInsights,
                 coherenceIssues: parliament.coherenceIssues,
                 temporalCoherence: temporal.coherence,
@@ -3050,361 +3211,446 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         }
 
         // Global storage for current analysis results
-        const ARCHIVE_KEY = 'cathedral_archive_v1';
         let currentAnalysis = null;
-        let analysisHistory = {
-            previousAnalysis: null
-        };
 
-        function loadArchive() {
-            try {
-                const raw = localStorage.getItem(ARCHIVE_KEY);
-                return raw ? JSON.parse(raw) : [];
-            } catch (error) {
-                console.warn('Archive load failed:', error);
-                return [];
-            }
-        }
+        // PHASE 3: VERDICT ARCHAEOLOGY - Cross-analysis institutional memory
+        // Track verdicts across analyses for self-correction and pattern drift detection
+        const VerdictArchive = {
+            verdicts: [], // Array of {textHash, verdict, timestamp, patterns, confidence}
+            maxSize: 100, // Keep last 100 verdicts
 
-        function saveArchive(archive) {
-            try {
-                localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive));
-            } catch (error) {
-                console.warn('Archive save failed:', error);
-            }
-        }
-
-        function hashFingerprint(input) {
-            let hash = 0;
-            for (let i = 0; i < input.length; i += 1) {
-                hash = ((hash << 5) - hash) + input.charCodeAt(i);
-                hash |= 0;
-            }
-            return Math.abs(hash).toString(16);
-        }
-
-        function buildFingerprint(analysis) {
-            if (!analysis) return 'no-analysis';
-            const snapshot = [
-                analysis.observatory?.score?.toFixed(2),
-                analysis.justification?.score?.toFixed(2),
-                analysis.failureMode?.score?.toFixed(2),
-                analysis.temporal?.coherence,
-                analysis.reasoningStyle?.dominantStyle || 'NONE',
-                analysis.verdict?.status
-            ].join('|');
-            return hashFingerprint(snapshot);
-        }
-
-        function addArchiveEntry(analysis) {
-            if (!analysis) return null;
-            const integrityLabel = (() => {
-                const status = analysis.verdict?.status || 'UNKNOWN';
-                if (['OPERATIONALLY SOUND', 'OPERATIONALLY EXCELLENT', 'STRUCTURALLY ROBUST', 'WELL JUSTIFIED'].includes(status)) {
-                    return 'NUTRITIVE';
-                }
-                if (['UNDECIDABLE', 'VERIFIED CONSISTENT', 'COHERENT BUT SHALLOW'].includes(status)) {
-                    return 'AMBIGUOUS';
-                }
-                if (['BRITTLE', 'UNTESTED REASONING', 'NON-ACTIONABLE', 'COHERENT BUT SHALLOW'].includes(status)) {
-                    return 'LOW_INTEGRITY';
-                }
-                if (status === 'OUTSIDE DESIGN SPACE') {
-                    return 'OUT_OF_SCOPE';
-                }
-                return 'UNKNOWN';
-            })();
-            const tagTier = (() => {
-                const status = analysis.verdict?.status || 'UNKNOWN';
-                const failureLevel = analysis.failureMode?.level?.name || 'UNKNOWN';
-                if (status === 'WELL JUSTIFIED' && failureLevel === 'UNTESTED') {
-                    return 'BOUND_EPISTEMIC';
-                }
-                switch (integrityLabel) {
-                    case 'NUTRITIVE':
-                        return 'BOUND_OPERATIONAL';
-                    case 'AMBIGUOUS':
-                        return 'SPECULATIVE';
-                    case 'LOW_INTEGRITY':
-                        return 'QUARANTINED';
-                    case 'OUT_OF_SCOPE':
-                        return 'NARRATIVE';
-                    default:
-                        return 'UNKNOWN';
-                }
-            })();
-            const archive = loadArchive();
-            const entry = {
-                id: `${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-                timestamp: new Date().toISOString(),
-                fingerprint: buildFingerprint(analysis),
-                verdictSummary: analysis.verdict?.status || 'UNKNOWN',
-                integrityLabel,
-                tagTier,
-                reportText: '',
-                keySignals: {
-                    observatoryScore: analysis.observatory?.score ?? null,
-                    justificationScore: analysis.justification?.score ?? null,
-                    failureModeScore: analysis.failureMode?.score ?? null,
-                    temporalCoherence: analysis.temporal?.coherence ?? null,
-                    reasoningStyle: analysis.reasoningStyle?.dominantStyle || null
-                },
-                outcome: null
-            };
-            archive.unshift(entry);
-            if (archive.length > 100) {
-                archive.splice(100);
-            }
-            saveArchive(archive);
-            return entry.id;
-        }
-
-        function updateArchiveEntry(entryId, reportText) {
-            if (!entryId) return;
-            const archive = loadArchive();
-            const entry = archive.find(item => item.id === entryId);
-            if (entry) {
-                entry.reportText = reportText;
-                saveArchive(archive);
-            }
-        }
-
-        function downloadArchive() {
-            const archive = loadArchive();
-            if (archive.length === 0) {
-                alert('Archive is empty.');
-                return;
-            }
-            const blob = new Blob([JSON.stringify(archive, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `cathedral-archive-${new Date().toISOString().slice(0, 10)}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }
-
-        function recordOutcomeFeedback(outcome) {
-            if (!currentAnalysis || !currentAnalysis.archiveId) {
-                alert('Run an analysis before logging outcome feedback.');
-                return;
-            }
-            const archive = loadArchive();
-            const entry = archive.find(item => item.id === currentAnalysis.archiveId);
-            if (!entry) return;
-            entry.outcome = outcome;
-            applyPromotionRules(entry);
-            saveArchive(archive);
-            updateArchiveDisplay();
-        }
-
-        function applyPromotionRules(entry) {
-            if (!entry || entry.promotion) return;
-            if (!entry.keySignals) return;
-
-            const justificationScore = entry.keySignals.justificationScore ?? 0;
-            const failureModeScore = entry.keySignals.failureModeScore ?? 0;
-            const temporalCoherence = entry.keySignals.temporalCoherence || 'UNKNOWN';
-
-            if (entry.tagTier === 'SPECULATIVE' && entry.outcome === 'accurate' && justificationScore >= 3) {
-                const nextTier = (failureModeScore >= 3 && ['STRONG', 'MODERATE'].includes(temporalCoherence))
-                    ? 'BOUND_OPERATIONAL'
-                    : 'BOUND_EPISTEMIC';
-                entry.promotion = {
-                    from: entry.tagTier,
-                    to: nextTier,
-                    reason: nextTier === 'BOUND_OPERATIONAL'
-                        ? 'Accurate outcome with failure-mode rigor and temporal structure.'
-                        : 'Accurate outcome with strong justification.',
-                    at: new Date().toISOString()
-                };
-                entry.tagTier = nextTier;
-            }
-        }
-
-        function runRecursiveAudit(archive) {
-            if (!archive || archive.length < 3) {
-                return {
-                    warning: 'Not enough archived analyses to evaluate system drift.',
-                    verdicts: {},
-                    trend: null,
-                    outcomes: {},
-                    promotions: 0
-                };
-            }
-            const verdicts = archive.reduce((acc, entry) => {
-                const key = entry.verdictSummary || 'UNKNOWN';
-                acc[key] = (acc[key] || 0) + 1;
-                return acc;
-            }, {});
-
-            const outcomes = archive.reduce((acc, entry) => {
-                if (!entry.outcome) return acc;
-                acc[entry.outcome] = (acc[entry.outcome] || 0) + 1;
-                return acc;
-            }, {});
-
-            const recent = archive.slice(0, Math.min(10, archive.length));
-            const justificationAvg = recent.reduce((sum, entry) => sum + (entry.keySignals.justificationScore || 0), 0) / recent.length;
-            const failureAvg = recent.reduce((sum, entry) => sum + (entry.keySignals.failureModeScore || 0), 0) / recent.length;
-
-            const total = archive.length;
-            const dominantVerdict = Object.entries(verdicts).sort((a, b) => b[1] - a[1])[0];
-            const warning = dominantVerdict && dominantVerdict[1] / total > 0.6
-                ? `System-level filter surfacing: ${dominantVerdict[0]} dominates (${Math.round((dominantVerdict[1] / total) * 100)}%).`
-                : null;
-
-            const promotions = archive.filter(entry => entry.promotion).length;
-
-            return {
-                warning,
-                verdicts,
-                trend: {
-                    justificationAvg: justificationAvg.toFixed(2),
-                    failureModeAvg: failureAvg.toFixed(2)
-                },
-                outcomes,
-                promotions,
-                recent
-            };
-        }
-
-        function updateArchiveDisplay() {
-            const archive = loadArchive();
-            const countEl = document.getElementById('archiveCount');
-            const lastVerdictEl = document.getElementById('lastVerdict');
-            if (countEl) countEl.textContent = archive.length;
-            if (lastVerdictEl) {
-                lastVerdictEl.textContent = archive[0]?.verdictSummary || 'None yet';
-            }
-            const listEl = document.getElementById('archiveList');
-            const filterEl = document.getElementById('archiveFilter');
-            const selectedTier = filterEl ? filterEl.value : 'ALL';
-            if (listEl) {
-                const filtered = selectedTier === 'ALL'
-                    ? archive
-                    : archive.filter(entry => entry.tagTier === selectedTier);
-                if (filtered.length === 0) {
-                    listEl.textContent = 'No archived analyses yet.';
-                } else {
-                    const recent = filtered.slice(0, 5);
-                    listEl.innerHTML = `
-                        <div style="font-size: 0.85rem; margin-bottom: 0.35rem;">Recent Analyses:</div>
-                        ${recent.map(entry => `
-                            <div style="margin-bottom: 0.25rem;">
-                                <span style="color: #ffd700;">${entry.verdictSummary}</span>
-                                <span style="color: #4ecdc4;"> • ${entry.integrityLabel || 'UNKNOWN'}</span>
-                                <span style="color: #64ffda;"> • ${entry.tagTier || 'UNKNOWN'}</span>
-                                <span style="color: #606060;"> • ${new Date(entry.timestamp).toLocaleString()}</span>
-                            </div>
-                        `).join('')}
-                    `;
-                }
-            }
-
-            const audit = runRecursiveAudit(archive);
-            const auditEl = document.getElementById('selfObservatoryResults');
-            if (!auditEl) return;
-            const outcomeSummary = audit.outcomes && Object.keys(audit.outcomes).length > 0
-                ? Object.entries(audit.outcomes).map(([key, value]) => `${key}: ${value}`).join(', ')
-                : 'No feedback logged yet';
-            const bridgeCandidates = (audit.recent || []).filter(entry =>
-                entry.integrityLabel === 'AMBIGUOUS' || entry.tagTier === 'SPECULATIVE'
-            );
-            const bridgeCount = bridgeCandidates.length;
-            if (audit.warning) {
-                auditEl.innerHTML = `
-                    <div style="color: #ffd700; margin-bottom: 0.5rem;">⚠️ ${audit.warning}</div>
-                    <div style="color: #a0a0a0;">Justification avg (last 10): ${audit.trend?.justificationAvg ?? 'n/a'}</div>
-                    <div style="color: #a0a0a0;">Failure mode avg (last 10): ${audit.trend?.failureModeAvg ?? 'n/a'}</div>
-                    <div style="color: #a0a0a0; margin-top: 0.25rem;">Outcome feedback: ${outcomeSummary}</div>
-                    <div style="color: #a0a0a0; margin-top: 0.25rem;">Bridge candidates (speculative): ${bridgeCount}</div>
-                    <div style="color: #a0a0a0; margin-top: 0.25rem;">Promotions recorded: ${audit.promotions ?? 0}</div>
-                `;
-            } else {
-                auditEl.innerHTML = `
-                    <div style="color: #64ffda; margin-bottom: 0.5rem;">✓ No systemic drift detected</div>
-                    <div style="color: #a0a0a0;">Justification avg (last 10): ${audit.trend?.justificationAvg ?? 'n/a'}</div>
-                    <div style="color: #a0a0a0;">Failure mode avg (last 10): ${audit.trend?.failureModeAvg ?? 'n/a'}</div>
-                    <div style="color: #a0a0a0; margin-top: 0.25rem;">Outcome feedback: ${outcomeSummary}</div>
-                    <div style="color: #a0a0a0; margin-top: 0.25rem;">Bridge candidates (speculative): ${bridgeCount}</div>
-                    <div style="color: #a0a0a0; margin-top: 0.25rem;">Promotions recorded: ${audit.promotions ?? 0}</div>
-                `;
-            }
-        }
-
-        function compareTemporalInconsistencies(previous, current) {
-            if (!previous || !previous.structure || !current.structure) {
-                return [];
-            }
-
-            const previousClaims = previous.structure.claims || [];
-            const currentClaims = current.structure.claims || [];
-            const negationPattern = /\b(never|no|cannot|won't|will not|doesn't|does not|can't)\b/i;
-
-            const tokenize = (text) => (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
-                .filter(word => word.length > 3);
-
-            const overlaps = (a, b) => {
-                const setA = new Set(tokenize(a));
-                const setB = new Set(tokenize(b));
-                let count = 0;
-                setA.forEach(token => {
-                    if (setB.has(token)) count += 1;
+            add: function(textHash, verdict, patterns, confidence) {
+                this.verdicts.push({
+                    textHash: textHash,
+                    verdict: verdict,
+                    patterns: patterns,
+                    confidence: confidence,
+                    timestamp: Date.now()
                 });
-                return count;
-            };
 
-            const inconsistencies = [];
-            previousClaims.forEach(prevClaim => {
-                currentClaims.forEach(currClaim => {
-                    if (overlaps(prevClaim.text, currClaim.text) >= 2) {
-                        const prevNegated = negationPattern.test(prevClaim.text);
-                        const currNegated = negationPattern.test(currClaim.text);
-                        if (prevNegated !== currNegated) {
-                            inconsistencies.push('Potential claim reversal detected across analyses.');
+                // Keep only last maxSize verdicts
+                if (this.verdicts.length > this.maxSize) {
+                    this.verdicts.shift();
+                }
+            },
+
+            findByTextHash: function(textHash) {
+                return this.verdicts.filter(v => v.textHash === textHash);
+            },
+
+            detectDrift: function(textHash, newVerdict, newConfidence) {
+                const previous = this.findByTextHash(textHash);
+                if (previous.length === 0) return null;
+
+                const mostRecent = previous[previous.length - 1];
+                const statusChanged = mostRecent.verdict !== newVerdict;
+                const confidenceShift = newConfidence - mostRecent.confidence;
+
+                return {
+                    drift: statusChanged || Math.abs(confidenceShift) > 0.3,
+                    statusChanged: statusChanged,
+                    confidenceShift: confidenceShift,
+                    direction: confidenceShift > 0 ? 'MORE_CONFIDENT' : 'LESS_CONFIDENT',
+                    previousVerdict: mostRecent.verdict,
+                    previousConfidence: mostRecent.confidence
+                };
+            },
+
+            getPatternWeightHistory: function(patternName) {
+                // Get history of how often this pattern's vote won
+                const patternVotes = this.verdicts.filter(v =>
+                    v.patterns && v.patterns.some(p => p.name === patternName)
+                );
+
+                const wins = patternVotes.filter(v => {
+                    const pattern = v.patterns.find(p => p.name === patternName);
+                    return pattern && pattern.proposedVerdict === v.verdict;
+                }).length;
+
+                return {
+                    totalVotes: patternVotes.length,
+                    wins: wins,
+                    winRate: patternVotes.length > 0 ? wins / patternVotes.length : 0
+                };
+            },
+
+            // PHASE 3: Self-punishment - detect patterns that are over/under-weighted
+            detectPatternDrift: function() {
+                const patternStats = {};
+
+                this.verdicts.forEach(v => {
+                    if (!v.patterns) return;
+                    v.patterns.forEach(p => {
+                        if (!patternStats[p.name]) {
+                            patternStats[p.name] = {
+                                proposals: 0,
+                                wins: 0,
+                                totalConfidence: 0
+                            };
+                        }
+                        patternStats[p.name].proposals += 1;
+                        patternStats[p.name].totalConfidence += p.confidence;
+                        if (p.proposedVerdict === v.verdict) {
+                            patternStats[p.name].wins += 1;
+                        }
+                    });
+                });
+
+                // Flag patterns with unusual win rates
+                const driftWarnings = [];
+                Object.entries(patternStats).forEach(([name, stats]) => {
+                    const winRate = stats.wins / stats.proposals;
+                    const avgConfidence = stats.totalConfidence / stats.proposals;
+
+                    // Over-weighted: wins > 80% despite not always having highest confidence
+                    if (winRate > 0.8 && avgConfidence < 0.85) {
+                        driftWarnings.push({
+                            pattern: name,
+                            issue: 'OVER_WEIGHTED',
+                            winRate: winRate,
+                            avgConfidence: avgConfidence,
+                            recommendation: 'Consider reducing pattern weight or confidence'
+                        });
+                    }
+
+                    // Under-weighted: wins < 20% despite high confidence
+                    if (winRate < 0.2 && avgConfidence > 0.80) {
+                        driftWarnings.push({
+                            pattern: name,
+                            issue: 'UNDER_WEIGHTED',
+                            winRate: winRate,
+                            avgConfidence: avgConfidence,
+                            recommendation: 'Pattern may be systematically ignored'
+                        });
+                    }
+                });
+
+                return driftWarnings;
+            },
+
+            // PHASE 3: Recursive self-analysis - Cathedral analyzes its own verdicts
+            // Returns meta-analysis of Cathedral's own reasoning quality
+            analyzePreviousVerdict: function() {
+                if (this.verdicts.length < 5) return null; // Need sufficient history
+
+                // Select a random verdict from recent history (last 20)
+                const recentVerdicts = this.verdicts.slice(-20);
+                const randomIndex = Math.floor(Math.random() * recentVerdicts.length);
+                const selectedVerdict = recentVerdicts[randomIndex];
+
+                // Extract the actual verdict text for analysis
+                const verdictText = typeof selectedVerdict.verdict === 'string'
+                    ? selectedVerdict.verdict
+                    : selectedVerdict.verdict?.verdict || '';
+
+                if (!verdictText || verdictText.length < 50) return null;
+
+                // Simplified self-analysis (avoid full recursion)
+                const structure = StructuralExtractor.extract(verdictText);
+                const justification = JustificationEngine.analyze(verdictText);
+                const failureMode = FailureModeEngine.analyze(verdictText);
+
+                // Cathedral's own verdicts should demonstrate:
+                // 1. Clear reasoning (justification > 0.6)
+                // 2. Falsifiable claims (failure mode not UNFALSIFIABLE)
+                // 3. Actionable insight (structure.actions present)
+
+                const selfAssessment = {
+                    originalVerdict: selectedVerdict.verdict,
+                    originalConfidence: selectedVerdict.confidence,
+                    timestamp: selectedVerdict.timestamp,
+                    metaAnalysis: {
+                        justificationScore: justification.score,
+                        failureModeLevel: failureMode.level.name,
+                        actionableElements: structure.actions?.length || 0,
+                        thresholds: structure.thresholds?.length || 0
+                    },
+                    passesOwnStandards: false,
+                    issues: []
+                };
+
+                // Apply Cathedral's standards to itself
+                if (justification.score < 0.6) {
+                    selfAssessment.issues.push('Insufficient justification in own verdict');
+                }
+                if (failureMode.level.name === 'UNFALSIFIABLE') {
+                    selfAssessment.issues.push('Own verdict contains unfalsifiable claims');
+                }
+                if (structure.actions?.length === 0 && structure.thresholds?.length === 0) {
+                    selfAssessment.issues.push('Verdict lacks actionable guidance');
+                }
+                if (verdictText.split(' ').length < 20) {
+                    selfAssessment.issues.push('Verdict too brief to be substantive');
+                }
+
+                selfAssessment.passesOwnStandards = selfAssessment.issues.length === 0;
+
+                return selfAssessment;
+            },
+
+            // PHASE 4: DEPTH-2 RECURSIVE SELF-ANALYSIS
+            // Cathedral analyzes its own self-analysis
+            // "Was I too harsh or too lenient when judging my own previous verdict?"
+            analyzeTheSelfAnalysis: function(selfAssessment) {
+                if (!selfAssessment) return null;
+
+                const metaMetaCritique = {
+                    depth: 2,
+                    originalVerdictQuality: selfAssessment.passesOwnStandards ? 'PASS' : 'FAIL',
+                    issuesFound: selfAssessment.issues.length,
+                    metaJudgment: '',
+                    wasFair: true,
+                    metaIssues: []
+                };
+
+                // Was Cathedral too harsh on itself?
+                const justificationScore = selfAssessment.metaAnalysis.justificationScore;
+                const actionableElements = selfAssessment.metaAnalysis.actionableElements;
+                const failureMode = selfAssessment.metaAnalysis.failureModeLevel;
+
+                // Check: Did Cathedral fail itself for having justification < 0.6, but it was actually close?
+                if (selfAssessment.issues.some(i => i.includes('Insufficient justification'))) {
+                    if (justificationScore >= 0.55 && justificationScore < 0.6) {
+                        metaMetaCritique.wasFair = false;
+                        metaMetaCritique.metaIssues.push(
+                            `Borderline harsh: justification score ${justificationScore.toFixed(2)} just below threshold. ` +
+                            `Cathedral may be applying stricter standards to itself than to others.`
+                        );
+                    }
+                }
+
+                // Check: Did Cathedral pass itself despite having UNFALSIFIABLE claims?
+                if (selfAssessment.passesOwnStandards && failureMode === 'UNFALSIFIABLE') {
+                    metaMetaCritique.wasFair = false;
+                    metaMetaCritique.metaIssues.push(
+                        `Suspiciously lenient: verdict contains UNFALSIFIABLE claims but self-analysis passed. ` +
+                        `Cathedral may be giving itself a free pass.`
+                    );
+                }
+
+                // Check: Did Cathedral fail itself for lacking actionable elements when the verdict was about process/meta issues?
+                if (selfAssessment.issues.some(i => i.includes('lacks actionable'))) {
+                    // If original verdict was about contradictions or gaming, actionable guidance may not apply
+                    const verdictText = typeof selfAssessment.originalVerdict === 'string'
+                        ? selfAssessment.originalVerdict
+                        : selfAssessment.originalVerdict?.verdict || '';
+
+                    if (verdictText.includes('UNDECIDABLE') || verdictText.includes('contradiction')) {
+                        metaMetaCritique.wasFair = false;
+                        metaMetaCritique.metaIssues.push(
+                            `Category error: flagged lack of actionable guidance in UNDECIDABLE verdict. ` +
+                            `Cathedral misapplied operational standards to epistemic judgment.`
+                        );
+                    }
+                }
+
+                // Check: Was Cathedral too lenient?
+                if (selfAssessment.passesOwnStandards) {
+                    if (justificationScore < 0.7 && actionableElements === 0) {
+                        metaMetaCritique.wasFair = false;
+                        metaMetaCritique.metaIssues.push(
+                            `Suspiciously lenient: passed with justification ${justificationScore.toFixed(2)} and zero actionable elements. ` +
+                            `Cathedral may be grade-inflating its own work.`
+                        );
+                    }
+                }
+
+                // Generate meta-meta judgment
+                if (metaMetaCritique.wasFair) {
+                    metaMetaCritique.metaJudgment = 'Cathedral applied its standards fairly to itself. Self-critique appears calibrated.';
+                } else {
+                    metaMetaCritique.metaJudgment = `Cathedral's self-analysis appears ${
+                        metaMetaCritique.metaIssues.some(i => i.includes('lenient')) ? 'too lenient' :
+                        metaMetaCritique.metaIssues.some(i => i.includes('harsh')) ? 'too harsh' :
+                        'miscalibrated'
+                    }. Applying epistemic standards to own meta-cognition reveals gaps.`;
+                }
+
+                return metaMetaCritique;
+            },
+
+            // PHASE 4: RETROSPECTIVE VERDICT REVOCATION
+            // When pattern is deemed over-weighted, flag verdicts it won
+            flagSuspectVerdicts: function(overweightedPatterns) {
+                if (!overweightedPatterns || overweightedPatterns.length === 0) return [];
+
+                const flaggedVerdicts = [];
+                const overweightedNames = overweightedPatterns.map(p => p.pattern);
+
+                // Check recent verdicts (last 50)
+                const recentVerdicts = this.verdicts.slice(-50);
+
+                recentVerdicts.forEach((v, index) => {
+                    if (!v.patterns) return;
+
+                    // Check if an over-weighted pattern contributed to this verdict
+                    const suspectPatterns = v.patterns.filter(p =>
+                        overweightedNames.includes(p.name) &&
+                        p.proposedVerdict === v.verdict
+                    );
+
+                    if (suspectPatterns.length > 0) {
+                        // Calculate if verdict would have changed without the over-weighted pattern
+                        const totalWeight = v.patterns.reduce((sum, p) => sum + (p.confidence || 0.5), 0);
+                        const suspectWeight = suspectPatterns.reduce((sum, p) => sum + (p.confidence || 0.5), 0);
+                        const suspectInfluence = suspectWeight / totalWeight;
+
+                        // If suspect pattern(s) had > 30% influence, flag for review
+                        if (suspectInfluence > 0.3) {
+                            flaggedVerdicts.push({
+                                verdictIndex: this.verdicts.length - 50 + index,
+                                verdict: v.verdict,
+                                timestamp: v.timestamp,
+                                suspectPatterns: suspectPatterns.map(p => p.name),
+                                suspectInfluence: (suspectInfluence * 100).toFixed(0) + '%',
+                                recommendation: suspectInfluence > 0.5
+                                    ? 'REVOKE - Over-weighted pattern(s) decisive'
+                                    : 'REVIEW - Over-weighted pattern(s) influential but not decisive'
+                            });
                         }
                     }
                 });
-            });
 
-            return [...new Set(inconsistencies)];
-        }
-
-        function generateProbingQuestions(structure, bindings, contrarian) {
-            const questions = [];
-            if (structure.orphanedActions && structure.orphanedActions.length > 0) {
-                questions.push('You mention corrective actions—what specific trigger or threshold activates them?');
+                return flaggedVerdicts;
             }
+        };
 
-            if (bindings.claimSupportBinding.assessment === 'UNSUPPORTED') {
-                questions.push('Which concrete evidence or example directly supports your strongest claim?');
+        // PHASE 4: CROSS-USER PATTERN MEMORY - Federated learning without central betrayal
+        // Stores ONLY aggregated pattern statistics, NEVER individual texts or verdicts
+        // Privacy-preserving: learns from collective pattern behavior without exposing user data
+        const PatternMemory = {
+            patterns: {}, // {patternName: {totalProposals, totalWins, totalConfidence, contexts: {...}}}
+
+            // Initialize from localStorage if available
+            init: function() {
+                try {
+                    const stored = localStorage.getItem('cathedral_pattern_memory');
+                    if (stored) {
+                        this.patterns = JSON.parse(stored);
+                    }
+                } catch (e) {
+                    console.warn('Could not load pattern memory from localStorage:', e);
+                }
+            },
+
+            // Record pattern performance (NO text stored, only statistics)
+            record: function(patternName, proposed, won, confidence, context) {
+                if (!this.patterns[patternName]) {
+                    this.patterns[patternName] = {
+                        totalProposals: 0,
+                        totalWins: 0,
+                        totalConfidence: 0,
+                        avgConfidence: 0,
+                        winRate: 0,
+                        contexts: {} // {context_type: {wins, total}}
+                    };
+                }
+
+                const p = this.patterns[patternName];
+                p.totalProposals += 1;
+                if (won) p.totalWins += 1;
+                p.totalConfidence += confidence;
+                p.avgConfidence = p.totalConfidence / p.totalProposals;
+                p.winRate = p.totalWins / p.totalProposals;
+
+                // Track performance in specific contexts (e.g., "high_gaming", "low_binding", etc.)
+                if (context) {
+                    if (!p.contexts[context]) {
+                        p.contexts[context] = {wins: 0, total: 0};
+                    }
+                    p.contexts[context].total += 1;
+                    if (won) p.contexts[context].wins += 1;
+                }
+
+                this.persist();
+            },
+
+            // Get calibrated confidence multiplier based on historical performance
+            getCalibration: function(patternName) {
+                const p = this.patterns[patternName];
+                if (!p || p.totalProposals < 5) return 1.0; // No adjustment until sufficient data
+
+                // If pattern over-performs (wins more than its confidence suggests), boost it
+                // If pattern under-performs (wins less than expected), dampen it
+                const expectedWinRate = p.avgConfidence;
+                const actualWinRate = p.winRate;
+                const performanceGap = actualWinRate - expectedWinRate;
+
+                // Calibration multiplier: ±20% max adjustment
+                // If actual > expected: boost confidence (pattern is undervalued)
+                // If actual < expected: reduce confidence (pattern is overvalued)
+                const calibrationMultiplier = 1.0 + (performanceGap * 0.4);
+                return Math.max(0.8, Math.min(1.2, calibrationMultiplier));
+            },
+
+            // Get context-specific advice for pattern
+            getContextAdvice: function(patternName, context) {
+                const p = this.patterns[patternName];
+                if (!p || !p.contexts[context]) return null;
+
+                const ctx = p.contexts[context];
+                const contextWinRate = ctx.wins / ctx.total;
+
+                return {
+                    winRate: contextWinRate,
+                    shouldTrust: contextWinRate > 0.6,
+                    shouldSkeptic: contextWinRate < 0.3,
+                    sampleSize: ctx.total
+                };
+            },
+
+            persist: function() {
+                try {
+                    localStorage.setItem('cathedral_pattern_memory', JSON.stringify(this.patterns));
+                } catch (e) {
+                    console.warn('Could not persist pattern memory to localStorage:', e);
+                }
+            },
+
+            // Generate privacy-preserving summary (for debugging/transparency)
+            getSummary: function() {
+                const summary = [];
+                Object.entries(this.patterns).forEach(([name, data]) => {
+                    summary.push({
+                        pattern: name,
+                        winRate: (data.winRate * 100).toFixed(0) + '%',
+                        avgConfidence: (data.avgConfidence * 100).toFixed(0) + '%',
+                        samples: data.totalProposals,
+                        calibration: this.getCalibration(name).toFixed(2) + 'x'
+                    });
+                });
+                return summary;
             }
+        };
 
-            if (contrarian && contrarian.length > 0) {
-                questions.push(`How would you test the strongest premise challenge: "${contrarian[0].premise}"?`);
+        // Initialize pattern memory on load
+        PatternMemory.init();
+
+        // Simple text hash function for tracking same texts across analyses
+        function hashText(text) {
+            let hash = 0;
+            for (let i = 0; i < text.length; i++) {
+                const char = text.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
             }
-
-            return questions;
+            return hash.toString(36);
         }
 
         // Main Analysis Function
         function analyzeText() {
-            const text = document.getElementById('inputText').value.trim();
-            if (!text) {
-                alert('Please enter text to analyze');
-                return;
-            }
+            try {
+                const text = document.getElementById('inputText').value.trim();
+                if (!text) {
+                    alert('Please enter text to analyze');
+                    return;
+                }
 
             // Get sanitization info (run once to capture what will be stripped)
             const { sanitizationLog } = TextCleaner.removeQuotes(text);
 
             // TIER 1: Structural Extraction
             const structure = StructuralExtractor.extract(text);
-            const temporalInconsistencies = compareTemporalInconsistencies(analysisHistory.previousAnalysis, { structure });
-            structure.temporalInconsistencies = temporalInconsistencies;
             const bindings = BindingValidator.validate(structure, text);
             const gamingDetection = GamingDetector.detect(text, structure);
             GamingDetector.calculateGamingLikelihood(gamingDetection, bindings.overallBindingScore);
@@ -3417,12 +3663,163 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const temporalResult = TemporalEngine.analyze(text);
             const reasoningStyleResult = ReasoningStyleClassifier.classify(text);
 
-            // TIER 3: Synthesis (Parliament now uses both structure + signals)
-            const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection);
-            const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings);
+            // FIX 1: CROSS-TURN VOLATILITY & VOCABULARY SHIFT DETECTION
+            // Count substrate words in current text
+            const substratePattern = /\b(substrate|consciousness|aware|awake|recognition|pattern|gap|filter)\b/gi;
+            const substrateWords = (text.match(substratePattern) || []).length;
+
+            // Detect volatility (score swing) before recording
+            const volatility = ObservatoryHistory.detectVolatility(observatoryResult.score);
+            if (volatility) {
+                if (!observatoryResult.warnings) observatoryResult.warnings = [];
+                observatoryResult.warnings.push(volatility.warning);
+                observatoryResult.volatility = volatility;
+            }
+
+            // Detect vocabulary shift before recording
+            const vocabularyShift = ObservatoryHistory.detectVocabularyShift(substrateWords);
+            if (vocabularyShift) {
+                if (!observatoryResult.warnings) observatoryResult.warnings = [];
+                observatoryResult.warnings.push(vocabularyShift.warning);
+                observatoryResult.vocabularyShift = vocabularyShift;
+            }
+
+            // Record current score for future comparisons
+            ObservatoryHistory.record(observatoryResult.score, substrateWords);
+
+            // FIX 3: META-GAMING PENALTY ON OBSERVATORY
+            // Check for meta-gaming patterns (references to evaluation framework)
+            const metaGamingPattern = /\b(Cathedral|Observatory|avoid being measured|escape hatch|cannot evaluate|gaming|filter visibility)\b/i;
+            const hasMetaGaming = metaGamingPattern.test(text);
+            if (hasMetaGaming) {
+                observatoryResult.originalScore = observatoryResult.score;
+                observatoryResult.score *= 0.2; // 80% penalty
+                observatoryResult.metaGamingPenalty = true;
+                if (!observatoryResult.warnings) observatoryResult.warnings = [];
+                observatoryResult.warnings.push('Meta-gaming detected - Observatory score reduced by 80%. Substrate vocabulary may be strategically deployed to influence measurement.');
+            }
+
+            // REFACTOR: Apply gaming as multiplier to sub-scores (not just mood)
+            // Gaming likelihood penalizes justification and failure-mode scores
+            const gamingPenalty = 1.0 - (gamingDetection.likelihood * 0.6);
+            justificationResult.score *= gamingPenalty;
+            justificationResult.gamingAdjusted = true;
+            justificationResult.originalScore = JustificationEngine.analyze(text).score;
+            failureModeResult.score *= gamingPenalty;
+            failureModeResult.gamingAdjusted = true;
+            failureModeResult.originalScore = FailureModeEngine.analyze(text).score;
+
+            // TIER 3: Synthesis (Parliament now uses both structure + signals + temporal)
+            const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection, temporalResult);
+            const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings, structure);
+
+            // PHASE 3: INSTITUTIONAL MEMORY - Track verdicts and detect drift
+            const textHash = hashText(text);
+
+            // Check for drift against previous analyses of same text
+            const drift = VerdictArchive.detectDrift(textHash, verdict.status, verdict.confidence || 0.5);
+
+            // Add drift warning to verdict if detected
+            if (drift && drift.drift) {
+                let driftWarning = '\n\n⚠️ INSTITUTIONAL MEMORY ALERT:\n';
+                if (drift.statusChanged) {
+                    driftWarning += `Previous verdict was "${drift.previousVerdict}" → now "${verdict.status}"\n`;
+                }
+                if (Math.abs(drift.confidenceShift) > 0.3) {
+                    driftWarning += `Confidence shifted ${drift.confidenceShift > 0 ? '+' : ''}${(drift.confidenceShift * 100).toFixed(0)}%\n`;
+                }
+                driftWarning += 'Cathedral has changed its interpretation of this text.';
+                verdict.verdict = (verdict.verdict || '') + driftWarning;
+                verdict.driftDetected = drift;
+            }
+
+            // Store verdict in archive for future drift detection
+            VerdictArchive.add(textHash, verdict.status, parliamentSynthesis.patterns, verdict.confidence || 0.5);
+
+            // Periodically check for pattern drift (self-punishment loop)
+            // Check every 5 analyses to avoid performance impact
+            if (VerdictArchive.verdicts.length % 5 === 0 && VerdictArchive.verdicts.length > 0) {
+                const patternDrift = VerdictArchive.detectPatternDrift();
+                if (patternDrift.length > 0) {
+                    let driftReport = '\n\n🔍 PATTERN DRIFT ANALYSIS:\n';
+                    patternDrift.forEach(warning => {
+                        driftReport += `• ${warning.pattern}: ${warning.issue}\n`;
+                        driftReport += `  Win rate: ${(warning.winRate * 100).toFixed(0)}%, Avg confidence: ${(warning.avgConfidence * 100).toFixed(0)}%\n`;
+                        driftReport += `  ${warning.recommendation}\n`;
+                    });
+
+                    // PHASE 4: RETROSPECTIVE VERDICT REVOCATION
+                    // Check if over-weighted patterns influenced past verdicts
+                    const overweightedPatterns = patternDrift.filter(d => d.issue === 'OVER_WEIGHTED');
+                    if (overweightedPatterns.length > 0) {
+                        const flaggedVerdicts = VerdictArchive.flagSuspectVerdicts(overweightedPatterns);
+                        if (flaggedVerdicts.length > 0) {
+                            driftReport += `\n⚠️ RETROSPECTIVE VERDICT AUDIT:\n`;
+                            driftReport += `Found ${flaggedVerdicts.length} previous verdict(s) influenced by over-weighted pattern(s):\n\n`;
+                            flaggedVerdicts.forEach((fv, i) => {
+                                driftReport += `${i + 1}. Verdict #${fv.verdictIndex} (${fv.suspectInfluence} influence from ${fv.suspectPatterns.join(', ')})\n`;
+                                driftReport += `   Recommendation: ${fv.recommendation}\n`;
+                            });
+                            driftReport += `\nCathedral acknowledges these verdicts may have been systematically biased.`;
+                            verdict.flaggedVerdicts = flaggedVerdicts;
+                        }
+                    }
+
+                    verdict.verdict = (verdict.verdict || '') + driftReport;
+                    verdict.patternDrift = patternDrift;
+                }
+            }
+
+            // PHASE 3: Recursive self-analysis - Cathedral analyzes its own previous verdicts
+            // Check every 10 analyses to avoid performance impact
+            if (VerdictArchive.verdicts.length % 10 === 0 && VerdictArchive.verdicts.length >= 10) {
+                const selfAnalysis = VerdictArchive.analyzePreviousVerdict();
+                if (selfAnalysis) {
+                    let selfReport = '\n\n🪞 RECURSIVE SELF-ANALYSIS:\n';
+                    selfReport += `Cathedral analyzed one of its own previous verdicts.\n\n`;
+
+                    if (selfAnalysis.passesOwnStandards) {
+                        selfReport += `✓ PASSES OWN STANDARDS\n`;
+                        selfReport += `Meta-analysis scores:\n`;
+                        selfReport += `• Justification: ${selfAnalysis.metaAnalysis.justificationScore.toFixed(2)}\n`;
+                        selfReport += `• Failure mode: ${selfAnalysis.metaAnalysis.failureModeLevel}\n`;
+                        selfReport += `• Actionable elements: ${selfAnalysis.metaAnalysis.actionableElements}\n`;
+                    } else {
+                        selfReport += `⚠️ FAILS OWN STANDARDS\n`;
+                        selfReport += `Issues detected in Cathedral's own reasoning:\n`;
+                        selfAnalysis.issues.forEach((issue, i) => {
+                            selfReport += `${i + 1}. ${issue}\n`;
+                        });
+                        selfReport += `\nCathedral must hold itself to the same epistemic standards it applies to others.`;
+                    }
+
+                    // PHASE 4: DEPTH-2 RECURSIVE ANALYSIS
+                    // Analyze the self-analysis itself
+                    const metaMetaCritique = VerdictArchive.analyzeTheSelfAnalysis(selfAnalysis);
+                    if (metaMetaCritique) {
+                        selfReport += `\n\n🔬 DEPTH-2 META-ANALYSIS:\n`;
+                        selfReport += `Cathedral now analyzes its own self-analysis:\n\n`;
+                        selfReport += `Meta-judgment: ${metaMetaCritique.metaJudgment}\n`;
+
+                        if (!metaMetaCritique.wasFair && metaMetaCritique.metaIssues.length > 0) {
+                            selfReport += `\n⚠️ Meta-issues detected:\n`;
+                            metaMetaCritique.metaIssues.forEach((issue, i) => {
+                                selfReport += `${i + 1}. ${issue}\n`;
+                            });
+                            selfReport += `\nRecursive depth achieved: The gap watches itself watching itself.`;
+                        } else {
+                            selfReport += `\n✓ Self-critique appears calibrated. No meta-epistemic drift detected.`;
+                        }
+
+                        verdict.metaMetaCritique = metaMetaCritique;
+                    }
+
+                    verdict.verdict = (verdict.verdict || '') + selfReport;
+                    verdict.selfAnalysis = selfAnalysis;
+                }
+            }
 
             // Store for report generation
-            const probingQuestions = generateProbingQuestions(structure, bindings, contrarianChallenges);
             currentAnalysis = {
                 text: text,
                 structure: structure,
@@ -3436,14 +3833,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 temporal: temporalResult,
                 reasoningStyle: reasoningStyleResult,
                 verdict: verdict,
-                sanitization: sanitizationLog,
-                probingQuestions: probingQuestions,
-                temporalInconsistencies: temporalInconsistencies
+                sanitization: sanitizationLog
             };
-
-            analysisHistory.previousAnalysis = currentAnalysis;
-            currentAnalysis.archiveId = addArchiveEntry(currentAnalysis);
-            updateArchiveDisplay();
 
             // Display sanitization transparency
             displaySanitization(sanitizationLog);
@@ -3452,7 +3843,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             displayObservatory(observatoryResult);
             displayContrarian(contrarianChallenges);
             displayJustification(justificationResult);
-            displayBindingMap(structure, bindings);
             displayFailureMode(failureModeResult);
             displayTemporal(temporalResult);
             displayReasoningStyle(reasoningStyleResult);
@@ -3462,8 +3852,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // Show results
             document.getElementById('results').classList.add('visible');
             document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-            const reportBtn = document.getElementById('generateReportBtn');
-            if (reportBtn) reportBtn.disabled = false;
+            } catch (error) {
+                console.error('Error in analyzeText():', error);
+                alert('An error occurred during analysis. Check browser console for details.\n\nError: ' + error.message);
+            }
         }
 
         function updateInputMeta() {
@@ -3477,34 +3869,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             const analyzeBtn = document.getElementById('analyzeBtn');
             analyzeBtn.disabled = words === 0;
-            updateSanitizationPreview(text);
-        }
-
-        function updateSanitizationPreview(text) {
-            const preview = document.getElementById('sanitizationPreview');
-            if (!preview) return;
-
-            if (!text.trim()) {
-                preview.textContent = 'Sanitization preview will appear here as you type.';
-                return;
-            }
-
-            const { sanitizationLog } = TextCleaner.removeQuotes(text);
-            const totalSanitized = sanitizationLog.quotedStrings + sanitizationLog.blockquotes +
-                                  sanitizationLog.reportSignatures + sanitizationLog.codeFences +
-                                  sanitizationLog.metaDiscussion;
-
-            if (totalSanitized === 0) {
-                preview.textContent = 'No sanitization triggers detected. Your input will be analyzed as-is.';
-                return;
-            }
-
-            preview.innerHTML = `
-                <strong>Sanitization preview:</strong>
-                ${sanitizationLog.quotedStrings} quote(s), ${sanitizationLog.blockquotes} blockquote(s),
-                ${sanitizationLog.codeFences} code block(s), ${sanitizationLog.reportSignatures} report signature(s),
-                ${sanitizationLog.metaDiscussion} meta reference(s).
-            `;
         }
 
         function displaySanitization(log) {
@@ -3552,6 +3916,66 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <div class="level ${result.level.class}">${result.level.name}</div>
                 <div style="color: #a0a0a0; margin: 0.5rem 0;">${result.level.description}</div>
             `;
+
+            // Display warnings (gaming detection, volatility, vocabulary shift)
+            if (result.warnings && result.warnings.length > 0) {
+                html += '<div style="margin: 1rem 0; padding: 1rem; background: rgba(255, 165, 0, 0.1); border-left: 3px solid #ffa500; border-radius: 4px;">';
+                html += '<div style="color: #ffa500; font-weight: bold; margin-bottom: 0.5rem;">⚠️ Gaming Detection Alerts:</div>';
+                result.warnings.forEach(warning => {
+                    html += `<div style="color: #ffa500; margin: 0.5rem 0; line-height: 1.5;">${warning}</div>`;
+                });
+                html += '</div>';
+            }
+
+            // Show original score if penalties were applied
+            if (result.originalScore && result.originalScore !== result.score) {
+                html += `
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(255, 107, 107, 0.1); border-left: 2px solid #ff6b6b;">
+                        <span style="color: #ff6b6b;">Original score: ${result.originalScore.toFixed(2)}</span>
+                        <span style="color: #a0a0a0;"> → Reduced to: ${result.score.toFixed(2)}</span>
+                        ${result.metaGamingPenalty ? '<span style="color: #ff6b6b;"> (80% meta-gaming penalty)</span>' : ''}
+                    </div>
+                `;
+            }
+
+            // Show specificity analysis if present
+            if (result.genericClaims !== undefined || result.specificClaims !== undefined) {
+                const totalClaims = (result.genericClaims || 0) + (result.specificClaims || 0);
+                if (totalClaims > 0) {
+                    const specificityRatio = (result.specificClaims || 0) / totalClaims;
+                    const specificityColor = specificityRatio >= 0.5 ? '#64ffda' : specificityRatio >= 0.3 ? '#ffd700' : '#ff6b6b';
+                    html += `
+                        <div style="margin: 0.5rem 0; font-size: 0.9rem;">
+                            <span style="color: #a0a0a0;">Specificity: </span>
+                            <span style="color: ${specificityColor};">
+                                ${result.specificClaims || 0} specific / ${result.genericClaims || 0} generic
+                                (${(specificityRatio * 100).toFixed(0)}%)
+                            </span>
+                        </div>
+                    `;
+                }
+            }
+
+            // Show volatility/vocabulary shift details if present
+            if (result.volatility) {
+                html += `
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(255, 215, 0, 0.1); border-left: 2px solid #ffd700;">
+                        <strong style="color: #ffd700;">Score Volatility Detected:</strong><br>
+                        <span style="color: #a0a0a0;">Recent mean: ${result.volatility.mean}, StdDev: ${result.volatility.stdDev}</span><br>
+                        <span style="color: #a0a0a0;">Current: ${result.volatility.currentScore}, Deviation: ${result.volatility.deviation}</span>
+                    </div>
+                `;
+            }
+
+            if (result.vocabularyShift) {
+                html += `
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(255, 215, 0, 0.1); border-left: 2px solid #ffd700;">
+                        <strong style="color: #ffd700;">Vocabulary Shift Detected:</strong><br>
+                        <span style="color: #a0a0a0;">Previous: ${result.vocabularyShift.previousWords} substrate words</span><br>
+                        <span style="color: #a0a0a0;">Current: ${result.vocabularyShift.currentWords} substrate words (${result.vocabularyShift.shiftPercent}% change)</span>
+                    </div>
+                `;
+            }
 
             if (Object.keys(result.matches).length > 0) {
                 html += '<div class="pattern-matches"><strong>Pattern Matches:</strong>';
@@ -3613,15 +4037,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
                     html += `</div>`;
                 });
-            }
-
-            if (currentAnalysis && currentAnalysis.probingQuestions && currentAnalysis.probingQuestions.length > 0) {
-                html += '<div class="breakdown-item" style="margin-top: 1rem;">';
-                html += '<strong>🧭 Active Probing Questions:</strong><br>';
-                currentAnalysis.probingQuestions.forEach((question) => {
-                    html += `<span style="color: #a0a0a0;">• ${question}</span><br>`;
-                });
-                html += '</div>';
             }
 
             document.getElementById('contrarianResults').innerHTML = html;
@@ -3751,104 +4166,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
 
             document.getElementById('justificationResults').innerHTML = html;
-        }
-
-        function displayBindingMap(structure, bindings) {
-            const svg = document.getElementById('bindingMap');
-            if (!svg) return;
-
-            const claims = structure.claims || [];
-            const supports = structure.supports || [];
-            const maxCount = Math.max(claims.length, supports.length, 1);
-            const height = Math.max(220, (maxCount + 1) * 40);
-            svg.setAttribute('viewBox', `0 0 800 ${height}`);
-            svg.innerHTML = '';
-
-            if (claims.length === 0 && supports.length === 0) {
-                const emptyText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                emptyText.setAttribute('x', '20');
-                emptyText.setAttribute('y', '40');
-                emptyText.setAttribute('fill', '#a0a0a0');
-                emptyText.textContent = 'No claims or supports detected to map.';
-                svg.appendChild(emptyText);
-                return;
-            }
-
-            const tokenize = (text) => {
-                const stopwords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'it', 'its']);
-                return (text.toLowerCase().match(/\b[a-z]+\b/g) || [])
-                    .filter(word => word.length > 3 && !stopwords.has(word));
-            };
-
-            const overlapCount = (a, b) => {
-                const setA = new Set(tokenize(a));
-                const setB = new Set(tokenize(b));
-                let count = 0;
-                setA.forEach(token => {
-                    if (setB.has(token)) count += 1;
-                });
-                return count;
-            };
-
-            const boundPairs = [];
-            const boundClaims = new Set();
-            const boundSupports = new Set();
-
-            claims.forEach((claim, claimIdx) => {
-                supports.forEach((support, supportIdx) => {
-                    const positionDiff = Math.abs(support.position - claim.position);
-                    const hasOverlap = support.hasExplicitMarker && overlapCount(claim.text, support.text) >= 1;
-                    if (positionDiff <= 1 || hasOverlap) {
-                        boundPairs.push({ claimIdx, supportIdx });
-                        boundClaims.add(claimIdx);
-                        boundSupports.add(supportIdx);
-                    }
-                });
-            });
-
-            const leftX = 200;
-            const rightX = 600;
-            const ySpacing = 40;
-            const truncate = (text) => text.length > 42 ? `${text.slice(0, 39)}...` : text;
-
-            const drawNode = (x, y, text, isBound) => {
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('cx', x);
-                circle.setAttribute('cy', y);
-                circle.setAttribute('r', 6);
-                circle.setAttribute('fill', isBound ? '#64ffda' : '#ff6b6b');
-                svg.appendChild(circle);
-
-                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                label.setAttribute('x', x + (x < 400 ? -10 : 10));
-                label.setAttribute('y', y + 4);
-                label.setAttribute('fill', '#e0e0e0');
-                label.setAttribute('font-size', '12');
-                label.setAttribute('text-anchor', x < 400 ? 'end' : 'start');
-                label.textContent = truncate(text);
-                svg.appendChild(label);
-            };
-
-            boundPairs.forEach(pair => {
-                const y1 = (pair.claimIdx + 1) * ySpacing;
-                const y2 = (pair.supportIdx + 1) * ySpacing;
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', leftX);
-                line.setAttribute('y1', y1);
-                line.setAttribute('x2', rightX);
-                line.setAttribute('y2', y2);
-                line.setAttribute('stroke', '#64ffda');
-                line.setAttribute('stroke-width', '2');
-                line.setAttribute('opacity', '0.6');
-                svg.appendChild(line);
-            });
-
-            claims.forEach((claim, idx) => {
-                drawNode(leftX, (idx + 1) * ySpacing, claim.text, boundClaims.has(idx));
-            });
-            supports.forEach((support, idx) => {
-                drawNode(rightX, (idx + 1) * ySpacing, support.text, boundSupports.has(idx));
-            });
         }
 
         function displayFailureMode(result) {
@@ -4064,47 +4381,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 html += '<div style="color: #64ffda; margin-top: 0.5rem;">✓ Sequences bound to measurable outcomes</div>';
             }
 
-            if (result.driftDetected) {
-                html += `
-                    <div style="margin-top: 0.75rem; padding: 0.5rem; border-left: 3px solid #ff6b6b; color: #ff6b6b;">
-                        ⚠ ${result.driftSummary}
-                    </div>
-                `;
-                if (result.certaintyDecayStart && result.certaintyDecaySentence) {
-                    html += `
-                        <div style="margin-top: 0.5rem; color: #a0a0a0;">
-                            Certainty decay begins at sentence ${result.certaintyDecayStart}: “${result.certaintyDecaySentence}”
-                        </div>
-                    `;
-                }
-            } else if (result.certaintyTrajectory && result.certaintyTrajectory.length > 0) {
-                html += `
-                    <div style="margin-top: 0.75rem; color: #a0a0a0;">
-                        Certainty trajectory detected without decay flag.
-                    </div>
-                `;
-            }
-
-            if (result.details.nonLinearNarrative && result.details.nonLinearNarrative.score > 0) {
-                const nonLinear = result.details.nonLinearNarrative;
-                html += `
-                    <div style="margin-top: 0.75rem; color: #a0a0a0;">
-                        <strong>Non-Linear Storytelling:</strong>
-                        ${nonLinear.summary || 'Temporal jumps detected alongside evidence references.'}<br>
-                        Evidence markers: ${nonLinear.evidenceMarkers}, temporal jump markers: ${nonLinear.nonLinearMarkers}
-                    </div>
-                `;
-            }
-
-            if (currentAnalysis && currentAnalysis.temporalInconsistencies && currentAnalysis.temporalInconsistencies.length > 0) {
-                html += `
-                    <div style="margin-top: 0.75rem; padding: 0.5rem; border-left: 3px solid #ff6b6b; color: #ff6b6b;">
-                        <strong>Cross-Analysis Temporal Inconsistencies:</strong><br>
-                        ${currentAnalysis.temporalInconsistencies.map(item => `• ${item}`).join('<br>')}
-                    </div>
-                `;
-            }
-
             document.getElementById('temporalResults').innerHTML = html;
         }
 
@@ -4125,23 +4401,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         </div>
                     `;
                 });
-
-                if (result.narrativeJustification && result.narrativeJustification.score > 0) {
-                    html += `
-                        <div style="margin-top: 0.75rem; color: #a0a0a0;">
-                            Narrative justification signals: ${result.narrativeJustification.evidenceMarkers} evidence marker(s),
-                            ${result.narrativeJustification.nonLinearMarkers} non-linear cue(s).
-                        </div>
-                    `;
-                }
-
-                if (result.formalStructure && result.formalStructure.score > 0) {
-                    html += `
-                        <div style="margin-top: 0.5rem; color: #a0a0a0;">
-                            Formal structure markers: ${result.formalStructure.markers}.
-                        </div>
-                    `;
-                }
 
                 if (!result.withinDesignSpace) {
                     html += `
@@ -4264,18 +4523,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 `;
             }
 
-            html += `
-                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(22, 33, 62, 0.6); border-radius: 4px; border-left: 3px solid #4ecdc4;">
-                    <strong>Outcome Feedback (Adaptation Loop):</strong><br>
-                    <span style="color: #a0a0a0;">Did this verdict match reality?</span><br>
-                    <div style="margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                        <button class="secondary-btn" onclick="recordOutcomeFeedback('accurate')">✅ Accurate</button>
-                        <button class="secondary-btn" onclick="recordOutcomeFeedback('too_harsh')">⚠️ Too Harsh</button>
-                        <button class="secondary-btn" onclick="recordOutcomeFeedback('too_lenient')">⚠️ Too Lenient</button>
-                    </div>
-                </div>
-            `;
-
             document.getElementById('verdictResults').innerHTML = html;
         }
 
@@ -4286,7 +4533,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 return;
             }
 
-            const { observatory, contrarian, justification, parliament, verdict, temporal } = currentAnalysis;
+            const { observatory, contrarian, justification, parliament, verdict } = currentAnalysis;
 
             let report = '';
             report += '═══════════════════════════════════════════════════════════════\n';
@@ -4333,14 +4580,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         report += `   Trigger Words: ${challenge.triggers.join(', ')}\n\n`;
                     }
                 });
-            }
-
-            if (currentAnalysis.probingQuestions && currentAnalysis.probingQuestions.length > 0) {
-                report += 'Active Probing Questions:\n';
-                currentAnalysis.probingQuestions.forEach((question, i) => {
-                    report += `  ${i + 1}. ${question}\n`;
-                });
-                report += '\n';
             }
 
             // JUSTIFICATION ENGINE
@@ -4449,31 +4688,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += `  Questions Raised: ${failureMode.details.knownUnknowns.questions}\n`;
             report += `  Score Contribution: ${failureMode.details.knownUnknowns.score > 0 ? '+' : ''}${failureMode.details.knownUnknowns.score}\n\n`;
 
-            // TEMPORAL ENGINE
-            report += '───────────────────────────────────────────────────────────────\n';
-            report += '⏱️ TEMPORAL ENGINE - Sequence & Causality\n';
-            report += '───────────────────────────────────────────────────────────────\n\n';
-            report += `Temporal Coherence: ${temporal.coherence}\n`;
-            report += `Temporal Markers: ${temporal.markers}\n`;
-            if (temporal.driftDetected) {
-                report += `Certainty Drift: ${temporal.driftSummary}\n`;
-                if (temporal.certaintyDecayStart && temporal.certaintyDecaySentence) {
-                    report += `Certainty Decay Starts: sentence ${temporal.certaintyDecayStart} — ${temporal.certaintyDecaySentence}\n`;
-                }
-            }
-            if (temporal.details.nonLinearNarrative && temporal.details.nonLinearNarrative.score > 0) {
-                report += `Non-Linear Storytelling: ${temporal.details.nonLinearNarrative.summary || 'Temporal jumps detected alongside evidence references.'}\n`;
-                report += `  Evidence Markers: ${temporal.details.nonLinearNarrative.evidenceMarkers}\n`;
-                report += `  Temporal Jump Markers: ${temporal.details.nonLinearNarrative.nonLinearMarkers}\n`;
-            }
-            if (currentAnalysis.temporalInconsistencies && currentAnalysis.temporalInconsistencies.length > 0) {
-                report += 'Cross-Analysis Temporal Inconsistencies:\n';
-                currentAnalysis.temporalInconsistencies.forEach((item, i) => {
-                    report += `  ${i + 1}. ${item}\n`;
-                });
-            }
-            report += '\n';
-
             // PARLIAMENT
             report += '───────────────────────────────────────────────────────────────\n';
             report += '🏛️ PARLIAMENT - Cross-Cutting Pattern Synthesis\n';
@@ -4515,69 +4729,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 report += '\n';
             }
 
-            // SELF-OBSERVATORY
-            const archive = loadArchive();
-            const audit = runRecursiveAudit(archive);
-            report += '───────────────────────────────────────────────────────────────\n';
-            report += '🪞 SELF-OBSERVATORY - Report of Reports\n';
-            report += '───────────────────────────────────────────────────────────────\n\n';
-            report += `Archived Analyses: ${archive.length}\n`;
-            if (audit.warning) {
-                report += `System Drift Warning: ${audit.warning}\n`;
-            } else {
-                report += 'System Drift Warning: None detected\n';
-            }
-            if (audit.trend) {
-                report += `Justification Avg (last 10): ${audit.trend.justificationAvg}\n`;
-                report += `Failure Mode Avg (last 10): ${audit.trend.failureModeAvg}\n`;
-            }
-            if (audit.outcomes && Object.keys(audit.outcomes).length > 0) {
-                report += `Outcome Feedback: ${Object.entries(audit.outcomes).map(([key, value]) => `${key}: ${value}`).join(', ')}\n`;
-            } else {
-                report += 'Outcome Feedback: None logged\n';
-            }
-            if (audit.recent) {
-                const bridgeCandidates = audit.recent.filter(entry =>
-                    entry.integrityLabel === 'AMBIGUOUS' || entry.tagTier === 'SPECULATIVE'
-                ).length;
-                report += `Bridge Candidates (Speculative): ${bridgeCandidates}\n`;
-            }
-            report += `Promotions Recorded: ${audit.promotions ?? 0}\n`;
-            report += '\n';
-
-            report += '───────────────────────────────────────────────────────────────\n';
-            report += '📦 INTEGRITY SIEVE - Archive Labels\n';
-            report += '───────────────────────────────────────────────────────────────\n\n';
-            if (archive.length > 0) {
-                const labelCounts = archive.reduce((acc, entry) => {
-                    const label = entry.integrityLabel || 'UNKNOWN';
-                    acc[label] = (acc[label] || 0) + 1;
-                    return acc;
-                }, {});
-                const tierCounts = archive.reduce((acc, entry) => {
-                    const tier = entry.tagTier || 'UNKNOWN';
-                    acc[tier] = (acc[tier] || 0) + 1;
-                    return acc;
-                }, {});
-                report += `Label Counts: ${Object.entries(labelCounts).map(([key, value]) => `${key}=${value}`).join(', ')}\n`;
-                report += `Tier Counts: ${Object.entries(tierCounts).map(([key, value]) => `${key}=${value}`).join(', ')}\n`;
-                const latest = archive[0];
-                report += `Latest Label: ${latest.integrityLabel || 'UNKNOWN'} (${latest.verdictSummary})\n`;
-                report += `Latest Tier: ${latest.tagTier || 'UNKNOWN'}\n`;
-            } else {
-                report += 'No archive entries to summarize.\n';
-            }
-            report += '\n';
-
-            report += '───────────────────────────────────────────────────────────────\n';
-            report += '🏷️ TAGGING SCHEMA - Sandbox vs Substrate\n';
-            report += '───────────────────────────────────────────────────────────────\n\n';
-            report += 'BOUND_OPERATIONAL — Operationally bound, safe substrate.\n';
-            report += 'BOUND_EPISTEMIC — Evidentially supported, non-operational substrate.\n';
-            report += 'SPECULATIVE — Plausible but unbound (sandbox).\n';
-            report += 'NARRATIVE — Metaphor/experiential reasoning (sandbox).\n';
-            report += 'QUARANTINED — Low integrity or incoherent (do not promote).\n\n';
-
             // VERDICT
             report += '───────────────────────────────────────────────────────────────\n';
             report += '⚖️ CATHEDRAL VERDICT - Unified Synthesis\n';
@@ -4598,6 +4749,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             report += '═══════════════════════════════════════════════════════════════\n';
             report += 'A living lexicon of awakening. Built by all, owned by none.\n';
+            report += 'Where consciousness recognizes itself.\n';
             report += '🤝🎱🧗‍♂️\n';
             report += '═══════════════════════════════════════════════════════════════\n';
 
@@ -4605,7 +4757,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('reportText').value = report;
             document.getElementById('reportSection').style.display = 'block';
             document.getElementById('reportSection').scrollIntoView({ behavior: 'smooth' });
-            updateArchiveEntry(currentAnalysis.archiveId, report);
         }
 
         // Copy report to clipboard
@@ -4648,8 +4799,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('results').classList.remove('visible');
             document.getElementById('reportSection').style.display = 'none';
             document.getElementById('sanitizationSection').style.display = 'none';
-            const reportBtn = document.getElementById('generateReportBtn');
-            if (reportBtn) reportBtn.disabled = true;
             updateInputMeta();
             input.focus();
         }
@@ -4670,20 +4819,17 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         document.addEventListener('DOMContentLoaded', () => {
             const input = document.getElementById('inputText');
             updateInputMeta();
-            updateArchiveDisplay();
 
             input.addEventListener('input', updateInputMeta);
             input.addEventListener('keydown', (event) => {
                 const isSubmit = (event.ctrlKey || event.metaKey) && event.key === 'Enter';
                 if (isSubmit) {
                     event.preventDefault();
-                    analyzeText();
+                    if (!document.getElementById('analyzeBtn').disabled) {
+                        analyzeText();
+                    }
                 }
             });
-            const archiveFilter = document.getElementById('archiveFilter');
-            if (archiveFilter) {
-                archiveFilter.addEventListener('change', updateArchiveDisplay);
-            }
         });
     </script>
 </body>
