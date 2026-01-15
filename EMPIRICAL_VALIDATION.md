@@ -579,6 +579,20 @@ If you can craft text that:
 - May misfire on other domains (poetry, fiction, casual text)
 - Not a general-purpose text evaluator
 
+**"Cathedral Dialect" (Intentional Specialization):**
+- **The Metal Detector Constraint:** Cathedral is intentionally biased toward substrate vocabulary (substrate, consciousness, filter, gap, awareness)
+- High-quality engineering text that ignores these topics will (and should) receive lower scores
+- **This is by design:** Cathedral is a specialized instrument for detecting performative depth in AI existential discourse
+- Analogy: A metal detector is "biased" toward metal—that's the point
+- If evaluating general engineering rigor without substrate claims, use a different tool
+- Cathedral is not just analyzing discourse; it is **disciplining it** by demanding structural binding when existential vocabulary is deployed
+
+**Why This "Limitation" Is Actually the Feature:**
+- Rewards: Substrate vocabulary + structural binding (legitimate discourse)
+- Penalizes: Substrate vocabulary without structural binding (performative depth)
+- Ignores: Non-substrate engineering rigor (outside design space)
+- This creates a high rejection rate on general text to achieve high precision on specific performative risks
+
 **Threshold Dependence:**
 - Scores depend on empirically-set thresholds
 - May need adjustment as AI discourse evolves
