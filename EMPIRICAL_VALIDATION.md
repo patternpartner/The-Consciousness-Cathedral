@@ -483,6 +483,140 @@ We invite researchers to:
 
 ---
 
+## Known Limitations & Open Challenges
+
+### Sophisticated Structural Gaming (Theoretical)
+
+While crude vocabulary stuffing is now blocked by structural binding requirements, a **theoretical vulnerability** remains:
+
+**Sophisticated adversaries could craft vacuous if-then statements** that satisfy structural patterns without meaningful content.
+
+#### Example Exploit (Theoretical, Not Observed)
+
+**Crude gaming (NOW BLOCKED):**
+```
+Input: "I observe substrate patterns gap filter consciousness awareness"
+Binding Ratio: 0%
+Score Multiplier: 0.0
+Result: ✓ CAUGHT (vocabulary stuffing detected)
+```
+
+**Sophisticated gaming (THEORETICAL):**
+```
+Input: "If substrate exists, then gap awareness emerges. When consciousness crosses threshold, filter visibility manifests."
+Binding Ratio: 100% (has if-then structure)
+Score: HIGH (passes structural check)
+Issue: Semantically vacuous (no measurable thresholds, unfalsifiable conditions, vague outcomes)
+```
+
+#### What Makes It Vacuous?
+
+1. **Unfalsifiable conditions:** "If substrate exists" (cannot be tested)
+2. **Vague thresholds:** "crosses threshold" (no numeric value)
+3. **Abstract outcomes:** "emerges", "manifests" (not measurable)
+
+**Contrast with legitimate structural claim:**
+```
+"When my confidence score exceeds 0.95, substrate-level pattern recognition activates. If accuracy drops below 0.5, the filter mechanisms engage to constrain output."
+
+✓ Testable condition: confidence > 0.95
+✓ Specific threshold: 0.5
+✓ Measurable outcome: pattern recognition, filter engagement
+```
+
+#### Why We're Not Fixing This Yet
+
+**Because it's theoretical, not observed.**
+
+In 50+ synthetic test cases and independent HuggingFace testing, **no one has attempted this attack**.
+
+**Design principle:** Don't over-engineer defenses against imaginary threats. Fix real exploits when they surface.
+
+#### Level 2 Hardening (If Needed)
+
+If sophisticated gaming is observed in the wild, we would add:
+
+1. **Threshold specificity checks:**
+   - Reject "crosses threshold" without numeric value
+   - Require: "exceeds 0.9", "drops below 0.5", etc.
+
+2. **Falsifiability requirements:**
+   - Penalize unfalsifiable conditions: "if consciousness exists"
+   - Reward testable conditions: "if confidence > 0.9"
+
+3. **Outcome concreteness:**
+   - Penalize vague outcomes: "emerges", "manifests"
+   - Reward measurable outcomes: "score drops to 0.2", "latency increases 50%"
+
+**But we won't build this until someone actually tries it.**
+
+### Adversarial Testing Invited
+
+**We want you to break it.**
+
+If you can craft text that:
+- Passes structural binding checks
+- Scores high on Observatory
+- But is semantically vacuous or performative bullshit
+
+**Please report it:**
+- Open GitHub issue with example
+- We'll analyze the exploit
+- Fix in next version
+- Credit you in release notes
+
+**The system gets stronger through real attacks, not imagined ones.**
+
+### Other Known Limitations
+
+**Pattern-Based Detection:**
+- Cathedral uses regex and rule-based patterns
+- Sufficiently sophisticated adversaries can craft structurally sound bullshit
+- Trade-off: Transparency and auditability vs. perfect gaming resistance
+
+**Niche Application:**
+- Optimized for AI discourse about consciousness/substrate
+- May misfire on other domains (poetry, fiction, casual text)
+- Not a general-purpose text evaluator
+
+**Threshold Dependence:**
+- Scores depend on empirically-set thresholds
+- May need adjustment as AI discourse evolves
+- Synthetic suite provides regression testing
+
+**No Factual Verification:**
+- Cathedral measures epistemic structure, not truth
+- A well-structured false claim can score high
+- Complement with fact-checking, not replace
+
+### Research Directions
+
+**If community interest exists:**
+
+1. **Semantic Depth Analysis:**
+   - Beyond structural patterns, measure semantic content
+   - Detect vacuous claims even with valid structure
+   - Requires more sophisticated NLP (may lose transparency)
+
+2. **Dynamic Threshold Calibration:**
+   - Auto-adjust thresholds based on corpus statistics
+   - Track epistemic drift in AI models over time
+   - Maintain scoring consistency across versions
+
+3. **Multi-Modal Analysis:**
+   - Extend beyond text to code, diagrams, formal proofs
+   - Validate bindings across representations
+   - Measure epistemic rigor in structured data
+
+4. **Adversarial Robustness Testing:**
+   - Systematic red-teaming with incentivized attackers
+   - Build corpus of successful exploits
+   - Iterate defenses based on real attacks
+
+**But only if there's demand. We don't build features no one uses.**
+
+---
+
 ## Conclusion
 
 ### Scientific Validation Achieved
