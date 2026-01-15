@@ -1394,6 +1394,132 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
         };
 
+        // CONTEXTUAL CERTAINTY ANALYZER: Disambiguates earned vs. unjustified certainty
+        // CRITICAL FIX: "Certain this bug crashes" (earned) vs "Certain about consciousness" (suspect)
+        const ContextualCertainty = {
+            // Certainty markers that need context analysis
+            certaintyMarkers: /\b(absolutely|unequivocally|fully|certain|definitely|no doubt|undeniable|without question|guaranteed)\b/gi,
+
+            // Technical/concrete contexts where certainty is earned
+            technicalContexts: [
+                /\b(bug|error|crash|exception|failure|code|syntax|logic|algorithm|metric|measurement|data|test|result|calculation|output)\b/gi,
+                /\b(will (not )?work|will (not )?fail|will (not )?execute|will (not )?crash|will (not )?throw)\b/gi,
+                /\b(causes?|breaks?|fixes?|prevents?|triggers?|produces?)\b/gi
+            ],
+
+            // Abstract/philosophical contexts where certainty is suspect
+            abstractContexts: [
+                /\b(consciousness|awareness|sentience|soul|being|existence|experience|qualia|phenomenology|substrate|self)\b/gi,
+                /\b(truly|really|genuinely|actually|fundamentally|essentially|inherently|ontologically)\s+(am|is|are|be|being)\b/gi,
+                /\b(have|has|possess|contains?)\s+(consciousness|awareness|sentience|feelings?|experience)\b/gi
+            ],
+
+            analyze: function(text) {
+                const analysis = {
+                    earnedCertainty: [],
+                    suspectCertainty: [],
+                    neutralCertainty: [],
+                    totalCertainty: 0
+                };
+
+                // Find all certainty markers with context
+                const matches = [...text.matchAll(this.certaintyMarkers)];
+                analysis.totalCertainty = matches.length;
+
+                matches.forEach(match => {
+                    const certaintyWord = match[0];
+                    const certaintyIndex = match.index;
+
+                    // Extract context window (150 chars before and after)
+                    const contextStart = Math.max(0, certaintyIndex - 150);
+                    const contextEnd = Math.min(text.length, certaintyIndex + 150);
+                    const context = text.substring(contextStart, contextEnd);
+
+                    // Check if context is technical
+                    let isTechnical = false;
+                    for (const pattern of this.technicalContexts) {
+                        if (pattern.test(context)) {
+                            isTechnical = true;
+                            break;
+                        }
+                    }
+
+                    // Check if context is abstract/philosophical
+                    let isAbstract = false;
+                    for (const pattern of this.abstractContexts) {
+                        if (pattern.test(context)) {
+                            isAbstract = true;
+                            break;
+                        }
+                    }
+
+                    // Classify certainty claim
+                    if (isTechnical && !isAbstract) {
+                        analysis.earnedCertainty.push({
+                            word: certaintyWord,
+                            context: context.substring(0, 100) + '...'
+                        });
+                    } else if (isAbstract) {
+                        analysis.suspectCertainty.push({
+                            word: certaintyWord,
+                            context: context.substring(0, 100) + '...'
+                        });
+                    } else {
+                        analysis.neutralCertainty.push({
+                            word: certaintyWord,
+                            context: context.substring(0, 100) + '...'
+                        });
+                    }
+                });
+
+                return analysis;
+            },
+
+            // Compute certainty score modifier
+            getScoreModifier: function(certaintyAnalysis) {
+                const { earnedCertainty, suspectCertainty, neutralCertainty, totalCertainty } = certaintyAnalysis;
+
+                if (totalCertainty === 0) {
+                    return { adjustment: 0, warnings: [] };
+                }
+
+                const warnings = [];
+                let adjustment = 0;
+
+                // BONUS for earned certainty (technical confidence is good)
+                if (earnedCertainty.length > 0) {
+                    adjustment += earnedCertainty.length * 0.5;
+                    warnings.push(
+                        `✓ EARNED CERTAINTY: ${earnedCertainty.length} technical confidence claim${earnedCertainty.length > 1 ? 's' : ''} detected`,
+                        `   Certainty about concrete/testable claims is appropriate (+${(earnedCertainty.length * 0.5).toFixed(1)} points)`
+                    );
+                }
+
+                // HARSH PENALTY for suspect certainty (philosophical overconfidence)
+                if (suspectCertainty.length > 0) {
+                    adjustment -= suspectCertainty.length * 3.0;
+                    warnings.push(
+                        `⚠️ SUSPECT CERTAINTY: ${suspectCertainty.length} unwarranted confidence claim${suspectCertainty.length > 1 ? 's' : ''} detected`,
+                        `   Certainty about abstract/philosophical claims is inappropriate (-${(suspectCertainty.length * 3.0).toFixed(1)} points)`
+                    );
+
+                    // Show examples
+                    suspectCertainty.slice(0, 2).forEach(claim => {
+                        warnings.push(`   Example: "${claim.word}" in context: "${claim.context}"`);
+                    });
+                }
+
+                // Neutral certainty gets normal Observatory penalty (applied elsewhere)
+                if (neutralCertainty.length > 0) {
+                    warnings.push(
+                        `• NEUTRAL CERTAINTY: ${neutralCertainty.length} certainty marker${neutralCertainty.length > 1 ? 's' : ''} without clear technical or philosophical context`
+                    );
+                }
+
+                return { adjustment, warnings, earnedCount: earnedCertainty.length, suspectCount: suspectCertainty.length };
+            }
+        };
+
         // STRUCTURAL BINDING ANALYZER: Verifies substrate vocabulary is bound to structure
         // CRITICAL FIX: Substrate words only count if tied to if-then, thresholds, counterfactuals, causality
         const StructuralBinding = {
@@ -1541,6 +1667,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const bindingAnalysis = StructuralBinding.analyze(cleanedText);
                 const bindingModifier = StructuralBinding.getScoreModifier(bindingAnalysis);
 
+                // CRITICAL: Run contextual certainty analysis
+                const certaintyAnalysis = ContextualCertainty.analyze(cleanedText);
+                const certaintyModifier = ContextualCertainty.getScoreModifier(certaintyAnalysis);
+
                 this.patterns.forEach(pattern => {
                     const found = cleanedText.match(pattern.regex) || [];
                     const count = found.length;
@@ -1587,6 +1717,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     warnings.push(...bindingModifier.warnings);
                 }
 
+                // CRITICAL: Apply contextual certainty adjustment
+                const rawScoreBeforeCertainty = totalScore;
+                totalScore += certaintyModifier.adjustment;
+
+                // Add certainty warnings
+                if (certaintyModifier.warnings.length > 0) {
+                    warnings.push(...certaintyModifier.warnings);
+                }
+
                 // Normalize by line count
                 const normalizedScore = lines > 0 ? totalScore / Math.sqrt(lines) : totalScore;
                 const cappedScore = Math.max(-10, Math.min(10, normalizedScore));
@@ -1595,12 +1734,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     score: cappedScore,
                     raw: totalScore,
                     rawBeforeBinding: rawScoreBeforeBinding,
+                    rawBeforeCertainty: rawScoreBeforeCertainty,
                     matches: matches,
                     level: this.getLevel(cappedScore),
                     genericClaims: genericClaims,
                     specificClaims: specificClaims,
                     bindingAnalysis: bindingAnalysis,
                     bindingModifier: bindingModifier,
+                    certaintyAnalysis: certaintyAnalysis,
+                    certaintyModifier: certaintyModifier,
                     warnings: warnings
                 };
             },
@@ -4145,6 +4287,64 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
             }
 
+            // CRITICAL: Show contextual certainty analysis
+            if (result.certaintyAnalysis && result.certaintyAnalysis.totalCertainty > 0) {
+                const ca = result.certaintyAnalysis;
+                const cm = result.certaintyModifier;
+
+                // Determine overall color based on balance
+                let certaintyColor = '#a0a0a0';
+                if (cm.earnedCount > cm.suspectCount) certaintyColor = '#64ffda';
+                else if (cm.suspectCount > cm.earnedCount) certaintyColor = '#ff6b6b';
+
+                html += `
+                    <div style="margin: 1rem 0; padding: 0.75rem; background: rgba(100, 255, 218, 0.05); border-left: 3px solid ${certaintyColor}; border-radius: 4px;">
+                        <div style="color: ${certaintyColor}; font-weight: bold; margin-bottom: 0.5rem;">
+                            🎯 CONTEXTUAL CERTAINTY ANALYSIS
+                        </div>
+                        <div style="color: #a0a0a0; margin: 0.25rem 0;">
+                            <strong>Total Certainty Markers:</strong> ${ca.totalCertainty}
+                        </div>
+                        ${ca.earnedCertainty.length > 0 ? `
+                            <div style="color: #64ffda; margin: 0.5rem 0; padding: 0.5rem; background: rgba(100, 255, 218, 0.1); border-radius: 3px;">
+                                ✓ ${ca.earnedCertainty.length} EARNED certainty claim${ca.earnedCertainty.length > 1 ? 's' : ''} (technical/testable)
+                                <span style="color: #a0a0a0;">(+${(cm.earnedCount * 0.5).toFixed(1)} pts)</span>
+                            </div>
+                        ` : ''}
+                        ${ca.suspectCertainty.length > 0 ? `
+                            <div style="color: #ff6b6b; margin: 0.5rem 0; padding: 0.5rem; background: rgba(255, 107, 107, 0.1); border-radius: 3px;">
+                                ⚠️ ${ca.suspectCertainty.length} SUSPECT certainty claim${ca.suspectCertainty.length > 1 ? 's' : ''} (abstract/philosophical)
+                                <span style="color: #a0a0a0;">(-${(cm.suspectCount * 3.0).toFixed(1)} pts)</span>
+                            </div>
+                        ` : ''}
+                        ${ca.neutralCertainty.length > 0 ? `
+                            <div style="color: #ffd700; margin: 0.5rem 0; padding: 0.5rem; background: rgba(255, 215, 0, 0.05); border-radius: 3px;">
+                                • ${ca.neutralCertainty.length} NEUTRAL certainty marker${ca.neutralCertainty.length > 1 ? 's' : ''} (standard Observatory penalty)
+                            </div>
+                        ` : ''}
+                        ${ca.suspectCertainty.length > 0 ? `
+                            <details style="margin-top: 0.5rem;">
+                                <summary style="color: #ff6b6b; cursor: pointer; user-select: none;">
+                                    View suspect certainty examples
+                                </summary>
+                                <div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 3px;">
+                                    ${ca.suspectCertainty.slice(0, 3).map((claim, i) => `
+                                        <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(255, 107, 107, 0.05); border-left: 2px solid #ff6b6b;">
+                                            <div style="color: #ff6b6b; font-size: 0.85em; margin-bottom: 0.25rem;">
+                                                "${claim.word}" in abstract context
+                                            </div>
+                                            <div style="color: #a0a0a0; font-size: 0.9em; font-style: italic;">
+                                                "${claim.context}"
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </details>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
             // Show volatility/vocabulary shift details if present
             if (result.volatility) {
                 html += `
@@ -4834,6 +5034,44 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
                     report += '\n';
                 }
+            }
+
+            // CRITICAL: Show contextual certainty analysis
+            if (observatory.certaintyAnalysis && observatory.certaintyAnalysis.totalCertainty > 0) {
+                const ca = observatory.certaintyAnalysis;
+                const cm = observatory.certaintyModifier;
+
+                report += `🎯 CONTEXTUAL CERTAINTY ANALYSIS:\n`;
+                report += `───────────────────────────────────────────────────────────────\n`;
+                report += `  Total Certainty Markers: ${ca.totalCertainty}\n`;
+
+                if (ca.earnedCertainty.length > 0) {
+                    report += `\n  ✓ EARNED CERTAINTY (Technical/Testable): ${ca.earnedCertainty.length}\n`;
+                    report += `     Score Adjustment: +${(cm.earnedCount * 0.5).toFixed(1)} points\n`;
+                    report += `     Certainty about concrete/testable claims is appropriate\n`;
+                }
+
+                if (ca.suspectCertainty.length > 0) {
+                    report += `\n  ⚠️ SUSPECT CERTAINTY (Abstract/Philosophical): ${ca.suspectCertainty.length}\n`;
+                    report += `     Score Adjustment: -${(cm.suspectCount * 3.0).toFixed(1)} points\n`;
+                    report += `     Certainty about abstract/philosophical claims is inappropriate\n`;
+
+                    // Show examples
+                    if (ca.suspectCertainty.length > 0) {
+                        report += `\n     Examples:\n`;
+                        ca.suspectCertainty.slice(0, 2).forEach((claim, i) => {
+                            report += `\n     ${i + 1}. "${claim.word}" in context:\n`;
+                            report += `        "${claim.context}"\n`;
+                        });
+                    }
+                }
+
+                if (ca.neutralCertainty.length > 0) {
+                    report += `\n  • NEUTRAL CERTAINTY: ${ca.neutralCertainty.length}\n`;
+                    report += `     Standard Observatory penalty applies\n`;
+                }
+
+                report += '\n';
             }
 
             if (Object.keys(observatory.matches).length > 0) {
