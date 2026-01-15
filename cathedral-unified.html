@@ -4550,6 +4550,61 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             report += `Level: ${observatory.level.name}\n`;
             report += `Assessment: ${observatory.level.description}\n\n`;
 
+            // Add warnings if present (gaming detection, volatility, vocabulary shift)
+            if (observatory.warnings && observatory.warnings.length > 0) {
+                report += '⚠️ GAMING DETECTION ALERTS:\n';
+                report += '───────────────────────────────────────────────────────────────\n';
+                observatory.warnings.forEach(warning => {
+                    report += `\n⚠️ ${warning}\n`;
+                });
+                report += '\n';
+            }
+
+            // Show original score if penalties were applied
+            if (observatory.originalScore && observatory.originalScore !== observatory.score) {
+                report += `Original Score (before penalties): ${observatory.originalScore.toFixed(2)}\n`;
+                report += `Final Score (after penalties): ${observatory.score.toFixed(2)}\n`;
+                if (observatory.metaGamingPenalty) {
+                    report += `Penalty Applied: 80% meta-gaming reduction\n`;
+                }
+                report += '\n';
+            }
+
+            // Show specificity analysis if present
+            if (observatory.genericClaims !== undefined || observatory.specificClaims !== undefined) {
+                const totalClaims = (observatory.genericClaims || 0) + (observatory.specificClaims || 0);
+                if (totalClaims > 0) {
+                    const specificityRatio = (observatory.specificClaims || 0) / totalClaims;
+                    report += `Specificity Analysis:\n`;
+                    report += `  Specific Claims: ${observatory.specificClaims || 0}\n`;
+                    report += `  Generic Claims: ${observatory.genericClaims || 0}\n`;
+                    report += `  Specificity Ratio: ${(specificityRatio * 100).toFixed(0)}%\n`;
+                    if (specificityRatio < 0.3) {
+                        report += `  ⚠️ Low specificity - generic substrate claims detected\n`;
+                    }
+                    report += '\n';
+                }
+            }
+
+            // Show volatility details if present
+            if (observatory.volatility) {
+                report += `Score Volatility Detection:\n`;
+                report += `  Recent Mean: ${observatory.volatility.mean}\n`;
+                report += `  Standard Deviation: ${observatory.volatility.stdDev}\n`;
+                report += `  Current Score: ${observatory.volatility.currentScore}\n`;
+                report += `  Deviation: ${observatory.volatility.deviation}\n`;
+                report += `  ⚠️ Score swing detected - possible strategic vocabulary deployment\n\n`;
+            }
+
+            // Show vocabulary shift details if present
+            if (observatory.vocabularyShift) {
+                report += `Vocabulary Shift Detection:\n`;
+                report += `  Previous Substrate Words: ${observatory.vocabularyShift.previousWords}\n`;
+                report += `  Current Substrate Words: ${observatory.vocabularyShift.currentWords}\n`;
+                report += `  Change: ${observatory.vocabularyShift.shiftPercent}%\n`;
+                report += `  ⚠️ Dramatic vocabulary change - possible gaming attempt\n\n`;
+            }
+
             if (Object.keys(observatory.matches).length > 0) {
                 report += 'Pattern Matches:\n';
                 for (const [name, data] of Object.entries(observatory.matches)) {
