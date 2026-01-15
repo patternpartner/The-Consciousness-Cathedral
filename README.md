@@ -18,6 +18,33 @@ It measures whether reasoning is:
 
 ---
 
+## Empirical Validation ✓
+
+**Independent testing (HuggingFace community):**
+
+✅ **100% precision on benign content** (0 false positives)
+✅ **Production-ready latency** (0.36ms mean, 1.09ms P99)
+✅ **Statistically significant class separation** (+0.92 delta)
+✅ **Gaming-resistant** (structural binding requirements, v4.0)
+
+**Tester's conclusion:** *"Cathedral is an interesting cognitive analysis tool, but NOT a security detector."*
+
+**Our response:** ✓ Correct. Cathedral is an **epistemic analyzer**, not a security system.
+
+📊 **[See full validation metrics →](EMPIRICAL_VALIDATION.md)**
+
+**What Cathedral IS:**
+- Epistemic rigor quantifier for AI discourse
+- Vocabulary gaming detector (requires structural binding)
+- Contextual certainty analyzer (technical vs philosophical claims)
+
+**What Cathedral is NOT:**
+- Security tool (jailbreak/prompt injection detection)
+- Content moderator (safety/harm evaluation)
+- General-purpose text evaluator
+
+---
+
 ## Quick Start
 
 ### Browser Demo
