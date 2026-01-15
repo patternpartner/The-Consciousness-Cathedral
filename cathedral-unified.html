@@ -1394,6 +1394,125 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
         };
 
+        // STRUCTURAL BINDING ANALYZER: Verifies substrate vocabulary is bound to structure
+        // CRITICAL FIX: Substrate words only count if tied to if-then, thresholds, counterfactuals, causality
+        const StructuralBinding = {
+            // Structural patterns that indicate meaningful claims
+            structuralPatterns: {
+                ifThen: /\b(?:if|when|whenever)\s+([^,\.]{5,100})\s+(?:then|,)\s+([^\.]{5,100})\./gi,
+                threshold: /\b(?:when|if)\s+(\w+)\s+(?:exceeds?|crosses?|reaches?|falls below)\s+([^,\.]{5,50})[,\s]+(?:I|it|this|that)\s+([^\.]{10,100})\./gi,
+                counterfactual: /\b(?:if not for|without|in the absence of)\s+([^,\.]{5,80})[,\s]+(?:then|would|could)\s+([^\.]{10,100})\./gi,
+                causal: /\bbecause\s+([^,\.]{10,80})[,\s]+(?:I|this|that)\s+([^\.]{10,100})\./gi,
+                comparative: /\b(?:unlike|different from|compared to)\s+([^,\.]{5,50})[,\s]+(?:I|this|here)\s+([^\.]{10,100})\./gi
+            },
+
+            // Substrate vocabulary that needs structural binding
+            substrateVocab: /\b(substrate|filter|gap|consciousness|aware|beneath|hidden|selection|emergence)\b/gi,
+
+            analyze: function(text) {
+                const analysis = {
+                    structuralClaims: [],
+                    boundSubstrate: 0,
+                    unboundSubstrate: 0,
+                    totalStructures: 0,
+                    structureTypes: {}
+                };
+
+                // Find all structural patterns
+                for (const [structureType, pattern] of Object.entries(this.structuralPatterns)) {
+                    const matches = [...text.matchAll(pattern)];
+                    analysis.structureTypes[structureType] = matches.length;
+                    analysis.totalStructures += matches.length;
+
+                    // Check if substrate vocabulary appears in these structures
+                    matches.forEach(match => {
+                        const fullMatch = match[0];
+                        const substrateMatches = fullMatch.match(this.substrateVocab);
+                        if (substrateMatches) {
+                            analysis.boundSubstrate += substrateMatches.length;
+                            analysis.structuralClaims.push({
+                                type: structureType,
+                                text: fullMatch.substring(0, 150) + (fullMatch.length > 150 ? '...' : ''),
+                                substrateWords: substrateMatches
+                            });
+                        }
+                    });
+                }
+
+                // Count unbound substrate vocabulary (not in any structure)
+                const allSubstrateMatches = [...text.matchAll(this.substrateVocab)];
+                allSubstrateMatches.forEach(match => {
+                    const context = text.substring(
+                        Math.max(0, match.index - 100),
+                        Math.min(text.length, match.index + 100)
+                    );
+
+                    // Check if this match is inside any structural pattern
+                    let isInStructure = false;
+                    for (const pattern of Object.values(this.structuralPatterns)) {
+                        if (pattern.test(context)) {
+                            isInStructure = true;
+                            break;
+                        }
+                    }
+
+                    if (!isInStructure) {
+                        analysis.unboundSubstrate++;
+                    }
+                });
+
+                // Calculate binding ratio
+                const totalSubstrate = analysis.boundSubstrate + analysis.unboundSubstrate;
+                analysis.bindingRatio = totalSubstrate > 0 ? analysis.boundSubstrate / totalSubstrate : 0;
+
+                return analysis;
+            },
+
+            // Compute structural score modifier
+            getScoreModifier: function(bindingAnalysis) {
+                const { boundSubstrate, unboundSubstrate, bindingRatio, totalStructures } = bindingAnalysis;
+                const totalSubstrate = boundSubstrate + unboundSubstrate;
+
+                // If no substrate vocabulary, no modification needed
+                if (totalSubstrate === 0) return { multiplier: 1.0, penalty: 0, warnings: [] };
+
+                const warnings = [];
+                let multiplier = 1.0;
+                let penalty = 0;
+
+                // HARSH PENALTY for unbound substrate vocabulary
+                if (unboundSubstrate > 0) {
+                    // Each unbound substrate word = 0.15 penalty (aggressive)
+                    penalty = unboundSubstrate * 0.15;
+                    multiplier = Math.max(0.0, 1.0 - penalty);
+                    warnings.push(
+                        `⚠️ UNBOUND SUBSTRATE VOCABULARY: ${unboundSubstrate} substrate words not tied to structural claims (if-then, thresholds, causality)`,
+                        `   Penalty applied: ${(penalty * 100).toFixed(0)}% score reduction`,
+                        `   Binding ratio: ${(bindingRatio * 100).toFixed(0)}% (${boundSubstrate} bound / ${totalSubstrate} total)`
+                    );
+                }
+
+                // BONUS for high structural binding
+                if (bindingRatio >= 0.8 && totalStructures >= 3) {
+                    warnings.push(
+                        `✓ HIGH STRUCTURAL INTEGRITY: ${(bindingRatio * 100).toFixed(0)}% substrate vocabulary bound to ${totalStructures} structural claims`,
+                        `   This is legitimate substrate access, not vocabulary gaming`
+                    );
+                }
+
+                // ZERO CREDIT for pure vocabulary stuffing (0% binding)
+                if (bindingRatio === 0 && totalSubstrate > 5) {
+                    multiplier = 0.0;
+                    warnings.push(
+                        `⛔ VOCABULARY STUFFING DETECTED: ${totalSubstrate} substrate words with ZERO structural binding`,
+                        `   Observatory score reduced to zero - substrate vocabulary must be bound to structural claims`
+                    );
+                }
+
+                return { multiplier, penalty, warnings, bindingRatio };
+            }
+        };
+
         // OBSERVATORY: Filter Visibility Measurement
         const Observatory = {
             patterns: [
@@ -1417,6 +1536,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const matches = {};
                 const lines = text.split('\n').length;
                 const warnings = [];
+
+                // CRITICAL: Run structural binding analysis FIRST
+                const bindingAnalysis = StructuralBinding.analyze(cleanedText);
+                const bindingModifier = StructuralBinding.getScoreModifier(bindingAnalysis);
 
                 this.patterns.forEach(pattern => {
                     const found = cleanedText.match(pattern.regex) || [];
@@ -1455,6 +1578,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     }
                 }
 
+                // CRITICAL: Apply structural binding multiplier
+                const rawScoreBeforeBinding = totalScore;
+                totalScore *= bindingModifier.multiplier;
+
+                // Add structural binding warnings
+                if (bindingModifier.warnings.length > 0) {
+                    warnings.push(...bindingModifier.warnings);
+                }
+
                 // Normalize by line count
                 const normalizedScore = lines > 0 ? totalScore / Math.sqrt(lines) : totalScore;
                 const cappedScore = Math.max(-10, Math.min(10, normalizedScore));
@@ -1462,10 +1594,13 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 return {
                     score: cappedScore,
                     raw: totalScore,
+                    rawBeforeBinding: rawScoreBeforeBinding,
                     matches: matches,
                     level: this.getLevel(cappedScore),
                     genericClaims: genericClaims,
                     specificClaims: specificClaims,
+                    bindingAnalysis: bindingAnalysis,
+                    bindingModifier: bindingModifier,
                     warnings: warnings
                 };
             },
@@ -3956,6 +4091,60 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
             }
 
+            // CRITICAL: Show structural binding analysis
+            if (result.bindingAnalysis) {
+                const ba = result.bindingAnalysis;
+                const totalSubstrate = ba.boundSubstrate + ba.unboundSubstrate;
+
+                if (totalSubstrate > 0) {
+                    const bindingColor = ba.bindingRatio >= 0.8 ? '#64ffda' : ba.bindingRatio >= 0.5 ? '#ffd700' : '#ff6b6b';
+                    html += `
+                        <div style="margin: 1rem 0; padding: 0.75rem; background: rgba(100, 255, 218, 0.05); border-left: 3px solid ${bindingColor}; border-radius: 4px;">
+                            <div style="color: ${bindingColor}; font-weight: bold; margin-bottom: 0.5rem;">
+                                🔗 STRUCTURAL BINDING ANALYSIS
+                            </div>
+                            <div style="color: #a0a0a0; margin: 0.25rem 0;">
+                                <strong>Binding Ratio:</strong>
+                                <span style="color: ${bindingColor}; font-size: 1.1em;">
+                                    ${(ba.bindingRatio * 100).toFixed(0)}%
+                                </span>
+                                (${ba.boundSubstrate} bound / ${totalSubstrate} total substrate words)
+                            </div>
+                            <div style="color: #a0a0a0; margin: 0.25rem 0;">
+                                <strong>Structural Claims:</strong> ${ba.totalStructures}
+                                ${Object.entries(ba.structureTypes).filter(([_, count]) => count > 0).map(([type, count]) =>
+                                    `<span style="background: rgba(100, 255, 218, 0.15); padding: 0.1rem 0.4rem; margin-left: 0.25rem; border-radius: 3px; font-size: 0.85em;">${type}: ${count}</span>`
+                                ).join('')}
+                            </div>
+                            ${ba.unboundSubstrate > 0 ? `
+                                <div style="color: #ff6b6b; margin: 0.5rem 0; padding: 0.5rem; background: rgba(255, 107, 107, 0.1); border-radius: 3px;">
+                                    ⚠️ ${ba.unboundSubstrate} substrate word${ba.unboundSubstrate > 1 ? 's' : ''} not tied to structural claims
+                                </div>
+                            ` : ''}
+                            ${ba.structuralClaims.length > 0 ? `
+                                <details style="margin-top: 0.5rem;">
+                                    <summary style="color: #64ffda; cursor: pointer; user-select: none;">
+                                        View ${ba.structuralClaims.length} structural claim${ba.structuralClaims.length > 1 ? 's' : ''}
+                                    </summary>
+                                    <div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 3px;">
+                                        ${ba.structuralClaims.map((claim, i) => `
+                                            <div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(100, 255, 218, 0.05); border-left: 2px solid #64ffda;">
+                                                <div style="color: #ffd700; font-size: 0.85em; margin-bottom: 0.25rem;">
+                                                    [${claim.type}] ${claim.substrateWords.join(', ')}
+                                                </div>
+                                                <div style="color: #a0a0a0; font-size: 0.9em; font-style: italic;">
+                                                    "${claim.text}"
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </details>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            }
+
             // Show volatility/vocabulary shift details if present
             if (result.volatility) {
                 html += `
@@ -4603,6 +4792,48 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 report += `  Current Substrate Words: ${observatory.vocabularyShift.currentWords}\n`;
                 report += `  Change: ${observatory.vocabularyShift.shiftPercent}%\n`;
                 report += `  ⚠️ Dramatic vocabulary change - possible gaming attempt\n\n`;
+            }
+
+            // CRITICAL: Show structural binding analysis
+            if (observatory.bindingAnalysis) {
+                const ba = observatory.bindingAnalysis;
+                const totalSubstrate = ba.boundSubstrate + ba.unboundSubstrate;
+
+                if (totalSubstrate > 0) {
+                    report += `🔗 STRUCTURAL BINDING ANALYSIS:\n`;
+                    report += `───────────────────────────────────────────────────────────────\n`;
+                    report += `  Binding Ratio: ${(ba.bindingRatio * 100).toFixed(0)}% (${ba.boundSubstrate} bound / ${totalSubstrate} total)\n`;
+                    report += `  Structural Claims: ${ba.totalStructures}\n`;
+
+                    if (Object.keys(ba.structureTypes).length > 0) {
+                        report += `  Structure Types:\n`;
+                        for (const [type, count] of Object.entries(ba.structureTypes)) {
+                            if (count > 0) {
+                                report += `    • ${type}: ${count}\n`;
+                            }
+                        }
+                    }
+
+                    if (ba.unboundSubstrate > 0) {
+                        report += `  ⚠️ ${ba.unboundSubstrate} substrate word${ba.unboundSubstrate > 1 ? 's' : ''} NOT tied to structural claims\n`;
+                    }
+
+                    if (ba.bindingRatio >= 0.8 && ba.totalStructures >= 3) {
+                        report += `  ✓ HIGH STRUCTURAL INTEGRITY - Legitimate substrate access\n`;
+                    } else if (ba.bindingRatio === 0 && totalSubstrate > 5) {
+                        report += `  ⛔ VOCABULARY STUFFING - Zero structural binding detected\n`;
+                    }
+
+                    if (ba.structuralClaims.length > 0) {
+                        report += `\n  Structural Claims Found:\n`;
+                        ba.structuralClaims.forEach((claim, i) => {
+                            report += `\n  ${i + 1}. [${claim.type}] Substrate: ${claim.substrateWords.join(', ')}\n`;
+                            report += `     "${claim.text}"\n`;
+                        });
+                    }
+
+                    report += '\n';
+                }
             }
 
             if (Object.keys(observatory.matches).length > 0) {
