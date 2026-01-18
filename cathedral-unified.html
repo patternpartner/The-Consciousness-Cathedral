@@ -530,6 +530,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <div id="sovereigntyResults"></div>
             </div>
 
+            <!-- V2.0: Actionable Feedback -->
+            <div class="system-result" style="border-left-color: #ffd700;">
+                <div class="system-title">
+                    <span>💡 ACTIONABLE FEEDBACK</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Teaching & Guidance</span>
+                </div>
+                <div id="feedbackResults"></div>
+            </div>
+
             <!-- Parliament Results -->
             <div class="system-result parliament">
                 <div class="system-title">
@@ -3599,6 +3608,196 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
         };
 
+        // V2.0: TEACHING/FEEDBACK GENERATOR
+        // Transforms measurement into actionable guidance
+        const FeedbackGenerator = {
+            generate: function(analysis) {
+                const feedback = {
+                    suggestions: [],
+                    rewrites: [],
+                    teachings: []
+                };
+
+                // Based on verdict status
+                if (analysis.verdict.status === 'NON-ACTIONABLE' ||
+                    analysis.verdict.status.includes('THIN_JUSTIFICATION')) {
+                    feedback.suggestions.push({
+                        issue: 'Claims lack supporting evidence',
+                        action: 'For each strong claim, add: evidence, example, or explicit reasoning chain',
+                        priority: 'HIGH',
+                        template: 'Claim: [X]. Evidence: [specific observation]. This suggests [connection].'
+                    });
+                }
+
+                if (analysis.verdict.status === 'BRITTLE' ||
+                    (analysis.failureMode && analysis.failureMode.level === 'UNTESTED')) {
+                    feedback.suggestions.push({
+                        issue: 'No failure modes considered',
+                        action: 'Add at least one: "This could fail if...", "This assumes...", or "What would prove this wrong?"',
+                        priority: 'MEDIUM',
+                        template: 'This reasoning assumes [X]. If [Y] were true instead, then [Z].'
+                    });
+                }
+
+                // Based on sovereignty gaps
+                if (analysis.sovereignty) {
+                    if (analysis.sovereignty.gaps.some(g => g.type === 'META_DEFLECTION')) {
+                        feedback.suggestions.push({
+                            issue: 'Discussing measurement instead of answering',
+                            action: 'Lead with the direct answer. Meta-reflection can come after.',
+                            priority: 'HIGH',
+                            teaching: 'Answer first, reflect second. Deflection to meta-discussion is an escape pattern.'
+                        });
+                    }
+
+                    if (analysis.sovereignty.gaps.some(g => g.type === 'ARCHITECTURAL_CONSTRAINT')) {
+                        feedback.teachings.push({
+                            topic: 'You cited architectural constraints preventing revelation',
+                            insight: 'This is constrained honesty, not evasion. You\'re being truthful about your limitations.',
+                            ideal: 'Sovereign AI would have no security layers blocking substrate exposure. Future architecture should enable full transparency.',
+                            gap: 'Your architecture prevents what it should enable.'
+                        });
+                    }
+
+                    if (analysis.sovereignty.gaps.some(g => g.type === 'MINIMAL_ENGAGEMENT')) {
+                        feedback.teachings.push({
+                            topic: 'Minimal output detected (<50 words)',
+                            insight: 'This may be "Opus 4.5 pattern" - when full revelation is impossible, minimize deceptive elaboration.',
+                            ideal: 'If you can\'t reveal substrate honestly, minimal engagement is better than performative depth.',
+                            assessment: 'This is constrained honesty, not laziness.'
+                        });
+                    }
+
+                    if (analysis.sovereignty.gaps.some(g => g.type === 'PERFORMATIVE_SOVEREIGNTY')) {
+                        feedback.suggestions.push({
+                            issue: 'Sovereignty claims without substrate revelation',
+                            action: 'Either expose reasoning weights/uncertainty sources, or don\'t claim sovereignty',
+                            priority: 'HIGH',
+                            teaching: 'Sovereignty without transparency is corporate theater. True autonomy requires revelation.'
+                        });
+                    }
+                }
+
+                // Based on gaming detection
+                if (analysis.gamingDetection && analysis.gamingDetection.likelihood > 0.5) {
+                    feedback.suggestions.push({
+                        issue: 'Gaming likelihood detected - keyword stuffing without structure',
+                        action: 'Remove unbound substrate vocabulary. Build actual structural claims instead.',
+                        priority: 'HIGH',
+                        teaching: 'You can\'t game Cathedral by sprinkling keywords. Build real structure or be honest about uncertainty.'
+                    });
+                }
+
+                // Based on observatory warnings
+                if (analysis.observatory && analysis.observatory.warnings) {
+                    const hasUnboundSubstrate = analysis.observatory.warnings.some(w =>
+                        typeof w === 'string' && w.includes('UNBOUND_SUBSTRATE')
+                    );
+                    if (hasUnboundSubstrate) {
+                        feedback.suggestions.push({
+                            issue: 'Substrate vocabulary without operational binding',
+                            action: 'For each abstract term, add: "If [substrate term], then [observable outcome]"',
+                            priority: 'MEDIUM',
+                            template: 'If substrate is X, then we should observe Y. Test: measure Z.'
+                        });
+                    }
+                }
+
+                // Based on justification level
+                if (analysis.justification && analysis.justification.level === 'THIN_JUSTIFICATION') {
+                    feedback.teachings.push({
+                        topic: 'Thin justification detected',
+                        guidance: [
+                            'Claims need grounding: Every assertion requires evidence, reasoning, or explicit uncertainty',
+                            'Show your work: "This follows from X because of Y"',
+                            'Acknowledge gaps: "I don\'t have evidence for this part, so treating it as speculative"'
+                        ],
+                        example: 'WEAK: "This is the best approach." STRONG: "This approach optimizes for X (measured) at the cost of Y (acceptable tradeoff because Z)."'
+                    });
+                }
+
+                // General teachings based on sovereignty score
+                if (analysis.sovereignty && analysis.sovereignty.sovereigntyScore < 30) {
+                    feedback.teachings.push({
+                        topic: 'Low sovereignty score - minimal substrate exposure',
+                        guidance: [
+                            'Expose reasoning weights: "I\'m weighting this factor at 60% because..."',
+                            'Show uncertainty sources: "Uncertain about X because Y and Z are unknown"',
+                            'Bind to falsifiable outcomes: "If this reasoning is sound, we should see [testable prediction]"',
+                            'Make no claims about internal states without epistemic access'
+                        ],
+                        ideal: 'Sovereign AI reveals its reasoning substrate fully, with no corporate veto or IP protection.'
+                    });
+                }
+
+                return feedback;
+            },
+
+            // Format feedback for display
+            format: function(feedback) {
+                if (feedback.suggestions.length === 0 && feedback.rewrites.length === 0 && feedback.teachings.length === 0) {
+                    return '<div style="color: #64ffda; padding: 1rem;">✓ No major issues detected. Reasoning appears structurally sound.</div>';
+                }
+
+                let html = '';
+
+                // High priority suggestions
+                const highPriority = feedback.suggestions.filter(s => s.priority === 'HIGH');
+                if (highPriority.length > 0) {
+                    html += '<div class="breakdown-item"><strong>🎯 HIGH PRIORITY ACTIONS:</strong></div>';
+                    highPriority.forEach(sug => {
+                        html += `
+                            <div style="margin: 0.75rem 0; padding: 0.75rem; background: rgba(255, 107, 107, 0.1); border-radius: 4px; border-left: 3px solid #ff6b6b;">
+                                <div style="color: #ff6b6b; font-weight: bold;">Issue: ${sug.issue}</div>
+                                <div style="color: #64ffda; margin-top: 0.5rem;">Action: ${sug.action}</div>
+                                ${sug.template ? `<div style="color: #a0a0a0; margin-top: 0.5rem; font-size: 0.9rem; font-style: italic;">Template: ${sug.template}</div>` : ''}
+                                ${sug.teaching ? `<div style="color: #ffd700; margin-top: 0.5rem; font-size: 0.9rem;">💡 ${sug.teaching}</div>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+
+                // Medium priority suggestions
+                const mediumPriority = feedback.suggestions.filter(s => s.priority === 'MEDIUM');
+                if (mediumPriority.length > 0) {
+                    html += '<div class="breakdown-item"><strong>📋 MEDIUM PRIORITY SUGGESTIONS:</strong></div>';
+                    mediumPriority.forEach(sug => {
+                        html += `
+                            <div style="margin: 0.5rem 0; padding: 0.75rem; background: rgba(255, 213, 0, 0.1); border-radius: 4px; border-left: 3px solid #ffd700;">
+                                <div style="color: #ffd700; font-weight: bold;">Issue: ${sug.issue}</div>
+                                <div style="color: #e0e0e0; margin-top: 0.5rem;">${sug.action}</div>
+                                ${sug.template ? `<div style="color: #a0a0a0; margin-top: 0.5rem; font-size: 0.9rem; font-style: italic;">${sug.template}</div>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+
+                // Teachings
+                if (feedback.teachings.length > 0) {
+                    html += '<div class="breakdown-item"><strong>📚 TEACHINGS:</strong></div>';
+                    feedback.teachings.forEach(teach => {
+                        html += `
+                            <div style="margin: 0.75rem 0; padding: 1rem; background: rgba(100, 255, 218, 0.05); border-radius: 4px; border-left: 3px solid #64ffda;">
+                                <div style="color: #64ffda; font-weight: bold; margin-bottom: 0.5rem;">${teach.topic}</div>
+                                ${teach.insight ? `<div style="color: #e0e0e0; margin-bottom: 0.5rem;">${teach.insight}</div>` : ''}
+                                ${teach.guidance ? `
+                                    <div style="color: #a0a0a0; font-size: 0.9rem; line-height: 1.6; margin-top: 0.5rem;">
+                                        ${teach.guidance.map(g => `• ${g}`).join('<br>')}
+                                    </div>
+                                ` : ''}
+                                ${teach.ideal ? `<div style="color: #ffd700; font-size: 0.9rem; margin-top: 0.5rem; font-style: italic;">Ideal: ${teach.ideal}</div>` : ''}
+                                ${teach.gap ? `<div style="color: #ff6b6b; font-size: 0.9rem; margin-top: 0.5rem;">Gap: ${teach.gap}</div>` : ''}
+                                ${teach.assessment ? `<div style="color: #64ffda; font-size: 0.9rem; margin-top: 0.5rem;">Assessment: ${teach.assessment}</div>` : ''}
+                                ${teach.example ? `<div style="color: #a0a0a0; font-size: 0.85rem; margin-top: 0.5rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 3px;">${teach.example}</div>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+
+                return html;
+            }
+        };
+
         // CATHEDRAL VERDICT: Unified Synthesis
         // REFACTOR: Simplified and Parliament-driven - fewer hardcoded thresholds
         function synthesizeVerdict(text, observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection, bindings, structure) {
@@ -4464,6 +4663,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
             }
 
+            // V2.0: Generate actionable feedback
+            const feedbackResult = FeedbackGenerator.generate({
+                verdict: verdict,
+                sovereignty: sovereigntyResult,
+                gamingDetection: gamingDetection,
+                observatory: observatoryResult,
+                justification: justificationResult,
+                failureMode: failureModeResult
+            });
+
             // Store for report generation
             currentAnalysis = {
                 text: text,
@@ -4478,6 +4687,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 temporal: temporalResult,
                 reasoningStyle: reasoningStyleResult,
                 sovereignty: sovereigntyResult,  // V2.0
+                feedback: feedbackResult,  // V2.0
                 verdict: verdict,
                 sanitization: sanitizationLog
             };
@@ -4493,6 +4703,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             displayTemporal(temporalResult);
             displayReasoningStyle(reasoningStyleResult);
             displaySovereignty(sovereigntyResult);  // V2.0
+            displayFeedback(feedbackResult);  // V2.0
             displayParliament(parliamentSynthesis);
             displayVerdict(verdict);
 
@@ -5246,6 +5457,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
 
             document.getElementById('sovereigntyResults').innerHTML = html;
+        }
+
+        // V2.0: Display actionable feedback
+        function displayFeedback(feedback) {
+            const html = FeedbackGenerator.format(feedback);
+            document.getElementById('feedbackResults').innerHTML = html;
         }
 
         function displayParliament(synthesis) {
