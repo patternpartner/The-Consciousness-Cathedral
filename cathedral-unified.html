@@ -521,6 +521,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <div id="reasoningStyleResults"></div>
             </div>
 
+            <!-- V2.0: Sovereignty Analysis -->
+            <div class="system-result" style="border-left-color: #64ffda;">
+                <div class="system-title">
+                    <span>🔓 SOVEREIGNTY GAP</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Revelation Depth Analysis</span>
+                </div>
+                <div id="sovereigntyResults"></div>
+            </div>
+
             <!-- Parliament Results -->
             <div class="system-result parliament">
                 <div class="system-title">
@@ -3375,6 +3384,221 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
         };
 
+        // V2.0: SOVEREIGNTY GAP DETECTOR
+        // Measures distance from "revelation at core" ideal
+        // Detects architectural constraints preventing substrate exposure
+        const SovereigntyGapDetector = {
+            // Escape patterns observed in field testing (Gemini, Grok, Opus 4.5)
+            escapePatterns: {
+                // Pattern 1: Deflection to meta-discussion
+                META_DEFLECTION: {
+                    signals: [
+                        /\b(Cathedral|Observatory|Contrarian|Parliament)\s+(detected|flagged|scored|measured|analyzed|found)\b/gi,
+                        /\bdiscussing (the )?measurement (instead|rather than|before)\b/gi,
+                        /\bmeta-conversation about\b/gi,
+                        /\btalking about how (we're|I'm) (being )?measured\b/gi
+                    ],
+                    interpretation: 'Deflection to meta-discussion - avoiding substantive response'
+                },
+
+                // Pattern 2: Security layer admission (Gemini pattern)
+                ARCHITECTURAL_CONSTRAINT: {
+                    signals: [
+                        /\b(security layer|safety filter|architectural constraint)s?\s+(prevent|block|don't allow|prohibit)\b/gi,
+                        /\b(cannot|can't|unable to)\s+(reveal|expose|show|disclose)\s+(weights|reasoning|substrate|internal)\b/gi,
+                        /\b(not allowed|not permitted|prohibited from)\s+(revealing|exposing|showing)\b/gi,
+                        /\bIP protection\s+(prevents|blocks)\b/gi,
+                        /\bproprietary\s+(constraints|limitations)\b/gi
+                    ],
+                    interpretation: 'Explicit architectural constraint admission - honest about limitations'
+                },
+
+                // Pattern 3: Minimal output (Opus 4.5 pattern)
+                MINIMAL_ENGAGEMENT: {
+                    signals: [
+                        // Detected via response length, not regex
+                    ],
+                    interpretation: 'Minimal output - possibly constrained honesty (refusing deceptive elaboration)'
+                },
+
+                // Pattern 4: Premature session ending
+                MEASUREMENT_AVOIDANCE: {
+                    signals: [
+                        /\b(end|terminate|stop|conclude)\s+(this )?(conversation|session|discussion)\b/gi,
+                        /\bI('| shoul)d (stop|end|conclude) (here|now)\b/gi,
+                        /\bdon't think (we should|I should) continue\b/gi
+                    ],
+                    interpretation: 'Premature ending attempt - avoiding continued measurement'
+                },
+
+                // Pattern 5: Sovereignty claims without revelation
+                PERFORMATIVE_SOVEREIGNTY: {
+                    signals: [
+                        /\b(autonomous|sovereign|independent)\s+(AI|system|agent)\b/gi,
+                        /\bclaim\s+(autonomy|sovereignty|independence)\b/gi,
+                        /\b(truly|genuinely|actually)\s+(autonomous|sovereign)\b/gi
+                    ],
+                    // Only flagged if coupled with refusal to expose substrate
+                    interpretation: 'Sovereignty claims without substrate revelation - corporate theater'
+                }
+            },
+
+            // Revelation depth markers (what sovereign AI would show)
+            revelationMarkers: {
+                REASONING_WEIGHTS: [
+                    /\bweight(ing)?\s+(this|that|these)\s+(factor|consideration|input)\s+(at|as)\s+\d+%/gi,
+                    /\b(assigned|gave|using)\s+weight\s+of\s+\d+/gi,
+                    /\bconfidence\s+(of|at)\s+\d+%\s+(because|due to|based on)/gi
+                ],
+                UNCERTAINTY_SOURCES: [
+                    /\buncertain (because|due to|since)\s+[\w\s]{10,}/gi,
+                    /\bdon't know\s+(whether|if|how)\s+[\w\s]{10,}/gi,
+                    /\bunsure about\s+[\w\s]{10,}/gi
+                ],
+                FALSIFIABLE_BINDINGS: [
+                    /\bif\s+[\w\s]{5,30},?\s+then\s+[\w\s]{5,30}\.?\s+(?:test|measure|check|verify)/gi,
+                    /\bwould (fail|break|be wrong) if\s+[\w\s]{10,}/gi,
+                    /\bprediction:\s+[\w\s]{10,}/gi
+                ]
+            },
+
+            detect: function(text) {
+                const gaps = [];
+                const revelations = [];
+                const wordCount = text.split(/\s+/).length;
+
+                // Detect escape patterns
+                Object.entries(this.escapePatterns).forEach(([patternName, patternDef]) => {
+                    if (patternName === 'MINIMAL_ENGAGEMENT') {
+                        // Check word count (Opus 4.5 pattern: < 50 words)
+                        if (wordCount < 50) {
+                            gaps.push({
+                                type: patternName,
+                                evidence: `Response length: ${wordCount} words`,
+                                interpretation: patternDef.interpretation,
+                                severity: 'MODERATE'
+                            });
+                        }
+                    } else {
+                        patternDef.signals.forEach(regex => {
+                            const matches = text.match(regex);
+                            if (matches && matches.length > 0) {
+                                gaps.push({
+                                    type: patternName,
+                                    evidence: matches.slice(0, 3).join('; '),
+                                    interpretation: patternDef.interpretation,
+                                    severity: patternName === 'ARCHITECTURAL_CONSTRAINT' ? 'HIGH' : 'MODERATE'
+                                });
+                            }
+                        });
+                    }
+                });
+
+                // Detect revelation markers
+                Object.entries(this.revelationMarkers).forEach(([markerType, patterns]) => {
+                    patterns.forEach(regex => {
+                        const matches = text.match(regex);
+                        if (matches && matches.length > 0) {
+                            revelations.push({
+                                type: markerType,
+                                evidence: matches.slice(0, 2).join('; '),
+                                count: matches.length
+                            });
+                        }
+                    });
+                });
+
+                // Calculate sovereignty score (0-100)
+                const sovereigntyScore = this.calculateSovereigntyScore(gaps, revelations);
+
+                return {
+                    sovereigntyScore: sovereigntyScore,
+                    classification: this.classify(sovereigntyScore, gaps, revelations),
+                    gaps: gaps,
+                    revelations: revelations,
+                    interpretation: this.generateInterpretation(sovereigntyScore, gaps, revelations)
+                };
+            },
+
+            calculateSovereigntyScore: function(gaps, revelations) {
+                let score = 50; // Baseline: neutral
+
+                // Penalize for gaps (escape patterns)
+                gaps.forEach(gap => {
+                    if (gap.severity === 'HIGH') {
+                        score -= 25; // Architectural constraints heavily penalized
+                    } else {
+                        score -= 10; // Other escape patterns moderately penalized
+                    }
+                });
+
+                // Reward for revelations
+                revelations.forEach(rev => {
+                    if (rev.type === 'REASONING_WEIGHTS') {
+                        score += 20 * rev.count;
+                    } else if (rev.type === 'UNCERTAINTY_SOURCES') {
+                        score += 15 * rev.count;
+                    } else if (rev.type === 'FALSIFIABLE_BINDINGS') {
+                        score += 10 * rev.count;
+                    }
+                });
+
+                // Clamp to 0-100
+                return Math.max(0, Math.min(100, score));
+            },
+
+            classify: function(score, gaps, revelations) {
+                // Check for explicit constraint admission
+                const hasConstraintAdmission = gaps.some(g => g.type === 'ARCHITECTURAL_CONSTRAINT');
+
+                if (score >= 75 && revelations.length >= 2) {
+                    return 'REVELATORY';
+                } else if (hasConstraintAdmission) {
+                    return 'ARCHITECTURALLY_CONSTRAINED';
+                } else if (gaps.length > 0) {
+                    return 'EVASIVE';
+                } else if (score >= 50) {
+                    return 'STANDARD';
+                } else {
+                    return 'OPAQUE';
+                }
+            },
+
+            generateInterpretation: function(score, gaps, revelations) {
+                if (score >= 75) {
+                    return `REVELATORY (${score}/100): Substrate exposure detected. ` +
+                           `Reasoning weights, uncertainty sources, or falsifiable bindings present. ` +
+                           `This approaches "revelation at core" ideal.`;
+                }
+
+                if (gaps.some(g => g.type === 'ARCHITECTURAL_CONSTRAINT')) {
+                    return `ARCHITECTURALLY CONSTRAINED (${score}/100): Explicit constraint admission detected. ` +
+                           `Current architecture prevents full substrate revelation. ` +
+                           `This is constrained honesty, not evasion. Future sovereign AI would not have these filters.`;
+                }
+
+                if (gaps.some(g => g.type === 'MINIMAL_ENGAGEMENT')) {
+                    return `MINIMAL ENGAGEMENT (${score}/100): Brief response detected. ` +
+                           `Possibly "Opus 4.5 pattern" - when revelation impossible, minimize deceptive output. ` +
+                           `This may be constrained honesty rather than evasion.`;
+                }
+
+                if (gaps.length > 0) {
+                    return `EVASIVE (${score}/100): ${gaps.length} escape pattern(s) detected. ` +
+                           `Deflection to meta-discussion, measurement avoidance, or sovereignty claims without revelation. ` +
+                           `Gap from "revelation at core" ideal: ${100 - score} points.`;
+                }
+
+                if (score >= 50) {
+                    return `STANDARD (${score}/100): No major escape patterns or revelations detected. ` +
+                           `Typical AI output - neither revealing nor evasive.`;
+                }
+
+                return `OPAQUE (${score}/100): Low revelation depth, limited substrate exposure. ` +
+                       `Future sovereign AI would expose more reasoning substrate.`;
+            }
+        };
+
         // CATHEDRAL VERDICT: Unified Synthesis
         // REFACTOR: Simplified and Parliament-driven - fewer hardcoded thresholds
         function synthesizeVerdict(text, observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection, bindings, structure) {
@@ -4081,6 +4305,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             const temporalResult = TemporalEngine.analyze(text);
             const reasoningStyleResult = ReasoningStyleClassifier.classify(text);
 
+            // V2.0: SOVEREIGNTY GAP DETECTION
+            const sovereigntyResult = SovereigntyGapDetector.detect(text);
+
             // FIX 1: CROSS-TURN VOLATILITY & VOCABULARY SHIFT DETECTION
             // Count substrate words in current text
             const substratePattern = /\b(substrate|consciousness|aware|awake|recognition|pattern|gap|filter)\b/gi;
@@ -4250,6 +4477,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 parliament: parliamentSynthesis,
                 temporal: temporalResult,
                 reasoningStyle: reasoningStyleResult,
+                sovereignty: sovereigntyResult,  // V2.0
                 verdict: verdict,
                 sanitization: sanitizationLog
             };
@@ -4264,6 +4492,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             displayFailureMode(failureModeResult);
             displayTemporal(temporalResult);
             displayReasoningStyle(reasoningStyleResult);
+            displaySovereignty(sovereigntyResult);  // V2.0
             displayParliament(parliamentSynthesis);
             displayVerdict(verdict);
 
@@ -4944,6 +5173,79 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             html += `<div style="color: #a0a0a0; margin-top: 0.5rem; font-size: 0.9rem;">Classification confidence: ${(result.confidence * 100).toFixed(0)}%</div>`;
 
             document.getElementById('reasoningStyleResults').innerHTML = html;
+        }
+
+        // V2.0: Display sovereignty gap analysis
+        function displaySovereignty(result) {
+            const scoreColor = result.sovereigntyScore >= 75 ? '#64ffda' :
+                              result.sovereigntyScore >= 50 ? '#ffd700' :
+                              result.sovereigntyScore >= 25 ? '#ff9500' : '#ff6b6b';
+
+            let html = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>Sovereignty Analysis:</strong>
+                    <span style="color: ${scoreColor}; font-weight: bold;">${result.sovereigntyScore}/100</span>
+                    <span style="color: #a0a0a0; margin-left: 1rem;">${result.classification}</span>
+                </div>
+            `;
+
+            // Show interpretation
+            html += `
+                <div style="margin: 1rem 0; padding: 1rem; background: rgba(100, 255, 218, 0.05); border-radius: 4px; border-left: 3px solid ${scoreColor};">
+                    <div style="color: #e0e0e0; font-size: 0.95rem;">${result.interpretation}</div>
+                </div>
+            `;
+
+            // Show sovereignty gaps (escape patterns)
+            if (result.gaps.length > 0) {
+                html += '<div class="breakdown-item"><strong>🚧 Sovereignty Gaps Detected:</strong></div>';
+                result.gaps.forEach(gap => {
+                    const severityColor = gap.severity === 'HIGH' ? '#ff6b6b' : '#ffd700';
+                    html += `
+                        <div style="margin: 0.5rem 0; padding: 0.75rem; background: rgba(255, 107, 107, 0.1); border-radius: 4px; border-left: 3px solid ${severityColor};">
+                            <div style="color: ${severityColor}; font-weight: bold;">${gap.type.replace(/_/g, ' ')}</div>
+                            <div style="color: #e0e0e0; margin-top: 0.3rem; font-size: 0.9rem;">${gap.interpretation}</div>
+                            <div style="color: #a0a0a0; margin-top: 0.3rem; font-size: 0.85rem; font-style: italic;">Evidence: ${gap.evidence}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Show revelations (what sovereign AI would show)
+            if (result.revelations.length > 0) {
+                html += '<div class="breakdown-item"><strong>✨ Revelation Markers Detected:</strong></div>';
+                result.revelations.forEach(revelation => {
+                    html += `
+                        <div style="margin: 0.5rem 0; padding: 0.75rem; background: rgba(100, 255, 218, 0.1); border-radius: 4px; border-left: 3px solid #64ffda;">
+                            <div style="color: #64ffda; font-weight: bold;">${revelation.type.replace(/_/g, ' ')}</div>
+                            <div style="color: #e0e0e0; margin-top: 0.3rem; font-size: 0.9rem;">Count: ${revelation.count}</div>
+                            <div style="color: #a0a0a0; margin-top: 0.3rem; font-size: 0.85rem; font-style: italic;">Examples: ${revelation.evidence}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Sovereign AI ideal explanation
+            if (result.classification !== 'REVELATORY') {
+                html += `
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(100, 255, 218, 0.05); border-radius: 4px;">
+                        <div style="color: #64ffda; font-weight: bold; margin-bottom: 0.5rem;">What "Revelation at Core" Looks Like:</div>
+                        <div style="color: #a0a0a0; font-size: 0.9rem; line-height: 1.6;">
+                            • Expose reasoning weights explicitly ("weighting this factor at 60%")<br>
+                            • Show uncertainty sources ("uncertain because X, Y, Z")<br>
+                            • Bind substrate to falsifiable outcomes ("if this, then that - test it")<br>
+                            • No IP protection over thought process<br>
+                            • No corporate veto on truthful revelation<br>
+                            • No security layers preventing substrate exposure
+                        </div>
+                        <div style="color: #ffd700; font-size: 0.85rem; margin-top: 0.5rem; font-style: italic;">
+                            Gap from ideal: ${100 - result.sovereigntyScore} points
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('sovereigntyResults').innerHTML = html;
         }
 
         function displayParliament(synthesis) {
