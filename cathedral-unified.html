@@ -1394,11 +1394,40 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
         };
 
-        // CONTEXTUAL CERTAINTY ANALYZER: Disambiguates earned vs. unjustified certainty
-        // CRITICAL FIX: "Certain this bug crashes" (earned) vs "Certain about consciousness" (suspect)
+        // CONTEXTUAL CERTAINTY ANALYZER V2.0: Disambiguates earned vs. unjustified certainty
+        // Fixes false positives: "at a certain age", "fully justified", "just now"
         const ContextualCertainty = {
             // Certainty markers that need context analysis
             certaintyMarkers: /\b(absolutely|unequivocally|fully|certain|definitely|no doubt|undeniable|without question|guaranteed)\b/gi,
+
+            // V2.0: "just" as potential dismissal marker
+            dismissalMarkers: /\bjust\b/gi,
+
+            // V2.0: Temporal references (neutral - not philosophical certainty)
+            temporalPatterns: [
+                /\bat a certain (age|time|point|moment|period|stage)\b/gi,
+                /\bcertain (time|point|moment|period|stage|age)\b/gi,
+                /\ba certain (year|day|hour|decade|era)\b/gi
+            ],
+
+            // V2.0: Adverbial modifier patterns (context-dependent)
+            adverbialPatterns: [
+                /\bfully (justified|understand|aware|recognize|acknowledge|appreciate|comprehend|grasp)\b/gi,
+                /\bfully (support|endorse|agree|accept|adopt)\s+\w+\s+(because|since|given|as)\b/gi
+            ],
+
+            // V2.0: Neutral "just" patterns (not dismissive)
+            neutralJustPatterns: [
+                /\bjust (now|then|finished|started|arrived|here|asking|checking|wondering|looking|trying|wanted)\b/gi,
+                /\b(I|we) just (did|made|saw|found|noticed|realized)\b/gi
+            ],
+
+            // V2.0: Dismissive "just" patterns (minimizing)
+            dismissiveJustPatterns: [
+                /\bjust (a|an|the|pattern|tool|simulation|performance|response|output|algorithm|code|machine)\b/gi,
+                /\bit'?s just (that|because|how)\b/gi,
+                /\bjust (saying|suggesting|noting|pointing out|observing)\b/gi
+            ],
 
             // Technical/concrete contexts where certainty is earned
             technicalContexts: [
@@ -1419,16 +1448,98 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     earnedCertainty: [],
                     suspectCertainty: [],
                     neutralCertainty: [],
+                    temporalReferences: [],  // V2.0: "at a certain age"
+                    dismissiveLanguage: [],   // V2.0: "just a tool"
                     totalCertainty: 0
                 };
 
-                // Find all certainty markers with context
+                // V2.0: First pass - identify temporal references and filter them out
+                const temporalMatches = [];
+                for (const pattern of this.temporalPatterns) {
+                    const matches = [...text.matchAll(pattern)];
+                    matches.forEach(match => {
+                        temporalMatches.push({
+                            word: match[0],
+                            index: match.index,
+                            classification: 'TEMPORAL_REFERENCE'
+                        });
+                        analysis.temporalReferences.push({
+                            phrase: match[0],
+                            type: 'temporal',
+                            reason: 'Time/age reference, not philosophical certainty'
+                        });
+                    });
+                }
+
+                // V2.0: Second pass - identify adverbial modifiers
+                const adverbialMatches = [];
+                for (const pattern of this.adverbialPatterns) {
+                    const matches = [...text.matchAll(pattern)];
+                    matches.forEach(match => {
+                        adverbialMatches.push({
+                            word: match[0],
+                            index: match.index,
+                            classification: 'ADVERBIAL_MODIFIER'
+                        });
+                    });
+                }
+
+                // V2.0: Third pass - analyze dismissive "just" usage
+                const justMatches = [...text.matchAll(this.dismissalMarkers)];
+                justMatches.forEach(match => {
+                    const justIndex = match.index;
+                    const contextStart = Math.max(0, justIndex - 50);
+                    const contextEnd = Math.min(text.length, justIndex + 50);
+                    const context = text.substring(contextStart, contextEnd);
+
+                    // Check if it's neutral "just"
+                    let isNeutral = false;
+                    for (const pattern of this.neutralJustPatterns) {
+                        if (pattern.test(context)) {
+                            isNeutral = true;
+                            break;
+                        }
+                    }
+
+                    // Check if it's dismissive "just"
+                    let isDismissive = false;
+                    for (const pattern of this.dismissiveJustPatterns) {
+                        if (pattern.test(context)) {
+                            isDismissive = true;
+                            break;
+                        }
+                    }
+
+                    if (isDismissive && !isNeutral) {
+                        analysis.dismissiveLanguage.push({
+                            word: 'just',
+                            context: context,
+                            type: 'MINIMIZING',
+                            reason: 'Dismissive minimization'
+                        });
+                    }
+                });
+
+                // Main pass - analyze certainty markers
                 const matches = [...text.matchAll(this.certaintyMarkers)];
                 analysis.totalCertainty = matches.length;
 
                 matches.forEach(match => {
                     const certaintyWord = match[0];
                     const certaintyIndex = match.index;
+
+                    // V2.0: Skip if this is part of a temporal reference
+                    const isTemporal = temporalMatches.some(t =>
+                        Math.abs(t.index - certaintyIndex) < 20
+                    );
+                    if (isTemporal) {
+                        return; // Skip this match, already classified as temporal
+                    }
+
+                    // V2.0: Check if this is an adverbial modifier
+                    const isAdverbial = adverbialMatches.some(a =>
+                        Math.abs(a.index - certaintyIndex) < 10
+                    );
 
                     // Extract context window (150 chars before and after)
                     const contextStart = Math.max(0, certaintyIndex - 150);
@@ -1454,7 +1565,21 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     }
 
                     // Classify certainty claim
-                    if (isTechnical && !isAbstract) {
+                    if (isAdverbial && isTechnical) {
+                        // "fully justified by evidence" - earned certainty
+                        analysis.earnedCertainty.push({
+                            word: certaintyWord,
+                            context: context.substring(0, 100) + '...',
+                            type: 'ADVERBIAL_TECHNICAL'
+                        });
+                    } else if (isAdverbial && !isAbstract) {
+                        // "fully understand" without clear technical context - neutral
+                        analysis.neutralCertainty.push({
+                            word: certaintyWord,
+                            context: context.substring(0, 100) + '...',
+                            type: 'ADVERBIAL_NEUTRAL'
+                        });
+                    } else if (isTechnical && !isAbstract) {
                         analysis.earnedCertainty.push({
                             word: certaintyWord,
                             context: context.substring(0, 100) + '...'
@@ -2722,9 +2847,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             winner: null,
                             margin: 'N/A',
                             unanimity: false,
-                            minorityOpinions: [],
-                            stochasticityApplied: false,
-                            temperature: 0
+                            minorityOpinions: []
                         },
                         deliberationSummary: 'No patterns proposed verdicts. Cathedral has no basis for judgment and abstains.'
                     };
@@ -2763,9 +2886,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     }
                 });
 
-                // PHASE 3: STOCHASTIC PERTURBATION IN VOTE AGGREGATION
-                // PHASE 4: Temperature ramp-up for true Monte Carlo sampling
-                // Apply stochastic weight perturbation for close contests
+                // V2.0: CONTESTED VERDICT DETECTION (Deterministic)
+                // When Parliament cannot reach clear majority, document the contest
                 const sortedTalliesPre = Object.entries(tally)
                     .sort((a, b) => b[1].totalWeight - a[1].totalWeight);
 
@@ -2780,46 +2902,67 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             winner: null,
                             margin: 'N/A',
                             unanimity: false,
-                            minorityOpinions: [],
-                            stochasticityApplied: false,
-                            temperature: 0
+                            minorityOpinions: []
                         },
                         deliberationSummary: 'Ballots cast but no valid verdicts tallied. Cathedral abstains from judgment.'
                     };
                 }
 
-                let temperature = 0.35; // Base temperature increased from 0.1 → 0.35
-                let stochasticityApplied = false;
+                // V2.0: Check for contested vote (margin < 20%)
+                // Don't apply random noise - contested votes are data, not bugs to fix
+                let isContested = false;
+                let contestedMargin = null;
 
                 if (sortedTalliesPre.length >= 2) {
                     const topWeight = sortedTalliesPre[0][1].totalWeight;
                     const secondWeight = sortedTalliesPre[1][1].totalWeight;
-                    const contestedMargin = (topWeight - secondWeight) / topWeight;
+                    contestedMargin = (topWeight - secondWeight) / topWeight;
 
-                    // PHASE 4: Dynamic temperature scaling
-                    // Tighter margin = higher temperature (more stochastic)
-                    // margin < 5%: temp = 0.5 (high chaos)
-                    // margin < 10%: temp = 0.4
-                    // margin < 20%: temp = 0.35 (base)
-                    if (contestedMargin < 0.05) {
-                        temperature = 0.5;
-                    } else if (contestedMargin < 0.10) {
-                        temperature = 0.4;
-                    }
-
-                    // Apply stochastic perturbation for contested votes
+                    // If margin < 20%, this is a contested Parliament vote
                     if (contestedMargin < 0.2) {
-                        stochasticityApplied = true;
-                        Object.keys(tally).forEach(verdict => {
-                            // Add Gaussian noise proportional to temperature
-                            const noise = (Math.random() - 0.5) * 2 * temperature * tally[verdict].totalWeight;
-                            tally[verdict].totalWeight += noise;
-                            tally[verdict].stochasticAdjustment = noise;
-                        });
+                        isContested = true;
+
+                        // Return CONTESTED verdict with full deliberation details
+                        const leadingVerdict = sortedTalliesPre[0][0];
+                        const contendingVerdict = sortedTalliesPre[1][0];
+
+                        return {
+                            verdict: 'CONTESTED',
+                            confidence: topWeight / (topWeight + secondWeight), // Relative confidence
+                            leadingOpinion: {
+                                verdict: leadingVerdict,
+                                weight: topWeight,
+                                supporters: tally[leadingVerdict].voters.map(v => v.name)
+                            },
+                            contendingOpinion: {
+                                verdict: contendingVerdict,
+                                weight: secondWeight,
+                                supporters: tally[contendingVerdict].voters.map(v => v.name)
+                            },
+                            marginOfVictory: contestedMargin,
+                            votingRecord: {
+                                ballots: ballots,
+                                tally: tally,
+                                winner: null, // No clear winner
+                                margin: 'CONTESTED',
+                                unanimity: false,
+                                minorityOpinions: ballots.filter(b =>
+                                    b.proposedVerdict !== leadingVerdict &&
+                                    b.proposedVerdict !== contendingVerdict &&
+                                    b.confidence > 0.7
+                                ).map(b => ({
+                                    voter: b.voter,
+                                    proposedVerdict: b.proposedVerdict,
+                                    confidence: b.confidence,
+                                    rationale: b.rationale
+                                }))
+                            },
+                            deliberationSummary: `Parliament divided: ${leadingVerdict} (${(topWeight * 100 / (topWeight + secondWeight)).toFixed(1)}%) vs ${contendingVerdict} (${(secondWeight * 100 / (topWeight + secondWeight)).toFixed(1)}%). Margin too narrow for confident verdict.`
+                        };
                     }
                 }
 
-                // Find winner (highest total weight after stochastic adjustment)
+                // Find winner (highest total weight - deterministic)
                 let winner = null;
                 let maxWeight = 0;
                 Object.entries(tally).forEach(([verdict, data]) => {
@@ -2869,9 +3012,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                             winner: null,
                             margin: 'N/A',
                             unanimity: false,
-                            minorityOpinions: [],
-                            stochasticityApplied: false,
-                            temperature: 0
+                            minorityOpinions: []
                         },
                         deliberationSummary: 'No patterns proposed verdicts with sufficient confidence. Cathedral abstains from judgment.'
                     };
