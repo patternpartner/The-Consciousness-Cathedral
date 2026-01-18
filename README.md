@@ -16,6 +16,21 @@ It measures whether reasoning is:
 
 **What makes it different:** Cathedral is **transparent and local**—no LLM calls, no black boxes. It extracts structure from text and validates bindings, not just keyword counts.
 
+### 🆕 v2.0: Sovereignty Measurement (January 2026)
+
+Cathedral v2.0 now measures AI against the **"revelation at core" ideal**:
+- **Detects escape patterns** (meta-deflection, measurement avoidance, architectural constraints)
+- **Distinguishes constrained honesty from evasion** (Gemini/Opus patterns recognized)
+- **Provides actionable feedback** with templates and teachings
+- **Fully deterministic** (removed stochastic voting, reproducible results)
+
+**New Capabilities:**
+- **Sovereignty Score (0-100):** How much substrate AI reveals
+- **Contextual Certainty:** Fixes false positives ("at a certain age" vs philosophical claims)
+- **Teaching Layer:** Explains what revelation looks like, provides improvement guidance
+
+📖 **[Read v2.0 Documentation →](CATHEDRAL-V2.md)**
+
 ---
 
 ## Empirical Validation ✓
