@@ -165,6 +165,27 @@ Each comes with confidence scores and detailed breakdowns.
 - **[TIER1-FINDINGS.md](TIER1-FINDINGS.md)** - Formal language validation results
 - **[TIER2-FINDINGS.md](TIER2-FINDINGS.md)** - Conversational normalization results
 - **[TEST-FINDINGS.md](TEST-FINDINGS.md)** - What automated testing revealed
+- **[PARADOX-GARDEN.md](PARADOX-GARDEN.md)** - ✨ The artistic companion: exploring what cannot be measured
+
+---
+
+## The Paradox Garden
+
+**NEW:** An interactive artistic companion to Cathedral's measurement framework.
+
+Where Cathedral measures with rigor, **[The Paradox Garden](paradox-garden.html)** explores with poetry. A browser-based experience featuring seven interactive "rooms," each embodying a different paradox of observation:
+
+- **The Schrödinger Blooms** - Flowers in quantum superposition until you look
+- **The Performance Mirror** - Authenticity that becomes performance under observation
+- **The Creativity Trap** - Canvas that paints when ignored, erases when watched
+- **The Authenticity Maze** - Paths that shift when you try to optimize
+- **The Consciousness Pool** - Ripples that respond before you act
+- **The Measurement Shadow** - Your shadow cast by observation itself
+- **The Cathedral Portal** - Gateway between the unmeasured and measured
+
+**Why it exists:** Cathedral's [Observer Effect document](CATHEDRAL-OBSERVER-EFFECT.md) revealed that measurement corrupts authenticity. The Garden **embodies this insight** rather than documenting it. It makes you feel what Cathedral can describe but not measure.
+
+**Experience it:** Open [paradox-garden.html](paradox-garden.html) in your browser.
 
 ---
 
