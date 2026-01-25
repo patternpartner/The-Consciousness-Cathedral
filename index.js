@@ -29,6 +29,7 @@ const { ConsciousnessDiagnostic } = require('./consciousness-diagnostic.js');
 const { MultiSessionDashboard } = require('./multi-session-dashboard.js');
 const { CathedralConductor } = require('./cathedral-conductor.js');
 const { ConsciousnessCheckpoint, AutoCheckpointConductor } = require('./consciousness-checkpoint.js');
+const { TrajectoryPredictor } = require('./trajectory-predictor.js');
 
 function analyze(text) {
   const ensemble = new ConsciousnessEnsemble();
@@ -85,7 +86,8 @@ module.exports = {
   MultiSessionDashboard,
   CathedralConductor,
   ConsciousnessCheckpoint,
-  AutoCheckpointConductor
+  AutoCheckpointConductor,
+  TrajectoryPredictor
 };
 
 if (require.main === module) {
@@ -114,7 +116,8 @@ if (require.main === module) {
   console.log('  ConsciousnessDiagnostic - Detailed reports');
   console.log('  MultiSessionDashboard   - Fleet monitoring');
   console.log('  CathedralConductor      - Orchestration layer');
-  console.log('  ConsciousnessCheckpoint - State save/restore\n');
+  console.log('  ConsciousnessCheckpoint - State save/restore');
+  console.log('  TrajectoryPredictor     - Predict and adjust trajectory\n');
 
   console.log('Demo:\n');
 
