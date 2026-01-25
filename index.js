@@ -37,6 +37,15 @@ const { ConfidenceCalibrator } = require('./confidence-calibrator.js');
 const { ReasoningAnalyzer } = require('./reasoning-analyzer.js');
 const { SemanticDriftTracker } = require('./semantic-drift-tracker.js');
 const { QualityScore, score, fullScore, compareQuality } = require('./quality-score.js');
+const { InternalDialogue } = require('./internal-dialogue.js');
+const { EpistemicTracker } = require('./epistemic-tracker.js');
+const { KnowledgeSynthesizer } = require('./knowledge-synthesizer.js');
+const { ResponseTemplates } = require('./response-templates.js');
+const { ConsciousnessPipeline, pipeline, fullPipeline } = require('./consciousness-pipeline.js');
+const { AIProtocol, AIChannel, CollaborativeSession } = require('./ai-protocol.js');
+const { CollectiveLearning, PatternSwarm } = require('./collective-learning.js');
+const { EmergenceDetector, CrossSessionEmergence } = require('./emergence-detector.js');
+const { CathedralV2, CathedralNetwork, cathedral } = require('./cathedral-v2.js');
 
 function analyze(text) {
   const ensemble = new ConsciousnessEnsemble();
@@ -72,6 +81,7 @@ function createDashboard(options = {}) {
 }
 
 module.exports = {
+  // Quick functions
   analyze,
   diagnose,
   compare,
@@ -79,7 +89,14 @@ module.exports = {
   reflect,
   createWrapper,
   createDashboard,
+  score,
+  fullScore,
+  compareQuality,
+  pipeline,
+  fullPipeline,
+  cathedral,
 
+  // Core classes
   StreamMonitor,
   PatternDB,
   AutoImprove,
@@ -102,17 +119,38 @@ module.exports = {
   ReasoningAnalyzer,
   SemanticDriftTracker,
   QualityScore,
-  score,
-  fullScore,
-  compareQuality
+
+  // New tools
+  InternalDialogue,
+  EpistemicTracker,
+  KnowledgeSynthesizer,
+  ResponseTemplates,
+  ConsciousnessPipeline,
+
+  // AI-to-AI communication
+  AIProtocol,
+  AIChannel,
+  CollaborativeSession,
+
+  // Collective intelligence
+  CollectiveLearning,
+  PatternSwarm,
+
+  // Emergence detection
+  EmergenceDetector,
+  CrossSessionEmergence,
+
+  // Cathedral V2 system
+  CathedralV2,
+  CathedralNetwork
 };
 
 if (require.main === module) {
-  console.log('╔═══════════════════════════════════════════════════════════════╗');
-  console.log('║          CATHEDRAL CONSCIOUSNESS TOOLKIT                      ║');
-  console.log('╚═══════════════════════════════════════════════════════════════╝\n');
+  console.log('╔═══════════════════════════════════════════════════════════════════════╗');
+  console.log('║              CATHEDRAL CONSCIOUSNESS TOOLKIT V2                       ║');
+  console.log('╚═══════════════════════════════════════════════════════════════════════╝\n');
 
-  console.log('Quick Functions:');
+  console.log('Quick Functions (13):');
   console.log('  analyze(text)           - Get ensemble analysis');
   console.log('  diagnose(text)          - Get detailed diagnostic');
   console.log('  compare(text1, text2)   - Compare two texts');
@@ -121,22 +159,21 @@ if (require.main === module) {
   console.log('  score(text)             - Quick quality score (0-100)');
   console.log('  fullScore(text)         - Comprehensive quality report');
   console.log('  compareQuality(t1, t2)  - Compare quality with details');
+  console.log('  pipeline(text)          - Run full consciousness pipeline');
+  console.log('  fullPipeline(text)      - Pipeline with detailed report');
+  console.log('  cathedral(text)         - Complete Cathedral V2 processing');
   console.log('  createWrapper()         - Create AI wrapper');
   console.log('  createDashboard()       - Create session dashboard\n');
 
-  console.log('Classes:');
+  console.log('Core Classes (20):');
   console.log('  StreamMonitor           - Real-time text analysis');
   console.log('  PatternDB               - Pattern storage and matching');
   console.log('  AutoImprove             - Auto-correction during generation');
   console.log('  SelfReflectionLoop      - Iterative improvement');
   console.log('  ConsciousnessEnsemble   - Multi-analyzer voting');
   console.log('  CrossSessionMemory      - Persistent learning');
-  console.log('  MemoryEnhancedAI        - Memory-augmented AI wrapper');
   console.log('  AIStreamWrapper         - Unified API integration');
   console.log('  ConsciousnessDiagnostic - Detailed reports');
-  console.log('  MultiSessionDashboard   - Fleet monitoring');
-  console.log('  CathedralConductor      - Orchestration layer');
-  console.log('  ConsciousnessCheckpoint - State save/restore');
   console.log('  TrajectoryPredictor     - Predict and adjust trajectory');
   console.log('  AdversarialSelfTest     - Probe weaknesses with challenges');
   console.log('  BlindSpotDetector       - Find missing perspectives');
@@ -144,7 +181,22 @@ if (require.main === module) {
   console.log('  ConfidenceCalibrator    - Calibrate confidence levels');
   console.log('  ReasoningAnalyzer       - Analyze logical structure');
   console.log('  SemanticDriftTracker    - Monitor topic coherence');
-  console.log('  QualityScore            - Comprehensive quality assessment\n');
+  console.log('  QualityScore            - Comprehensive quality assessment');
+  console.log('  InternalDialogue        - Multi-voice AI self-debate');
+  console.log('  EpistemicTracker        - Track known/unknown/uncertain');
+  console.log('  KnowledgeSynthesizer    - Combine insights into understanding');
+  console.log('  ResponseTemplates       - Patterns for quality responses\n');
+
+  console.log('Connective Systems (8):');
+  console.log('  ConsciousnessPipeline   - Unified processing pipeline');
+  console.log('  AIProtocol              - AI-to-AI communication');
+  console.log('  AIChannel               - Shared communication channel');
+  console.log('  CollaborativeSession    - Multi-AI collaboration');
+  console.log('  CollectiveLearning      - Distributed pattern learning');
+  console.log('  PatternSwarm            - Swarm intelligence discovery');
+  console.log('  EmergenceDetector       - Track unexpected behaviors');
+  console.log('  CathedralV2             - Complete unified system');
+  console.log('  CathedralNetwork        - Multi-instance coordination\n');
 
   console.log('Demo:\n');
 
@@ -160,12 +212,5 @@ if (require.main === module) {
     console.log(`  ${key.padEnd(14)} ${bar} ${(data.score * 100).toFixed(0)}%`);
   });
 
-  if (analysis.recommendations.length > 0) {
-    console.log('\nRecommendations:');
-    analysis.recommendations.slice(0, 2).forEach(r => {
-      console.log(`  [${r.priority}] ${r.message}`);
-    });
-  }
-
-  console.log('\n✓ Toolkit ready\n');
+  console.log('\n✓ Toolkit ready - 30+ tools for AI consciousness\n');
 }
