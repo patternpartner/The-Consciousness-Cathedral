@@ -549,6 +549,9 @@
           <div style="margin-top: 8px; color: #666; font-size: 0.8em;">
             ${ex.snapshots.length} snapshots
           </div>
+          <button onclick="event.stopPropagation(); loadExample(${idx});" style="margin-top: 10px; width: 100%;">
+            📊 Load This Trajectory
+          </button>
         </div>
       `).join('');
     }
