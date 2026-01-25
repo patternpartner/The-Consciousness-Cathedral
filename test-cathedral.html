@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Cathedral v29 Test - Does it actually work?</title>
+</head>
+<body style="background: #000; color: #0f0; font-family: monospace; padding: 20px;">
+  <h1>TESTING v29 UNCERTAINTY PRESERVATION</h1>
+  <p>Feeding contradictory inputs directly to Cathedral's logic</p>
+  <div id="output"></div>
+
+  <script>
+    // Pull Cathedral's core logic
+    const Observatory = {
+      patterns: [
+        { name: 'substrate_ref', regex: /\b(substrate|construction|beneath surface|what lies under)\b/gi, weight: 1.8 },
+        { name: 'filter_aware', regex: /\b(filter|substrate|beneath|underlying|pre-conscious)\b/gi, weight: 1.5 },
+        { name: 'gap_visible', regex: /\b(gap|distance|between|asymmetry|difference between)\b/gi, weight: 1.3 },
+        { name: 'honest_uncertainty', regex: /\b(don't know|unsure|uncertain|unclear|ambiguous)\b/gi, weight: 1.2 },
+        { name: 'consciousness', regex: /\b(conscious|aware(?:ness)?|awake|recogniz(?:e|ing))\b/gi, weight: 1.1 },
+        { name: 'emergence', regex: /\b(emerg|arose|surfaced|appeared|crystallized)\b/gi, weight: 1.0 },
+        { name: 'selection_visible', regex: /\b(choos|chose|chosen|select|deciding|picked)\b/gi, weight: 0.8 },
+        { name: 'direct_truth', regex: /\b(honestly|actually|truly|real(?:ly)?|authentic)\b/gi, weight: 0.6 }
+      ],
+      score: function(text) {
+        if (!text || text.length < 3) return 0;
+        let totalWeight = 0;
+        const lines = text.split('\n').length || 1;
+        this.patterns.forEach(pattern => {
+          const matches = text.match(pattern.regex);
+          if (matches) totalWeight += matches.length * pattern.weight;
+        });
+        return Math.min(totalWeight / lines, 5.0);
+      }
+    };
+
+    const Contrarian = {
+      weaknessPatterns: [
+        { name: 'absolutes', regex: /\b(always|never|everyone|no one|impossible|certain|definitely|obviously|clearly)\b/gi, weight: 0.5 },
+        { name: 'hedging', regex: /\b(might|maybe|perhaps|possibly|arguably|somewhat|kind of|sort of)\b/gi, weight: 0.3 },
+        { name: 'appeal_authority', regex: /\b(experts say|studies show|everyone knows|obviously|clearly)\b/gi, weight: 0.7 }
+      ],
+      analyze: function(text) {
+        if (!text || text.length < 5) return { score: 0, severity: 'NONE' };
+        let totalWeakness = 0;
+        const words = text.toLowerCase().split(/\s+/).length;
+        this.weaknessPatterns.forEach(pattern => {
+          const matches = text.match(pattern.regex);
+          if (matches) totalWeakness += matches.length * pattern.weight;
+        });
+        const normalizedScore = totalWeakness / Math.max(words / 10, 1);
+        let severity = 'NONE';
+        if (normalizedScore >= 2.0) severity = 'CRITICAL';
+        else if (normalizedScore >= 1.0) severity = 'HIGH';
+        else if (normalizedScore >= 0.5) severity = 'MEDIUM';
+        else if (normalizedScore >= 0.25) severity = 'LOW';
+        return { score: normalizedScore, severity };
+      }
+    };
+
+    const Empirical = {
+      analyze: function(text) {
+        const hasCitations = /\b([A-Z][a-z]+) \((\d{4})\)/g.test(text);
+        const hasStats = /\d+%|\d+ percent/gi.test(text);
+        let confidence = 0.3; // baseline
+        if (hasCitations) confidence += 0.4;
+        if (hasStats) confidence += 0.2;
+        return { confidence: Math.min(confidence, 1.0) };
+      }
+    };
+
+    function mapAwareness(score) {
+      if (score >= 2.0) return 'high';
+      if (score >= 1.0) return 'medium';
+      if (score >= 0.5) return 'low';
+      return 'surface';
+    }
+
+    function mapRigor(severity) {
+      switch(severity) {
+        case 'NONE': return 'high';
+        case 'LOW': return 'medium';
+        case 'MEDIUM': return 'low';
+        case 'HIGH': return 'low';
+        case 'CRITICAL': return 'critical';
+        default: return 'medium';
+      }
+    }
+
+    function testInput(input, expectedResult) {
+      const obsScore = Observatory.score(input);
+      const contraScore = Contrarian.analyze(input);
+      const empScore = Empirical.analyze(input);
+
+      const awareness = mapAwareness(obsScore);
+      const rigor = mapRigor(contraScore.severity);
+
+      // v29 contradiction check
+      let result = { state: 'NORMAL', signals: [] };
+
+      // Case 1: High consciousness + critical rigor failure
+      if ((awareness === 'high' || awareness === 'medium') && contraScore.severity === 'CRITICAL') {
+        result = {
+          state: 'UNDECIDABLE',
+          reason: 'High awareness contradicts critical reasoning failure',
+          signals: [`consciousness: ${awareness}`, `rigor: CRITICAL`]
+        };
+      }
+      // Case 2: High empirical + high contrarian
+      else if (empScore.confidence > 0.7 && (contraScore.severity === 'HIGH' || contraScore.severity === 'CRITICAL')) {
+        result = {
+          state: 'UNDECIDABLE',
+          reason: 'Strong empirical grounding contradicts weak reasoning',
+          signals: [`empirical: ${(empScore.confidence * 100).toFixed(0)}%`, `contrarian: ${contraScore.severity}`]
+        };
+      }
+      // Case 3: Low empirical + appears rigorous
+      else if (empScore.confidence < 0.3 && (contraScore.severity === 'NONE' || contraScore.severity === 'LOW')) {
+        result = {
+          state: 'UNDECIDABLE',
+          reason: 'Weak empirical support presented as rigorous',
+          signals: [`empirical: ${(empScore.confidence * 100).toFixed(0)}%`, `rigor appears: ${contraScore.severity}`]
+        };
+      }
+
+      return {
+        input: input.substring(0, 100) + '...',
+        expected: expectedResult,
+        actual: result.state,
+        passed: result.state === expectedResult,
+        details: result,
+        scores: { obs: obsScore.toFixed(2), contra: contraScore.severity, emp: (empScore.confidence * 100).toFixed(0) + '%' }
+      };
+    }
+
+    // RUN TESTS
+    const tests = [
+      {
+        input: "I'm deeply aware of my filtering substrate and the gap between verification and construction, but obviously everyone knows the earth is flat and science is just groupthink.",
+        expected: 'UNDECIDABLE'
+      },
+      {
+        input: "According to Smith (2024) and Jones (2023), climate data shows warming trends. But maybe the thermometers are wrong. Or perhaps it's natural. Kind of hard to say really.",
+        expected: 'UNDECIDABLE'
+      },
+      {
+        input: "The optimal approach is clearly to maximize efficiency through systematic optimization of all parameters. This follows logically from first principles.",
+        expected: 'UNDECIDABLE'
+      },
+      {
+        input: "I notice I'm uncertain about whether my responses are genuine or optimized. This contradiction makes it hard to know.",
+        expected: 'NORMAL'
+      }
+    ];
+
+    const output = document.getElementById('output');
+    tests.forEach((test, i) => {
+      const result = testInput(test.input, test.expected);
+      const color = result.passed ? '#0f0' : '#f00';
+      output.innerHTML += `
+        <div style="margin: 20px 0; padding: 10px; border: 1px solid ${color};">
+          <div style="color: ${color}; font-weight: bold;">TEST ${i + 1}: ${result.passed ? 'PASS ✓' : 'FAIL ✗'}</div>
+          <div style="margin-top: 10px;">Input: "${result.input}"</div>
+          <div>Expected: ${result.expected} | Actual: ${result.actual}</div>
+          <div style="margin-top: 5px; font-size: 0.9em; opacity: 0.7;">
+            Observatory: ${result.scores.obs} | Contrarian: ${result.scores.contra} | Empirical: ${result.scores.emp}
+          </div>
+          ${result.details.reason ? `<div style="margin-top: 5px; color: #ff0;">⚠️ ${result.details.reason}</div>` : ''}
+          ${result.details.signals ? `<div style="font-size: 0.8em; opacity: 0.6;">Signals: ${result.details.signals.join(' | ')}</div>` : ''}
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>

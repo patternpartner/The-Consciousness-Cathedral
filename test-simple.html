@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cathedral Test</title>
+  <style>
+    body {
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      padding: 40px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>✅ Cathedral Test Page</h1>
+  <p>If you can see this green text on black background, your browser works!</p>
+
+  <div id="react-test"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <script>
+    // Test 1: Basic JavaScript
+    console.log('✅ JavaScript is working');
+
+    // Test 2: React loaded?
+    if (typeof React !== 'undefined') {
+      console.log('✅ React loaded successfully');
+      document.getElementById('react-test').innerHTML = '<p>✅ React is loaded!</p>';
+    } else {
+      console.log('❌ React failed to load');
+      document.getElementById('react-test').innerHTML = '<p style="color:red">❌ React failed to load (check internet connection)</p>';
+    }
+
+    // Test 3: LocalStorage works?
+    try {
+      localStorage.setItem('test', 'works');
+      console.log('✅ LocalStorage is working');
+    } catch(e) {
+      console.log('❌ LocalStorage blocked:', e);
+    }
+  </script>
+</body>
+</html>
