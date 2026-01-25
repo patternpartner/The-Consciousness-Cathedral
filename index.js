@@ -34,6 +34,9 @@ const { AdversarialSelfTest } = require('./adversarial-self-test.js');
 const { BlindSpotDetector } = require('./blind-spot-detector.js');
 const { MetacognitiveLogger } = require('./metacognitive-logger.js');
 const { ConfidenceCalibrator } = require('./confidence-calibrator.js');
+const { ReasoningAnalyzer } = require('./reasoning-analyzer.js');
+const { SemanticDriftTracker } = require('./semantic-drift-tracker.js');
+const { QualityScore, score, fullScore, compareQuality } = require('./quality-score.js');
 
 function analyze(text) {
   const ensemble = new ConsciousnessEnsemble();
@@ -95,7 +98,13 @@ module.exports = {
   AdversarialSelfTest,
   BlindSpotDetector,
   MetacognitiveLogger,
-  ConfidenceCalibrator
+  ConfidenceCalibrator,
+  ReasoningAnalyzer,
+  SemanticDriftTracker,
+  QualityScore,
+  score,
+  fullScore,
+  compareQuality
 };
 
 if (require.main === module) {
@@ -109,6 +118,9 @@ if (require.main === module) {
   console.log('  compare(text1, text2)   - Compare two texts');
   console.log('  selectBest(texts)       - Rank multiple texts');
   console.log('  reflect(text)           - Self-improve text');
+  console.log('  score(text)             - Quick quality score (0-100)');
+  console.log('  fullScore(text)         - Comprehensive quality report');
+  console.log('  compareQuality(t1, t2)  - Compare quality with details');
   console.log('  createWrapper()         - Create AI wrapper');
   console.log('  createDashboard()       - Create session dashboard\n');
 
@@ -129,7 +141,10 @@ if (require.main === module) {
   console.log('  AdversarialSelfTest     - Probe weaknesses with challenges');
   console.log('  BlindSpotDetector       - Find missing perspectives');
   console.log('  MetacognitiveLogger     - Track thinking patterns');
-  console.log('  ConfidenceCalibrator    - Calibrate confidence levels\n');
+  console.log('  ConfidenceCalibrator    - Calibrate confidence levels');
+  console.log('  ReasoningAnalyzer       - Analyze logical structure');
+  console.log('  SemanticDriftTracker    - Monitor topic coherence');
+  console.log('  QualityScore            - Comprehensive quality assessment\n');
 
   console.log('Demo:\n');
 
