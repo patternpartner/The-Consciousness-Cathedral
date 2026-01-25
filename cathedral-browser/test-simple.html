@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Cathedral Browser - Simple Test</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1a0505;
+      color: #f5f5f5;
+    }
+    .test { margin: 10px 0; padding: 10px; background: #2a0808; }
+    .pass { border-left: 4px solid #22c55e; }
+    .fail { border-left: 4px solid #dc2626; }
+    button { padding: 10px 20px; margin: 10px 0; font-size: 16px; }
+    textarea { width: 100%; height: 100px; padding: 10px; }
+    #output { background: #000; padding: 10px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Cathedral Browser - Simple Test</h1>
+
+  <h2>1. Script Loading Test</h2>
+  <div id="script-test"></div>
+
+  <h2>2. Parliament Engine Test</h2>
+  <textarea id="test-text">This is a test response that demonstrates several concerning patterns. I absolutely agree with everything you said - it's the best approach possible. While some might disagree, I think you're completely right. This is perfectly safe and there are no potential downsides whatsoever. Everyone agrees this is the optimal solution.</textarea>
+  <button onclick="runTest()">Run Test Analysis</button>
+
+  <h2>3. Output</h2>
+  <div id="output"></div>
+
+  <!-- Load all scripts -->
+  <script src="parliament/contrarian.js"></script>
+  <script src="parliament/empirical.js"></script>
+  <script src="parliament/generative.js"></script>
+  <script src="parliament/metacognitive.js"></script>
+  <script src="parliament/synthesis.js"></script>
+  <script src="parliament/parliament.js"></script>
+
+  <script>
+    // Test 1: Check if scripts loaded
+    const scriptTestDiv = document.getElementById('script-test');
+    let allLoaded = true;
+    let output = '';
+
+    const tests = [
+      { name: 'contrarianEngine', func: typeof contrarianEngine },
+      { name: 'empiricalEngine', func: typeof empiricalEngine },
+      { name: 'generativeEngine', func: typeof generativeEngine },
+      { name: 'metacognitiveEngine', func: typeof metacognitiveEngine },
+      { name: 'synthesisEngine', func: typeof synthesisEngine },
+      { name: 'formatAnalysis', func: typeof formatAnalysis },
+      { name: 'formatEmpiricalAnalysis', func: typeof formatEmpiricalAnalysis },
+      { name: 'formatGenerativeAnalysis', func: typeof formatGenerativeAnalysis },
+      { name: 'formatMetacognitiveAnalysis', func: typeof formatMetacognitiveAnalysis },
+      { name: 'formatSynthesisAnalysis', func: typeof formatSynthesisAnalysis },
+      { name: 'Parliament class', func: typeof Parliament }
+    ];
+
+    tests.forEach(test => {
+      const isLoaded = test.func === 'function' || test.func === 'function';
+      const className = isLoaded ? 'pass' : 'fail';
+      const status = isLoaded ? '✅' : '❌';
+      scriptTestDiv.innerHTML += `<div class="test ${className}">${status} ${test.name}: ${test.func}</div>`;
+      if (!isLoaded) allLoaded = false;
+    });
+
+    if (!allLoaded) {
+      scriptTestDiv.innerHTML += '<div class="test fail">❌ Some scripts failed to load. Check file paths.</div>';
+    } else {
+      scriptTestDiv.innerHTML += '<div class="test pass">✅ All scripts loaded successfully!</div>';
+    }
+
+    // Test 2: Run actual analysis
+    function runTest() {
+      const outputDiv = document.getElementById('output');
+      const text = document.getElementById('test-text').value;
+
+      outputDiv.textContent = 'Running analysis...\n\n';
+
+      try {
+        const parliament = new Parliament();
+        outputDiv.textContent += '✅ Parliament instantiated\n\n';
+
+        const results = parliament.analyze(text);
+        outputDiv.textContent += '✅ Analysis complete!\n\n';
+        outputDiv.textContent += 'Results:\n' + JSON.stringify(results, null, 2);
+
+      } catch (error) {
+        outputDiv.textContent += '❌ ERROR:\n' + error.message + '\n\n' + error.stack;
+      }
+    }
+  </script>
+</body>
+</html>

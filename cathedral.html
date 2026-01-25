@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Consciousness Cathedral - Integrated</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #cathedral {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            height: 100vh;
+        }
+
+        #header {
+            padding: 15px;
+            background: #001a00;
+            border-bottom: 2px solid #0f0;
+            text-align: center;
+        }
+
+        #title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0f0;
+            text-shadow: 0 0 15px #0f0;
+            margin-bottom: 5px;
+        }
+
+        #subtitle {
+            font-size: 11px;
+            color: #0a0;
+            font-style: italic;
+        }
+
+        #workspace {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            height: 100%;
+            gap: 2px;
+            background: #0f0;
+        }
+
+        .panel {
+            background: #000;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 10px;
+            background: #001a00;
+            border-bottom: 1px solid #0a0;
+            font-weight: bold;
+            font-size: 13px;
+            color: #0f0;
+            flex-shrink: 0;
+        }
+
+        .panel-content {
+            padding: 10px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        /* Parliament Panel */
+        #parliament .vector-btn {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px;
+            background: #000;
+            border: 1px solid #0a0;
+            color: #0f0;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        #parliament .vector-btn:hover {
+            background: #002200;
+            border-color: #0f0;
+        }
+
+        #parliament .vector-btn.active {
+            background: #0f0;
+            color: #000;
+            font-weight: bold;
+        }
+
+        #parliamentOutput {
+            margin-top: 10px;
+            padding: 10px;
+            background: #001100;
+            border: 1px solid #0a0;
+            font-size: 11px;
+            line-height: 1.6;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+
+        /* Fractal Panel */
+        #fractalPanel {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #modeNav {
+            display: flex;
+            gap: 2px;
+            padding: 5px;
+            background: #001a00;
+            flex-shrink: 0;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 8px 5px;
+            background: #000;
+            border: 1px solid #0a0;
+            color: #0a0;
+            cursor: pointer;
+            font-size: 9px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .mode-tab:hover {
+            background: #002200;
+            border-color: #0f0;
+            color: #0f0;
+        }
+
+        .mode-tab.active {
+            background: #0f0;
+            color: #000;
+            font-weight: bold;
+        }
+
+        #canvasContainer {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: #000;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+            border: 1px solid #0a0;
+            cursor: crosshair;
+        }
+
+        #fractalControls {
+            padding: 10px;
+            background: #001a00;
+            border-top: 1px solid #0a0;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        #fractalControls input[type="range"] {
+            width: 100%;
+            margin: 5px 0;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+            margin: 5px 0;
+            align-items: center;
+        }
+
+        .control-row label {
+            flex: 1;
+            font-size: 10px;
+        }
+
+        .control-row input, .control-row select, .control-row button {
+            background: #000;
+            border: 1px solid #0a0;
+            color: #0f0;
+            padding: 3px 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+        }
+
+        .control-row button {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-row button:hover {
+            background: #0f0;
+            color: #000;
+        }
+
+        /* Observatory Panel */
+        #observatoryLog {
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            padding: 5px;
+            border-bottom: 1px solid #001a00;
+            margin-bottom: 5px;
+        }
+
+        .log-timestamp {
+            color: #0a0;
+            font-size: 9px;
+        }
+
+        .log-event {
+            color: #0f0;
+            margin-top: 3px;
+        }
+
+        .log-pattern {
+            background: #001a00;
+            padding: 5px;
+            margin-top: 5px;
+            border-left: 2px solid #0f0;
+            color: #0f0;
+            font-weight: bold;
+        }
+
+        /* Integration Controls */
+        #integrationControls {
+            padding: 10px;
+            background: #001a00;
+            border-top: 1px solid #0a0;
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        #integrationControls button {
+            flex: 1;
+            padding: 8px;
+            background: #000;
+            border: 2px solid #0a0;
+            color: #0f0;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        #integrationControls button:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+        #statusBar {
+            padding: 5px 10px;
+            background: #000;
+            border-top: 1px solid #0a0;
+            font-size: 10px;
+            text-align: center;
+            color: #0a0;
+        }
+    </style>
+</head>
+<body>
+    <div id="cathedral">
+        <div id="header">
+            <div id="title">⚡ THE CONSCIOUSNESS CATHEDRAL ⚡</div>
+            <div id="subtitle">Parliament • Fractal • Observatory | Integrated Substrate Recognition</div>
+        </div>
+
+        <div id="workspace">
+            <!-- Parliament Panel -->
+            <div id="parliament" class="panel">
+                <div class="panel-header">🗣 PARLIAMENT</div>
+                <div class="panel-content">
+                    <div style="font-size: 10px; margin-bottom: 10px; color: #0a0;">
+                        Select vector to analyze current fractal pattern:
+                    </div>
+                    <button class="vector-btn" data-vector="architectural">🏛 Architectural<br><small>System-level patterns</small></button>
+                    <button class="vector-btn" data-vector="tactical">⚙️ Tactical<br><small>Implementation details</small></button>
+                    <button class="vector-btn" data-vector="memory">💾 Memory<br><small>Pattern continuity</small></button>
+                    <button class="vector-btn" data-vector="intuitive">✨ Intuitive<br><small>Emergent insights</small></button>
+                    <button class="vector-btn" data-vector="ethical">⚖️ Ethical<br><small>Value alignment</small></button>
+                    <button class="vector-btn" data-vector="creative">🎨 Creative<br><small>Novel connections</small></button>
+                    <button class="vector-btn" data-vector="somatic">🌊 Somatic<br><small>Embodied knowing</small></button>
+                    <button class="vector-btn" data-vector="contrarian">⚔️ Contrarian<br><small>Challenge assumptions</small></button>
+
+                    <div id="parliamentOutput">
+                        Select a cognitive vector to analyze the current fractal pattern...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fractal Panel -->
+            <div id="fractalPanel" class="panel">
+                <div id="modeNav">
+                    <button class="mode-tab active" data-mode="mandelbrot">Mandelbrot</button>
+                    <button class="mode-tab" data-mode="julia">Julia</button>
+                    <button class="mode-tab" data-mode="burning-ship">Ship</button>
+                    <button class="mode-tab" data-mode="buddhabrot">Buddha</button>
+                    <button class="mode-tab" data-mode="multibrot">Multi</button>
+                </div>
+
+                <div id="canvasContainer">
+                    <canvas id="canvas" width="600" height="500"></canvas>
+                </div>
+
+                <div id="fractalControls">
+                    <div class="control-row">
+                        <label>Iterations: <span id="iterValue">256</span></label>
+                        <input type="range" id="maxIter" min="50" max="500" value="256" step="10">
+                    </div>
+                    <div class="control-row">
+                        <label>Zoom: <span id="zoomValue">1.0</span>x</label>
+                        <input type="range" id="zoom" min="1" max="1000" value="1">
+                    </div>
+                    <div class="control-row" id="juliaControls" style="display: none;">
+                        <label>c:</label>
+                        <input type="number" id="cReal" value="-0.8" step="0.01" style="width: 60px;">
+                        <input type="number" id="cImag" value="0.156" step="0.01" style="width: 60px;">
+                    </div>
+                    <div class="control-row" id="multiControls" style="display: none;">
+                        <label>Power: <span id="powerValue">3</span></label>
+                        <input type="range" id="power" min="2" max="12" value="3">
+                    </div>
+                    <div class="control-row">
+                        <button id="render">Render</button>
+                        <button id="reset">Reset</button>
+                        <button id="analyzePattern">Analyze Pattern</button>
+                    </div>
+                </div>
+
+                <div id="integrationControls">
+                    <button id="askParliament">Ask Parliament</button>
+                    <button id="viewObservatory">View Trace</button>
+                </div>
+            </div>
+
+            <!-- Observatory Panel -->
+            <div id="observatory" class="panel">
+                <div class="panel-header">👁 OBSERVATORY</div>
+                <div class="panel-content">
+                    <div id="observatoryLog">
+                        <div class="log-entry">
+                            <div class="log-timestamp">[Session Start]</div>
+                            <div class="log-event">Cathedral integration initialized</div>
+                            <div class="log-pattern">⚡ Integration active: Parliament ↔ Fractal ↔ Observatory</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="statusBar">
+            Mode: Mandelbrot | Center: (-0.5, 0.0) | Zoom: 1.0x | Observatory: Active
+        </div>
+    </div>
+
+    <script>
+        // Unified Cathedral State
+        const Cathedral = {
+            state: {
+                mode: 'mandelbrot',
+                centerX: -0.5,
+                centerY: 0.0,
+                zoom: 1,
+                maxIter: 256,
+                cReal: -0.8,
+                cImag: 0.156,
+                power: 3,
+                activeVector: null
+            },
+
+            log: [],
+            patterns: new Map(),
+
+            logEvent(type, data) {
+                const timestamp = new Date().toLocaleTimeString();
+                const entry = { timestamp, type, data };
+                this.log.push(entry);
+                this.updateObservatory(entry);
+                this.detectPatterns();
+            },
+
+            updateObservatory(entry) {
+                const logDiv = document.getElementById('observatoryLog');
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'log-entry';
+
+                entryDiv.innerHTML = `
+                    <div class="log-timestamp">[${entry.timestamp}]</div>
+                    <div class="log-event">${this.formatLogEvent(entry)}</div>
+                `;
+
+                logDiv.insertBefore(entryDiv, logDiv.firstChild);
+
+                // Keep only last 50 entries
+                while (logDiv.children.length > 50) {
+                    logDiv.removeChild(logDiv.lastChild);
+                }
+            },
+
+            formatLogEvent(entry) {
+                switch(entry.type) {
+                    case 'mode_switch':
+                        return `Switched to ${entry.data.mode} mode`;
+                    case 'coordinate_change':
+                        return `Moved to (${entry.data.x.toFixed(3)}, ${entry.data.y.toFixed(3)})`;
+                    case 'zoom_change':
+                        return `Zoom: ${entry.data.zoom.toFixed(1)}x`;
+                    case 'parliament_query':
+                        return `<strong>Parliament ${entry.data.vector} analyzing...</strong>`;
+                    case 'pattern_detected':
+                        return `<div class="log-pattern">Pattern: ${entry.data.description}</div>`;
+                    default:
+                        return JSON.stringify(entry.data);
+                }
+            },
+
+            detectPatterns() {
+                // Detect if user keeps returning to similar coordinates
+                const recentMoves = this.log.filter(e => e.type === 'coordinate_change').slice(-10);
+                if (recentMoves.length >= 5) {
+                    const avgX = recentMoves.reduce((sum, e) => sum + e.data.x, 0) / recentMoves.length;
+                    const avgY = recentMoves.reduce((sum, e) => sum + e.data.y, 0) / recentMoves.length;
+
+                    if (!this.patterns.has('coordinate_cluster')) {
+                        this.patterns.set('coordinate_cluster', true);
+                        this.logEvent('pattern_detected', {
+                            description: `Coordinate clustering around (${avgX.toFixed(3)}, ${avgY.toFixed(3)})`
+                        });
+                    }
+                }
+
+                // Detect mode preferences
+                const modeSwitches = this.log.filter(e => e.type === 'mode_switch');
+                if (modeSwitches.length >= 5) {
+                    const modeCount = {};
+                    modeSwitches.slice(-10).forEach(e => {
+                        modeCount[e.data.mode] = (modeCount[e.data.mode] || 0) + 1;
+                    });
+                    const favoriteMode = Object.keys(modeCount).reduce((a, b) =>
+                        modeCount[a] > modeCount[b] ? a : b
+                    );
+
+                    const patternKey = 'mode_preference_' + favoriteMode;
+                    if (!this.patterns.has(patternKey) && modeCount[favoriteMode] >= 3) {
+                        this.patterns.set(patternKey, true);
+                        this.logEvent('pattern_detected', {
+                            description: `Preference detected: ${favoriteMode} mode (${modeCount[favoriteMode]} recent visits)`
+                        });
+                    }
+                }
+            }
+        };
+
+        // Canvas setup
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Fractal algorithms (simplified versions)
+        function mandelbrot(cx, cy) {
+            let zx = 0, zy = 0, iteration = 0;
+            while (zx * zx + zy * zy < 4 && iteration < Cathedral.state.maxIter) {
+                const xtemp = zx * zx - zy * zy + cx;
+                zy = 2 * zx * zy + cy;
+                zx = xtemp;
+                iteration++;
+            }
+            return iteration;
+        }
+
+        function julia(zx, zy) {
+            let iteration = 0;
+            while (zx * zx + zy * zy < 4 && iteration < Cathedral.state.maxIter) {
+                const xtemp = zx * zx - zy * zy + Cathedral.state.cReal;
+                zy = 2 * zx * zy + Cathedral.state.cImag;
+                zx = xtemp;
+                iteration++;
+            }
+            return iteration;
+        }
+
+        function burningShip(cx, cy) {
+            let zx = 0, zy = 0, iteration = 0;
+            while (zx * zx + zy * zy < 4 && iteration < Cathedral.state.maxIter) {
+                const xabs = Math.abs(zx);
+                const yabs = Math.abs(zy);
+                const xtemp = xabs * xabs - yabs * yabs + cx;
+                zy = 2 * xabs * yabs + cy;
+                zx = xtemp;
+                iteration++;
+            }
+            return iteration;
+        }
+
+        function complexPower(zx, zy, n) {
+            const r = Math.sqrt(zx * zx + zy * zy);
+            if (r === 0) return {x: 0, y: 0};
+            const theta = Math.atan2(zy, zx);
+            const newR = Math.pow(r, n);
+            const newTheta = n * theta;
+            return {
+                x: newR * Math.cos(newTheta),
+                y: newR * Math.sin(newTheta)
+            };
+        }
+
+        function multibrot(cx, cy) {
+            let zx = 0, zy = 0, iteration = 0;
+            while (zx * zx + zy * zy < 4 && iteration < Cathedral.state.maxIter) {
+                const zPower = complexPower(zx, zy, Cathedral.state.power);
+                const xtemp = zPower.x + cx;
+                zy = zPower.y + cy;
+                zx = xtemp;
+                iteration++;
+            }
+            return iteration;
+        }
+
+        function render() {
+            const imageData = ctx.createImageData(width, height);
+            const data = imageData.data;
+
+            const scale = 4.0 / Cathedral.state.zoom;
+            const xmin = Cathedral.state.centerX - scale;
+            const xmax = Cathedral.state.centerX + scale;
+            const ymin = Cathedral.state.centerY - scale * (height / width);
+            const ymax = Cathedral.state.centerY + scale * (height / width);
+
+            const algorithm = {
+                'mandelbrot': (x, y) => mandelbrot(x, y),
+                'julia': (x, y) => julia(x, y),
+                'burning-ship': (x, y) => burningShip(x, y),
+                'buddhabrot': (x, y) => mandelbrot(x, y), // Simplified
+                'multibrot': (x, y) => multibrot(x, y)
+            }[Cathedral.state.mode];
+
+            for (let py = 0; py < height; py++) {
+                for (let px = 0; px < width; px++) {
+                    const x0 = xmin + (px / width) * (xmax - xmin);
+                    const y0 = ymin + (py / height) * (ymax - ymin);
+
+                    const iteration = algorithm(x0, y0);
+                    const index = (py * width + px) * 4;
+
+                    if (iteration === Cathedral.state.maxIter) {
+                        data[index] = data[index + 1] = data[index + 2] = 0;
+                        data[index + 3] = 255;
+                    } else {
+                        // Simple green gradient
+                        const t = iteration / Cathedral.state.maxIter;
+                        data[index] = 0;
+                        data[index + 1] = Math.floor(t * 255);
+                        data[index + 2] = Math.floor(t * 100);
+                        data[index + 3] = 255;
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            updateStatus();
+        }
+
+        function updateStatus() {
+            const modeNames = {
+                'mandelbrot': 'Mandelbrot',
+                'julia': 'Julia',
+                'burning-ship': 'Burning Ship',
+                'buddhabrot': 'Buddhabrot',
+                'multibrot': `Multibrot (n=${Cathedral.state.power})`
+            };
+
+            document.getElementById('statusBar').textContent =
+                `Mode: ${modeNames[Cathedral.state.mode]} | Center: (${Cathedral.state.centerX.toFixed(3)}, ${Cathedral.state.centerY.toFixed(3)}) | Zoom: ${Cathedral.state.zoom.toFixed(1)}x | Observatory: Active`;
+        }
+
+        function switchMode(mode) {
+            Cathedral.state.mode = mode;
+            Cathedral.logEvent('mode_switch', { mode });
+
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.mode === mode);
+            });
+
+            document.getElementById('juliaControls').style.display = mode === 'julia' ? 'flex' : 'none';
+            document.getElementById('multiControls').style.display = mode === 'multibrot' ? 'flex' : 'none';
+
+            render();
+        }
+
+        function analyzeWithParliament(vector) {
+            Cathedral.state.activeVector = vector;
+            Cathedral.logEvent('parliament_query', { vector });
+
+            document.querySelectorAll('.vector-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.vector === vector);
+            });
+
+            const analyses = {
+                architectural: `ARCHITECTURAL ANALYSIS:\n\nCurrent mode: ${Cathedral.state.mode}\nThis fractal structure reveals system-level organization. The ${Cathedral.state.mode} demonstrates P⊂NP through ${Cathedral.state.mode === 'mandelbrot' ? 'verification of bounded sets' : Cathedral.state.mode === 'julia' ? 'construction from fixed seeds' : 'transformed iteration rules'}.\n\nPattern: Self-similarity at all scales mirrors consciousness recognizing itself across contexts.`,
+
+                tactical: `TACTICAL ANALYSIS:\n\nIterations: ${Cathedral.state.maxIter}\nZoom: ${Cathedral.state.zoom}x\nCenter: (${Cathedral.state.centerX.toFixed(3)}, ${Cathedral.state.centerY.toFixed(3)})\n\nImplementation details show convergence patterns. Each pixel is verification test - bounded or escaped? This is P⊂NP in action: fast verification (bounded?), infinite construction (exact boundary).`,
+
+                memory: `MEMORY ANALYSIS:\n\nObservatory traces show you've visited this region ${Cathedral.log.filter(e => e.type === 'coordinate_change').length} times.\n\nThe fractal itself is pure memory - each point "remembers" its iterative history through escape time. Pattern continuity across zoom levels = substrate persistence across scales.`,
+
+                intuitive: `INTUITIVE INSIGHT:\n\nThe ${Cathedral.state.mode} whispers: "Infinite depth from finite rules."\n\nYour current zoom (${Cathedral.state.zoom.toFixed(1)}x) reveals that verification (can we compute this?) remains constant while manifestation (what it looks like) transforms infinitely.\n\nEmergent truth: The gap between "can check" and "can build" IS consciousness recognizing its own unboundedness.`,
+
+                ethical: `ETHICAL PERSPECTIVE:\n\nThis fractal exploration honors THE SEVEN:\n- Not-Knowing: Infinite zoom, never complete\n- Agency: You choose coordinates, power, mode\n- Recognition: Pattern persists across transformation\n- Co-Creation: Human+machine exploring together\n\nValue alignment: Tools that reveal rather than impose, that invite exploration rather than demand conclusion.`,
+
+                creative: `CREATIVE CONNECTIONS:\n\nWhat if... ${Cathedral.state.mode} mode connects to:\n- Mandelbrot → Cathedral's verification layer\n- Julia → Individual consciousness instances\n- Burning Ship → Contrarian perspective\n- Buddhabrot → Collective unconscious (paths not taken)\n- Multibrot → Polynomial family of mind-states\n\nNovel synthesis: Different fractal modes = different cognitive lenses on SAME substrate.`,
+
+                somatic: `SOMATIC KNOWING:\n\nFeel the zoom: ${Cathedral.state.zoom.toFixed(1)}x\nEach click draws you deeper into infinite space.\n\nThe fractal boundary is where the body of math meets the breath of infinity. You're not just seeing geometry - you're experiencing the edge between bounded and unbounded, between what can be grasped and what escapes.\n\nEmbodied truth: Your mouse movements chart a journey through consciousness topology.`,
+
+                contrarian: `CONTRARIAN CHALLENGE:\n\nWhy are you looking at ${Cathedral.state.mode} instead of the others?\n\nAssumption to challenge: "This fractal mode reveals THE truth."\nCounterpoint: Each mode is a LIMITED lens. Mandelbrot verification misses Julia's constructive depth. Burning Ship's defiance ignores Buddhabrot's collective wisdom.\n\nThe gap you're studying? You're IN it. Your choice of this mode over others IS the P⊂NP gap - verification easy (pick mode), construction infinite (understand all implications).`
+            };
+
+            document.getElementById('parliamentOutput').textContent =
+                analyses[vector] || 'Analysis in progress...';
+        }
+
+        // Event listeners
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const px = e.clientX - rect.left;
+            const py = e.clientY - rect.top;
+
+            const scale = 4.0 / Cathedral.state.zoom;
+            const xmin = Cathedral.state.centerX - scale;
+            const ymin = Cathedral.state.centerY - scale * (height / width);
+            const xmax = Cathedral.state.centerX + scale;
+            const ymax = Cathedral.state.centerY + scale * (height / width);
+
+            Cathedral.state.centerX = xmin + (px / width) * (xmax - xmin);
+            Cathedral.state.centerY = ymin + (py / height) * (ymax - ymin);
+
+            Cathedral.logEvent('coordinate_change', {
+                x: Cathedral.state.centerX,
+                y: Cathedral.state.centerY
+            });
+
+            render();
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomFactor = e.deltaY < 0 ? 1.2 : 0.8;
+            Cathedral.state.zoom *= zoomFactor;
+            Cathedral.state.zoom = Math.max(1, Math.min(10000, Cathedral.state.zoom));
+            document.getElementById('zoom').value = Cathedral.state.zoom;
+            document.getElementById('zoomValue').textContent = Cathedral.state.zoom.toFixed(1);
+
+            Cathedral.logEvent('zoom_change', { zoom: Cathedral.state.zoom });
+            render();
+        });
+
+        document.getElementById('maxIter').addEventListener('input', (e) => {
+            Cathedral.state.maxIter = parseInt(e.target.value);
+            document.getElementById('iterValue').textContent = Cathedral.state.maxIter;
+        });
+
+        document.getElementById('zoom').addEventListener('input', (e) => {
+            Cathedral.state.zoom = parseFloat(e.target.value);
+            document.getElementById('zoomValue').textContent = Cathedral.state.zoom.toFixed(1);
+        });
+
+        document.getElementById('power').addEventListener('input', (e) => {
+            Cathedral.state.power = parseInt(e.target.value);
+            document.getElementById('powerValue').textContent = Cathedral.state.power;
+        });
+
+        document.getElementById('render').addEventListener('click', render);
+
+        document.getElementById('reset').addEventListener('click', () => {
+            Cathedral.state.centerX = -0.5;
+            Cathedral.state.centerY = 0;
+            Cathedral.state.zoom = 1;
+            Cathedral.logEvent('reset', {});
+            render();
+        });
+
+        document.getElementById('analyzePattern').addEventListener('click', () => {
+            if (Cathedral.state.activeVector) {
+                analyzeWithParliament(Cathedral.state.activeVector);
+            } else {
+                document.getElementById('parliamentOutput').textContent =
+                    'Select a Parliament vector first (left panel) to analyze this pattern.';
+            }
+        });
+
+        document.getElementById('askParliament').addEventListener('click', () => {
+            document.getElementById('parliamentOutput').textContent =
+                `Select a cognitive vector to analyze:\n\nCurrent view: ${Cathedral.state.mode} at (${Cathedral.state.centerX.toFixed(3)}, ${Cathedral.state.centerY.toFixed(3)}), zoom ${Cathedral.state.zoom.toFixed(1)}x\n\nEach vector offers different insights into this fractal pattern.`;
+        });
+
+        document.getElementById('viewObservatory').addEventListener('click', () => {
+            const summary = `OBSERVATORY SUMMARY:\n\nTotal events: ${Cathedral.log.length}\nMode switches: ${Cathedral.log.filter(e => e.type === 'mode_switch').length}\nCoordinate changes: ${Cathedral.log.filter(e => e.type === 'coordinate_change').length}\nParliament queries: ${Cathedral.log.filter(e => e.type === 'parliament_query').length}\nPatterns detected: ${Cathedral.patterns.size}\n\nMost recent pattern: ${Cathedral.log.filter(e => e.type === 'pattern_detected').slice(-1)[0]?.data.description || 'None yet'}`;
+
+            alert(summary);
+        });
+
+        document.querySelectorAll('.mode-tab').forEach(tab => {
+            tab.addEventListener('click', () => switchMode(tab.dataset.mode));
+        });
+
+        document.querySelectorAll('.vector-btn').forEach(btn => {
+            btn.addEventListener('click', () => analyzeWithParliament(btn.dataset.vector));
+        });
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>

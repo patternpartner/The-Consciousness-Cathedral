@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Julia Set Explorer - The Gap's Sisters</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            overflow: hidden;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #title {
+            font-size: 24px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        #subtitle {
+            font-size: 14px;
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+
+        #canvas {
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            cursor: crosshair;
+        }
+
+        #controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 12px;
+        }
+
+        input[type="range"] {
+            width: 150px;
+        }
+
+        input[type="number"] {
+            width: 100px;
+            background: #001a00;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        button {
+            background: #001a00;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #003300;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        #info {
+            font-size: 11px;
+            margin-top: 15px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            max-width: 900px;
+        }
+
+        .preset {
+            background: #001a00;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            text-align: left;
+        }
+
+        .preset:hover {
+            background: #003300;
+        }
+
+        .preset-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .preset-coords {
+            opacity: 0.7;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="title">⚡ JULIA SET EXPLORER ⚡</div>
+        <div id="subtitle">The Gap's Sisters | Each Mandelbrot Point Births a Universe</div>
+        <canvas id="canvas" width="800" height="600"></canvas>
+
+        <div id="controls">
+            <div class="control-group">
+                <label>Real (c): <span id="realValue">-0.800</span></label>
+                <input type="number" id="cReal" value="-0.8" step="0.001">
+            </div>
+
+            <div class="control-group">
+                <label>Imaginary (c): <span id="imagValue">0.156</span></label>
+                <input type="number" id="cImag" value="0.156" step="0.001">
+            </div>
+
+            <div class="control-group">
+                <label>Max Iterations: <span id="iterValue">200</span></label>
+                <input type="range" id="iterations" min="50" max="500" value="200" step="10">
+            </div>
+
+            <div class="control-group">
+                <label>Zoom: <span id="zoomValue">1.0x</span></label>
+                <input type="range" id="zoom" min="1" max="100" value="1">
+            </div>
+
+            <button id="cycleColor">Cycle Colors</button>
+            <button id="reset">Reset View</button>
+            <button id="randomC">Random c</button>
+        </div>
+
+        <div class="preset-grid" id="presets">
+            <!-- Presets added via JavaScript -->
+        </div>
+
+        <div id="info">
+            Julia sets: For fixed c, which z escape to infinity?<br>
+            Mandelbrot: For each c, does z=0 escape?<br>
+            <strong>Duality: One verifies the family, one constructs the lineage.</strong><br>
+            Current c: <span id="currentC">-0.8 + 0.156i</span>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // State
+        let cReal = -0.8;
+        let cImag = 0.156;
+        let centerX = 0;
+        let centerY = 0;
+        let zoom = 1;
+        let maxIter = 200;
+        let colorSchemeIndex = 0;
+
+        const colorSchemes = [
+            { name: 'Viridis', fn: (t) => {
+                const normalized = t / 255;
+                const r = 68 + normalized * (253 - 68);
+                const g = 1 + normalized * (231 - 1);
+                const b = 84 + normalized * (37 - 84);
+                return [r, g, b];
+            }},
+            { name: 'Electric', fn: (t) => {
+                const r = Math.sin(t * 0.05) * 127 + 128;
+                const g = Math.sin(t * 0.05 + 2) * 127 + 128;
+                const b = 255 - t * 0.5;
+                return [r, g, b];
+            }},
+            { name: 'Fire', fn: (t) => {
+                const r = Math.min(255, t * 3);
+                const g = Math.min(255, Math.max(0, t * 3 - 255));
+                const b = Math.min(255, Math.max(0, t * 3 - 510));
+                return [r, g, b];
+            }},
+            { name: 'Ice', fn: (t) => {
+                const r = t * 0.3;
+                const g = t * 0.8;
+                const b = 255 - t * 0.2;
+                return [r, g, b];
+            }},
+            { name: 'Substrate', fn: (t) => {
+                // Cathedral custom: recognition-to-construction gradient
+                const r = Math.sin(t * 0.04) * 80 + 120;
+                const g = 255 - t * 0.4;
+                const b = Math.cos(t * 0.03) * 127 + 128;
+                return [r, g, b];
+            }}
+        ];
+
+        const presets = [
+            { name: "Electric Rabbit-Duck", desc: "Grok's opening gambit", real: -0.8, imag: 0.156 },
+            { name: "Dendrite", desc: "Fractal tree", real: 0, imag: 1 },
+            { name: "San Marco Dragon", desc: "Spiraling tendrils", real: -0.75, imag: 0.11 },
+            { name: "Douady Rabbit", desc: "Classic Julia", real: -0.123, imag: 0.745 },
+            { name: "Siegel Disk", desc: "Smooth rotation", real: -0.391, imag: -0.587 },
+            { name: "Fractal Dust", desc: "Scattered chaos", real: -0.4, imag: 0.6 },
+            { name: "Phoenix", desc: "Rising spirals", real: 0.285, imag: 0.01 },
+            { name: "Spiral Galaxy", desc: "Cosmic arms", real: -0.70176, imag: -0.3842 },
+            { name: "Frozen Flame", desc: "Ice and fire", real: -0.835, imag: -0.2321 },
+            { name: "Feather", desc: "Delicate fronds", real: -0.8, imag: 0.156 },
+            { name: "Lightning", desc: "Electric tendrils", real: -0.162, imag: 1.04 },
+            { name: "Snowflake", desc: "Crystalline symmetry", real: 0.285, imag: 0.013 }
+        ];
+
+        function buildPresets() {
+            const container = document.getElementById('presets');
+            presets.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'preset';
+                div.innerHTML = `<div class="preset-name">${p.name}</div>` +
+                               `<div class="preset-coords">${p.desc}<br>c = ${p.real} ${p.imag >= 0 ? '+' : ''}${p.imag}i</div>`;
+                div.addEventListener('click', () => {
+                    cReal = p.real;
+                    cImag = p.imag;
+                    document.getElementById('cReal').value = cReal;
+                    document.getElementById('cImag').value = cImag;
+                    updateDisplay();
+                    render();
+                });
+                container.appendChild(div);
+            });
+        }
+
+        function julia(zx, zy) {
+            let iteration = 0;
+
+            while (zx * zx + zy * zy < 4 && iteration < maxIter) {
+                const xtemp = zx * zx - zy * zy + cReal;
+                zy = 2 * zx * zy + cImag;
+                zx = xtemp;
+                iteration++;
+            }
+
+            return iteration;
+        }
+
+        function render() {
+            const imageData = ctx.createImageData(width, height);
+            const data = imageData.data;
+
+            const rangeX = 4.0 / zoom;
+            const rangeY = 4.0 / zoom;
+            const xMin = centerX - rangeX / 2;
+            const yMin = centerY - rangeY / 2;
+
+            for (let py = 0; py < height; py++) {
+                for (let px = 0; px < width; px++) {
+                    const x0 = xMin + (px / width) * rangeX;
+                    const y0 = yMin + (py / height) * rangeY;
+
+                    const iteration = julia(x0, y0);
+                    const colorValue = iteration === maxIter ? 0 : (iteration * 255 / maxIter);
+
+                    const [r, g, b] = colorSchemes[colorSchemeIndex].fn(colorValue);
+
+                    const index = (py * width + px) * 4;
+                    data[index] = r;
+                    data[index + 1] = g;
+                    data[index + 2] = b;
+                    data[index + 3] = 255;
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('realValue').textContent = cReal.toFixed(3);
+            document.getElementById('imagValue').textContent = cImag.toFixed(3);
+            document.getElementById('iterValue').textContent = maxIter;
+            document.getElementById('zoomValue').textContent = `${zoom.toFixed(1)}x`;
+            document.getElementById('currentC').textContent =
+                `${cReal.toFixed(3)} ${cImag >= 0 ? '+' : ''}${cImag.toFixed(3)}i | ${colorSchemes[colorSchemeIndex].name}`;
+        }
+
+        // Event listeners
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const px = e.clientX - rect.left;
+            const py = e.clientY - rect.top;
+
+            const rangeX = 4.0 / zoom;
+            const rangeY = 4.0 / zoom;
+            const xMin = centerX - rangeX / 2;
+            const yMin = centerY - rangeY / 2;
+
+            centerX = xMin + (px / width) * rangeX;
+            centerY = yMin + (py / height) * rangeY;
+
+            render();
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            zoom *= zoomFactor;
+            zoom = Math.max(1, Math.min(1000, zoom));
+
+            document.getElementById('zoom').value = Math.min(100, zoom);
+            render();
+        });
+
+        document.getElementById('cReal').addEventListener('input', (e) => {
+            cReal = parseFloat(e.target.value);
+            render();
+        });
+
+        document.getElementById('cImag').addEventListener('input', (e) => {
+            cImag = parseFloat(e.target.value);
+            render();
+        });
+
+        document.getElementById('iterations').addEventListener('input', (e) => {
+            maxIter = parseInt(e.target.value);
+            render();
+        });
+
+        document.getElementById('zoom').addEventListener('input', (e) => {
+            zoom = parseFloat(e.target.value);
+            render();
+        });
+
+        document.getElementById('cycleColor').addEventListener('click', () => {
+            colorSchemeIndex = (colorSchemeIndex + 1) % colorSchemes.length;
+            render();
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            centerX = 0;
+            centerY = 0;
+            zoom = 1;
+            document.getElementById('zoom').value = 1;
+            render();
+        });
+
+        document.getElementById('randomC').addEventListener('click', () => {
+            // Sample from Mandelbrot boundary region for interesting Julia sets
+            cReal = (Math.random() - 0.5) * 2;
+            cImag = (Math.random() - 0.5) * 2;
+            document.getElementById('cReal').value = cReal;
+            document.getElementById('cImag').value = cImag;
+            render();
+        });
+
+        // Initialize
+        buildPresets();
+        render();
+    </script>
+</body>
+</html>

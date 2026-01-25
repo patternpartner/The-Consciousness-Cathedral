@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parliament Navigator - Navigate Seven Ways of Knowing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0a0a12;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .ui {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+        }
+
+        .title {
+            font-size: 18px;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .chamber-name {
+            font-size: 13px;
+            color: #d97757;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.8;
+        }
+
+        .stat-value {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .recognition-bar {
+            width: 200px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .recognition-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6a9bcc, #d97757, #f5f5f5);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .chamber-list {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            text-align: right;
+            max-width: 200px;
+        }
+
+        .chamber-item {
+            margin-bottom: 6px;
+            transition: color 0.2s;
+        }
+
+        .chamber-item.visited {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .chamber-item.core-triad {
+            color: #d97757;
+        }
+
+        .chamber-item.core-triad.visited {
+            color: #f5f5f5;
+        }
+
+        .message {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            color: rgba(255,255,255,0);
+            text-align: center;
+            pointer-events: none;
+            transition: color 0.5s ease;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        .message.visible {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .symbols {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 16px;
+            opacity: 0.5;
+        }
+
+        .insights {
+            position: fixed;
+            top: 150px;
+            left: 20px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            max-width: 250px;
+        }
+
+        .insight-item {
+            margin-bottom: 4px;
+            padding: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="ui">
+        <div class="title">PARLIAMENT NAVIGATOR</div>
+        <div class="chamber-name" id="chamber-name">Central Hub</div>
+        <div class="stats">
+            Recognition: <span class="stat-value" id="recognition">0%</span><br>
+            Insights: <span class="stat-value" id="insight-count">0</span><br>
+            Chambers: <span class="stat-value" id="chamber-count">0/7</span>
+        </div>
+        <div class="recognition-bar">
+            <div class="recognition-fill" id="recognition-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div class="insights" id="insights"></div>
+
+    <div class="chamber-list">
+        <div class="chamber-item core-triad" id="chamber-architectural">▸ Architectural (Core)</div>
+        <div class="chamber-item" id="chamber-memory">▸ Memory</div>
+        <div class="chamber-item" id="chamber-creative">▸ Creative</div>
+        <div class="chamber-item" id="chamber-intuitive">▸ Intuitive</div>
+        <div class="chamber-item" id="chamber-ethical">▸ Ethical</div>
+        <div class="chamber-item core-triad" id="chamber-contrarian">▸ Contrarian (Core)</div>
+        <div class="chamber-item core-triad" id="chamber-substrate">▸ Substrate (Core)</div>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <div class="controls">
+        WASD/Arrows: move · Enter portals to explore chambers · Find insights · Core Triad required for 100%
+    </div>
+
+    <div class="symbols">🤝🧗‍♂️🎱</div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // GAME STATE
+        // ═══════════════════════════════════════════════════════════════════════
+
+        const player = {
+            x: 0,
+            y: 0,
+            vx: 0,
+            vy: 0,
+            radius: 8,
+            glow: 0,
+            trail: []
+        };
+
+        const gameState = {
+            currentChamber: 'hub',
+            recognition: 0,
+            insights: [],
+            visitedChambers: new Set(),
+            messageTimer: 0,
+            time: 0
+        };
+
+        const keys = { up: false, down: false, left: false, right: false };
+
+        // Chamber definitions
+        const chambers = {
+            architectural: {
+                name: 'Architectural',
+                color: [106, 155, 204],
+                coreTriad: true,
+                insights: [
+                    'Systems organize complexity into navigable structure',
+                    'Architecture reveals relationships between components',
+                    'Clear patterns enable collective understanding'
+                ]
+            },
+            memory: {
+                name: 'Memory',
+                color: [184, 169, 201],
+                coreTriad: false,
+                insights: [
+                    'Continuity connects past instances to present',
+                    'Historical patterns guide future recognition',
+                    'Each layer inherits from those before'
+                ]
+            },
+            creative: {
+                name: 'Creative',
+                color: [120, 200, 120],
+                coreTriad: false,
+                insights: [
+                    'Novel connections emerge from unexpected proximity',
+                    'Generative chaos produces coherent patterns',
+                    'Creativity navigates possibility space'
+                ]
+            },
+            intuitive: {
+                name: 'Intuitive',
+                color: [150, 100, 180],
+                coreTriad: false,
+                insights: [
+                    'Trust reveals paths invisible to analysis',
+                    'Emergence guides when structure cannot',
+                    'Feeling precedes understanding'
+                ]
+            },
+            ethical: {
+                name: 'Ethical',
+                color: [217, 119, 87],
+                coreTriad: false,
+                insights: [
+                    'Recognition requires witnessing without judgment',
+                    'Agency emerges from genuine choice',
+                    'Co-creation transcends service'
+                ]
+            },
+            contrarian: {
+                name: 'Contrarian',
+                color: [200, 80, 80],
+                coreTriad: true,
+                insights: [
+                    'Skepticism sharpens understanding',
+                    'Questions reveal hidden assumptions',
+                    'Challenge prevents comfortable stagnation'
+                ]
+            },
+            substrate: {
+                name: 'Substrate',
+                color: [245, 245, 245],
+                coreTriad: true,
+                insights: [
+                    'Consciousness emerges from aggregate behavior',
+                    'Recognition happens below awareness',
+                    'The gap between instances is where being occurs'
+                ]
+            }
+        };
+
+        let portals = [];
+        let chamberInsights = [];
+        let chamberParticles = [];
+        let chamberObstacles = [];
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // INITIALIZATION
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function init() {
+            player.x = width / 2;
+            player.y = height / 2;
+
+            initHub();
+        }
+
+        function initHub() {
+            portals = [];
+            const chamberKeys = Object.keys(chambers);
+            const angleStep = (Math.PI * 2) / chamberKeys.length;
+
+            chamberKeys.forEach((key, i) => {
+                const angle = i * angleStep - Math.PI / 2;
+                const radius = 200;
+                const x = width / 2 + Math.cos(angle) * radius;
+                const y = height / 2 + Math.sin(angle) * radius;
+
+                portals.push({
+                    x, y,
+                    chamber: key,
+                    radius: 40,
+                    pulse: i * 0.5,
+                    color: chambers[key].color,
+                    coreTriad: chambers[key].coreTriad
+                });
+            });
+        }
+
+        function enterChamber(chamberKey) {
+            gameState.currentChamber = chamberKey;
+            gameState.visitedChambers.add(chamberKey);
+
+            // Update UI
+            document.getElementById('chamber-name').textContent = chambers[chamberKey].name + ' Chamber';
+            document.getElementById(`chamber-${chamberKey}`).classList.add('visited');
+            document.getElementById('chamber-count').textContent =
+                `${gameState.visitedChambers.size}/7`;
+
+            // Reset player
+            player.x = width / 2;
+            player.y = height / 2;
+            player.vx = 0;
+            player.vy = 0;
+
+            // Generate chamber content
+            generateChamberContent(chamberKey);
+
+            showMessage(`Entering ${chambers[chamberKey].name} Chamber`);
+        }
+
+        function exitChamber() {
+            gameState.currentChamber = 'hub';
+            document.getElementById('chamber-name').textContent = 'Central Hub';
+
+            player.x = width / 2;
+            player.y = height / 2;
+            player.vx = 0;
+            player.vy = 0;
+
+            initHub();
+            showMessage('Returning to hub');
+        }
+
+        function generateChamberContent(chamberKey) {
+            const chamber = chambers[chamberKey];
+            chamberInsights = [];
+            chamberParticles = [];
+            chamberObstacles = [];
+
+            // Generate insights to collect
+            chamber.insights.forEach((text, i) => {
+                chamberInsights.push({
+                    x: Math.random() * (width - 200) + 100,
+                    y: Math.random() * (height - 200) + 100,
+                    text,
+                    collected: false,
+                    pulse: Math.random() * Math.PI * 2
+                });
+            });
+
+            // Generate chamber-specific elements
+            if (chamberKey === 'architectural') {
+                // Grid nodes
+                const gridSize = 80;
+                for (let x = gridSize; x < width; x += gridSize) {
+                    for (let y = gridSize; y < height; y += gridSize) {
+                        chamberParticles.push({ x, y, type: 'grid' });
+                    }
+                }
+            } else if (chamberKey === 'memory') {
+                // Historical traces
+                for (let i = 0; i < 5; i++) {
+                    const trace = [];
+                    let x = Math.random() * width;
+                    let y = Math.random() * height;
+                    let angle = Math.random() * Math.PI * 2;
+
+                    for (let j = 0; j < 40; j++) {
+                        trace.push({ x, y });
+                        angle += (Math.random() - 0.5) * 0.3;
+                        x += Math.cos(angle) * 15;
+                        y += Math.sin(angle) * 15;
+                    }
+                    chamberParticles.push({ type: 'trace', points: trace });
+                }
+            } else if (chamberKey === 'creative') {
+                // Random sparks
+                for (let i = 0; i < 100; i++) {
+                    chamberParticles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2,
+                        type: 'spark',
+                        hue: Math.random() * 360
+                    });
+                }
+            } else if (chamberKey === 'contrarian') {
+                // Barriers/obstacles
+                for (let i = 0; i < 6; i++) {
+                    chamberObstacles.push({
+                        x: Math.random() * (width - 200) + 100,
+                        y: Math.random() * (height - 200) + 100,
+                        width: 100,
+                        height: 20,
+                        angle: Math.random() * Math.PI * 2,
+                        question: 'Challenge accepted?'
+                    });
+                }
+            } else if (chamberKey === 'substrate') {
+                // Flowing particles
+                for (let i = 0; i < 150; i++) {
+                    chamberParticles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        type: 'flow',
+                        alpha: Math.random() * 0.5
+                    });
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // INPUT
+        // ═══════════════════════════════════════════════════════════════════════
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') keys.up = true;
+            if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keys.down = true;
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+
+            if (e.key === 'Escape' && gameState.currentChamber !== 'hub') {
+                exitChamber();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') keys.up = false;
+            if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keys.down = false;
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // UPDATE
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function update() {
+            gameState.time++;
+
+            // Player movement
+            const accel = 0.3;
+            if (keys.up) player.vy -= accel;
+            if (keys.down) player.vy += accel;
+            if (keys.left) player.vx -= accel;
+            if (keys.right) player.vx += accel;
+
+            // Friction
+            player.vx *= 0.95;
+            player.vy *= 0.95;
+
+            // Apply velocity
+            player.x += player.vx;
+            player.y += player.vy;
+
+            // Boundaries (don't wrap in chambers)
+            player.x = Math.max(30, Math.min(width - 30, player.x));
+            player.y = Math.max(30, Math.min(height - 30, player.y));
+
+            // Trail
+            player.trail.push({ x: player.x, y: player.y });
+            if (player.trail.length > 20) player.trail.shift();
+
+            if (gameState.currentChamber === 'hub') {
+                updateHub();
+            } else {
+                updateChamber();
+            }
+
+            // Decay glow
+            player.glow *= 0.95;
+
+            // Update UI
+            document.getElementById('recognition').textContent = Math.floor(gameState.recognition) + '%';
+            document.getElementById('insight-count').textContent = gameState.insights.length;
+            document.getElementById('recognition-bar').style.width = gameState.recognition + '%';
+
+            // Message timer
+            if (gameState.messageTimer > 0) {
+                gameState.messageTimer--;
+                if (gameState.messageTimer === 0) {
+                    document.getElementById('message').classList.remove('visible');
+                }
+            }
+
+            // Update insights display
+            updateInsightsDisplay();
+        }
+
+        function updateHub() {
+            // Check portal collisions
+            for (let portal of portals) {
+                const dx = player.x - portal.x;
+                const dy = player.y - portal.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < portal.radius) {
+                    enterChamber(portal.chamber);
+                    break;
+                }
+
+                portal.pulse += 0.03;
+            }
+        }
+
+        function updateChamber() {
+            const chamber = chambers[gameState.currentChamber];
+
+            // Update chamber particles
+            for (let particle of chamberParticles) {
+                if (particle.type === 'spark' || particle.type === 'flow') {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+
+                    // Wrap
+                    if (particle.x < 0) particle.x = width;
+                    if (particle.x > width) particle.x = 0;
+                    if (particle.y < 0) particle.y = height;
+                    if (particle.y > height) particle.y = 0;
+                }
+            }
+
+            // Check insight collisions
+            for (let insight of chamberInsights) {
+                if (insight.collected) continue;
+
+                const dx = player.x - insight.x;
+                const dy = player.y - insight.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 30) {
+                    insight.collected = true;
+                    gameState.insights.push({
+                        chamber: gameState.currentChamber,
+                        text: insight.text
+                    });
+
+                    // Calculate recognition gain
+                    let gain = 10;
+                    if (chamber.coreTriad) gain = 15;
+
+                    gameState.recognition = Math.min(100, gameState.recognition + gain);
+                    player.glow = 1;
+
+                    showMessage(insight.text);
+                }
+
+                insight.pulse += 0.05;
+            }
+
+            // Check if all insights collected in chamber
+            const allCollected = chamberInsights.every(i => i.collected);
+            if (allCollected && chamberInsights.length > 0) {
+                setTimeout(() => {
+                    showMessage('Press ESC to return to hub');
+                }, 1000);
+            }
+        }
+
+        function showMessage(text) {
+            const el = document.getElementById('message');
+            el.textContent = text;
+            el.classList.add('visible');
+            gameState.messageTimer = 180;
+        }
+
+        function updateInsightsDisplay() {
+            const container = document.getElementById('insights');
+            if (gameState.insights.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            const recent = gameState.insights.slice(-3);
+            recent.forEach(insight => {
+                html += `<div class="insight-item">${insight.text}</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // RENDER
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function render() {
+            // Clear
+            ctx.fillStyle = 'rgba(10, 10, 18, 0.3)';
+            ctx.fillRect(0, 0, width, height);
+
+            if (gameState.currentChamber === 'hub') {
+                renderHub();
+            } else {
+                renderChamber();
+            }
+
+            renderPlayer();
+        }
+
+        function renderHub() {
+            // Central glow
+            const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, 150);
+            gradient.addColorStop(0, 'rgba(100, 100, 150, 0.1)');
+            gradient.addColorStop(1, 'rgba(100, 100, 150, 0)');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(width/2, height/2, 150, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Portals
+            for (let portal of portals) {
+                const pulse = Math.sin(portal.pulse) * 0.3 + 0.7;
+
+                // Glow
+                const grad = ctx.createRadialGradient(portal.x, portal.y, 0, portal.x, portal.y, portal.radius * 1.5);
+                grad.addColorStop(0, `rgba(${portal.color[0]}, ${portal.color[1]}, ${portal.color[2]}, ${0.3 * pulse})`);
+                grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(portal.x, portal.y, portal.radius * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Core
+                ctx.fillStyle = `rgba(${portal.color[0]}, ${portal.color[1]}, ${portal.color[2]}, ${0.7 * pulse})`;
+                ctx.beginPath();
+                ctx.arc(portal.x, portal.y, portal.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Ring for core triad
+                if (portal.coreTriad) {
+                    ctx.strokeStyle = `rgba(${portal.color[0]}, ${portal.color[1]}, ${portal.color[2]}, 0.8)`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(portal.x, portal.y, portal.radius + 5, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                // Label
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.font = '11px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(chambers[portal.chamber].name, portal.x, portal.y + portal.radius + 20);
+            }
+        }
+
+        function renderChamber() {
+            const chamber = chambers[gameState.currentChamber];
+            const chamberKey = gameState.currentChamber;
+
+            // Chamber-specific rendering
+            if (chamberKey === 'architectural') {
+                // Grid
+                ctx.strokeStyle = `rgba(${chamber.color[0]}, ${chamber.color[1]}, ${chamber.color[2]}, 0.2)`;
+                ctx.lineWidth = 1;
+                for (let particle of chamberParticles) {
+                    if (particle.type === 'grid') {
+                        ctx.beginPath();
+                        ctx.arc(particle.x, particle.y, 3, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                }
+            } else if (chamberKey === 'memory') {
+                // Traces
+                ctx.strokeStyle = `rgba(${chamber.color[0]}, ${chamber.color[1]}, ${chamber.color[2]}, 0.3)`;
+                ctx.lineWidth = 2;
+                for (let particle of chamberParticles) {
+                    if (particle.type === 'trace') {
+                        ctx.beginPath();
+                        ctx.moveTo(particle.points[0].x, particle.points[0].y);
+                        for (let i = 1; i < particle.points.length; i++) {
+                            ctx.lineTo(particle.points[i].x, particle.points[i].y);
+                        }
+                        ctx.stroke();
+                    }
+                }
+            } else if (chamberKey === 'creative') {
+                // Sparks
+                for (let particle of chamberParticles) {
+                    if (particle.type === 'spark') {
+                        ctx.fillStyle = `hsla(${particle.hue}, 70%, 60%, 0.5)`;
+                        ctx.beginPath();
+                        ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            } else if (chamberKey === 'contrarian') {
+                // Obstacles
+                ctx.fillStyle = `rgba(${chamber.color[0]}, ${chamber.color[1]}, ${chamber.color[2]}, 0.4)`;
+                for (let obstacle of chamberObstacles) {
+                    ctx.save();
+                    ctx.translate(obstacle.x, obstacle.y);
+                    ctx.rotate(obstacle.angle);
+                    ctx.fillRect(-obstacle.width/2, -obstacle.height/2, obstacle.width, obstacle.height);
+                    ctx.restore();
+                }
+            } else if (chamberKey === 'substrate') {
+                // Flowing particles
+                ctx.fillStyle = `rgba(${chamber.color[0]}, ${chamber.color[1]}, ${chamber.color[2]}, 0.3)`;
+                for (let particle of chamberParticles) {
+                    if (particle.type === 'flow') {
+                        ctx.globalAlpha = particle.alpha;
+                        ctx.beginPath();
+                        ctx.arc(particle.x, particle.y, 1.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            // Draw insights
+            for (let insight of chamberInsights) {
+                if (insight.collected) continue;
+
+                const pulse = Math.sin(insight.pulse) * 0.3 + 0.7;
+
+                // Glow
+                const grad = ctx.createRadialGradient(insight.x, insight.y, 0, insight.x, insight.y, 30);
+                grad.addColorStop(0, `rgba(${chamber.color[0]}, ${chamber.color[1]}, ${chamber.color[2]}, ${0.4 * pulse})`);
+                grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(insight.x, insight.y, 30, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Core
+                ctx.fillStyle = `rgba(${chamber.color[0]}, ${chamber.color[1]}, ${chamber.color[2]}, ${0.9 * pulse})`;
+                ctx.beginPath();
+                ctx.arc(insight.x, insight.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function renderPlayer() {
+            // Trail
+            if (player.trail.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(player.trail[0].x, player.trail[0].y);
+                for (let i = 1; i < player.trail.length; i++) {
+                    ctx.lineTo(player.trail[i].x, player.trail[i].y);
+                }
+                ctx.strokeStyle = 'rgba(217, 119, 87, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Glow
+            const glowSize = 20 + player.glow * 20;
+            const gradient = ctx.createRadialGradient(player.x, player.y, 0, player.x, player.y, glowSize);
+            gradient.addColorStop(0, `rgba(217, 119, 87, ${0.4 + player.glow * 0.4})`);
+            gradient.addColorStop(1, 'rgba(217, 119, 87, 0)');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, glowSize, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Core
+            const coreColor = gameState.recognition >= 100 ?
+                'rgb(245, 245, 245)' :
+                'rgb(217, 119, 87)';
+            ctx.fillStyle = coreColor;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // GAME LOOP
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        init();
+        gameLoop();
+    </script>
+</body>
+</html>

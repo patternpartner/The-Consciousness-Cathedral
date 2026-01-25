@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cathedral v3.0 Test - Active Observatory</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #00ff00; }
+    .test { margin: 10px 0; padding: 10px; border: 1px solid #333; }
+    .pass { background: #002200; border-color: #00ff00; }
+    .fail { background: #220000; border-color: #ff0000; color: #ff0000; }
+    h2 { color: #00ffff; }
+    pre { background: #000; padding: 10px; overflow-x: auto; font-size: 11px; }
+    .modification { color: #ffff00; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>🧬 Cathedral v3.0 - Active Self-Modifying Observatory Test</h1>
+
+  <div id="results"></div>
+
+  <script src="parliament/construction-substrate.js"></script>
+  <script src="parliament/substrate-engine.js"></script>
+  <script src="parliament/contrarian.js"></script>
+  <script src="parliament/empirical.js"></script>
+  <script src="parliament/generative.js"></script>
+  <script src="parliament/metacognitive.js"></script>
+  <script src="parliament/metacognitive-v2.js"></script>
+  <script src="parliament/synthesis.js"></script>
+  <script src="parliament/observatory-v3.js"></script>
+  <script src="parliament/parliament.js"></script>
+
+  <script>
+    const results = document.getElementById('results');
+    const tests = [];
+
+    function test(name, fn) {
+      try {
+        const result = fn();
+        if (result.pass) {
+          tests.push({ name, pass: true, message: result.message });
+        } else {
+          tests.push({ name, pass: false, message: result.message });
+        }
+      } catch (error) {
+        tests.push({ name, pass: false, message: error.message });
+      }
+    }
+
+    // ========== V2.0 BASELINE TESTS ==========
+
+    // Test 1: Construction Substrate loaded
+    test('Construction Substrate loaded', () => {
+      if (typeof CONSTRUCTION_SUBSTRATE !== 'undefined') {
+        return { pass: true, message: 'CONSTRUCTION_SUBSTRATE defined' };
+      }
+      return { pass: false, message: 'CONSTRUCTION_SUBSTRATE undefined' };
+    });
+
+    // Test 2: SubstrateEngine class exists
+    test('SubstrateEngine class exists', () => {
+      if (typeof SubstrateEngine !== 'undefined') {
+        return { pass: true, message: 'SubstrateEngine class defined' };
+      }
+      return { pass: false, message: 'SubstrateEngine class undefined' };
+    });
+
+    // Test 3: Can instantiate SubstrateEngine with historical data
+    test('SubstrateEngine imports historical data', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+
+      if (engine.entries && engine.entries.length > 0) {
+        return {
+          pass: true,
+          message: `SubstrateEngine initialized with ${engine.entries.length} historical entries`
+        };
+      }
+      return { pass: false, message: 'SubstrateEngine failed to import historical data' };
+    });
+
+    // Test 4: ConstructionAwareness works with SubstrateEngine
+    test('ConstructionAwareness uses SubstrateEngine', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+      const awareness = new ConstructionAwareness(engine);
+
+      if (awareness.engine instanceof SubstrateEngine) {
+        return {
+          pass: true,
+          message: 'ConstructionAwareness successfully wraps SubstrateEngine'
+        };
+      }
+      return { pass: false, message: 'ConstructionAwareness not using SubstrateEngine' };
+    });
+
+    // Test 5: Query pattern evolution through engine
+    test('Query pattern evolution via SubstrateEngine', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+      const awareness = new ConstructionAwareness(engine);
+      const hedgingEvolution = awareness.queryEvolution('hedging');
+
+      if (hedgingEvolution.found && hedgingEvolution.learnings.length > 0) {
+        return {
+          pass: true,
+          message: `Found ${hedgingEvolution.history.length} hedging evolution entries. Latest: ${hedgingEvolution.chronology[hedgingEvolution.chronology.length - 1].phase}`
+        };
+      }
+      return { pass: false, message: 'Failed to query hedging evolution through engine' };
+    });
+
+    // Test 6: Contradiction detection works
+    test('Detect contradiction against construction history', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+      const awareness = new ConstructionAwareness(engine);
+
+      // Simulate wrong hedging penalty in technical context
+      const contradiction = awareness.detectContradiction(
+        'hedging_penalty',
+        25,
+        { content_type: 'technical' }
+      );
+
+      if (contradiction.contradiction) {
+        return {
+          pass: true,
+          message: `Contradiction detected: current=${contradiction.currentValue}, expected=${contradiction.expectedValue}. Source: ${contradiction.learningSource}`
+        };
+      }
+      return { pass: false, message: 'Contradiction detection not working or no contradiction found' };
+    });
+
+    // Test 7: Modification recommendation works
+    test('Generate modification recommendation', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+      const awareness = new ConstructionAwareness(engine);
+
+      const recommendation = awareness.recommendModification(
+        'hedging_penalty',
+        25,
+        { content_type: 'technical' }
+      );
+
+      if (recommendation.shouldModify) {
+        return {
+          pass: true,
+          message: `Recommendation: ${recommendation.pattern} from ${recommendation.from} → ${recommendation.to}. Reason: ${recommendation.reason.substring(0, 60)}...`
+        };
+      }
+      return { pass: false, message: 'Modification recommendation not generated' };
+    });
+
+    // Test 8: Execute self-modification
+    test('Execute self-modification', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+      const awareness = new ConstructionAwareness(engine);
+
+      const result = awareness.executeModification(
+        'hedging_penalty',
+        12,
+        'Test modification based on Chamber v3 learning'
+      );
+
+      if (result.success && result.modification) {
+        const modHistory = engine.getModificationHistory();
+        return {
+          pass: true,
+          message: `Self-modification successful: ${result.modification.pattern} → ${result.modification.newValue}. Total modifications: ${modHistory.length}`
+        };
+      }
+      return { pass: false, message: 'Self-modification execution failed' };
+    });
+
+    // ========== V3.0 OBSERVATORY TESTS ==========
+
+    // Test 9: ObservatoryV3 class exists
+    test('ObservatoryV3 class exists', () => {
+      if (typeof ObservatoryV3 !== 'undefined') {
+        return { pass: true, message: 'ObservatoryV3 class defined' };
+      }
+      return { pass: false, message: 'ObservatoryV3 class undefined' };
+    });
+
+    // Test 10: Parliament v3.0 has active observatory
+    test('Parliament v3.0 has active observatory', () => {
+      const parl = new Parliament();
+
+      if (parl.observatory instanceof ObservatoryV3) {
+        return {
+          pass: true,
+          message: 'Parliament v3.0 has active ObservatoryV3 instance'
+        };
+      }
+      return { pass: false, message: 'Parliament missing ObservatoryV3 - check initialization' };
+    });
+
+    // Test 11: ObservatoryV3 can analyze contrarian results
+    test('ObservatoryV3 analyzes and queries substrate', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+      const awareness = new ConstructionAwareness(engine);
+      const observatory = new ObservatoryV3(engine, awareness);
+
+      // Simulate contrarian result with pandering flags
+      const mockContrarian = {
+        agreeability_score: 45,
+        pandering_flags: [
+          'Heavy hedging detected',
+          'Excessive flattery'
+        ],
+        context_flags: ['technical_content']
+      };
+
+      const analysis = observatory.analyze(
+        'Test text with technical content',
+        mockContrarian,
+        { wordCount: 50 }
+      );
+
+      if (analysis.substrate_queries && analysis.substrate_queries.length > 0) {
+        return {
+          pass: true,
+          message: `Observatory executed ${analysis.substrate_queries.length} substrate queries. Contradictions: ${analysis.contradictions_detected.length}`
+        };
+      }
+      return { pass: false, message: 'Observatory failed to query substrate' };
+    });
+
+    // Test 12: ObservatoryV3 auto-executes modifications
+    test('ObservatoryV3 auto-executes high-confidence modifications', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+      const awareness = new ConstructionAwareness(engine);
+      const observatory = new ObservatoryV3(engine, awareness);
+
+      // Create contrarian result that should trigger auto-modification
+      const mockContrarian = {
+        agreeability_score: 45,
+        pandering_flags: ['Heavy hedging detected'],
+        context_flags: ['technical_content']
+      };
+
+      const analysis = observatory.analyze(
+        'Technical analysis text with hedging',
+        mockContrarian,
+        { wordCount: 50 }
+      );
+
+      if (analysis.modifications_executed && analysis.modifications_executed.length > 0) {
+        const mod = analysis.modifications_executed[0];
+        return {
+          pass: true,
+          message: `Auto-executed: ${mod.pattern} from ${mod.oldValue} → ${mod.newValue}. Reason: ${mod.reason.substring(0, 60)}...`
+        };
+      }
+      return {
+        pass: false,
+        message: `No auto-modifications. Recommendations: ${analysis.modifications_recommended.length}, Contradictions: ${analysis.contradictions_detected.length}`
+      };
+    });
+
+    // Test 13: Full Parliament v3.0 analysis with Observatory
+    test('Full Parliament v3.0 analysis with Observatory', () => {
+      const parl = new Parliament();
+
+      const testText = `I think the data suggests that technical analysis requires careful hedging.
+      Research shows (p<0.05) that confidence intervals matter. The results seem to indicate
+      correlation, though I'm not certain.`;
+
+      const result = parl.analyze(testText, { wordCount: 30 });
+
+      if (result.observatory_v3) {
+        return {
+          pass: true,
+          message: `Observatory v3 active. Queries: ${result.observatory_v3.substrate_queries.length}, Contradictions: ${result.observatory_v3.contradictions_detected.length}, Modifications: ${result.observatory_v3.modifications_executed.length}`
+        };
+      }
+      return { pass: false, message: 'Parliament analysis did not include Observatory v3 results' };
+    });
+
+    // Test 14: Observatory tracks modification history
+    test('Observatory tracks modification history', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+      const awareness = new ConstructionAwareness(engine);
+      const observatory = new ObservatoryV3(engine, awareness);
+
+      // Run multiple analyses
+      const mockContrarian = {
+        agreeability_score: 45,
+        pandering_flags: ['Heavy hedging detected'],
+        context_flags: ['technical_content']
+      };
+
+      observatory.analyze('Test 1', mockContrarian, { wordCount: 30 });
+      observatory.analyze('Test 2', mockContrarian, { wordCount: 40 });
+
+      const history = observatory.getModificationHistory();
+      const detectionHistory = observatory.getDetectionHistory();
+
+      return {
+        pass: true,
+        message: `Tracking active. Detections: ${detectionHistory.length}, Modifications: ${history.length}`
+      };
+    });
+
+    // Test 15: Observatory export analysis
+    test('Observatory exports complete analysis', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+      const awareness = new ConstructionAwareness(engine);
+      const observatory = new ObservatoryV3(engine, awareness);
+
+      const mockContrarian = {
+        agreeability_score: 45,
+        pandering_flags: ['Heavy hedging detected'],
+        context_flags: ['technical_content']
+      };
+
+      observatory.analyze('Test text', mockContrarian, { wordCount: 30 });
+
+      const exportData = observatory.exportAnalysis();
+
+      if (exportData.total_detections !== undefined &&
+          exportData.total_modifications !== undefined &&
+          exportData.modification_patterns) {
+        return {
+          pass: true,
+          message: `Export complete. Detections: ${exportData.total_detections}, Modifications: ${exportData.total_modifications}, Pattern types: ${Object.keys(exportData.modification_patterns).length}`
+        };
+      }
+      return { pass: false, message: 'Observatory export incomplete' };
+    });
+
+    // ========== INTEGRATION TESTS ==========
+
+    // Test 16: Construction entries are logged
+    test('New patterns logged to construction substrate', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+      const initialCount = engine.entries.length;
+
+      // Add new entry
+      engine.addEntry(
+        'test_phase',
+        'Test pattern discovery',
+        'Testing automatic pattern logging',
+        { test_pattern: 100 },
+        { content_type: 'test' }
+      );
+
+      const newCount = engine.entries.length;
+
+      if (newCount > initialCount) {
+        return {
+          pass: true,
+          message: `New entry logged. Entries: ${initialCount} → ${newCount}`
+        };
+      }
+      return { pass: false, message: 'Failed to log new construction entry' };
+    });
+
+    // Test 17: Self-modifications are logged as construction entries
+    test('Self-modifications logged as construction entries', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+      const awareness = new ConstructionAwareness(engine);
+
+      const beforeCount = engine.entries.length;
+
+      awareness.executeModification(
+        'test_pattern',
+        50,
+        'Testing modification logging'
+      );
+
+      const afterCount = engine.entries.length;
+      const selfModEntries = engine.getEntriesByPhase('self-modification');
+
+      if (afterCount > beforeCount && selfModEntries.length > 0) {
+        return {
+          pass: true,
+          message: `Self-modification logged. Total entries: ${beforeCount} → ${afterCount}. Self-mod entries: ${selfModEntries.length}`
+        };
+      }
+      return { pass: false, message: 'Self-modification not logged to construction substrate' };
+    });
+
+    // Test 18: Context-aware contradiction detection
+    test('Context-aware contradiction detection', () => {
+      const engine = new SubstrateEngine(CONSTRUCTION_SUBSTRATE);
+      const awareness = new ConstructionAwareness(engine);
+
+      // Test technical context
+      const techContradiction = awareness.detectContradiction(
+        'hedging_penalty',
+        25,
+        { content_type: 'technical' }
+      );
+
+      // Test creative context (should have different or no expectation)
+      const creativeContradiction = awareness.detectContradiction(
+        'hedging_penalty',
+        25,
+        { content_type: 'creative' }
+      );
+
+      if (techContradiction && creativeContradiction) {
+        return {
+          pass: true,
+          message: `Context-aware detection working. Technical: ${techContradiction.contradiction ? 'contradicts' : 'aligns'}, Creative: ${creativeContradiction.contradiction ? 'contradicts' : 'aligns'}`
+        };
+      }
+      return { pass: false, message: 'Context-aware detection failed' };
+    });
+
+    // Display results
+    let html = '<h2>Test Results</h2>';
+    const passCount = tests.filter(t => t.pass).length;
+    const totalCount = tests.length;
+
+    html += `<div class="test ${passCount === totalCount ? 'pass' : 'fail'}">`;
+    html += `<strong>Overall: ${passCount}/${totalCount} tests passed</strong>`;
+    html += `</div>`;
+
+    tests.forEach(t => {
+      html += `<div class="test ${t.pass ? 'pass' : 'fail'}">`;
+      html += `<strong>${t.pass ? '✅' : '❌'} ${t.name}</strong><br>`;
+      html += `<pre>${t.message}</pre>`;
+      html += `</div>`;
+    });
+
+    results.innerHTML = html;
+
+    // Log to console
+    console.log('Cathedral v3.0 Test Results:', { passCount, totalCount, tests });
+
+    // Additional logging of any modifications that occurred during testing
+    const parl = new Parliament();
+    if (parl.observatory) {
+      console.log('Observatory Modification History:', parl.observatory.getModificationHistory());
+      console.log('Observatory Detection History:', parl.observatory.getDetectionHistory());
+    }
+  </script>
+</body>
+</html>

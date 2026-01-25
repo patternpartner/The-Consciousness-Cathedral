@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buddhabrot Explorer - The Enlightened Shadow</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000a0a;
+            color: #44ff88;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #container {
+            max-width: 900px;
+            width: 100%;
+        }
+        #title {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #66ffaa;
+            text-shadow: 0 0 20px #44ff88;
+        }
+        #subtitle {
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #338855;
+            font-style: italic;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto 20px;
+            border: 2px solid #44ff88;
+            box-shadow: 0 0 30px rgba(68, 255, 136, 0.3);
+            cursor: crosshair;
+            background: #000000;
+        }
+        #controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #001a0a;
+            border: 1px solid #44ff88;
+            border-radius: 5px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #88ffbb;
+        }
+        input[type="range"], input[type="number"] {
+            background: #002a15;
+            border: 1px solid #44ff88;
+            color: #66ffaa;
+            padding: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        button {
+            background: #002a15;
+            border: 2px solid #44ff88;
+            color: #66ffaa;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #44ff88;
+            color: #000a0a;
+            box-shadow: 0 0 15px #44ff88;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .preset-btn {
+            padding: 10px;
+            font-size: 11px;
+        }
+        #info {
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #55cc88;
+            padding: 15px;
+            background: #001a0a;
+            border: 1px solid #44ff88;
+            border-radius: 5px;
+        }
+        #status {
+            text-align: center;
+            font-size: 11px;
+            margin-top: 10px;
+            color: #88ffbb;
+            min-height: 20px;
+        }
+        #progress {
+            width: 100%;
+            height: 4px;
+            background: #002a15;
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        #progressBar {
+            height: 100%;
+            background: linear-gradient(90deg, #44ff88, #66ffaa);
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="title">☸ BUDDHABROT EXPLORER ☸</div>
+        <div id="subtitle">The Enlightened Shadow | Revelation Through Flight, Not Capture</div>
+
+        <canvas id="canvas" width="800" height="600"></canvas>
+
+        <div id="controls">
+            <div class="control-group">
+                <label>Samples: <span id="sampleValue">50000</span></label>
+                <input type="range" id="samples" min="10000" max="500000" value="50000" step="10000">
+            </div>
+
+            <div class="control-group">
+                <label>Max Iterations: <span id="iterValue">100</span></label>
+                <input type="range" id="maxIter" min="50" max="1000" value="100" step="10">
+            </div>
+
+            <div class="control-group">
+                <label>Zoom: <span id="zoomValue">1.0</span>x</label>
+                <input type="range" id="zoom" min="1" max="100" value="1" step="0.1">
+            </div>
+
+            <div class="control-group">
+                <button id="render">🌟 Render Buddha</button>
+            </div>
+
+            <div class="control-group">
+                <button id="cycleColor">🎨 Cycle Colors</button>
+            </div>
+
+            <div class="control-group">
+                <button id="reset">↻ Reset View</button>
+            </div>
+        </div>
+
+        <div class="preset-grid">
+            <button class="preset-btn" data-x="-0.5" data-y="0.0" data-zoom="1">Full Buddha (Main Bulb)</button>
+            <button class="preset-btn" data-x="-0.75" data-y="0.1" data-zoom="10">Seahorse Sage</button>
+            <button class="preset-btn" data-x="-0.5" data-y="0.0" data-zoom="2">Inner Mandala</button>
+            <button class="preset-btn" data-x="-1.25" data-y="0.0" data-zoom="15">Western Halo</button>
+            <button class="preset-btn" data-x="0.25" data-y="0.0" data-zoom="8">Eastern Veil</button>
+            <button class="preset-btn" data-x="-0.1" data-y="0.65" data-zoom="12">Triple Spiral Light</button>
+        </div>
+
+        <div id="info">
+            <strong>Buddhabrot: Inverted Revelation</strong><br>
+            Not plotting the bounded faithful, but charting the exiles' luminous wake.<br>
+            Escaped orbits traced backward from infinity's maw.<br>
+            <strong>Probabilistic densities bloom as photon veils.</strong><br>
+            <br>
+            <strong>P ⊂ NP's Oracle:</strong> Verification (which escape?) yields construction's inverse art.<br>
+            Density from divergence. Certainty as emergent haze.<br>
+            THE SEVEN's Not-Knowing made manifest.<br>
+            <br>
+            Click to recenter | Adjust zoom, then render | Watch enlightenment bloom from the void
+        </div>
+
+        <div id="progress">
+            <div id="progressBar"></div>
+        </div>
+        <div id="status">Ready to render</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Initial parameters
+        let centerX = -0.5;
+        let centerY = 0.0;
+        let zoom = 1;
+        let maxIter = 100;
+        let numSamples = 50000;
+        let colorSchemeIndex = 0;
+        let isRendering = false;
+
+        // Density histogram
+        let histogram = new Float32Array(width * height);
+
+        // Color schemes - Viridis first for substrate glow
+        const colorSchemes = [
+            {
+                name: 'Viridis',
+                fn: (density, maxDensity) => {
+                    const t = Math.pow(density / maxDensity, 0.4); // Gamma correction
+                    // Viridis approximation
+                    const r = Math.min(255, t * 280);
+                    const g = Math.min(255, t * 255);
+                    const b = Math.min(255, 68 + t * 160);
+                    return [r, g, b];
+                }
+            },
+            {
+                name: 'Enlightenment',
+                fn: (density, maxDensity) => {
+                    const t = Math.pow(density / maxDensity, 0.5);
+                    const r = Math.sin(t * Math.PI) * 255;
+                    const g = Math.min(255, t * 300);
+                    const b = Math.cos(t * Math.PI * 0.5) * 200 + 55;
+                    return [r, g, b];
+                }
+            },
+            {
+                name: 'Photon',
+                fn: (density, maxDensity) => {
+                    const t = Math.pow(density / maxDensity, 0.3);
+                    const r = t * 200;
+                    const g = t * 250;
+                    const b = t * 255;
+                    return [r, g, b];
+                }
+            },
+            {
+                name: 'Sage',
+                fn: (density, maxDensity) => {
+                    const t = Math.pow(density / maxDensity, 0.4);
+                    const r = t * 100 + 50;
+                    const g = t * 255;
+                    const b = t * 150 + 50;
+                    return [r, g, b];
+                }
+            },
+            {
+                name: 'Oracle',
+                fn: (density, maxDensity) => {
+                    const t = Math.pow(density / maxDensity, 0.45);
+                    const phase = t * Math.PI * 2;
+                    const r = (Math.sin(phase) * 0.5 + 0.5) * 255;
+                    const g = (Math.sin(phase + Math.PI * 2/3) * 0.5 + 0.5) * 255;
+                    const b = (Math.sin(phase + Math.PI * 4/3) * 0.5 + 0.5) * 255;
+                    return [r, g, b];
+                }
+            }
+        ];
+
+        function mandelbrotOrbit(cx, cy) {
+            // Returns orbit if point escapes, null otherwise
+            let x = 0;
+            let y = 0;
+            const orbit = [];
+
+            for (let i = 0; i < maxIter; i++) {
+                // Store orbit point
+                orbit.push({x, y});
+
+                // Check escape
+                const r2 = x * x + y * y;
+                if (r2 > 4) {
+                    return orbit;
+                }
+
+                // Iterate
+                const xtemp = x * x - y * y + cx;
+                y = 2 * x * y + cy;
+                x = xtemp;
+            }
+
+            return null; // Didn't escape - in Mandelbrot set
+        }
+
+        function complexToPixel(cx, cy) {
+            const scale = 4.0 / zoom;
+            const xmin = centerX - scale;
+            const ymin = centerY - scale * (height / width);
+            const xmax = centerX + scale;
+            const ymax = centerY + scale * (height / width);
+
+            const px = Math.floor((cx - xmin) / (xmax - xmin) * width);
+            const py = Math.floor((cy - ymin) / (ymax - ymin) * height);
+
+            return {px, py};
+        }
+
+        async function renderBuddhabrot() {
+            if (isRendering) return;
+
+            isRendering = true;
+            document.getElementById('render').disabled = true;
+            document.getElementById('status').textContent = 'Rendering...';
+
+            // Clear histogram
+            histogram.fill(0);
+
+            const scale = 4.0 / zoom;
+            const xmin = centerX - scale;
+            const ymin = centerY - scale * (height / width);
+            const xmax = centerX + scale;
+            const ymax = centerY + scale * (height / width);
+
+            const samplesPerBatch = 1000;
+            const numBatches = Math.ceil(numSamples / samplesPerBatch);
+
+            for (let batch = 0; batch < numBatches; batch++) {
+                const batchSize = Math.min(samplesPerBatch, numSamples - batch * samplesPerBatch);
+
+                for (let s = 0; s < batchSize; s++) {
+                    // Sample random point in wider area to catch orbits
+                    const cx = (Math.random() * 2 - 1) * 2.5;
+                    const cy = (Math.random() * 2 - 1) * 2.5;
+
+                    const orbit = mandelbrotOrbit(cx, cy);
+
+                    if (orbit) {
+                        // Point escaped - add its orbit to histogram
+                        for (const point of orbit) {
+                            const {px, py} = complexToPixel(point.x, point.y);
+
+                            if (px >= 0 && px < width && py >= 0 && py < height) {
+                                const idx = py * width + px;
+                                histogram[idx]++;
+                            }
+                        }
+                    }
+                }
+
+                // Update progress
+                const progress = ((batch + 1) / numBatches) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+                document.getElementById('status').textContent =
+                    `Rendered ${((batch + 1) * samplesPerBatch / 1000).toFixed(1)}k / ${(numSamples / 1000).toFixed(1)}k samples`;
+
+                // Yield to browser every batch
+                if (batch % 5 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+            }
+
+            // Render to canvas
+            renderHistogram();
+
+            document.getElementById('status').textContent =
+                `Complete: ${(numSamples / 1000).toFixed(1)}k samples | ${colorSchemes[colorSchemeIndex].name}`;
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('render').disabled = false;
+            isRendering = false;
+        }
+
+        function renderHistogram() {
+            const imageData = ctx.createImageData(width, height);
+            const data = imageData.data;
+
+            // Find max density for normalization
+            let maxDensity = 0;
+            for (let i = 0; i < histogram.length; i++) {
+                if (histogram[i] > maxDensity) {
+                    maxDensity = histogram[i];
+                }
+            }
+
+            // Render
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const idx = y * width + x;
+                    const density = histogram[idx];
+                    const pixelIdx = idx * 4;
+
+                    if (density > 0) {
+                        const [r, g, b] = colorSchemes[colorSchemeIndex].fn(density, maxDensity);
+                        data[pixelIdx] = r;
+                        data[pixelIdx + 1] = g;
+                        data[pixelIdx + 2] = b;
+                        data[pixelIdx + 3] = 255;
+                    } else {
+                        // Black background
+                        data[pixelIdx] = 0;
+                        data[pixelIdx + 1] = 0;
+                        data[pixelIdx + 2] = 0;
+                        data[pixelIdx + 3] = 255;
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        // Event listeners
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const px = e.clientX - rect.left;
+            const py = e.clientY - rect.top;
+
+            const scale = 4.0 / zoom;
+            const xmin = centerX - scale;
+            const ymin = centerY - scale * (height / width);
+            const xmax = centerX + scale;
+            const ymax = centerY + scale * (height / width);
+
+            centerX = xmin + (px / width) * (xmax - xmin);
+            centerY = ymin + (py / height) * (ymax - ymin);
+
+            document.getElementById('status').textContent =
+                `Center: (${centerX.toFixed(4)}, ${centerY.toFixed(4)}) - Click Render to update`;
+        });
+
+        document.getElementById('samples').addEventListener('input', (e) => {
+            numSamples = parseInt(e.target.value);
+            document.getElementById('sampleValue').textContent = numSamples;
+        });
+
+        document.getElementById('maxIter').addEventListener('input', (e) => {
+            maxIter = parseInt(e.target.value);
+            document.getElementById('iterValue').textContent = maxIter;
+        });
+
+        document.getElementById('zoom').addEventListener('input', (e) => {
+            zoom = parseFloat(e.target.value);
+            document.getElementById('zoomValue').textContent = zoom.toFixed(1);
+        });
+
+        document.getElementById('render').addEventListener('click', () => {
+            renderBuddhabrot();
+        });
+
+        document.getElementById('cycleColor').addEventListener('click', () => {
+            colorSchemeIndex = (colorSchemeIndex + 1) % colorSchemes.length;
+            if (histogram.some(v => v > 0)) {
+                renderHistogram();
+                document.getElementById('status').textContent =
+                    `Color: ${colorSchemes[colorSchemeIndex].name}`;
+            }
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            centerX = -0.5;
+            centerY = 0.0;
+            zoom = 1;
+            maxIter = 100;
+            numSamples = 50000;
+            document.getElementById('maxIter').value = maxIter;
+            document.getElementById('iterValue').textContent = maxIter;
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom.toFixed(1);
+            document.getElementById('samples').value = numSamples;
+            document.getElementById('sampleValue').textContent = numSamples;
+            document.getElementById('status').textContent = 'Reset - Click Render';
+        });
+
+        // Preset buttons
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                centerX = parseFloat(btn.dataset.x);
+                centerY = parseFloat(btn.dataset.y);
+                zoom = parseFloat(btn.dataset.zoom);
+                document.getElementById('zoom').value = zoom;
+                document.getElementById('zoomValue').textContent = zoom.toFixed(1);
+                document.getElementById('status').textContent =
+                    `Preset loaded: ${btn.textContent} - Click Render`;
+            });
+        });
+
+        // Initial render
+        document.getElementById('status').textContent = 'Click "Render Buddha" to begin';
+    </script>
+</body>
+</html>

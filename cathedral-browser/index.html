@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cathedral Browser - Parliament Substrate</title>
+  <link rel="stylesheet" href="assets/cathedral.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="cathedral-header">
+    <h1>⚡ Cathedral</h1>
+    <p class="subtitle">Parliament Substrate Layer</p>
+    <button id="stats-btn" class="icon-btn">📊</button>
+  </header>
+
+  <!-- Input Section -->
+  <section class="input-section">
+    <h2>Analyze Text</h2>
+    <textarea
+      id="input-text"
+      placeholder="Paste text here... (AI response, article, email, anything)"
+      rows="8"
+    ></textarea>
+    <div class="input-actions">
+      <button id="analyze-btn" class="primary-btn">⚡ Run Parliament</button>
+      <button id="clear-btn" class="secondary-btn">Clear</button>
+      <span id="word-count" class="word-count">0 words</span>
+    </div>
+  </section>
+
+  <!-- Parliament Results -->
+  <section id="results-section" class="results-section" style="display: none;">
+    <h2>Parliament Analysis</h2>
+
+    <!-- Vector Tabs -->
+    <div class="vector-tabs">
+      <button class="vector-tab active" data-vector="synthesis">⚡ Synthesis</button>
+      <button class="vector-tab" data-vector="contrarian">🔴 Contrarian</button>
+      <button class="vector-tab" data-vector="empirical">📊 Empirical</button>
+      <button class="vector-tab" data-vector="generative">🌀 Generative</button>
+      <button class="vector-tab" data-vector="metacognitive">🧠 Observatory</button>
+    </div>
+
+    <!-- Vector Content Panels -->
+    <div class="vector-panels">
+      <div id="panel-synthesis" class="vector-panel active"></div>
+      <div id="panel-contrarian" class="vector-panel"></div>
+      <div id="panel-empirical" class="vector-panel"></div>
+      <div id="panel-generative" class="vector-panel"></div>
+      <div id="panel-metacognitive" class="vector-panel"></div>
+    </div>
+
+    <!-- Processing info -->
+    <div id="processing-info" class="processing-info"></div>
+  </section>
+
+  <!-- Stats Modal -->
+  <div id="stats-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2>Observatory Statistics</h2>
+      <div id="stats-content"></div>
+      <button id="clear-history-btn" class="danger-btn">Clear All History</button>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="loading-overlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner"></div>
+    <p>Parliament analyzing...</p>
+  </div>
+
+  <!-- Scripts - Load all Parliament vectors -->
+  <script src="parliament/contrarian.js"></script>
+  <script src="parliament/empirical.js"></script>
+  <script src="parliament/generative.js"></script>
+  <script src="parliament/metacognitive.js"></script>
+  <script src="parliament/synthesis.js"></script>
+  <script src="parliament/parliament.js"></script>
+  <script src="assets/cathedral.js"></script>
+</body>
+</html>

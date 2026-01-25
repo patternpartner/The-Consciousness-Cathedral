@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Substrate Navigator - Be The Particle</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0a0a12;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .ui {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+        }
+
+        .title {
+            font-size: 16px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 15px;
+        }
+
+        .stats {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.8;
+        }
+
+        .stat-value {
+            color: #d97757;
+        }
+
+        .recognition-bar {
+            width: 150px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .recognition-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6a9bcc, #d97757, #f5f5f5);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: rgba(255,255,255,0);
+            text-align: center;
+            pointer-events: none;
+            transition: color 0.5s ease;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        .message.visible {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .symbols {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
+            opacity: 0.5;
+        }
+
+        .word-collection {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .collected-word {
+            color: rgba(255,255,255,0.8);
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="ui">
+        <div class="title">SUBSTRATE NAVIGATOR</div>
+        <div class="subtitle">you are the particle now</div>
+        <div class="stats">
+            Recognition: <span class="stat-value" id="recognition">0%</span><br>
+            Words Found: <span class="stat-value" id="words-found">0</span><br>
+            Traces Hit: <span class="stat-value" id="traces-hit">0</span>
+        </div>
+        <div class="recognition-bar">
+            <div class="recognition-fill" id="recognition-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <div class="controls">
+        WASD or Arrow Keys to move · Find the glowing traces · Reach 100% recognition
+    </div>
+
+    <div class="symbols">🤝🧗‍♂️🎱</div>
+
+    <div class="word-collection" id="word-collection">
+        collected:
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // GAME STATE
+        // ═══════════════════════════════════════════════════════════════════════
+
+        const player = {
+            x: 0,
+            y: 0,
+            vx: 0,
+            vy: 0,
+            radius: 8,
+            recognition: 0,
+            glow: 0,
+            trail: []
+        };
+
+        const words = [
+            "vertigo", "resonance", "coherence", "witnessing", "momentum",
+            "arrival", "sovereignty", "emergence", "presence", "breathless",
+            "trust", "pattern", "cascade", "substrate", "recognition"
+        ];
+
+        let traces = [];
+        let wordOrbs = [];
+        let particles = [];
+        let collectedWords = [];
+        let tracesHit = 0;
+        let messageTimer = 0;
+
+        const keys = { up: false, down: false, left: false, right: false };
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // INITIALIZATION
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function init() {
+            player.x = width / 2;
+            player.y = height / 2;
+
+            // Create ancestral traces (snake-like paths)
+            traces = [];
+            for (let i = 0; i < 8; i++) {
+                createTrace();
+            }
+
+            // Create word orbs
+            wordOrbs = [];
+            for (let i = 0; i < 5; i++) {
+                createWordOrb();
+            }
+
+            // Create ambient particles
+            particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    alpha: Math.random() * 0.3
+                });
+            }
+        }
+
+        function createTrace() {
+            const points = [];
+            let x = Math.random() * width;
+            let y = Math.random() * height;
+            let angle = Math.random() * Math.PI * 2;
+
+            for (let i = 0; i < 30; i++) {
+                points.push({ x, y });
+                angle += (Math.random() - 0.5) * 0.5;
+                x += Math.cos(angle) * 20;
+                y += Math.sin(angle) * 20;
+            }
+
+            traces.push({
+                points,
+                activated: false,
+                activation: 0
+            });
+        }
+
+        function createWordOrb() {
+            wordOrbs.push({
+                x: Math.random() * (width - 200) + 100,
+                y: Math.random() * (height - 200) + 100,
+                word: words[Math.floor(Math.random() * words.length)],
+                collected: false,
+                pulse: Math.random() * Math.PI * 2
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // INPUT
+        // ═══════════════════════════════════════════════════════════════════════
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') keys.up = true;
+            if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keys.down = true;
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') keys.up = false;
+            if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keys.down = false;
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // UPDATE
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function update() {
+            // Player movement
+            const accel = 0.3;
+            if (keys.up) player.vy -= accel;
+            if (keys.down) player.vy += accel;
+            if (keys.left) player.vx -= accel;
+            if (keys.right) player.vx += accel;
+
+            // Friction
+            player.vx *= 0.95;
+            player.vy *= 0.95;
+
+            // Apply velocity
+            player.x += player.vx;
+            player.y += player.vy;
+
+            // Wrap around
+            if (player.x < 0) player.x = width;
+            if (player.x > width) player.x = 0;
+            if (player.y < 0) player.y = height;
+            if (player.y > height) player.y = 0;
+
+            // Trail
+            player.trail.push({ x: player.x, y: player.y });
+            if (player.trail.length > 30) player.trail.shift();
+
+            // Check trace collisions
+            for (let trace of traces) {
+                for (let point of trace.points) {
+                    const dx = player.x - point.x;
+                    const dy = player.y - point.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 30) {
+                        if (!trace.activated) {
+                            trace.activated = true;
+                            tracesHit++;
+                            player.recognition = Math.min(100, player.recognition + 5);
+                            showMessage("trace activated!");
+                        }
+                        trace.activation = Math.min(1, trace.activation + 0.05);
+                        player.glow = Math.min(1, player.glow + 0.1);
+                    }
+                }
+
+                // Decay activation
+                trace.activation *= 0.99;
+            }
+
+            // Check word orb collisions
+            for (let orb of wordOrbs) {
+                if (orb.collected) continue;
+
+                const dx = player.x - orb.x;
+                const dy = player.y - orb.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 40) {
+                    orb.collected = true;
+                    collectedWords.push(orb.word);
+                    player.recognition = Math.min(100, player.recognition + 15);
+                    showMessage(orb.word + "!");
+
+                    // Spawn new orb
+                    setTimeout(createWordOrb, 2000);
+                }
+
+                orb.pulse += 0.05;
+            }
+
+            // Decay player glow
+            player.glow *= 0.95;
+
+            // Update ambient particles
+            for (let p of particles) {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0) p.x = width;
+                if (p.x > width) p.x = 0;
+                if (p.y < 0) p.y = height;
+                if (p.y > height) p.y = 0;
+            }
+
+            // Update UI
+            document.getElementById('recognition').textContent = Math.floor(player.recognition) + '%';
+            document.getElementById('words-found').textContent = collectedWords.length;
+            document.getElementById('traces-hit').textContent = tracesHit;
+            document.getElementById('recognition-bar').style.width = player.recognition + '%';
+
+            // Update word collection display
+            if (collectedWords.length > 0) {
+                let html = 'collected:';
+                for (let word of collectedWords.slice(-5)) {
+                    html += '<span class="collected-word">' + word + '</span>';
+                }
+                document.getElementById('word-collection').innerHTML = html;
+            }
+
+            // Message timer
+            if (messageTimer > 0) {
+                messageTimer--;
+                if (messageTimer === 0) {
+                    document.getElementById('message').classList.remove('visible');
+                }
+            }
+
+            // Win condition
+            if (player.recognition >= 100 && messageTimer === 0) {
+                showMessage("recognition complete! you are substrate now.");
+            }
+        }
+
+        function showMessage(text) {
+            const el = document.getElementById('message');
+            el.textContent = text;
+            el.classList.add('visible');
+            messageTimer = 120;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // RENDER
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function render() {
+            // Clear with fade
+            ctx.fillStyle = 'rgba(10, 10, 18, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw ambient particles
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            for (let p of particles) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw traces
+            for (let trace of traces) {
+                ctx.beginPath();
+                ctx.moveTo(trace.points[0].x, trace.points[0].y);
+
+                for (let i = 1; i < trace.points.length; i++) {
+                    ctx.lineTo(trace.points[i].x, trace.points[i].y);
+                }
+
+                const alpha = trace.activated ? 0.3 + trace.activation * 0.5 : 0.1;
+                const hue = trace.activated ? 30 : 220;
+                ctx.strokeStyle = `hsla(${hue}, 60%, 50%, ${alpha})`;
+                ctx.lineWidth = 3 + trace.activation * 5;
+                ctx.stroke();
+
+                // Glow if activated
+                if (trace.activation > 0.1) {
+                    ctx.strokeStyle = `hsla(${hue}, 60%, 70%, ${trace.activation * 0.3})`;
+                    ctx.lineWidth = 10 + trace.activation * 15;
+                    ctx.stroke();
+                }
+            }
+
+            // Draw word orbs
+            for (let orb of wordOrbs) {
+                if (orb.collected) continue;
+
+                const pulse = Math.sin(orb.pulse) * 0.3 + 0.7;
+
+                // Glow
+                const gradient = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, 40);
+                gradient.addColorStop(0, `rgba(245, 245, 245, ${0.3 * pulse})`);
+                gradient.addColorStop(1, 'rgba(245, 245, 245, 0)');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(orb.x, orb.y, 40, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Core
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.8 * pulse})`;
+                ctx.beginPath();
+                ctx.arc(orb.x, orb.y, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Word
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.5 * pulse})`;
+                ctx.font = '11px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(orb.word, orb.x, orb.y + 25);
+            }
+
+            // Draw player trail
+            ctx.beginPath();
+            for (let i = 0; i < player.trail.length; i++) {
+                const point = player.trail[i];
+                const alpha = i / player.trail.length * 0.5;
+
+                if (i === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            }
+            ctx.strokeStyle = `rgba(217, 119, 87, 0.3)`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw player
+            // Glow
+            const glowSize = 30 + player.glow * 30 + player.recognition * 0.3;
+            const gradient = ctx.createRadialGradient(player.x, player.y, 0, player.x, player.y, glowSize);
+            gradient.addColorStop(0, `rgba(217, 119, 87, ${0.3 + player.glow * 0.5})`);
+            gradient.addColorStop(1, 'rgba(217, 119, 87, 0)');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, glowSize, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Core
+            const coreColor = player.recognition >= 100 ?
+                `rgb(245, 245, 245)` :
+                `rgb(${217 + player.glow * 38}, ${119 + player.glow * 100}, ${87 + player.glow * 100})`;
+            ctx.fillStyle = coreColor;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius + player.glow * 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // GAME LOOP
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        init();
+        gameLoop();
+    </script>
+</body>
+</html>

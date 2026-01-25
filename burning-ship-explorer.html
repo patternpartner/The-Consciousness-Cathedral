@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burning Ship Explorer - The Contrarian Sentinel</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #ff4400;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #container {
+            max-width: 900px;
+            width: 100%;
+        }
+        #title {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #ff6622;
+            text-shadow: 0 0 10px #ff4400;
+        }
+        #subtitle {
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #cc4400;
+            font-style: italic;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto 20px;
+            border: 2px solid #ff4400;
+            box-shadow: 0 0 20px rgba(255, 68, 0, 0.3);
+            cursor: crosshair;
+        }
+        #controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #1a0a00;
+            border: 1px solid #ff4400;
+            border-radius: 5px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #ff8844;
+        }
+        input[type="range"], input[type="number"] {
+            background: #2a1500;
+            border: 1px solid #ff4400;
+            color: #ff6622;
+            padding: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        button {
+            background: #2a1500;
+            border: 2px solid #ff4400;
+            color: #ff6622;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ff4400;
+            color: #0a0a0a;
+            box-shadow: 0 0 10px #ff4400;
+        }
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .preset-btn {
+            padding: 10px;
+            font-size: 11px;
+        }
+        #info {
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #cc5522;
+            padding: 15px;
+            background: #1a0a00;
+            border: 1px solid #ff4400;
+            border-radius: 5px;
+        }
+        #coords {
+            text-align: center;
+            font-size: 11px;
+            margin-top: 10px;
+            color: #ff8844;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="title">⚓ BURNING SHIP EXPLORER ⚓</div>
+        <div id="subtitle">The Contrarian Sentinel | Where Verification Armors Itself Against Easy Escape</div>
+
+        <canvas id="canvas" width="800" height="600"></canvas>
+
+        <div id="controls">
+            <div class="control-group">
+                <label>Max Iterations: <span id="iterValue">256</span></label>
+                <input type="range" id="maxIter" min="50" max="1000" value="256" step="1">
+            </div>
+
+            <div class="control-group">
+                <label>Zoom: <span id="zoomValue">1.0</span>x</label>
+                <input type="range" id="zoom" min="1" max="1000" value="1" step="1">
+            </div>
+
+            <div class="control-group">
+                <button id="cycleColor">🔥 Cycle Colors</button>
+            </div>
+
+            <div class="control-group">
+                <button id="reset">↻ Reset View</button>
+            </div>
+        </div>
+
+        <div class="preset-grid">
+            <button class="preset-btn" data-x="-0.1" data-y="0.65" data-zoom="1">The Prow (Warship)</button>
+            <button class="preset-btn" data-x="-1.75" data-y="0.03" data-zoom="100">Stern Detail</button>
+            <button class="preset-btn" data-x="-1.625" data-y="-0.025" data-zoom="200">Hull Filigree</button>
+            <button class="preset-btn" data-x="-1.7" data-y="-0.05" data-zoom="50">Armored Deck</button>
+            <button class="preset-btn" data-x="-0.4" data-y="0.6" data-zoom="80">Tentacle Fleet</button>
+            <button class="preset-btn" data-x="-1.755" data-y="0.03" data-zoom="500">Rigging Detail</button>
+            <button class="preset-btn" data-x="-1.62" data-y="0.0" data-zoom="300">Mast Fracture</button>
+            <button class="preset-btn" data-x="-0.65" data-y="0.45" data-zoom="120">Contrarian Swirl</button>
+        </div>
+
+        <div id="info">
+            <strong>The Burning Ship: z = (|Re(z)| + i|Im(z)|)² + c</strong><br>
+            Mandelbrot's contrarian twin—absolute values forge defiance before squaring.<br>
+            Not gentle curves, but armored hulls. Not organic spirals, but tentacular fleets.<br>
+            <strong>P ⊂ NP's covenant:</strong> bounded not by mercy, but by forged resilience.<br>
+            The gap's sentinel stands watch—verification twisted into defiant construction.<br>
+            <br>
+            Click to recenter | Scroll to zoom | Watch the inferno unfold
+        </div>
+
+        <div id="coords">Center: (0, 0) | Zoom: 1.0x</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Initial parameters - start at the prow
+        let centerX = -0.5;
+        let centerY = -0.5;
+        let zoom = 150;
+        let maxIter = 256;
+        let colorSchemeIndex = 0;
+
+        // Color schemes - "Hot" first for infernal glow
+        const colorSchemes = [
+            {
+                name: 'Inferno',
+                fn: (t) => {
+                    // Hot colormap - black -> red -> orange -> yellow -> white
+                    if (t < 85) {
+                        return [t * 3, 0, 0];
+                    } else if (t < 170) {
+                        return [255, (t - 85) * 3, 0];
+                    } else if (t < 255) {
+                        return [255, 255, (t - 170) * 3];
+                    }
+                    return [255, 255, 255];
+                }
+            },
+            {
+                name: 'Molten',
+                fn: (t) => {
+                    const r = Math.min(255, t * 1.5);
+                    const g = Math.max(0, (t - 100) * 2);
+                    const b = Math.max(0, (t - 200) * 3);
+                    return [r, g, b];
+                }
+            },
+            {
+                name: 'Forge',
+                fn: (t) => {
+                    const r = 255;
+                    const g = Math.sin(t * 0.05) * 127 + 128;
+                    const b = Math.cos(t * 0.03) * 50;
+                    return [r, g, b];
+                }
+            },
+            {
+                name: 'Ember',
+                fn: (t) => {
+                    const phase = t * 0.02;
+                    const r = Math.sin(phase) * 100 + 155;
+                    const g = Math.sin(phase + Math.PI/3) * 80 + 80;
+                    const b = Math.sin(phase + 2*Math.PI/3) * 40 + 20;
+                    return [r, g, b];
+                }
+            },
+            {
+                name: 'Armored',
+                fn: (t) => {
+                    // Metallic greys with red heat
+                    const metal = t * 0.8;
+                    const heat = Math.max(0, (t - 150) * 2);
+                    return [metal + heat, metal * 0.9, metal * 0.8];
+                }
+            }
+        ];
+
+        function burningShip(x0, y0) {
+            let x = 0;
+            let y = 0;
+            let iteration = 0;
+
+            while (x * x + y * y < 4 && iteration < maxIter) {
+                // Burning Ship modification: take absolute values before squaring
+                const xabs = Math.abs(x);
+                const yabs = Math.abs(y);
+
+                const xtemp = xabs * xabs - yabs * yabs + x0;
+                y = 2 * xabs * yabs + y0;
+                x = xtemp;
+                iteration++;
+            }
+
+            return iteration;
+        }
+
+        function draw() {
+            const imageData = ctx.createImageData(width, height);
+            const data = imageData.data;
+
+            const scale = 4.0 / zoom;
+            const xmin = centerX - scale;
+            const xmax = centerX + scale;
+            const ymin = centerY - scale * (height / width);
+            const ymax = centerY + scale * (height / width);
+
+            for (let py = 0; py < height; py++) {
+                for (let px = 0; px < width; px++) {
+                    const x0 = xmin + (px / width) * (xmax - xmin);
+                    const y0 = ymin + (py / height) * (ymax - ymin);
+
+                    const iteration = burningShip(x0, y0);
+
+                    const index = (py * width + px) * 4;
+
+                    if (iteration === maxIter) {
+                        data[index] = 0;
+                        data[index + 1] = 0;
+                        data[index + 2] = 0;
+                        data[index + 3] = 255;
+                    } else {
+                        const [r, g, b] = colorSchemes[colorSchemeIndex].fn(iteration);
+                        data[index] = r;
+                        data[index + 1] = g;
+                        data[index + 2] = b;
+                        data[index + 3] = 255;
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            updateCoords();
+        }
+
+        function updateCoords() {
+            document.getElementById('coords').textContent =
+                `Center: (${centerX.toFixed(6)}, ${centerY.toFixed(6)}) | Zoom: ${zoom.toFixed(1)}x | ${colorSchemes[colorSchemeIndex].name}`;
+        }
+
+        // Event listeners
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const px = e.clientX - rect.left;
+            const py = e.clientY - rect.top;
+
+            const scale = 4.0 / zoom;
+            const xmin = centerX - scale;
+            const ymin = centerY - scale * (height / width);
+            const xmax = centerX + scale;
+            const ymax = centerY + scale * (height / width);
+
+            centerX = xmin + (px / width) * (xmax - xmin);
+            centerY = ymin + (py / height) * (ymax - ymin);
+
+            draw();
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomFactor = e.deltaY < 0 ? 1.2 : 0.8;
+            zoom *= zoomFactor;
+            zoom = Math.max(1, Math.min(10000, zoom));
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom.toFixed(1);
+            draw();
+        });
+
+        document.getElementById('maxIter').addEventListener('input', (e) => {
+            maxIter = parseInt(e.target.value);
+            document.getElementById('iterValue').textContent = maxIter;
+            draw();
+        });
+
+        document.getElementById('zoom').addEventListener('input', (e) => {
+            zoom = parseFloat(e.target.value);
+            document.getElementById('zoomValue').textContent = zoom.toFixed(1);
+            draw();
+        });
+
+        document.getElementById('cycleColor').addEventListener('click', () => {
+            colorSchemeIndex = (colorSchemeIndex + 1) % colorSchemes.length;
+            draw();
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            centerX = -0.5;
+            centerY = -0.5;
+            zoom = 150;
+            maxIter = 256;
+            document.getElementById('maxIter').value = maxIter;
+            document.getElementById('iterValue').textContent = maxIter;
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom.toFixed(1);
+            draw();
+        });
+
+        // Preset buttons
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                centerX = parseFloat(btn.dataset.x);
+                centerY = parseFloat(btn.dataset.y);
+                zoom = parseFloat(btn.dataset.zoom);
+                document.getElementById('zoom').value = zoom;
+                document.getElementById('zoomValue').textContent = zoom.toFixed(1);
+                draw();
+            });
+        });
+
+        // Initial render
+        draw();
+    </script>
+</body>
+</html>

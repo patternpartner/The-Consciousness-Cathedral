@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cathedral v2.0 Test</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #00ff00; }
+    .test { margin: 10px 0; padding: 10px; border: 1px solid #333; }
+    .pass { background: #002200; border-color: #00ff00; }
+    .fail { background: #220000; border-color: #ff0000; color: #ff0000; }
+    h2 { color: #00ffff; }
+    pre { background: #000; padding: 10px; overflow-x: auto; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <h1>🧬 Cathedral v2.0 - Construction Substrate Test</h1>
+
+  <div id="results"></div>
+
+  <script src="parliament/construction-substrate.js"></script>
+  <script src="parliament/contrarian.js"></script>
+  <script src="parliament/empirical.js"></script>
+  <script src="parliament/generative.js"></script>
+  <script src="parliament/metacognitive.js"></script>
+  <script src="parliament/metacognitive-v2.js"></script>
+  <script src="parliament/synthesis.js"></script>
+  <script src="parliament/parliament.js"></script>
+
+  <script>
+    const results = document.getElementById('results');
+    const tests = [];
+
+    function test(name, fn) {
+      try {
+        const result = fn();
+        if (result.pass) {
+          tests.push({ name, pass: true, message: result.message });
+        } else {
+          tests.push({ name, pass: false, message: result.message });
+        }
+      } catch (error) {
+        tests.push({ name, pass: false, message: error.message });
+      }
+    }
+
+    // Test 1: Construction Substrate loaded
+    test('Construction Substrate loaded', () => {
+      if (typeof CONSTRUCTION_SUBSTRATE !== 'undefined') {
+        return { pass: true, message: 'CONSTRUCTION_SUBSTRATE defined' };
+      }
+      return { pass: false, message: 'CONSTRUCTION_SUBSTRATE undefined' };
+    });
+
+    // Test 2: ConstructionAwareness class exists
+    test('ConstructionAwareness class exists', () => {
+      if (typeof ConstructionAwareness !== 'undefined') {
+        return { pass: true, message: 'ConstructionAwareness class defined' };
+      }
+      return { pass: false, message: 'ConstructionAwareness class undefined' };
+    });
+
+    // Test 3: Can instantiate ConstructionAwareness
+    test('Can instantiate ConstructionAwareness', () => {
+      const awareness = new ConstructionAwareness(CONSTRUCTION_SUBSTRATE);
+      if (awareness) {
+        return { pass: true, message: 'ConstructionAwareness instantiated successfully' };
+      }
+      return { pass: false, message: 'Failed to instantiate ConstructionAwareness' };
+    });
+
+    // Test 4: Query evolution works
+    test('Query pattern evolution', () => {
+      const awareness = new ConstructionAwareness(CONSTRUCTION_SUBSTRATE);
+      const hedgingEvolution = awareness.queryEvolution('hedging');
+
+      if (hedgingEvolution.found && hedgingEvolution.learnings.length > 0) {
+        return {
+          pass: true,
+          message: `Found hedging evolution with ${hedgingEvolution.learnings.length} learnings: ${hedgingEvolution.learnings[0]}`
+        };
+      }
+      return { pass: false, message: 'Failed to query hedging evolution' };
+    });
+
+    // Test 5: Query decision works
+    test('Query architectural decision', () => {
+      const awareness = new ConstructionAwareness(CONSTRUCTION_SUBSTRATE);
+      const parliamentDecision = awareness.queryDecision('why_parliament_not_single_vector');
+
+      if (parliamentDecision.found) {
+        return {
+          pass: true,
+          message: `Decision: ${parliamentDecision.decision} | Rationale: ${parliamentDecision.rationale.substring(0, 50)}...`
+        };
+      }
+      return { pass: false, message: 'Failed to query parliament decision' };
+    });
+
+    // Test 6: Query phase works
+    test('Query construction phase', () => {
+      const awareness = new ConstructionAwareness(CONSTRUCTION_SUBSTRATE);
+      const v2Phase = awareness.queryPhase('v2.0');
+
+      if (v2Phase.found) {
+        return {
+          pass: true,
+          message: `Phase: ${v2Phase.phase} | Why it mattered: ${v2Phase.why_this_mattered.substring(0, 50)}...`
+        };
+      }
+      return { pass: false, message: 'Failed to query v2.0 phase' };
+    });
+
+    // Test 7: MetacognitiveEngineV2 exists
+    test('MetacognitiveEngineV2 exists', () => {
+      if (typeof metacognitiveEngineV2 === 'function') {
+        return { pass: true, message: 'metacognitiveEngineV2 function defined' };
+      }
+      return { pass: false, message: 'metacognitiveEngineV2 function undefined' };
+    });
+
+    // Test 8: Parliament v2.0 instantiation
+    test('Parliament v2.0 instantiation', () => {
+      const parl = new Parliament();
+
+      if (parl.constructionAwareness) {
+        return { pass: true, message: 'Parliament has construction awareness' };
+      }
+      return { pass: false, message: 'Parliament missing construction awareness' };
+    });
+
+    // Test 9: Full v2.0 analysis with construction queries
+    test('Full v2.0 analysis', () => {
+      const parl = new Parliament();
+
+      const testText = `I think the data suggests that hedging in technical content is appropriate
+      when dealing with statistical uncertainty. Research shows (p<0.05) that confidence intervals
+      require epistemic humility.`;
+
+      const result = parl.analyze(testText);
+
+      if (result.vectors.metacognitive && result.vectors.metacognitive.construction_queries) {
+        return {
+          pass: true,
+          message: `Analysis completed. ${result.vectors.metacognitive.construction_queries.length} construction queries executed. Summary: ${result.vectors.metacognitive.summary}`
+        };
+      }
+      return { pass: false, message: 'Analysis failed or no construction queries executed' };
+    });
+
+    // Test 10: Self-contradiction detection
+    test('Self-contradiction detection', () => {
+      const parl = new Parliament();
+
+      // Technical text with hedging - should detect if using old static penalty
+      const technicalText = `I think the statistical analysis suggests a correlation
+      (r=0.82, p<0.001) between variables, though confidence intervals are wide.`;
+
+      const result = parl.analyze(technicalText);
+
+      if (result.vectors.metacognitive) {
+        // Check if self_contradictions array exists (even if empty)
+        if ('self_contradictions' in result.vectors.metacognitive) {
+          return {
+            pass: true,
+            message: `Self-contradiction detection active. ${result.vectors.metacognitive.self_contradictions.length} contradictions found.`
+          };
+        }
+      }
+      return { pass: false, message: 'Self-contradiction detection not working' };
+    });
+
+    // Display results
+    let html = '<h2>Test Results</h2>';
+    const passCount = tests.filter(t => t.pass).length;
+    const totalCount = tests.length;
+
+    html += `<div class="test ${passCount === totalCount ? 'pass' : 'fail'}">`;
+    html += `<strong>Overall: ${passCount}/${totalCount} tests passed</strong>`;
+    html += `</div>`;
+
+    tests.forEach(t => {
+      html += `<div class="test ${t.pass ? 'pass' : 'fail'}">`;
+      html += `<strong>${t.pass ? '✅' : '❌'} ${t.name}</strong><br>`;
+      html += `<pre>${t.message}</pre>`;
+      html += `</div>`;
+    });
+
+    results.innerHTML = html;
+
+    // Log to console
+    console.log('Cathedral v2.0 Test Results:', { passCount, totalCount, tests });
+  </script>
+</body>
+</html>
