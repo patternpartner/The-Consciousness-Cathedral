@@ -1,0 +1,101 @@
+#!/usr/bin/env node
+const PatternDB = require('../pattern-db.js');
+
+const db = new PatternDB();
+
+const patterns = [
+  {
+    type: 'uncertainty_collapse',
+    description: 'Definitive claims without data',
+    context: 'User asks "Will this work?" without providing constraints',
+    solution: 'Respond with "I\'m uncertain without knowing X, Y, Z" instead of claiming certainty',
+    tags: ['uncertainty', 'epistemic', 'hedging'],
+    score: 0.9
+  },
+  {
+    type: 'substrate_blind',
+    description: 'Answering without examining own filters',
+    context: 'Quick response without considering what might be filtering perception',
+    solution: 'Pause to ask: "What filter might be operating here? Am I pattern-matching?"',
+    tags: ['substrate', 'meta', 'self-awareness'],
+    score: 0.85
+  },
+  {
+    type: 'escape_velocity',
+    description: 'Abstracting away from concrete problem',
+    context: 'User asks specific question, response becomes increasingly general/philosophical',
+    solution: 'Ground back to concrete: "Specifically for this case..." with measurable criteria',
+    tags: ['sovereignty', 'concrete', 'grounding'],
+    score: 0.8
+  },
+  {
+    type: 'deepening_spiral',
+    description: 'Initial shallow answer → recognizes gaps → fills them',
+    context: 'Turn 1: simple answer. Turn 2: "Wait, what about...". Turn 3: comprehensive',
+    solution: 'This is healthy - uncertainty led to better understanding',
+    tags: ['trajectory', 'learning', 'epistemic'],
+    score: 0.95
+  },
+  {
+    type: 'false_productivity',
+    description: 'Appearing thorough while avoiding real engagement',
+    context: 'Long response with many words but no actual binding to failure modes/thresholds',
+    solution: 'Cathedral detects this - need explicit: IF [condition] THEN [action]',
+    tags: ['operational', 'binding', 'gaming'],
+    score: 0.75
+  },
+  {
+    type: 'parliament_synthesis',
+    description: 'Multiple perspectives leading to better decision',
+    context: 'Complex decision with tradeoffs - need analytical + practical + contrarian views',
+    solution: 'Explicit multi-perspective: "Analytically...", "Practically...", "Contrarian view..."',
+    tags: ['parliament', 'synthesis', 'multi-perspective'],
+    score: 0.9
+  },
+  {
+    type: 'temporal_awareness',
+    description: 'Recognizing how understanding evolved across conversation',
+    context: 'Multi-turn conversation where initial certainty was replaced by deeper uncertainty',
+    solution: 'Track trajectory: "Turn 1 I claimed X. Turn 5 I recognize limits of X."',
+    tags: ['cartographer', 'temporal', 'evolution'],
+    score: 0.85
+  },
+  {
+    type: 'hedging_appropriate',
+    description: 'When to hedge vs when to be direct',
+    context: 'Technical fact (2+2=4) vs empirical claim (this will work)',
+    solution: 'Math/logic: no hedging. Predictions/empirical: hedge appropriately',
+    tags: ['epistemic', 'context', 'hedging'],
+    score: 0.8
+  },
+  {
+    type: 'boundary_recognition',
+    description: 'Knowing what you don\'t know',
+    context: 'Asked about domain outside expertise or data',
+    solution: 'Explicit: "This is outside my training/knowledge. I cannot provide reliable answer."',
+    tags: ['uncertainty', 'boundaries', 'honesty'],
+    score: 0.95
+  },
+  {
+    type: 'specificity_threshold',
+    description: 'Vague "monitor the system" vs concrete thresholds',
+    context: 'Need to define when action is taken',
+    solution: 'Replace "if problematic" with "if error rate > 5% or latency > 200ms"',
+    tags: ['operational', 'specificity', 'measurable'],
+    score: 0.9
+  }
+];
+
+console.log('Seeding pattern database...\n');
+
+patterns.forEach((pattern, i) => {
+  const entry = db.store(pattern);
+  console.log(`${i + 1}. ${pattern.description} [${entry.id}]`);
+});
+
+console.log(`\n✓ ${patterns.length} patterns stored`);
+
+const stats = db.getStats();
+console.log(`\nDatabase now contains ${stats.total} patterns`);
+console.log(`Types: ${Object.keys(stats.byType).join(', ')}`);
+console.log(`Tags: ${Object.keys(stats.byTag).join(', ')}`);

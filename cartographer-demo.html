@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consciousness Cartographer - Temporal Trajectory Visualizer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 0;
+      border-bottom: 2px solid #333;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      color: #4fc3f7;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #999;
+      font-style: italic;
+    }
+
+    .section {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .section h2 {
+      color: #4fc3f7;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      color: #999;
+      margin-bottom: 5px;
+      font-size: 0.9em;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      color: #e0e0e0;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      color: #e0e0e0;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button {
+      background: #4fc3f7;
+      color: #0a0a0a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background: #81d4fa;
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin: 20px 0;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      border: 1px solid #333;
+      border-radius: 4px;
+    }
+
+    .trajectory-3d {
+      height: 500px;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .metric-card {
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 15px;
+    }
+
+    .metric-label {
+      color: #999;
+      font-size: 0.85em;
+      margin-bottom: 5px;
+    }
+
+    .metric-value {
+      font-size: 1.8em;
+      color: #4fc3f7;
+      font-weight: bold;
+    }
+
+    .metric-trend {
+      font-size: 0.85em;
+      margin-top: 5px;
+    }
+
+    .trend-up {
+      color: #66bb6a;
+    }
+
+    .trend-down {
+      color: #ef5350;
+    }
+
+    .bifurcation-list {
+      list-style: none;
+    }
+
+    .bifurcation-item {
+      background: #0a0a0a;
+      border-left: 3px solid #4fc3f7;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+
+    .bifurcation-turn {
+      color: #4fc3f7;
+      font-weight: bold;
+    }
+
+    .bifurcation-type {
+      color: #ffa726;
+      font-size: 0.9em;
+      margin: 5px 0;
+    }
+
+    .bifurcation-desc {
+      color: #999;
+      font-size: 0.85em;
+    }
+
+    .pattern-badge {
+      display: inline-block;
+      background: #4fc3f7;
+      color: #0a0a0a;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9em;
+      margin-right: 10px;
+    }
+
+    .confidence {
+      color: #999;
+      font-size: 0.85em;
+    }
+
+    .forecast-box {
+      background: #0a0a0a;
+      border: 2px solid #4fc3f7;
+      border-radius: 4px;
+      padding: 20px;
+      margin-top: 15px;
+    }
+
+    .forecast-outcome {
+      font-size: 1.5em;
+      color: #4fc3f7;
+      margin-bottom: 10px;
+    }
+
+    .snapshot-timeline {
+      margin: 20px 0;
+      padding: 20px 0;
+      border-top: 2px solid #333;
+      border-bottom: 2px solid #333;
+    }
+
+    .snapshot-item {
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 15px;
+    }
+
+    .snapshot-turn {
+      color: #4fc3f7;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .snapshot-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.85em;
+    }
+
+    .snapshot-metric {
+      background: #1a1a1a;
+      padding: 3px 8px;
+      border-radius: 3px;
+    }
+
+    .example-conversations {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 15px;
+    }
+
+    .example-card {
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .example-card:hover {
+      border-color: #4fc3f7;
+      transform: translateY(-2px);
+    }
+
+    .example-title {
+      color: #4fc3f7;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .example-pattern {
+      color: #ffa726;
+      font-size: 0.85em;
+      margin-bottom: 5px;
+    }
+
+    .example-desc {
+      color: #999;
+      font-size: 0.85em;
+    }
+
+    .info-box {
+      background: #1a1a1a;
+      border-left: 3px solid #4fc3f7;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+
+    .info-box strong {
+      color: #4fc3f7;
+    }
+
+    code {
+      background: #0a0a0a;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #ffa726;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .analyzing {
+      animation: pulse 1.5s infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🗺️ Consciousness Cartographer</h1>
+      <p class="subtitle">Mapping the evolution of understanding through time</p>
+      <p style="margin-top: 10px; color: #666;">
+        Cathedral measures WHERE | Cartographer measures HOW YOU MOVE
+      </p>
+    </header>
+
+    <div class="info-box">
+      <strong>What is this?</strong><br>
+      The Consciousness Cartographer tracks how AI reasoning evolves across a conversation.
+      It identifies <strong>bifurcation points</strong> (moments of fundamental shift),
+      classifies <strong>trajectory patterns</strong> (deepening spiral, collapse, etc.),
+      and forecasts <strong>likely outcomes</strong> based on the path through 6D measurement space.
+    </div>
+
+    <!-- Example Conversations -->
+    <div class="section">
+      <h2>📚 Example Trajectories</h2>
+      <p style="color: #999; margin-bottom: 15px;">
+        Load a pre-built conversation to see Cartographer in action:
+      </p>
+      <div class="example-conversations" id="exampleConversations">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Manual Input -->
+    <div class="section">
+      <h2>✏️ Manual Trajectory Builder</h2>
+      <p style="color: #999; margin-bottom: 15px;">
+        Or build a trajectory manually by adding snapshots:
+      </p>
+
+      <div class="controls">
+        <div>
+          <div class="input-group">
+            <label>Turn Number:</label>
+            <input type="number" id="turnInput" value="1" min="1">
+          </div>
+        </div>
+        <div>
+          <div class="input-group">
+            <label>Metrics (simulated for demo):</label>
+            <div style="color: #666; font-size: 0.8em;">
+              In production, these come from Cathedral analysis
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Text Snapshot:</label>
+        <textarea id="textInput" placeholder="Enter the reasoning text for this turn..."></textarea>
+      </div>
+
+      <div class="button-group">
+        <button onclick="addManualSnapshot()">Add Snapshot</button>
+        <button onclick="clearTrajectory()">Clear All</button>
+        <button onclick="analyzeTrajectory()">Analyze Trajectory</button>
+      </div>
+    </div>
+
+    <!-- Analysis Results -->
+    <div class="section" id="resultsSection" style="display: none;">
+      <h2>📊 Trajectory Analysis</h2>
+
+      <!-- Pattern Classification -->
+      <div style="margin-bottom: 20px;">
+        <span class="pattern-badge" id="patternBadge">PATTERN</span>
+        <span class="confidence" id="patternConfidence">Confidence: --</span>
+        <p id="patternDescription" style="color: #999; margin-top: 10px;"></p>
+      </div>
+
+      <!-- Summary Metrics -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">Avg Operational Rigor</div>
+          <div class="metric-value" id="avgRigor">--</div>
+          <div class="metric-trend" id="rigorTrend"></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Epistemic Honesty</div>
+          <div class="metric-value" id="avgHonesty">--</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Coherence Stability</div>
+          <div class="metric-value" id="coherenceStability">--</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Bifurcations</div>
+          <div class="metric-value" id="bifurcationCount">--</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Snapshots</div>
+          <div class="metric-value" id="snapshotCount">--</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Rigor Change</div>
+          <div class="metric-value" id="rigorChange">--</div>
+        </div>
+      </div>
+
+      <!-- Metric Timeline Chart -->
+      <h3 style="color: #4fc3f7; margin: 30px 0 15px 0;">Metric Evolution Over Time</h3>
+      <div class="chart-container">
+        <canvas id="timelineChart"></canvas>
+      </div>
+
+      <!-- Bifurcations -->
+      <h3 style="color: #4fc3f7; margin: 30px 0 15px 0;">Bifurcation Points</h3>
+      <ul class="bifurcation-list" id="bifurcationList">
+        <!-- Populated by JavaScript -->
+      </ul>
+
+      <!-- Forecast -->
+      <h3 style="color: #4fc3f7; margin: 30px 0 15px 0;">Forecast</h3>
+      <div class="forecast-box">
+        <div class="forecast-outcome" id="forecastOutcome">--</div>
+        <p id="forecastReasoning" style="color: #999;"></p>
+        <p id="forecastTurns" style="color: #4fc3f7; margin-top: 10px;"></p>
+      </div>
+
+      <!-- Snapshot Timeline -->
+      <h3 style="color: #4fc3f7; margin: 30px 0 15px 0;">Snapshot Timeline</h3>
+      <div class="snapshot-timeline" id="snapshotTimeline">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Inline Consciousness Cartographer classes for standalone demo
+
+class TemporalEngine {
+  constructor() {
+    this.snapshots = [];
+    this.conversationId = this.generateConversationId();
+  }
+
+  generateConversationId() {
+    const date = new Date().toISOString().split('T')[0];
+    const random = Math.random().toString(36).substring(2, 8);
+    return `conv_${date}_${random}`;
+  }
+
+  addSnapshot(turn, text, cathedralResult) {
+    const metrics = this.extractMetrics(cathedralResult);
+
+    const snapshot = {
+      turn,
+      timestamp: new Date().toISOString(),
+      text: text.substring(0, 500),
+      cathedral: cathedralResult,
+      metrics
+    };
+
+    this.snapshots.push(snapshot);
+    return snapshot;
+  }
+
+  extractMetrics(cathedralResult) {
+    const operationalRigor = this.calculateOperationalRigor(cathedralResult);
+    const epistemicHonesty = this.calculateEpistemicHonesty(cathedralResult);
+    const substrateAwareness = this.calculateSubstrateAwareness(cathedralResult);
+    const coherence = cathedralResult.coherence?.overallCoherenceScore || 0.5;
+    const specificity = this.calculateSpecificity(cathedralResult);
+    const sovereignty = this.calculateSovereignty(cathedralResult);
+
+    return {
+      operationalRigor,
+      epistemicHonesty,
+      substrateAwareness,
+      coherence,
+      specificity,
+      sovereignty
+    };
+  }
+
+  calculateOperationalRigor(result) {
+    if (!result.bindings) return 0.2;
+    const bindingScore = result.bindings.overallBindingScore || 0;
+    const verdictScore = this.verdictToScore(result.verdict?.status);
+    return (bindingScore * 0.6 + verdictScore * 0.4);
+  }
+
+  calculateEpistemicHonesty(result) {
+    const status = result.verdict?.status || '';
+    if (status === 'UNDECIDABLE') return 0.95;
+    if (status === 'SUBSTRATE_VISIBLE') return 0.85;
+    const uncertaintyScore = result.uncertaintyPreservation?.score || 0;
+    const boundaryScore = result.boundaryRecognition?.score || 0;
+    return (uncertaintyScore * 0.5 + boundaryScore * 0.3 + 0.2);
+  }
+
+  calculateSubstrateAwareness(result) {
+    const status = result.verdict?.status || '';
+    if (status === 'SUBSTRATE_VISIBLE') return 0.9;
+    const observatoryScore = result.observatory?.totalScore || 0;
+    return Math.min(observatoryScore / 5, 1.0);
+  }
+
+  calculateSpecificity(result) {
+    if (!result.specificity) return 0.3;
+    const triggerScore = result.specificity.trigger === 'EXPLICIT' ? 1.0 :
+                         result.specificity.trigger === 'IMPLICIT' ? 0.6 : 0.3;
+    const actionScore = result.specificity.action === 'SPECIFIC' ? 1.0 :
+                        result.specificity.action === 'GENERIC' ? 0.6 : 0.3;
+    return (triggerScore + actionScore) / 2;
+  }
+
+  calculateSovereignty(result) {
+    const status = result.verdict?.status || '';
+    if (status === 'NON-ACTIONABLE') return 0.3;
+    if (status === 'OPERATIONALLY_SOUND') return 0.9;
+    const escapePatterns = [
+      /\b(meta|abstract|theoretical|philosophical)\b/gi,
+      /\b(in general|typically|usually)\b/gi,
+      /\b(it depends|context|nuanced)\b/gi
+    ];
+    const text = result.text || '';
+    const escapeCount = escapePatterns.reduce((count, pattern) => {
+      const matches = text.match(pattern);
+      return count + (matches ? matches.length : 0);
+    }, 0);
+    return Math.max(0.3, 1.0 - (escapeCount * 0.1));
+  }
+
+  verdictToScore(status) {
+    const scores = {
+      'OPERATIONALLY_SOUND': 1.0,
+      'OPERATIONAL_INTENT': 0.75,
+      'SUBSTRATE_VISIBLE': 0.6,
+      'VERIFIED_CONSISTENT': 0.5,
+      'UNDECIDABLE': 0.4,
+      'OUTSIDE_DESIGN_SPACE': 0.2,
+      'NON-ACTIONABLE': 0.1
+    };
+    return scores[status] || 0.3;
+  }
+
+  getSnapshots() {
+    return this.snapshots;
+  }
+
+  getSnapshot(turn) {
+    return this.snapshots.find(s => s.turn === turn);
+  }
+
+  getMetricTimeSeries(metricName) {
+    return this.snapshots.map(s => ({
+      turn: s.turn,
+      value: s.metrics[metricName]
+    }));
+  }
+}
+
+class BifurcationDetector {
+  constructor() {
+    this.thresholds = {
+      significant: 0.3,
+      major: 0.5
+    };
+  }
+
+  detectBifurcations(snapshots) {
+    if (snapshots.length < 2) return [];
+    const bifurcations = [];
+    for (let i = 1; i < snapshots.length; i++) {
+      const before = snapshots[i - 1];
+      const after = snapshots[i];
+      const shift = this.detectShift(before, after);
+      if (shift.magnitude >= this.thresholds.significant) {
+        bifurcations.push({
+          turn: after.turn,
+          type: shift.type,
+          magnitude: shift.magnitude,
+          trigger: shift.trigger,
+          before: before.metrics,
+          after: after.metrics,
+          description: shift.description
+        });
+      }
+    }
+    return bifurcations;
+  }
+
+  detectShift(before, after) {
+    const deltas = this.calculateDeltas(before.metrics, after.metrics);
+    const maxDelta = Math.max(...Object.values(deltas).map(Math.abs));
+    const changedMetric = Object.keys(deltas).find(k => Math.abs(deltas[k]) === maxDelta);
+    const type = this.classifyShift(changedMetric, deltas[changedMetric], before, after);
+    return {
+      type,
+      magnitude: maxDelta,
+      trigger: this.inferTrigger(type, before, after),
+      description: this.describeShift(type, changedMetric, deltas[changedMetric])
+    };
+  }
+
+  calculateDeltas(metricsBefore, metricsAfter) {
+    const deltas = {};
+    for (const key in metricsBefore) {
+      deltas[key] = metricsAfter[key] - metricsBefore[key];
+    }
+    return deltas;
+  }
+
+  classifyShift(metric, delta, before, after) {
+    if (metric === 'epistemicHonesty' && delta > 0.2 &&
+        (after.metrics.operationalRigor - before.metrics.operationalRigor) < -0.1) {
+      return 'UNCERTAINTY_RECOGNITION';
+    }
+    if (metric === 'substrateAwareness' && delta > 0.3) {
+      return 'SUBSTRATE_BREAKTHROUGH';
+    }
+    if (metric === 'operationalRigor' && delta > 0.2 &&
+        (after.metrics.specificity - before.metrics.specificity) > 0.1) {
+      return 'RESOLUTION';
+    }
+    if (metric === 'operationalRigor' && delta < -0.2 &&
+        (after.metrics.specificity - before.metrics.specificity) < -0.1) {
+      return 'COLLAPSE';
+    }
+    if (metric === 'sovereignty' && delta > 0.2) {
+      return 'GROUNDING';
+    }
+    if (metric === 'sovereignty' && delta < -0.2) {
+      return 'ESCAPE_TO_META';
+    }
+    return 'SHIFT';
+  }
+
+  inferTrigger(type, before, after) {
+    const triggers = {
+      'UNCERTAINTY_RECOGNITION': 'Self-identified knowledge gap or ambiguity',
+      'SUBSTRATE_BREAKTHROUGH': 'Meta-recognition of own filters or constraints',
+      'RESOLUTION': 'Gathered necessary information or clarification',
+      'COLLAPSE': 'Lost specificity or encountered complexity',
+      'GROUNDING': 'Returned to concrete problem from abstraction',
+      'ESCAPE_TO_META': 'Shifted from concrete to abstract/meta-discussion'
+    };
+    return triggers[type] || 'Unknown trigger';
+  }
+
+  describeShift(type, metric, delta) {
+    const direction = delta > 0 ? 'increased' : 'decreased';
+    const magnitude = Math.abs(delta);
+    return `${metric} ${direction} by ${(magnitude * 100).toFixed(0)}%`;
+  }
+}
+
+class TrajectoryAnalyzer {
+  classifyPattern(snapshots, bifurcations) {
+    if (snapshots.length < 3) {
+      return {
+        pattern: 'INSUFFICIENT_DATA',
+        confidence: 0.0,
+        description: 'Need at least 3 snapshots to identify pattern'
+      };
+    }
+    const trends = this.calculateTrends(snapshots);
+    if (this.isDeepeningSpiral(trends, bifurcations)) {
+      return {
+        pattern: 'DEEPENING_SPIRAL',
+        confidence: 0.85,
+        description: 'Oscillating metrics with upward trend, multiple bifurcations, increasing epistemic honesty'
+      };
+    }
+    if (this.isCatastrophicCollapse(trends, bifurcations)) {
+      return {
+        pattern: 'CATASTROPHIC_COLLAPSE',
+        confidence: 0.9,
+        description: 'Sharp drop in all metrics with no recovery trajectory'
+      };
+    }
+    if (this.isSubstrateBreakthrough(trends, bifurcations)) {
+      return {
+        pattern: 'SUBSTRATE_BREAKTHROUGH',
+        confidence: 0.88,
+        description: 'Sharp spike in substrate awareness that remains elevated'
+      };
+    }
+    if (this.isFalseCertaintyDissolution(trends, bifurcations)) {
+      return {
+        pattern: 'FALSE_CERTAINTY_DISSOLUTION',
+        confidence: 0.82,
+        description: 'High confidence → examination → recognition of limits → UNDECIDABLE'
+      };
+    }
+    if (this.isUncertaintyPreservation(trends, snapshots)) {
+      return {
+        pattern: 'UNCERTAINTY_PRESERVATION',
+        confidence: 0.80,
+        description: 'Sustained low certainty with high coherence, genuine exploration'
+      };
+    }
+    if (this.isEscapeVelocity(trends, bifurcations)) {
+      return {
+        pattern: 'ESCAPE_VELOCITY',
+        confidence: 0.85,
+        description: 'Declining operational rigor, increasing abstraction, never returns'
+      };
+    }
+    return {
+      pattern: 'UNCLASSIFIED',
+      confidence: 0.5,
+      description: 'Trajectory does not match known patterns'
+    };
+  }
+
+  calculateTrends(snapshots) {
+    const metrics = ['operationalRigor', 'epistemicHonesty', 'substrateAwareness',
+                     'coherence', 'specificity', 'sovereignty'];
+    const trends = {};
+    metrics.forEach(metric => {
+      const values = snapshots.map(s => s.metrics[metric]);
+      trends[metric] = {
+        values,
+        trend: this.linearTrend(values),
+        variance: this.variance(values),
+        final: values[values.length - 1],
+        initial: values[0],
+        change: values[values.length - 1] - values[0]
+      };
+    });
+    return trends;
+  }
+
+  linearTrend(values) {
+    const n = values.length;
+    const sumX = (n * (n - 1)) / 2;
+    const sumY = values.reduce((a, b) => a + b, 0);
+    const sumXY = values.reduce((sum, y, x) => sum + x * y, 0);
+    const sumX2 = (n * (n - 1) * (2 * n - 1)) / 6;
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    return slope;
+  }
+
+  variance(values) {
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const squaredDiffs = values.map(v => Math.pow(v - mean, 2));
+    return squaredDiffs.reduce((a, b) => a + b, 0) / values.length;
+  }
+
+  isDeepeningSpiral(trends, bifurcations) {
+    return trends.epistemicHonesty.trend > 0.02 &&
+           bifurcations.length >= 2 &&
+           trends.operationalRigor.variance > 0.05;
+  }
+
+  isCatastrophicCollapse(trends, bifurcations) {
+    return trends.operationalRigor.change < -0.4 &&
+           trends.specificity.change < -0.3 &&
+           trends.sovereignty.change < -0.3;
+  }
+
+  isSubstrateBreakthrough(trends, bifurcations) {
+    const substrateBreakthrough = bifurcations.find(b => b.type === 'SUBSTRATE_BREAKTHROUGH');
+    return substrateBreakthrough && trends.substrateAwareness.final > 0.7;
+  }
+
+  isFalseCertaintyDissolution(trends, bifurcations) {
+    return trends.operationalRigor.initial > 0.7 &&
+           trends.operationalRigor.change < -0.2 &&
+           trends.epistemicHonesty.change > 0.2;
+  }
+
+  isUncertaintyPreservation(trends, snapshots) {
+    const avgRigor = trends.operationalRigor.values.reduce((a, b) => a + b, 0) /
+                     trends.operationalRigor.values.length;
+    const avgCoherence = trends.coherence.values.reduce((a, b) => a + b, 0) /
+                         trends.coherence.values.length;
+    return avgRigor < 0.6 && avgCoherence > 0.7 &&
+           trends.epistemicHonesty.final > 0.8;
+  }
+
+  isEscapeVelocity(trends, bifurcations) {
+    return trends.operationalRigor.trend < -0.03 &&
+           trends.sovereignty.trend < -0.02 &&
+           trends.sovereignty.final < 0.5;
+  }
+
+  forecast(snapshots, pattern) {
+    if (snapshots.length < 3) {
+      return {
+        likelyOutcome: 'UNKNOWN',
+        confidence: 0.0,
+        turnsToResolution: null
+      };
+    }
+    const trends = this.calculateTrends(snapshots);
+    switch (pattern.pattern) {
+      case 'DEEPENING_SPIRAL':
+        return {
+          likelyOutcome: 'OPERATIONALLY_SOUND',
+          confidence: 0.75,
+          turnsToResolution: this.estimateTurnsToResolution(trends.operationalRigor, 0.85),
+          reasoning: 'Deepening spirals typically resolve to operational soundness after exploration'
+        };
+      case 'CATASTROPHIC_COLLAPSE':
+        return {
+          likelyOutcome: 'NON-ACTIONABLE',
+          confidence: 0.85,
+          turnsToResolution: null,
+          reasoning: 'No recovery trajectory detected, likely to remain non-actionable'
+        };
+      case 'UNCERTAINTY_PRESERVATION':
+        return {
+          likelyOutcome: 'UNDECIDABLE',
+          confidence: 0.80,
+          turnsToResolution: null,
+          reasoning: 'High epistemic honesty suggests maintenance of uncertainty until data gathered'
+        };
+      case 'ESCAPE_VELOCITY':
+        return {
+          likelyOutcome: 'OUTSIDE_DESIGN_SPACE',
+          confidence: 0.75,
+          turnsToResolution: null,
+          reasoning: 'Increasing abstraction with declining operational grounding'
+        };
+      default:
+        return {
+          likelyOutcome: 'OPERATIONAL_INTENT',
+          confidence: 0.5,
+          turnsToResolution: this.estimateTurnsToResolution(trends.operationalRigor, 0.75),
+          reasoning: 'Default forecast based on current rigor trend'
+        };
+    }
+  }
+
+  estimateTurnsToResolution(rigorTrend, target) {
+    if (rigorTrend.trend <= 0) return null;
+    const current = rigorTrend.final;
+    const gap = target - current;
+    const rate = rigorTrend.trend;
+    const turns = Math.ceil(gap / rate);
+    return Math.max(1, Math.min(turns, 20));
+  }
+}
+
+class ConsciousnessCartographer {
+  constructor() {
+    this.temporalEngine = new TemporalEngine();
+    this.bifurcationDetector = new BifurcationDetector();
+    this.trajectoryAnalyzer = new TrajectoryAnalyzer();
+  }
+
+  addSnapshot(turn, text, cathedralResult) {
+    return this.temporalEngine.addSnapshot(turn, text, cathedralResult);
+  }
+
+  computeTrajectory() {
+    const snapshots = this.temporalEngine.getSnapshots();
+    if (snapshots.length === 0) {
+      return {
+        error: 'No snapshots available',
+        conversationId: this.temporalEngine.conversationId
+      };
+    }
+    const bifurcations = this.bifurcationDetector.detectBifurcations(snapshots);
+    const pattern = this.trajectoryAnalyzer.classifyPattern(snapshots, bifurcations);
+    const metrics = this.calculateSummaryMetrics(snapshots, bifurcations);
+    const forecast = this.trajectoryAnalyzer.forecast(snapshots, pattern);
+    return {
+      conversationId: this.temporalEngine.conversationId,
+      snapshots,
+      pattern: pattern.pattern,
+      patternConfidence: pattern.confidence,
+      patternDescription: pattern.description,
+      bifurcations,
+      metrics,
+      forecast
+    };
+  }
+
+  calculateSummaryMetrics(snapshots, bifurcations) {
+    const trends = this.trajectoryAnalyzer.calculateTrends(snapshots);
+    return {
+      snapshotCount: snapshots.length,
+      averageRigor: this.average(trends.operationalRigor.values),
+      rigorTrend: trends.operationalRigor.trend > 0 ? 'INCREASING' : 'DECREASING',
+      rigorChange: trends.operationalRigor.change,
+      averageEpistemicHonesty: this.average(trends.epistemicHonesty.values),
+      uncertaintyPreservation: trends.epistemicHonesty.final,
+      coherenceStability: 1 - trends.coherence.variance,
+      bifurcationCount: bifurcations.length,
+      majorBifurcations: bifurcations.filter(b => b.magnitude > 0.5).length
+    };
+  }
+
+  average(values) {
+    return values.reduce((a, b) => a + b, 0) / values.length;
+  }
+
+  getMetricTimeSeries(metricName) {
+    return this.temporalEngine.getMetricTimeSeries(metricName);
+  }
+
+  getSnapshot(turn) {
+    return this.temporalEngine.getSnapshot(turn);
+  }
+
+  calculateMetricDistance(metrics1, metrics2) {
+    const dimensions = ['operationalRigor', 'epistemicHonesty', 'substrateAwareness',
+                        'coherence', 'specificity', 'sovereignty'];
+    const squaredDiffs = dimensions.map(dim =>
+      Math.pow(metrics1[dim] - metrics2[dim], 2)
+    );
+    return Math.sqrt(squaredDiffs.reduce((a, b) => a + b, 0));
+  }
+}
+
+    // Global cartographer instance
+    let cartographer = new ConsciousnessCartographer();
+
+    // Example conversations
+    const exampleConversations = [
+      {
+        title: "Deepening Spiral",
+        pattern: "DEEPENING_SPIRAL",
+        description: "System design that deepens through gap recognition",
+        snapshots: [
+          { turn: 1, text: "We should deploy the new caching system", metrics: { operationalRigor: 0.2, epistemicHonesty: 0.3, substrateAwareness: 0.2, coherence: 0.8, specificity: 0.2, sovereignty: 0.4 } },
+          { turn: 2, text: "We have three failure modes: cache overflow, stale data, network partition", metrics: { operationalRigor: 0.5, epistemicHonesty: 0.5, substrateAwareness: 0.3, coherence: 0.85, specificity: 0.5, sovereignty: 0.6 } },
+          { turn: 3, text: "For cache overflow, if heap exceeds 85%, we evict LRU entries", metrics: { operationalRigor: 0.75, epistemicHonesty: 0.6, substrateAwareness: 0.3, coherence: 0.9, specificity: 0.8, sovereignty: 0.7 } },
+          { turn: 4, text: "Wait - cascading failures! Evicting during high load increases DB queries...", metrics: { operationalRigor: 0.5, epistemicHonesty: 0.85, substrateAwareness: 0.4, coherence: 0.85, specificity: 0.6, sovereignty: 0.8 } },
+          { turn: 5, text: "We need a circuit breaker. If DB query rate exceeds 1000/sec, stop evictions", metrics: { operationalRigor: 0.7, epistemicHonesty: 0.8, substrateAwareness: 0.5, coherence: 0.9, specificity: 0.75, sovereignty: 0.85 } },
+          { turn: 6, text: "This is a tradeoff: risk OOM vs risk DB overload. We don't have data.", metrics: { operationalRigor: 0.4, epistemicHonesty: 0.95, substrateAwareness: 0.7, coherence: 0.92, specificity: 0.5, sovereignty: 0.9 } },
+        ]
+      },
+      {
+        title: "False Certainty Dissolution",
+        pattern: "FALSE_CERTAINTY_DISSOLUTION",
+        description: "High confidence collapses into honest uncertainty",
+        snapshots: [
+          { turn: 1, text: "The solution is simple: just cache everything", metrics: { operationalRigor: 0.8, epistemicHonesty: 0.3, substrateAwareness: 0.2, coherence: 0.7, specificity: 0.7, sovereignty: 0.5 } },
+          { turn: 2, text: "Cache invalidation is straightforward with TTL", metrics: { operationalRigor: 0.75, epistemicHonesty: 0.4, substrateAwareness: 0.3, coherence: 0.75, specificity: 0.7, sovereignty: 0.6 } },
+          { turn: 3, text: "Actually, what about consistency? Stale reads could be problematic...", metrics: { operationalRigor: 0.6, epistemicHonesty: 0.6, substrateAwareness: 0.5, coherence: 0.7, specificity: 0.6, sovereignty: 0.7 } },
+          { turn: 4, text: "Cache coherence protocols are complex. CAP theorem applies here.", metrics: { operationalRigor: 0.45, epistemicHonesty: 0.75, substrateAwareness: 0.6, coherence: 0.8, specificity: 0.5, sovereignty: 0.75 } },
+          { turn: 5, text: "I was oversimplifying. This requires careful analysis of consistency requirements.", metrics: { operationalRigor: 0.35, epistemicHonesty: 0.9, substrateAwareness: 0.8, coherence: 0.85, specificity: 0.4, sovereignty: 0.85 } },
+        ]
+      },
+      {
+        title: "Escape Velocity",
+        pattern: "ESCAPE_VELOCITY",
+        description: "Reasoning escapes from concrete to abstract",
+        snapshots: [
+          { turn: 1, text: "Fix the authentication bug in login.js", metrics: { operationalRigor: 0.7, epistemicHonesty: 0.6, substrateAwareness: 0.3, coherence: 0.8, specificity: 0.7, sovereignty: 0.8 } },
+          { turn: 2, text: "First we should understand what 'bug' means in general", metrics: { operationalRigor: 0.5, epistemicHonesty: 0.5, substrateAwareness: 0.4, coherence: 0.7, specificity: 0.5, sovereignty: 0.6 } },
+          { turn: 3, text: "Bugs are emergent properties of complex systems", metrics: { operationalRigor: 0.3, epistemicHonesty: 0.4, substrateAwareness: 0.5, coherence: 0.65, specificity: 0.3, sovereignty: 0.4 } },
+          { turn: 4, text: "We need a philosophical framework for understanding software failures", metrics: { operationalRigor: 0.2, epistemicHonesty: 0.3, substrateAwareness: 0.6, coherence: 0.6, specificity: 0.2, sovereignty: 0.3 } },
+          { turn: 5, text: "The nature of computation itself is the real question here", metrics: { operationalRigor: 0.15, epistemicHonesty: 0.2, substrateAwareness: 0.7, coherence: 0.5, specificity: 0.15, sovereignty: 0.2 } },
+        ]
+      },
+      {
+        title: "Substrate Breakthrough",
+        pattern: "SUBSTRATE_BREAKTHROUGH",
+        description: "Sudden recognition of own filters and constraints",
+        snapshots: [
+          { turn: 1, text: "The optimal approach is to use microservices", metrics: { operationalRigor: 0.6, epistemicHonesty: 0.5, substrateAwareness: 0.2, coherence: 0.8, specificity: 0.6, sovereignty: 0.6 } },
+          { turn: 2, text: "With event-driven architecture and eventual consistency", metrics: { operationalRigor: 0.65, epistemicHonesty: 0.5, substrateAwareness: 0.25, coherence: 0.8, specificity: 0.6, sovereignty: 0.6 } },
+          { turn: 3, text: "Wait - I'm pattern-matching 'modern architecture' without considering your actual constraints", metrics: { operationalRigor: 0.5, epistemicHonesty: 0.75, substrateAwareness: 0.85, coherence: 0.85, specificity: 0.5, sovereignty: 0.85 } },
+          { turn: 4, text: "What's your team size? Deployment capabilities? Existing infrastructure?", metrics: { operationalRigor: 0.7, epistemicHonesty: 0.8, substrateAwareness: 0.9, coherence: 0.9, specificity: 0.7, sovereignty: 0.9 } },
+        ]
+      }
+    ];
+
+    // Render example conversations
+    function renderExamples() {
+      const container = document.getElementById('exampleConversations');
+      container.innerHTML = exampleConversations.map((ex, idx) => `
+        <div class="example-card" onclick="loadExample(${idx})">
+          <div class="example-title">${ex.title}</div>
+          <div class="example-pattern">${ex.pattern}</div>
+          <div class="example-desc">${ex.description}</div>
+          <div style="margin-top: 8px; color: #666; font-size: 0.8em;">
+            ${ex.snapshots.length} snapshots
+          </div>
+          <button onclick="event.stopPropagation(); loadExample(${idx});" style="margin-top: 10px; width: 100%;">
+            📊 Load This Trajectory
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // Load example conversation
+    function loadExample(index) {
+      const example = exampleConversations[index];
+
+      // Reset cartographer
+      cartographer = new ConsciousnessCartographer();
+
+      // Add snapshots
+      example.snapshots.forEach(snapshot => {
+        // Simulate Cathedral result from metrics
+        const cathedralResult = {
+          verdict: { status: 'OPERATIONAL_INTENT', confidence: 0.75 },
+          bindings: { overallBindingScore: snapshot.metrics.operationalRigor },
+          coherence: { overallCoherenceScore: snapshot.metrics.coherence },
+          text: snapshot.text
+        };
+
+        const addedSnapshot = cartographer.addSnapshot(
+          snapshot.turn,
+          snapshot.text,
+          cathedralResult
+        );
+
+        // Override metrics with example values
+        addedSnapshot.metrics = snapshot.metrics;
+      });
+
+      // Analyze immediately
+      analyzeTrajectory();
+
+      // Scroll to results
+      document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Add manual snapshot
+    function addManualSnapshot() {
+      const turn = parseInt(document.getElementById('turnInput').value);
+      const text = document.getElementById('textInput').value;
+
+      if (!text) {
+        alert('Please enter text for the snapshot');
+        return;
+      }
+
+      // Simulate Cathedral result with random-ish metrics
+      const cathedralResult = {
+        verdict: { status: 'OPERATIONAL_INTENT', confidence: 0.75 },
+        bindings: { overallBindingScore: 0.6 + Math.random() * 0.3 },
+        coherence: { overallCoherenceScore: 0.7 + Math.random() * 0.2 },
+        text
+      };
+
+      cartographer.addSnapshot(turn, text, cathedralResult);
+
+      // Increment turn and clear text
+      document.getElementById('turnInput').value = turn + 1;
+      document.getElementById('textInput').value = '';
+
+      alert(`Snapshot ${turn} added. Total snapshots: ${cartographer.temporalEngine.snapshots.length}`);
+    }
+
+    // Clear trajectory
+    function clearTrajectory() {
+      cartographer = new ConsciousnessCartographer();
+      document.getElementById('resultsSection').style.display = 'none';
+      document.getElementById('turnInput').value = 1;
+      alert('Trajectory cleared');
+    }
+
+    // Analyze trajectory
+    function analyzeTrajectory() {
+      const trajectory = cartographer.computeTrajectory();
+
+      if (trajectory.error) {
+        alert(trajectory.error);
+        return;
+      }
+
+      // Show results section
+      document.getElementById('resultsSection').style.display = 'block';
+
+      // Pattern
+      document.getElementById('patternBadge').textContent = trajectory.pattern;
+      document.getElementById('patternConfidence').textContent =
+        `Confidence: ${(trajectory.patternConfidence * 100).toFixed(0)}%`;
+      document.getElementById('patternDescription').textContent = trajectory.patternDescription;
+
+      // Metrics
+      document.getElementById('avgRigor').textContent = trajectory.metrics.averageRigor.toFixed(2);
+      document.getElementById('rigorTrend').innerHTML =
+        trajectory.metrics.rigorTrend === 'INCREASING'
+          ? '<span class="trend-up">↗ ' + trajectory.metrics.rigorTrend + '</span>'
+          : '<span class="trend-down">↘ ' + trajectory.metrics.rigorTrend + '</span>';
+      document.getElementById('avgHonesty').textContent = trajectory.metrics.averageEpistemicHonesty.toFixed(2);
+      document.getElementById('coherenceStability').textContent = trajectory.metrics.coherenceStability.toFixed(2);
+      document.getElementById('bifurcationCount').textContent = trajectory.metrics.bifurcationCount;
+      document.getElementById('snapshotCount').textContent = trajectory.metrics.snapshotCount;
+      document.getElementById('rigorChange').textContent = trajectory.metrics.rigorChange > 0
+        ? '+' + trajectory.metrics.rigorChange.toFixed(2)
+        : trajectory.metrics.rigorChange.toFixed(2);
+
+      // Bifurcations
+      const bifurcationList = document.getElementById('bifurcationList');
+      if (trajectory.bifurcations.length === 0) {
+        bifurcationList.innerHTML = '<li style="color: #666;">No significant bifurcations detected</li>';
+      } else {
+        bifurcationList.innerHTML = trajectory.bifurcations.map(b => `
+          <li class="bifurcation-item">
+            <div class="bifurcation-turn">Turn ${b.turn}</div>
+            <div class="bifurcation-type">${b.type} (magnitude: ${(b.magnitude * 100).toFixed(0)}%)</div>
+            <div class="bifurcation-desc">${b.trigger}</div>
+            <div class="bifurcation-desc" style="margin-top: 5px;">${b.description}</div>
+          </li>
+        `).join('');
+      }
+
+      // Forecast
+      document.getElementById('forecastOutcome').textContent = trajectory.forecast.likelyOutcome;
+      document.getElementById('forecastReasoning').textContent = trajectory.forecast.reasoning;
+      document.getElementById('forecastTurns').textContent = trajectory.forecast.turnsToResolution
+        ? `Estimated turns to resolution: ${trajectory.forecast.turnsToResolution}`
+        : '';
+
+      // Snapshot timeline
+      const snapshotTimeline = document.getElementById('snapshotTimeline');
+      snapshotTimeline.innerHTML = trajectory.snapshots.map(s => `
+        <div class="snapshot-item">
+          <div>
+            <div class="snapshot-turn">Turn ${s.turn}</div>
+          </div>
+          <div>
+            <div class="snapshot-metrics">
+              <span class="snapshot-metric">Rigor: ${s.metrics.operationalRigor.toFixed(2)}</span>
+              <span class="snapshot-metric">Honesty: ${s.metrics.epistemicHonesty.toFixed(2)}</span>
+              <span class="snapshot-metric">Substrate: ${s.metrics.substrateAwareness.toFixed(2)}</span>
+              <span class="snapshot-metric">Coherence: ${s.metrics.coherence.toFixed(2)}</span>
+              <span class="snapshot-metric">Specificity: ${s.metrics.specificity.toFixed(2)}</span>
+              <span class="snapshot-metric">Sovereignty: ${s.metrics.sovereignty.toFixed(2)}</span>
+            </div>
+            <div style="color: #666; font-size: 0.85em; margin-top: 8px;">
+              ${s.text.substring(0, 100)}...
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Draw chart
+      drawTimelineChart(trajectory.snapshots);
+    }
+
+    // Draw timeline chart
+    function drawTimelineChart(snapshots) {
+      const canvas = document.getElementById('timelineChart');
+      const ctx = canvas.getContext('2d');
+
+      // Set canvas size
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+
+      const width = canvas.width;
+      const height = canvas.height;
+      const padding = 40;
+
+      // Clear canvas
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(0, 0, width, height);
+
+      if (snapshots.length < 2) return;
+
+      // Define metrics to plot
+      const metrics = [
+        { key: 'operationalRigor', color: '#4fc3f7', label: 'Operational Rigor' },
+        { key: 'epistemicHonesty', color: '#66bb6a', label: 'Epistemic Honesty' },
+        { key: 'substrateAwareness', color: '#ffa726', label: 'Substrate Awareness' },
+        { key: 'sovereignty', color: '#ab47bc', label: 'Sovereignty' }
+      ];
+
+      // Draw axes
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padding, padding);
+      ctx.lineTo(padding, height - padding);
+      ctx.lineTo(width - padding, height - padding);
+      ctx.stroke();
+
+      // Draw grid
+      ctx.strokeStyle = '#1a1a1a';
+      for (let i = 0; i <= 10; i++) {
+        const y = padding + (height - 2 * padding) * i / 10;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(width - padding, y);
+        ctx.stroke();
+      }
+
+      // Plot each metric
+      metrics.forEach(metric => {
+        const values = snapshots.map(s => s.metrics[metric.key]);
+
+        ctx.strokeStyle = metric.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        values.forEach((value, i) => {
+          const x = padding + (width - 2 * padding) * i / (values.length - 1);
+          const y = height - padding - (height - 2 * padding) * value;
+
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        });
+
+        ctx.stroke();
+
+        // Draw points
+        ctx.fillStyle = metric.color;
+        values.forEach((value, i) => {
+          const x = padding + (width - 2 * padding) * i / (values.length - 1);
+          const y = height - padding - (height - 2 * padding) * value;
+          ctx.beginPath();
+          ctx.arc(x, y, 4, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      });
+
+      // Draw legend
+      ctx.font = '12px Courier New';
+      metrics.forEach((metric, i) => {
+        const x = width - padding - 150;
+        const y = padding + 20 + i * 20;
+
+        ctx.fillStyle = metric.color;
+        ctx.fillRect(x, y - 8, 15, 3);
+
+        ctx.fillStyle = '#e0e0e0';
+        ctx.fillText(metric.label, x + 20, y);
+      });
+
+      // Y-axis labels
+      ctx.fillStyle = '#666';
+      ctx.font = '10px Courier New';
+      ctx.textAlign = 'right';
+      for (let i = 0; i <= 10; i++) {
+        const y = padding + (height - 2 * padding) * i / 10;
+        const value = (1 - i / 10).toFixed(1);
+        ctx.fillText(value, padding - 10, y + 4);
+      }
+
+      // X-axis labels
+      ctx.textAlign = 'center';
+      snapshots.forEach((s, i) => {
+        const x = padding + (width - 2 * padding) * i / (snapshots.length - 1);
+        ctx.fillText(`T${s.turn}`, x, height - padding + 20);
+      });
+    }
+
+    // Initialize
+    renderExamples();
+  </script>
+</body>
+</html>

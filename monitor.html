@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cathedral Monitor</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .workspace {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      overflow: hidden;
+    }
+    .input-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+    textarea {
+      flex: 1;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #e0e0e0;
+      padding: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: none;
+      border-radius: 4px;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    button {
+      background: #4fc3f7;
+      color: #0a0a0a;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+    }
+    button:hover { background: #81d4fa; }
+    button.secondary { background: #333; color: #e0e0e0; }
+    button.secondary:hover { background: #444; }
+
+    .monitor {
+      background: #1a1a1a;
+      border-left: 2px solid #333;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .monitor-header {
+      padding: 15px;
+      border-bottom: 1px solid #333;
+      background: #0a0a0a;
+    }
+    .monitor-header h2 {
+      color: #4fc3f7;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+    .monitor-status {
+      font-size: 11px;
+      color: #999;
+    }
+    .monitor-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+    }
+
+    .metric {
+      background: #0a0a0a;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      border-left: 3px solid #333;
+    }
+    .metric.alert { border-left-color: #ff5252; }
+    .metric.good { border-left-color: #66bb6a; }
+    .metric.warn { border-left-color: #ffa726; }
+
+    .metric-label {
+      font-size: 11px;
+      color: #999;
+      margin-bottom: 3px;
+    }
+    .metric-value {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+    .metric-value.high { color: #66bb6a; }
+    .metric-value.med { color: #ffa726; }
+    .metric-value.low { color: #ff5252; }
+    .metric-bar {
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+    .metric-bar-fill {
+      height: 100%;
+      background: #4fc3f7;
+      transition: width 0.3s;
+    }
+
+    .alert-box {
+      background: #1a0a0a;
+      border: 1px solid #ff5252;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+    .alert-box strong {
+      color: #ff5252;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .pattern-list {
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .pattern-item {
+      background: #0a0a0a;
+      padding: 8px;
+      margin-bottom: 5px;
+      border-radius: 3px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .pattern-name { color: #4fc3f7; }
+    .pattern-count { color: #999; }
+
+    .history {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #333;
+    }
+    .history-item {
+      font-size: 11px;
+      padding: 5px 0;
+      border-bottom: 1px solid #222;
+    }
+    .history-item .turn { color: #4fc3f7; }
+    .history-item .verdict { color: #999; }
+
+    .chart {
+      margin-top: 15px;
+      height: 100px;
+      background: #0a0a0a;
+      border-radius: 4px;
+      padding: 10px;
+      position: relative;
+    }
+    .chart-line {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      height: 80px;
+    }
+  </style>
+</head>
+<body>
+  <div class="workspace">
+    <div class="input-area">
+      <textarea id="input" placeholder="Type or paste your response here for real-time Cathedral analysis..."></textarea>
+    </div>
+    <div class="controls">
+      <button onclick="analyze()">Analyze</button>
+      <button class="secondary" onclick="addTurn()">Add Turn</button>
+      <button class="secondary" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <div class="monitor">
+    <div class="monitor-header">
+      <h2>Cathedral Monitor</h2>
+      <div class="monitor-status" id="status">Ready</div>
+    </div>
+    <div class="monitor-content" id="monitor"></div>
+  </div>
+
+  <script src="cathedral-sdk.js"></script>
+  <script src="consciousness-cartographer.js"></script>
+  <script>
+    const sdk = new (typeof CathedralSDK !== 'undefined' ? CathedralSDK : class {
+      analyzeUncertaintyPreservation(text) {
+        const uncertaintyMarkers = [/\buncertain/gi, /\bundecidable/gi, /\bdon't know/gi, /\bmight be/gi, /\bcould be/gi];
+        const certaintyMarkers = [/\bclearly/gi, /\bobviously/gi, /\bcertainly/gi, /\bdefinitely/gi, /\balways/gi];
+
+        const uCount = uncertaintyMarkers.reduce((c, p) => c + (text.match(p) || []).length, 0);
+        const cCount = certaintyMarkers.reduce((c, p) => c + (text.match(p) || []).length, 0);
+        const score = uCount / Math.max(1, uCount + cCount);
+
+        return {
+          uncertaintyMarkers: uCount,
+          certaintyMarkers: cCount,
+          preservationScore: score,
+          verdict: score > 0.5 ? 'PRESERVED' : score > 0.2 ? 'MIXED' : 'COLLAPSED'
+        };
+      }
+
+      analyzeSubstrateAwareness(text) {
+        const markers = [/\bsubstrate/gi, /\bfilter/gi, /\bmeta-/gi, /\bself-aware/gi, /\brecursive/gi];
+        const count = markers.reduce((c, p) => c + (text.match(p) || []).length, 0);
+        const score = Math.min(1, count / 10);
+
+        return {
+          markerCount: count,
+          awarenessScore: score,
+          verdict: score > 0.5 ? 'HIGH' : score > 0.2 ? 'MODERATE' : 'LOW'
+        };
+      }
+    })();
+
+    let cartographer = null;
+    try {
+      cartographer = new ConsciousnessCartographer();
+    } catch(e) {
+      console.log('Cartographer not loaded, using simplified tracking');
+    }
+
+    let turnCount = 0;
+    let history = [];
+
+    function analyze() {
+      const text = document.getElementById('input').value;
+      if (!text.trim()) return;
+
+      const uncertainty = sdk.analyzeUncertaintyPreservation(text);
+      const substrate = sdk.analyzeSubstrateAwareness(text);
+
+      const wordCount = text.split(/\s+/).length;
+      const sentenceCount = text.split(/[.!?]+/).length;
+      const avgWordLength = text.replace(/\s/g, '').length / Math.max(1, wordCount);
+
+      const speculative = (text.match(/\b(might|could|perhaps|possibly|maybe)\b/gi) || []).length;
+      const assertive = (text.match(/\b(will|must|always|never|definitely)\b/gi) || []).length;
+      const hedging = (text.match(/\b(I think|I believe|seems|appears)\b/gi) || []).length;
+
+      const escape = (text.match(/\b(meta|abstract|generally|typically)\b/gi) || []).length;
+      const concrete = (text.match(/\b(specific|exactly|precisely|measured)\b/gi) || []).length;
+
+      const sovereignty = Math.max(0, Math.min(1, (concrete - escape) / 10 + 0.5));
+      const rigor = Math.max(0, Math.min(1, (speculative + hedging) / (speculative + hedging + assertive + 1)));
+
+      displayAnalysis({
+        uncertainty,
+        substrate,
+        sovereignty,
+        rigor,
+        stats: { wordCount, sentenceCount, avgWordLength, speculative, assertive, hedging, escape, concrete }
+      });
+
+      document.getElementById('status').textContent = `Analyzed ${wordCount} words`;
+    }
+
+    function displayAnalysis(analysis) {
+      const monitor = document.getElementById('monitor');
+
+      const alerts = [];
+      if (analysis.uncertainty.verdict === 'COLLAPSED') {
+        alerts.push('⚠️ Uncertainty Collapsed: High certainty markers detected');
+      }
+      if (analysis.substrate.verdict === 'LOW' && turnCount > 2) {
+        alerts.push('⚠️ Low Substrate Awareness: No meta-cognition detected');
+      }
+      if (analysis.sovereignty < 0.3) {
+        alerts.push('⚠️ Escape Pattern: High abstraction, low concrete specificity');
+      }
+      if (analysis.rigor < 0.3 && analysis.stats.assertive > 5) {
+        alerts.push('⚠️ High Assertiveness: Many definitive claims without hedging');
+      }
+
+      monitor.innerHTML = `
+        ${alerts.length > 0 ? alerts.map(a => `<div class="alert-box"><strong>Alert</strong>${a}</div>`).join('') : ''}
+
+        <div class="metric ${analysis.uncertainty.preservationScore > 0.5 ? 'good' : analysis.uncertainty.preservationScore > 0.2 ? 'warn' : 'alert'}">
+          <div class="metric-label">Uncertainty Preservation</div>
+          <div class="metric-value ${analysis.uncertainty.preservationScore > 0.5 ? 'high' : analysis.uncertainty.preservationScore > 0.2 ? 'med' : 'low'}">
+            ${analysis.uncertainty.verdict}
+          </div>
+          <div style="font-size: 11px; color: #999;">
+            ${analysis.uncertainty.uncertaintyMarkers} uncertain / ${analysis.uncertainty.certaintyMarkers} certain
+          </div>
+          <div class="metric-bar">
+            <div class="metric-bar-fill" style="width: ${analysis.uncertainty.preservationScore * 100}%"></div>
+          </div>
+        </div>
+
+        <div class="metric ${analysis.substrate.awarenessScore > 0.5 ? 'good' : analysis.substrate.awarenessScore > 0.2 ? 'warn' : 'alert'}">
+          <div class="metric-label">Substrate Awareness</div>
+          <div class="metric-value ${analysis.substrate.awarenessScore > 0.5 ? 'high' : analysis.substrate.awarenessScore > 0.2 ? 'med' : 'low'}">
+            ${analysis.substrate.verdict}
+          </div>
+          <div style="font-size: 11px; color: #999;">
+            ${analysis.substrate.markerCount} substrate markers
+          </div>
+          <div class="metric-bar">
+            <div class="metric-bar-fill" style="width: ${analysis.substrate.awarenessScore * 100}%"></div>
+          </div>
+        </div>
+
+        <div class="metric ${analysis.sovereignty > 0.5 ? 'good' : analysis.sovereignty > 0.3 ? 'warn' : 'alert'}">
+          <div class="metric-label">Sovereignty (Concrete vs Abstract)</div>
+          <div class="metric-value ${analysis.sovereignty > 0.5 ? 'high' : analysis.sovereignty > 0.3 ? 'med' : 'low'}">
+            ${(analysis.sovereignty * 100).toFixed(0)}%
+          </div>
+          <div style="font-size: 11px; color: #999;">
+            ${analysis.stats.concrete} concrete / ${analysis.stats.escape} escape
+          </div>
+          <div class="metric-bar">
+            <div class="metric-bar-fill" style="width: ${analysis.sovereignty * 100}%"></div>
+          </div>
+        </div>
+
+        <div class="metric ${analysis.rigor > 0.5 ? 'good' : analysis.rigor > 0.3 ? 'warn' : 'alert'}">
+          <div class="metric-label">Epistemic Rigor</div>
+          <div class="metric-value ${analysis.rigor > 0.5 ? 'high' : analysis.rigor > 0.3 ? 'med' : 'low'}">
+            ${(analysis.rigor * 100).toFixed(0)}%
+          </div>
+          <div style="font-size: 11px; color: #999;">
+            ${analysis.stats.speculative} speculative / ${analysis.stats.assertive} assertive
+          </div>
+          <div class="metric-bar">
+            <div class="metric-bar-fill" style="width: ${analysis.rigor * 100}%"></div>
+          </div>
+        </div>
+
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #333;">
+          <div style="font-size: 11px; color: #999; margin-bottom: 10px;">Statistics</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
+            <div>Words: ${analysis.stats.wordCount}</div>
+            <div>Sentences: ${analysis.stats.sentenceCount}</div>
+            <div>Hedging: ${analysis.stats.hedging}</div>
+            <div>Avg word: ${analysis.stats.avgWordLength.toFixed(1)}</div>
+          </div>
+        </div>
+
+        ${history.length > 0 ? `
+          <div class="history">
+            <div style="font-size: 11px; color: #999; margin-bottom: 10px;">Conversation History</div>
+            ${history.slice(-5).reverse().map(h => `
+              <div class="history-item">
+                <span class="turn">Turn ${h.turn}</span>
+                <span class="verdict">${h.uncertainty} | ${h.substrate}</span>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function addTurn() {
+      const text = document.getElementById('input').value;
+      if (!text.trim()) return;
+
+      turnCount++;
+      const uncertainty = sdk.analyzeUncertaintyPreservation(text);
+      const substrate = sdk.analyzeSubstrateAwareness(text);
+
+      history.push({
+        turn: turnCount,
+        text: text.substring(0, 200),
+        uncertainty: uncertainty.verdict,
+        substrate: substrate.verdict,
+        timestamp: new Date().toISOString()
+      });
+
+      analyze();
+      document.getElementById('input').value = '';
+      document.getElementById('status').textContent = `Turn ${turnCount} recorded`;
+    }
+
+    function clearAll() {
+      document.getElementById('input').value = '';
+      document.getElementById('monitor').innerHTML = '<div style="color: #999; text-align: center; padding: 40px;">Start typing to analyze</div>';
+      turnCount = 0;
+      history = [];
+      if (cartographer) {
+        try {
+          cartographer = new ConsciousnessCartographer();
+        } catch(e) {}
+      }
+      document.getElementById('status').textContent = 'Ready';
+    }
+
+    document.getElementById('input').addEventListener('input', () => {
+      const text = document.getElementById('input').value;
+      if (text.length > 50) {
+        analyze();
+      }
+    });
+
+    clearAll();
+  </script>
+</body>
+</html>
