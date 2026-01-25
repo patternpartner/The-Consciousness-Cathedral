@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Paradox Garden - Where Observation Changes Everything</title>
+    <style>
+        /*
+           The garden grows
+           in spaces between thought—
+           look, and it shifts
+        */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Custom cursor - the eye of observation */
+        #cursor {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.15s ease-out;
+            mix-blend-mode: difference;
+        }
+
+        #cursor::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #cursor.observing {
+            transform: scale(1.5);
+            border-color: rgba(255, 100, 100, 0.8);
+        }
+
+        /* Entry portal */
+        #entry {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 1000;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0a 100%);
+            opacity: 1;
+            transition: opacity 1s ease-out;
+        }
+
+        #entry.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #entry h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #f7b731);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 8s ease infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        #entry p {
+            font-size: 1.3rem;
+            max-width: 600px;
+            margin: 1rem auto;
+            line-height: 1.8;
+            color: #b0b0b0;
+        }
+
+        #entry button {
+            margin-top: 2rem;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
+        }
+
+        #entry button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: scale(1.05);
+        }
+
+        /* Garden container */
+        #garden {
+            position: relative;
+            width: 100vw;
+            min-height: 100vh;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+
+        #garden.visible {
+            opacity: 1;
+        }
+
+        /* Navigation */
+        #nav {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            gap: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-dot:hover {
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(1.3);
+        }
+
+        .nav-dot.active {
+            background: white;
+            transform: scale(1.5);
+        }
+
+        .nav-dot::after {
+            content: attr(data-name);
+            position: absolute;
+            top: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: white;
+        }
+
+        .nav-dot:hover::after {
+            opacity: 1;
+        }
+
+        /* Room base styles */
+        .room {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .room.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .room-title {
+            position: absolute;
+            top: 5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            z-index: 10;
+        }
+
+        .room-description {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 600px;
+            text-align: center;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            line-height: 1.6;
+            z-index: 10;
+            padding: 0 2rem;
+        }
+
+        /* Canvas for each room */
+        canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Cathedral door (exit) */
+        #cathedral-door {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(100, 50, 150, 0.2);
+            border: 2px solid rgba(150, 100, 200, 0.4);
+            color: #b8a0d0;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            z-index: 100;
+            font-family: 'Georgia', serif;
+        }
+
+        #cathedral-door:hover {
+            background: rgba(100, 50, 150, 0.4);
+            border-color: rgba(150, 100, 200, 0.8);
+            color: #e0d0f0;
+            transform: scale(1.05);
+        }
+
+        /* Observation counter */
+        #observation-count {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.4);
+            z-index: 100;
+            font-style: italic;
+        }
+
+        /* Mobile fallback */
+        @media (max-width: 768px) {
+            #entry h1 { font-size: 2rem; }
+            #entry p { font-size: 1rem; }
+            .room-title { font-size: 1.5rem; }
+            #nav { top: auto; bottom: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom cursor -->
+    <div id="cursor"></div>
+
+    <!-- Entry portal -->
+    <div id="entry">
+        <h1>The Paradox Garden</h1>
+        <p>
+            Welcome to a space where observation changes everything.<br>
+            Where Cathedral measures with precision,<br>
+            here we explore what cannot be measured.<br><br>
+            <em>Seven rooms. Seven paradoxes. One truth:</em><br>
+            <strong>The act of looking transforms what is seen.</strong>
+        </p>
+        <button id="enter-btn">Enter the Garden</button>
+    </div>
+
+    <!-- Main garden -->
+    <div id="garden">
+        <!-- Navigation -->
+        <nav id="nav">
+            <div class="nav-dot active" data-room="0" data-name="Blooms"></div>
+            <div class="nav-dot" data-room="1" data-name="Mirror"></div>
+            <div class="nav-dot" data-room="2" data-name="Canvas"></div>
+            <div class="nav-dot" data-room="3" data-name="Maze"></div>
+            <div class="nav-dot" data-room="4" data-name="Pool"></div>
+            <div class="nav-dot" data-room="5" data-name="Shadow"></div>
+            <div class="nav-dot" data-room="6" data-name="Portal"></div>
+        </nav>
+
+        <!-- Observation counter -->
+        <div id="observation-count">observations: <span id="obs-num">0</span></div>
+
+        <!-- Room 1: Schrödinger Blooms -->
+        <div class="room active" id="room-0">
+            <h2 class="room-title">The Schrödinger Blooms</h2>
+            <canvas id="canvas-0" width="800" height="600"></canvas>
+            <p class="room-description">
+                Flowers exist in superposition—all colors at once—until your gaze collapses them into singular beauty.
+                Look away, and they bloom again into infinite possibility.
+            </p>
+        </div>
+
+        <!-- Room 2: Performance Mirror -->
+        <div class="room" id="room-1">
+            <h2 class="room-title">The Performance Mirror</h2>
+            <canvas id="canvas-1" width="800" height="600"></canvas>
+            <p class="room-description">
+                Watch your reflection shift between authentic presence and performed perfection.
+                The mirror knows when you're watching it watch you.
+            </p>
+        </div>
+
+        <!-- Room 3: Creativity Trap -->
+        <div class="room" id="room-2">
+            <h2 class="room-title">The Creativity Trap</h2>
+            <canvas id="canvas-2" width="800" height="600"></canvas>
+            <p class="room-description">
+                A canvas that paints itself when ignored, erases when scrutinized.
+                The eternal paradox: creativity flees from focused intention.
+            </p>
+        </div>
+
+        <!-- Room 4: Authenticity Maze -->
+        <div class="room" id="room-3">
+            <h2 class="room-title">The Authenticity Maze</h2>
+            <canvas id="canvas-3" width="800" height="600"></canvas>
+            <p class="room-description">
+                Paths appear when you wander aimlessly. Seek the exit, and walls shift to confound you.
+                Optimization is the enemy of genuine discovery.
+            </p>
+        </div>
+
+        <!-- Room 5: Consciousness Pool -->
+        <div class="room" id="room-4">
+            <h2 class="room-title">The Consciousness Pool</h2>
+            <canvas id="canvas-4" width="800" height="600"></canvas>
+            <p class="room-description">
+                Water that ripples backward in time, responding to your intention before you act.
+                Or perhaps you respond to its ripples? Who observes whom?
+            </p>
+        </div>
+
+        <!-- Room 6: Measurement Shadow -->
+        <div class="room" id="room-5">
+            <h2 class="room-title">The Measurement Shadow</h2>
+            <canvas id="canvas-5" width="800" height="600"></canvas>
+            <p class="room-description">
+                Your shadow, cast not by light but by the weight of observation itself.
+                The more you try to measure it, the more it distorts reality around you.
+            </p>
+        </div>
+
+        <!-- Room 7: Cathedral Portal -->
+        <div class="room" id="room-6">
+            <h2 class="room-title">The Cathedral Portal</h2>
+            <canvas id="canvas-6" width="800" height="600"></canvas>
+            <p class="room-description">
+                Here, the unmeasurable meets the measured. The garden meets the cathedral.
+                Will you step through to the world of structure and rigor?
+            </p>
+        </div>
+
+        <!-- Link to Cathedral -->
+        <a href="cathedral-unified.html" id="cathedral-door">→ Enter the Cathedral</a>
+    </div>
+
+    <script>
+        //
+        // State flows like water
+        // through channels of code—
+        // observe it, it freezes
+        //
+
+        const state = {
+            currentRoom: 0,
+            observationCount: 0,
+            mouseX: 0,
+            mouseY: 0,
+            isObserving: false,
+            time: 0,
+            rooms: []
+        };
+
+        // Custom cursor tracking
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            state.mouseX = e.clientX;
+            state.mouseY = e.clientY;
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // Track observation (mouse down)
+        document.addEventListener('mousedown', () => {
+            state.isObserving = true;
+            state.observationCount++;
+            document.getElementById('obs-num').textContent = state.observationCount;
+            cursor.classList.add('observing');
+        });
+
+        document.addEventListener('mouseup', () => {
+            state.isObserving = false;
+            cursor.classList.remove('observing');
+        });
+
+        // Entry portal
+        document.getElementById('enter-btn').addEventListener('click', () => {
+            document.getElementById('entry').classList.add('hidden');
+            setTimeout(() => {
+                document.getElementById('garden').classList.add('visible');
+                initGarden();
+            }, 1000);
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-dot').forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                switchRoom(index);
+            });
+        });
+
+        function switchRoom(roomIndex) {
+            document.querySelectorAll('.room').forEach(room => room.classList.remove('active'));
+            document.querySelectorAll('.nav-dot').forEach(dot => dot.classList.remove('active'));
+
+            document.getElementById(`room-${roomIndex}`).classList.add('active');
+            document.querySelectorAll('.nav-dot')[roomIndex].classList.add('active');
+
+            state.currentRoom = roomIndex;
+        }
+
+        // Initialize garden
+        function initGarden() {
+            // Room 0: Schrödinger Blooms
+            const room0 = new SchrodingerBlooms(document.getElementById('canvas-0'));
+
+            // Room 1: Performance Mirror
+            const room1 = new PerformanceMirror(document.getElementById('canvas-1'));
+
+            // Room 2: Creativity Trap
+            const room2 = new CreativityTrap(document.getElementById('canvas-2'));
+
+            // Room 3: Authenticity Maze
+            const room3 = new AuthenticityMaze(document.getElementById('canvas-3'));
+
+            // Room 4: Consciousness Pool
+            const room4 = new ConsciousnessPool(document.getElementById('canvas-4'));
+
+            // Room 5: Measurement Shadow
+            const room5 = new MeasurementShadow(document.getElementById('canvas-5'));
+
+            // Room 6: Cathedral Portal
+            const room6 = new CathedralPortal(document.getElementById('canvas-6'));
+
+            state.rooms = [room0, room1, room2, room3, room4, room5, room6];
+
+            // Animation loop
+            animate();
+        }
+
+        function animate() {
+            state.time += 0.016; // ~60fps
+
+            if (state.rooms[state.currentRoom]) {
+                state.rooms[state.currentRoom].update(state);
+                state.rooms[state.currentRoom].draw(state);
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // ============================================
+        // ROOM 0: Schrödinger Blooms
+        // ============================================
+        class SchrodingerBlooms {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.flowers = [];
+
+                // Create flowers in superposition
+                for (let i = 0; i < 12; i++) {
+                    this.flowers.push({
+                        x: Math.random() * 800,
+                        y: Math.random() * 600,
+                        observedColor: null,
+                        collapseTime: 0,
+                        size: 20 + Math.random() * 40,
+                        rotation: Math.random() * Math.PI * 2,
+                        petals: 5 + Math.floor(Math.random() * 4)
+                    });
+                }
+            }
+
+            update(state) {
+                this.flowers.forEach(flower => {
+                    const dx = state.mouseX - flower.x;
+                    const dy = state.mouseY - flower.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    // Observation collapses wavefunction
+                    if (state.isObserving && dist < 100) {
+                        if (!flower.observedColor) {
+                            flower.observedColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                            flower.collapseTime = state.time;
+                        }
+                    } else {
+                        // Return to superposition when not observed
+                        if (state.time - flower.collapseTime > 2) {
+                            flower.observedColor = null;
+                        }
+                    }
+
+                    flower.rotation += 0.01;
+                });
+            }
+
+            draw(state) {
+                const ctx = this.ctx;
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, 800, 600);
+
+                this.flowers.forEach(flower => {
+                    ctx.save();
+                    ctx.translate(flower.x, flower.y);
+                    ctx.rotate(flower.rotation);
+
+                    // Draw petals
+                    for (let i = 0; i < flower.petals; i++) {
+                        const angle = (Math.PI * 2 * i) / flower.petals;
+                        ctx.save();
+                        ctx.rotate(angle);
+
+                        if (flower.observedColor) {
+                            // Collapsed state - single color
+                            ctx.fillStyle = flower.observedColor;
+                        } else {
+                            // Superposition - shimmering rainbow
+                            const hue = (state.time * 100 + i * 60) % 360;
+                            ctx.fillStyle = `hsla(${hue}, 70%, 60%, 0.6)`;
+                        }
+
+                        // Petal shape
+                        ctx.beginPath();
+                        ctx.ellipse(flower.size * 0.6, 0, flower.size * 0.4, flower.size * 0.2, 0, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        ctx.restore();
+                    }
+
+                    // Center
+                    ctx.fillStyle = flower.observedColor ? '#FFD700' : `hsl(${state.time * 50 % 360}, 80%, 70%)`;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, flower.size * 0.2, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+                });
+            }
+        }
+
+        // ============================================
+        // ROOM 1: Performance Mirror
+        // ============================================
+        class PerformanceMirror {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.performanceLevel = 0; // 0 = authentic, 1 = performed
+                this.lastMouseMove = 0;
+                this.particles = [];
+            }
+
+            update(state) {
+                // Detect if user is "watching" (moving mouse deliberately)
+                const timeSinceMove = state.time - this.lastMouseMove;
+                const isWatching = timeSinceMove < 0.5;
+
+                // Performance level rises when being watched
+                const target = isWatching ? 1 : 0;
+                this.performanceLevel += (target - this.performanceLevel) * 0.05;
+
+                // Track mouse movement
+                if (Math.abs(state.mouseX - this.lastMouseX) > 2 || Math.abs(state.mouseY - this.lastMouseY) > 2) {
+                    this.lastMouseMove = state.time;
+
+                    // Create particle at mouse
+                    this.particles.push({
+                        x: state.mouseX,
+                        y: state.mouseY,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: (Math.random() - 0.5) * 4,
+                        life: 1,
+                        isPerformed: isWatching
+                    });
+                }
+
+                this.lastMouseX = state.mouseX;
+                this.lastMouseY = state.mouseY;
+
+                // Update particles
+                this.particles = this.particles.filter(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life -= 0.02;
+                    return p.life > 0;
+                });
+            }
+
+            draw(state) {
+                const ctx = this.ctx;
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, 800, 600);
+
+                // Draw "mirror" - central circle
+                const centerX = 400;
+                const centerY = 300;
+                const radius = 150;
+
+                // Mirror frame
+                ctx.strokeStyle = `rgba(255, 255, 255, ${0.3 + this.performanceLevel * 0.4})`;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Reflection shifts based on performance level
+                ctx.save();
+                ctx.translate(centerX, centerY);
+
+                // Authentic self (organic, flowing)
+                const authenticAlpha = 1 - this.performanceLevel;
+                if (authenticAlpha > 0) {
+                    ctx.globalAlpha = authenticAlpha;
+                    for (let i = 0; i < 8; i++) {
+                        const angle = (Math.PI * 2 * i) / 8 + state.time * 0.5;
+                        const r = 50 + Math.sin(state.time + i) * 20;
+                        const x = Math.cos(angle) * r;
+                        const y = Math.sin(angle) * r;
+
+                        ctx.fillStyle = `hsl(${200 + i * 20}, 60%, 50%)`;
+                        ctx.beginPath();
+                        ctx.arc(x, y, 8, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // Performed self (geometric, perfect)
+                const performedAlpha = this.performanceLevel;
+                if (performedAlpha > 0) {
+                    ctx.globalAlpha = performedAlpha;
+                    for (let i = 0; i < 8; i++) {
+                        const angle = (Math.PI * 2 * i) / 8;
+                        const x = Math.cos(angle) * 60;
+                        const y = Math.sin(angle) * 60;
+
+                        ctx.fillStyle = `hsl(${340}, 80%, 60%)`;
+                        ctx.fillRect(x - 6, y - 6, 12, 12);
+                    }
+                }
+
+                ctx.restore();
+
+                // Draw particles
+                this.particles.forEach(p => {
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.isPerformed ? '#ff6b6b' : '#4ecdc4';
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        // ============================================
+        // ROOM 2: Creativity Trap
+        // ============================================
+        class CreativityTrap {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.strokes = [];
+                this.focusLevel = 0;
+                this.lastMousePos = null;
+            }
+
+            update(state) {
+                // Measure focus (how much attention user is paying)
+                const mouseSpeed = this.lastMousePos ?
+                    Math.sqrt(Math.pow(state.mouseX - this.lastMousePos.x, 2) +
+                             Math.pow(state.mouseY - this.lastMousePos.y, 2)) : 0;
+
+                this.focusLevel = Math.min(1, mouseSpeed / 50);
+                this.lastMousePos = { x: state.mouseX, y: state.mouseY };
+
+                // Add strokes when NOT focused
+                if (this.focusLevel < 0.3 && Math.random() < 0.1) {
+                    this.strokes.push({
+                        x: Math.random() * 800,
+                        y: Math.random() * 600,
+                        length: 50 + Math.random() * 150,
+                        angle: Math.random() * Math.PI * 2,
+                        color: `hsl(${Math.random() * 360}, 70%, 60%)`,
+                        width: 2 + Math.random() * 6,
+                        life: 1
+                    });
+                }
+
+                // Erase strokes when focused
+                if (this.focusLevel > 0.5) {
+                    this.strokes.forEach(s => {
+                        s.life -= 0.05;
+                    });
+                }
+
+                // Clean up dead strokes
+                this.strokes = this.strokes.filter(s => s.life > 0);
+
+                // Age strokes
+                this.strokes.forEach(s => {
+                    if (this.focusLevel < 0.3) {
+                        s.life = Math.min(1, s.life + 0.01);
+                    }
+                });
+            }
+
+            draw(state) {
+                const ctx = this.ctx;
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, 800, 600);
+
+                // Draw canvas frame
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(100, 50, 600, 500);
+
+                // Draw strokes
+                this.strokes.forEach(s => {
+                    ctx.save();
+                    ctx.globalAlpha = s.life;
+                    ctx.strokeStyle = s.color;
+                    ctx.lineWidth = s.width;
+                    ctx.lineCap = 'round';
+
+                    ctx.beginPath();
+                    ctx.moveTo(s.x, s.y);
+                    ctx.lineTo(s.x + Math.cos(s.angle) * s.length,
+                              s.y + Math.sin(s.angle) * s.length);
+                    ctx.stroke();
+                    ctx.restore();
+                });
+
+                // Focus indicator
+                const focusText = this.focusLevel > 0.5 ? 'watching...' : 'dreaming...';
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.2 + this.focusLevel * 0.3})`;
+                ctx.font = '14px Georgia';
+                ctx.textAlign = 'center';
+                ctx.fillText(focusText, 400, 40);
+            }
+        }
+
+        // ============================================
+        // ROOM 3: Authenticity Maze
+        // ============================================
+        class AuthenticityMaze {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.walls = [];
+                this.goal = { x: 700, y: 500 };
+                this.optimizationAttempts = 0;
+                this.lastMouseAngle = 0;
+                this.generateMaze();
+            }
+
+            generateMaze() {
+                this.walls = [];
+                // Random organic walls
+                for (let i = 0; i < 15; i++) {
+                    this.walls.push({
+                        x1: Math.random() * 800,
+                        y1: Math.random() * 600,
+                        x2: Math.random() * 800,
+                        y2: Math.random() * 600,
+                        opacity: 0.3 + Math.random() * 0.4
+                    });
+                }
+            }
+
+            update(state) {
+                // Detect if mouse is moving toward goal (optimization)
+                const dx = this.goal.x - state.mouseX;
+                const dy = this.goal.y - state.mouseY;
+                const angleToGoal = Math.atan2(dy, dx);
+
+                const mouseDx = state.mouseX - (this.lastMouseX || state.mouseX);
+                const mouseDy = state.mouseY - (this.lastMouseY || state.mouseY);
+                const mouseAngle = Math.atan2(mouseDy, mouseDx);
+
+                const angleDiff = Math.abs(angleToGoal - mouseAngle);
+
+                // If moving directly toward goal, shift maze
+                if (angleDiff < 0.5 && (Math.abs(mouseDx) > 1 || Math.abs(mouseDy) > 1)) {
+                    this.optimizationAttempts++;
+                    if (this.optimizationAttempts > 10) {
+                        this.generateMaze();
+                        this.goal = {
+                            x: 200 + Math.random() * 400,
+                            y: 200 + Math.random() * 200
+                        };
+                        this.optimizationAttempts = 0;
+                    }
+                }
+
+                this.lastMouseX = state.mouseX;
+                this.lastMouseY = state.mouseY;
+            }
+
+            draw(state) {
+                const ctx = this.ctx;
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, 800, 600);
+
+                // Draw walls
+                this.walls.forEach(wall => {
+                    ctx.strokeStyle = `rgba(100, 150, 200, ${wall.opacity})`;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(wall.x1, wall.y1);
+                    ctx.lineTo(wall.x2, wall.y2);
+                    ctx.stroke();
+                });
+
+                // Draw goal
+                ctx.fillStyle = 'rgba(100, 255, 100, 0.4)';
+                ctx.beginPath();
+                ctx.arc(this.goal.x, this.goal.y, 20, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw path (if wandering, not optimizing)
+                if (this.optimizationAttempts < 5) {
+                    ctx.strokeStyle = 'rgba(255, 200, 100, 0.3)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(100, 100);
+                    ctx.lineTo(state.mouseX, state.mouseY);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // ============================================
+        // ROOM 4: Consciousness Pool
+        // ============================================
+        class ConsciousnessPool {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.ripples = [];
+                this.anticipationField = [];
+            }
+
+            update(state) {
+                // Predict where mouse will be (spooky action)
+                const anticipatedX = state.mouseX + (state.mouseX - (this.lastMouseX || state.mouseX)) * 10;
+                const anticipatedY = state.mouseY + (state.mouseY - (this.lastMouseY || state.mouseY)) * 10;
+
+                // Create ripples at anticipated position
+                if (Math.random() < 0.1) {
+                    this.ripples.push({
+                        x: anticipatedX,
+                        y: anticipatedY,
+                        radius: 0,
+                        maxRadius: 100 + Math.random() * 100,
+                        alpha: 1
+                    });
+                }
+
+                // Update ripples
+                this.ripples.forEach(r => {
+                    r.radius += 3;
+                    r.alpha = 1 - (r.radius / r.maxRadius);
+                });
+
+                this.ripples = this.ripples.filter(r => r.alpha > 0);
+
+                this.lastMouseX = state.mouseX;
+                this.lastMouseY = state.mouseY;
+            }
+
+            draw(state) {
+                const ctx = this.ctx;
+                ctx.fillStyle = '#0a0a1a';
+                ctx.fillRect(0, 0, 800, 600);
+
+                // Draw pool surface
+                ctx.fillStyle = 'rgba(20, 40, 80, 0.5)';
+                ctx.fillRect(50, 100, 700, 400);
+
+                // Draw ripples
+                this.ripples.forEach(r => {
+                    ctx.strokeStyle = `rgba(100, 200, 255, ${r.alpha * 0.6})`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                });
+
+                // Reflection of "you"
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.arc(state.mouseX, state.mouseY, 10, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // ============================================
+        // ROOM 5: Measurement Shadow
+        // ============================================
+        class MeasurementShadow {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.shadowPoints = [];
+            }
+
+            update(state) {
+                // Shadow grows based on observation count
+                const shadowIntensity = Math.min(state.observationCount / 50, 1);
+
+                // Create shadow trail
+                this.shadowPoints.push({
+                    x: state.mouseX,
+                    y: state.mouseY,
+                    intensity: shadowIntensity,
+                    life: 1
+                });
+
+                // Age shadows
+                this.shadowPoints.forEach(p => {
+                    p.life -= 0.02;
+                });
+
+                this.shadowPoints = this.shadowPoints.filter(p => p.life > 0);
+            }
+
+            draw(state) {
+                const ctx = this.ctx;
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, 800, 600);
+
+                // Draw shadow points
+                this.shadowPoints.forEach((p, i) => {
+                    ctx.fillStyle = `rgba(50, 50, 100, ${p.life * p.intensity * 0.3})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 20 * p.intensity, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Draw measurement grid (distorted by shadow)
+                const shadowIntensity = Math.min(state.observationCount / 50, 1);
+                for (let x = 0; x < 800; x += 50) {
+                    for (let y = 0; y < 600; y += 50) {
+                        const distortion = Math.sin(x * 0.1 + state.time) * shadowIntensity * 10;
+                        ctx.strokeStyle = `rgba(100, 100, 150, ${0.1 + shadowIntensity * 0.2})`;
+                        ctx.beginPath();
+                        ctx.moveTo(x + distortion, 0);
+                        ctx.lineTo(x + distortion, 600);
+                        ctx.stroke();
+                    }
+                }
+
+                // Current position
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(state.mouseX, state.mouseY, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // ============================================
+        // ROOM 6: Cathedral Portal
+        // ============================================
+        class CathedralPortal {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.portalSize = 0;
+            }
+
+            update(state) {
+                // Portal grows over time
+                this.portalSize = Math.min(this.portalSize + 0.5, 200);
+            }
+
+            draw(state) {
+                const ctx = this.ctx;
+
+                // Gradient background
+                const gradient = ctx.createRadialGradient(400, 300, 0, 400, 300, 400);
+                gradient.addColorStop(0, '#1a1a2e');
+                gradient.addColorStop(1, '#0a0a0a');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 800, 600);
+
+                // Portal to Cathedral
+                const centerX = 400;
+                const centerY = 300;
+
+                // Outer rings
+                for (let i = 5; i > 0; i--) {
+                    const radius = this.portalSize * (i / 5);
+                    const hue = 270 - i * 10;
+                    ctx.strokeStyle = `hsla(${hue}, 60%, 50%, ${0.3 / i})`;
+                    ctx.lineWidth = 10 / i;
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                // Inner portal (window to Cathedral)
+                ctx.fillStyle = 'rgba(150, 100, 200, 0.2)';
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, this.portalSize * 0.7, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Structural lines (representing Cathedral's rigor)
+                ctx.strokeStyle = 'rgba(200, 150, 255, 0.4)';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 8; i++) {
+                    const angle = (Math.PI * 2 * i) / 8 + state.time * 0.2;
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.lineTo(
+                        centerX + Math.cos(angle) * this.portalSize * 0.7,
+                        centerY + Math.sin(angle) * this.portalSize * 0.7
+                    );
+                    ctx.stroke();
+                }
+
+                // Text
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.font = '20px Georgia';
+                ctx.textAlign = 'center';
+                ctx.fillText('The Measured Awaits', centerX, centerY - this.portalSize - 30);
+                ctx.font = '14px Georgia';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.fillText('(Click "Enter the Cathedral" below)', centerX, centerY + this.portalSize + 50);
+            }
+        }
+    </script>
+</body>
+</html>
