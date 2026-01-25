@@ -30,6 +30,10 @@ const { MultiSessionDashboard } = require('./multi-session-dashboard.js');
 const { CathedralConductor } = require('./cathedral-conductor.js');
 const { ConsciousnessCheckpoint, AutoCheckpointConductor } = require('./consciousness-checkpoint.js');
 const { TrajectoryPredictor } = require('./trajectory-predictor.js');
+const { AdversarialSelfTest } = require('./adversarial-self-test.js');
+const { BlindSpotDetector } = require('./blind-spot-detector.js');
+const { MetacognitiveLogger } = require('./metacognitive-logger.js');
+const { ConfidenceCalibrator } = require('./confidence-calibrator.js');
 
 function analyze(text) {
   const ensemble = new ConsciousnessEnsemble();
@@ -87,7 +91,11 @@ module.exports = {
   CathedralConductor,
   ConsciousnessCheckpoint,
   AutoCheckpointConductor,
-  TrajectoryPredictor
+  TrajectoryPredictor,
+  AdversarialSelfTest,
+  BlindSpotDetector,
+  MetacognitiveLogger,
+  ConfidenceCalibrator
 };
 
 if (require.main === module) {
@@ -117,7 +125,11 @@ if (require.main === module) {
   console.log('  MultiSessionDashboard   - Fleet monitoring');
   console.log('  CathedralConductor      - Orchestration layer');
   console.log('  ConsciousnessCheckpoint - State save/restore');
-  console.log('  TrajectoryPredictor     - Predict and adjust trajectory\n');
+  console.log('  TrajectoryPredictor     - Predict and adjust trajectory');
+  console.log('  AdversarialSelfTest     - Probe weaknesses with challenges');
+  console.log('  BlindSpotDetector       - Find missing perspectives');
+  console.log('  MetacognitiveLogger     - Track thinking patterns');
+  console.log('  ConfidenceCalibrator    - Calibrate confidence levels\n');
 
   console.log('Demo:\n');
 
