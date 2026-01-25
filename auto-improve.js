@@ -19,6 +19,10 @@ class AutoImprove {
     this.learningRate = options.learningRate || 0.8;
   }
 
+  handleAlert(alert) {
+    // Placeholder for alert handling - can be overridden
+  }
+
   write(chunk) {
     this.buffer += chunk;
     this.monitor.write(chunk);
