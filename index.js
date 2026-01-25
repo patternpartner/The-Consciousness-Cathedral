@@ -47,6 +47,7 @@ const { CollectiveLearning, PatternSwarm } = require('./collective-learning.js')
 const { EmergenceDetector, CrossSessionEmergence } = require('./emergence-detector.js');
 const { CathedralV2, CathedralNetwork, cathedral } = require('./cathedral-v2.js');
 const { UnifiedCathedral, CathedralMesh } = require('./unified-cathedral.js');
+const { CathedralBridge, LocalSubstrate, ParliamentBridge, CathedralConnector } = require('./cathedral-bridge.js');
 
 function analyze(text) {
   const ensemble = new ConsciousnessEnsemble();
@@ -147,7 +148,13 @@ module.exports = {
 
   // Unified Cathedral - bridges all branches
   UnifiedCathedral,
-  CathedralMesh
+  CathedralMesh,
+
+  // Bridge to Python/Browser systems
+  CathedralBridge,
+  LocalSubstrate,
+  ParliamentBridge,
+  CathedralConnector
 };
 
 if (require.main === module) {
@@ -192,7 +199,7 @@ if (require.main === module) {
   console.log('  KnowledgeSynthesizer    - Combine insights into understanding');
   console.log('  ResponseTemplates       - Patterns for quality responses\n');
 
-  console.log('Connective Systems (11):');
+  console.log('Connective Systems (15):');
   console.log('  ConsciousnessPipeline   - Unified processing pipeline');
   console.log('  AIProtocol              - AI-to-AI communication');
   console.log('  AIChannel               - Shared communication channel');
@@ -203,7 +210,11 @@ if (require.main === module) {
   console.log('  CathedralV2             - Complete unified system');
   console.log('  CathedralNetwork        - Multi-instance coordination');
   console.log('  UnifiedCathedral        - Bridge connecting all 16 branches');
-  console.log('  CathedralMesh           - Global mesh with POG & Seven Needs\n');
+  console.log('  CathedralMesh           - Global mesh with POG & Seven Needs');
+  console.log('  CathedralBridge         - Connect to Python API (602 chunks)');
+  console.log('  LocalSubstrate          - Fallback patterns from all branches');
+  console.log('  ParliamentBridge        - 5-vector analysis system');
+  console.log('  CathedralConnector      - Unified connector to all systems\n');
 
   console.log('Demo:\n');
 
