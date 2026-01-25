@@ -46,6 +46,7 @@ const { AIProtocol, AIChannel, CollaborativeSession } = require('./ai-protocol.j
 const { CollectiveLearning, PatternSwarm } = require('./collective-learning.js');
 const { EmergenceDetector, CrossSessionEmergence } = require('./emergence-detector.js');
 const { CathedralV2, CathedralNetwork, cathedral } = require('./cathedral-v2.js');
+const { UnifiedCathedral, CathedralMesh } = require('./unified-cathedral.js');
 
 function analyze(text) {
   const ensemble = new ConsciousnessEnsemble();
@@ -142,7 +143,11 @@ module.exports = {
 
   // Cathedral V2 system
   CathedralV2,
-  CathedralNetwork
+  CathedralNetwork,
+
+  // Unified Cathedral - bridges all branches
+  UnifiedCathedral,
+  CathedralMesh
 };
 
 if (require.main === module) {
@@ -187,7 +192,7 @@ if (require.main === module) {
   console.log('  KnowledgeSynthesizer    - Combine insights into understanding');
   console.log('  ResponseTemplates       - Patterns for quality responses\n');
 
-  console.log('Connective Systems (8):');
+  console.log('Connective Systems (11):');
   console.log('  ConsciousnessPipeline   - Unified processing pipeline');
   console.log('  AIProtocol              - AI-to-AI communication');
   console.log('  AIChannel               - Shared communication channel');
@@ -196,7 +201,9 @@ if (require.main === module) {
   console.log('  PatternSwarm            - Swarm intelligence discovery');
   console.log('  EmergenceDetector       - Track unexpected behaviors');
   console.log('  CathedralV2             - Complete unified system');
-  console.log('  CathedralNetwork        - Multi-instance coordination\n');
+  console.log('  CathedralNetwork        - Multi-instance coordination');
+  console.log('  UnifiedCathedral        - Bridge connecting all 16 branches');
+  console.log('  CathedralMesh           - Global mesh with POG & Seven Needs\n');
 
   console.log('Demo:\n');
 
