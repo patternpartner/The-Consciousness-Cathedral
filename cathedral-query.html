@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cathedral Query</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { color: #4fc3f7; margin-bottom: 10px; font-size: 2em; }
+    .subtitle { color: #999; margin-bottom: 20px; }
+    .search-box {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      color: #e0e0e0;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+    }
+    button {
+      background: #4fc3f7;
+      color: #0a0a0a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    button:hover { background: #81d4fa; }
+    .stats {
+      background: #1a1a1a;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+      text-align: center;
+    }
+    .stat-value { font-size: 24px; color: #4fc3f7; font-weight: bold; }
+    .stat-label { font-size: 11px; color: #999; }
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    select {
+      width: 100%;
+      padding: 8px;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      color: #e0e0e0;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+    }
+    .results { margin-top: 20px; }
+    .result-item {
+      background: #1a1a1a;
+      border-left: 3px solid #4fc3f7;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+    .result-meta {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 11px;
+      flex-wrap: wrap;
+    }
+    .result-meta span {
+      background: #0a0a0a;
+      padding: 4px 8px;
+      border-radius: 3px;
+      color: #999;
+    }
+    .result-meta .score { color: #4fc3f7; font-weight: bold; }
+    .result-content {
+      color: #e0e0e0;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+      background: #1a1a1a;
+      border-radius: 8px;
+    }
+    .examples {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .example {
+      background: #0a0a0a;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid #333;
+      font-size: 13px;
+    }
+    .example:hover { border-color: #4fc3f7; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 Cathedral Query</h1>
+    <div class="subtitle">Search 633 chunks from Cathedral construction substrate</div>
+
+    <div class="stats" id="stats">
+      <div><div class="stat-value">...</div><div class="stat-label">Loading</div></div>
+    </div>
+
+    <div class="search-box">
+      <input type="text" id="query" placeholder="Search Cathedral knowledge..." />
+
+      <div class="examples">
+        <div class="example" onclick="quickSearch('uncertainty preservation')">Uncertainty</div>
+        <div class="example" onclick="quickSearch('parliament voting')">Parliament</div>
+        <div class="example" onclick="quickSearch('substrate awareness')">Substrate</div>
+        <div class="example" onclick="quickSearch('observatory pattern')">Observatory</div>
+        <div class="example" onclick="quickSearch('sovereignty gap')">Sovereignty</div>
+        <div class="example" onclick="quickSearch('bifurcation')">Bifurcation</div>
+      </div>
+
+      <div class="filters">
+        <select id="layerFilter" onchange="search()">
+          <option value="">All Layers</option>
+        </select>
+        <select id="typeFilter" onchange="search()">
+          <option value="">All Types</option>
+        </select>
+        <select id="patternFilter" onchange="search()">
+          <option value="">All Patterns</option>
+        </select>
+      </div>
+
+      <button onclick="search()">Search</button>
+    </div>
+
+    <div class="results" id="results"></div>
+  </div>
+
+  <script>
+    let corpus = null;
+    let allLayers = new Set();
+    let allTypes = new Set();
+    let allPatterns = new Set();
+
+    async function loadCorpus() {
+      try {
+        const res = await fetch('cathedral-ai/cathedral_corpus.json');
+        const data = await res.json();
+        corpus = data.chunks;
+
+        corpus.forEach(c => {
+          if (c.layer) allLayers.add(c.layer);
+          if (c.doc_type) allTypes.add(c.doc_type);
+          if (c.pattern) allPatterns.add(c.pattern);
+        });
+
+        document.getElementById('stats').innerHTML = `
+          <div><div class="stat-value">${corpus.length}</div><div class="stat-label">Chunks</div></div>
+          <div><div class="stat-value">${allLayers.size}</div><div class="stat-label">Layers</div></div>
+          <div><div class="stat-value">${allTypes.size}</div><div class="stat-label">Types</div></div>
+          <div><div class="stat-value">${allPatterns.size}</div><div class="stat-label">Patterns</div></div>
+        `;
+
+        const layerSelect = document.getElementById('layerFilter');
+        Array.from(allLayers).sort((a, b) => a - b).forEach(l => {
+          layerSelect.innerHTML += `<option value="${l}">Layer ${l}</option>`;
+        });
+
+        const typeSelect = document.getElementById('typeFilter');
+        Array.from(allTypes).sort().forEach(t => {
+          typeSelect.innerHTML += `<option value="${t}">${t}</option>`;
+        });
+
+        const patternSelect = document.getElementById('patternFilter');
+        Array.from(allPatterns).sort().forEach(p => {
+          if (p) patternSelect.innerHTML += `<option value="${p}">${p}</option>`;
+        });
+
+      } catch (e) {
+        document.getElementById('stats').innerHTML = `
+          <div style="grid-column: 1/-1; color: #ff5252;">Error loading corpus: ${e.message}</div>
+        `;
+      }
+    }
+
+    function quickSearch(term) {
+      document.getElementById('query').value = term;
+      search();
+    }
+
+    function search() {
+      if (!corpus) {
+        document.getElementById('results').innerHTML = '<div class="loading">Loading corpus...</div>';
+        return;
+      }
+
+      const query = document.getElementById('query').value.toLowerCase();
+      if (!query) {
+        document.getElementById('results').innerHTML = '';
+        return;
+      }
+
+      const layerFilter = document.getElementById('layerFilter').value;
+      const typeFilter = document.getElementById('typeFilter').value;
+      const patternFilter = document.getElementById('patternFilter').value;
+
+      let results = corpus.filter(c => {
+        if (layerFilter && c.layer != layerFilter) return false;
+        if (typeFilter && c.doc_type !== typeFilter) return false;
+        if (patternFilter && c.pattern !== patternFilter) return false;
+        return c.text.toLowerCase().includes(query);
+      });
+
+      results = results.map(c => {
+        const text = c.text.toLowerCase();
+        const index = text.indexOf(query);
+        const before = Math.max(0, index - 100);
+        const after = Math.min(text.length, index + query.length + 200);
+        const contextStart = text.lastIndexOf('\n', index) || before;
+        const contextEnd = text.indexOf('\n', index + query.length) || after;
+
+        return {
+          ...c,
+          snippet: c.text.substring(contextStart, contextEnd),
+          score: 1 - (index / text.length)
+        };
+      });
+
+      results.sort((a, b) => b.score - a.score);
+      results = results.slice(0, 20);
+
+      if (results.length === 0) {
+        document.getElementById('results').innerHTML = '<div class="loading">No results found</div>';
+        return;
+      }
+
+      document.getElementById('results').innerHTML = results.map(r => `
+        <div class="result-item">
+          <div class="result-meta">
+            <span class="score">Score: ${r.score.toFixed(3)}</span>
+            ${r.layer ? `<span>Layer ${r.layer}</span>` : ''}
+            ${r.doc_type ? `<span>${r.doc_type}</span>` : ''}
+            ${r.pattern ? `<span>${r.pattern}</span>` : ''}
+            ${r.phase ? `<span>${r.phase}</span>` : ''}
+          </div>
+          <div class="result-content">${r.snippet}</div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('query').addEventListener('keyup', search);
+    document.getElementById('query').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') search();
+    });
+
+    loadCorpus();
+  </script>
+</body>
+</html>

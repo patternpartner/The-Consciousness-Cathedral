@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cathedral AI Query</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { color: #4fc3f7; margin-bottom: 20px; }
+    .search-box {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      color: #e0e0e0;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    button {
+      background: #4fc3f7;
+      color: #0a0a0a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    button:hover { background: #81d4fa; }
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .filter-group label {
+      display: block;
+      color: #999;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      color: #e0e0e0;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+    }
+    .results {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .result-item {
+      background: #0a0a0a;
+      border-left: 3px solid #4fc3f7;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+    .result-meta {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: #999;
+    }
+    .result-meta span {
+      background: #1a1a1a;
+      padding: 4px 8px;
+      border-radius: 3px;
+    }
+    .result-content {
+      color: #e0e0e0;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+    .score {
+      color: #4fc3f7;
+      font-weight: bold;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+    .error {
+      background: #ff5252;
+      color: white;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    .stats {
+      background: #1a1a1a;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 24px;
+      color: #4fc3f7;
+      font-weight: bold;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 Cathedral AI Query</h1>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="search-box">
+      <input type="text" id="query" placeholder="Ask about Cathedral construction, patterns, layers, decisions..." />
+
+      <div class="filters">
+        <div class="filter-group">
+          <label>Results</label>
+          <input type="number" id="limit" value="10" min="1" max="100" />
+        </div>
+        <div class="filter-group">
+          <label>Layer</label>
+          <input type="number" id="layer" placeholder="All layers" />
+        </div>
+        <div class="filter-group">
+          <label>Type</label>
+          <select id="docType">
+            <option value="">All types</option>
+            <option value="layer">Layer</option>
+            <option value="pattern">Pattern</option>
+            <option value="decision">Decision</option>
+            <option value="test">Test</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Pattern</label>
+          <input type="text" id="pattern" placeholder="Pattern name" />
+        </div>
+      </div>
+
+      <button onclick="search()" style="margin-top: 15px; width: 100%;">Search Cathedral Substrate</button>
+    </div>
+
+    <div class="results" id="results"></div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8000';
+
+    async function loadStats() {
+      try {
+        const res = await fetch(`${API_BASE}/stats`);
+        const data = await res.json();
+        document.getElementById('stats').innerHTML = `
+          <div class="stat-item">
+            <div class="stat-value">${data.total_embeddings}</div>
+            <div class="stat-label">Total Chunks</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${data.unique_layers}</div>
+            <div class="stat-label">Layers</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${data.unique_phases}</div>
+            <div class="stat-label">Phases</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${data.unique_patterns}</div>
+            <div class="stat-label">Patterns</div>
+          </div>
+        `;
+      } catch (e) {
+        document.getElementById('stats').innerHTML = `
+          <div class="error">⚠️ API not running. Start with: cd cathedral-ai && ./start.sh</div>
+        `;
+      }
+    }
+
+    async function search() {
+      const query = document.getElementById('query').value;
+      if (!query) return;
+
+      const results = document.getElementById('results');
+      results.innerHTML = '<div class="loading">Searching Cathedral substrate...</div>';
+
+      try {
+        const params = new URLSearchParams({
+          query,
+          limit: document.getElementById('limit').value
+        });
+
+        const layer = document.getElementById('layer').value;
+        if (layer) params.append('layer', layer);
+
+        const docType = document.getElementById('docType').value;
+        if (docType) params.append('doc_type', docType);
+
+        const pattern = document.getElementById('pattern').value;
+        if (pattern) params.append('pattern', pattern);
+
+        const res = await fetch(`${API_BASE}/query?${params}`);
+        const data = await res.json();
+
+        if (data.results.length === 0) {
+          results.innerHTML = '<div class="loading">No results found</div>';
+          return;
+        }
+
+        results.innerHTML = data.results.map(r => `
+          <div class="result-item">
+            <div class="result-meta">
+              <span class="score">Score: ${r.score.toFixed(3)}</span>
+              ${r.metadata.layer ? `<span>Layer ${r.metadata.layer}</span>` : ''}
+              ${r.metadata.doc_type ? `<span>${r.metadata.doc_type}</span>` : ''}
+              ${r.metadata.pattern ? `<span>Pattern: ${r.metadata.pattern}</span>` : ''}
+              ${r.metadata.phase ? `<span>Phase: ${r.metadata.phase}</span>` : ''}
+            </div>
+            <div class="result-content">${r.content}</div>
+          </div>
+        `).join('');
+
+      } catch (e) {
+        results.innerHTML = `<div class="error">Error: ${e.message}</div>`;
+      }
+    }
+
+    document.getElementById('query').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') search();
+    });
+
+    loadStats();
+  </script>
+</body>
+</html>
