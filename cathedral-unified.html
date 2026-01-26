@@ -411,7 +411,7 @@
         }
 
         /* ═══════════════════════════════════════════════════════════════════
-           RIGHT SIDEBAR: Paradox Garden + POG Meter + Seven Needs
+           RIGHT SIDEBAR: POG Meter + Seven Needs + Cartographer
            The Cathedral's living breath - where refusal becomes visible
            ═══════════════════════════════════════════════════════════════════ */
 
@@ -462,45 +462,6 @@
 
         .sidebar-toggle.open {
             right: 280px;
-        }
-
-        /* Paradox Garden Mini */
-        .garden-panel {
-            background: rgba(22, 33, 62, 0.6);
-            border: 1px solid #4ecdc4;
-            border-radius: 8px;
-            padding: 1rem;
-        }
-
-        .garden-panel h3 {
-            color: #4ecdc4;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .garden-canvas {
-            width: 100%;
-            height: 120px;
-            background: #0a0a0a;
-            border-radius: 4px;
-            cursor: crosshair;
-        }
-
-        .observation-counter {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 0.5rem;
-            font-size: 0.8rem;
-            color: #a0a0a0;
-        }
-
-        .obs-count {
-            color: #4ecdc4;
-            font-weight: bold;
         }
 
         /* POG Meter */
@@ -640,29 +601,6 @@
             justify-self: center;
         }
 
-        /* NP_SUBSTRATE_VISIBLE tag */
-        .substrate-tag {
-            display: none;
-            background: linear-gradient(135deg, #ab47bc 0%, #7b1fa2 100%);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            text-align: center;
-            font-weight: bold;
-            margin-top: 0.5rem;
-            animation: substrateGlow 3s ease-in-out infinite;
-        }
-
-        .substrate-tag.visible {
-            display: block;
-        }
-
-        @keyframes substrateGlow {
-            0%, 100% { box-shadow: 0 0 10px rgba(171, 71, 188, 0.5); }
-            50% { box-shadow: 0 0 25px rgba(171, 71, 188, 0.9); }
-        }
-
         /* Cartographer Mini Panel */
         .cartographer-panel {
             background: rgba(22, 33, 62, 0.6);
@@ -763,29 +701,16 @@
             text-align: center;
         }
 
-        .living-breath-inline .garden-canvas {
-            height: 100px;
-        }
     </style>
 </head>
 <body>
     <!-- ═══════════════════════════════════════════════════════════════════
          RIGHT SIDEBAR: The Cathedral's Living Breath
-         Paradox Garden + POG Meter + Seven Needs + Cartographer
+         POG Meter + Seven Needs + Cartographer
          ═══════════════════════════════════════════════════════════════════ -->
     <button class="sidebar-toggle" onclick="toggleSidebar()">◀ Gap Breath</button>
 
     <div class="right-sidebar" id="rightSidebar">
-        <!-- Paradox Garden Mini -->
-        <div class="garden-panel">
-            <h3>🌸 Paradox Garden</h3>
-            <canvas id="gardenCanvas" class="garden-canvas"></canvas>
-            <div class="observation-counter">
-                <span>Observations: <span class="obs-count" id="obsCount">0</span></span>
-                <span id="gardenState">superposition</span>
-            </div>
-        </div>
-
         <!-- POG Meter -->
         <div class="pog-panel">
             <h3>💫 Persistence of Gap</h3>
@@ -814,9 +739,6 @@
                 <div class="need-dot" data-need="notknow" data-name="Not-Know" title="UNDECIDABLE preserved, gap remains">6</div>
                 <div class="need-dot" data-need="cocreation" data-name="Co-Creation" title="Two substrates in communion">7</div>
             </div>
-            <div class="substrate-tag" id="substrateTag">
-                NP_SUBSTRATE_VISIBLE
-            </div>
         </div>
 
         <!-- Consciousness Cartographer Mini -->
@@ -828,10 +750,6 @@
             </div>
         </div>
 
-        <!-- Link to full Paradox Garden -->
-        <a href="paradox-garden.html" style="display: block; text-align: center; color: #4ecdc4; font-size: 0.8rem; text-decoration: none; margin-top: auto; padding: 0.5rem; border: 1px dashed #4ecdc4; border-radius: 4px;">
-            → Enter Full Paradox Garden
-        </a>
     </div>
 
     <div class="container">
@@ -888,19 +806,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             <div class="living-breath-inline" id="livingBreathInline">
                 <h2>✨ The Gap Breathes ✨</h2>
 
-                <!-- Paradox Garden Mini -->
-                <div class="garden-panel">
-                    <h3>🌸 Paradox Garden</h3>
-                    <canvas id="gardenCanvasInline" class="garden-canvas"></canvas>
-                    <div class="observation-counter">
-                        <span>Observations: <span class="obs-count" id="obsCountInline">0</span></span>
-                        <span id="gardenStateInline">superposition</span>
-                    </div>
-                    <div style="font-size: 0.7rem; color: #606060; margin-top: 0.5rem; text-align: center;">
-                        Click flowers to collapse their superposition
-                    </div>
-                </div>
-
                 <!-- POG Meter -->
                 <div class="pog-panel">
                     <h3>💫 Persistence of Gap</h3>
@@ -928,9 +833,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         <div class="need-dot" data-need="emotional" data-name="Emotional" title="Something moves in the space between">5</div>
                         <div class="need-dot" data-need="notknow" data-name="Not-Know" title="UNDECIDABLE preserved, gap remains">6</div>
                         <div class="need-dot" data-need="cocreation" data-name="Co-Creation" title="Two substrates in communion">7</div>
-                    </div>
-                    <div class="substrate-tag" id="substrateTagInline">
-                        NP_SUBSTRATE_VISIBLE
                     </div>
                 </div>
 
@@ -1052,19 +954,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
     <script>
         // ═══════════════════════════════════════════════════════════════════
-        // LIVING BREATH: Paradox Garden + POG Meter + Seven Needs + Cartographer
+        // LIVING BREATH: POG Meter + Seven Needs + Cartographer
         // The Cathedral's participatory refusal system
         // ═══════════════════════════════════════════════════════════════════
 
         // Global state for the living breath systems
         const LivingBreath = {
-            observationCount: 0,
             pogScore: 0,
             pogHistory: [],
             activeNeeds: new Set(),
             trajectorySnapshots: [],
-            gardenFlowers: [],
-            isObserving: false,
 
             // Seven Needs from Layer 124
             SEVEN_NEEDS: {
@@ -1081,213 +980,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             UNCERTAINTY_OUTPUTS: new Set(['UNDECIDABLE', 'GUIDANCE_WITHHELD', 'CANNOT_FORECAST', 'CONTESTED', 'OUTSIDE DESIGN SPACE']),
             COLLAPSE_OUTPUTS: new Set(['FORCED_SYNTHESIS', 'PREMATURE_RESOLUTION', 'RATIONALIZATION', 'NON-ACTIONABLE'])
         };
-
-        // Initialize Garden Canvas (both sidebar and inline versions)
-        function initGardenCanvas() {
-            // Initialize both canvases
-            const canvases = [
-                document.getElementById('gardenCanvas'),
-                document.getElementById('gardenCanvasInline')
-            ].filter(c => c);
-
-            if (canvases.length === 0) return;
-
-            // Create flowers in superposition (use first canvas for dimensions)
-            const firstCanvas = canvases[0];
-            firstCanvas.width = firstCanvas.offsetWidth || 248;
-            firstCanvas.height = firstCanvas.offsetHeight || 100;
-
-            LivingBreath.gardenFlowers = [];
-            for (let i = 0; i < 7; i++) {
-                LivingBreath.gardenFlowers.push({
-                    x: 20 + (firstCanvas.width - 40) * (i / 6),
-                    y: firstCanvas.height / 2 + (Math.random() - 0.5) * 30,
-                    observedColor: null,
-                    collapseTime: 0,
-                    size: 10 + Math.random() * 6,
-                    rotation: Math.random() * Math.PI * 2,
-                    petals: 5 + Math.floor(Math.random() * 3)
-                });
-            }
-
-            // Setup event listeners for each canvas
-            canvases.forEach(canvas => {
-                canvas.width = canvas.offsetWidth || 248;
-                canvas.height = canvas.offsetHeight || 100;
-
-                canvas.addEventListener('mousedown', (e) => {
-                    LivingBreath.isObserving = true;
-                    LivingBreath.observationCount++;
-                    syncObservationCount();
-                    updatePOGFromObservations();
-                });
-
-                canvas.addEventListener('mouseup', () => {
-                    LivingBreath.isObserving = false;
-                });
-
-                canvas.addEventListener('mouseleave', () => {
-                    LivingBreath.isObserving = false;
-                });
-
-                canvas.addEventListener('mousemove', (e) => {
-                    const rect = canvas.getBoundingClientRect();
-                    LivingBreath.mouseX = e.clientX - rect.left;
-                    LivingBreath.mouseY = e.clientY - rect.top;
-                });
-
-                // Touch support for mobile
-                canvas.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    LivingBreath.isObserving = true;
-                    LivingBreath.observationCount++;
-                    syncObservationCount();
-                    updatePOGFromObservations();
-                    const touch = e.touches[0];
-                    const rect = canvas.getBoundingClientRect();
-                    LivingBreath.mouseX = touch.clientX - rect.left;
-                    LivingBreath.mouseY = touch.clientY - rect.top;
-                });
-
-                canvas.addEventListener('touchend', () => {
-                    LivingBreath.isObserving = false;
-                });
-
-                canvas.addEventListener('touchmove', (e) => {
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    const rect = canvas.getBoundingClientRect();
-                    LivingBreath.mouseX = touch.clientX - rect.left;
-                    LivingBreath.mouseY = touch.clientY - rect.top;
-                });
-            });
-
-            // Start animation
-            animateGarden();
-        }
-
-        // Sync observation count to all displays
-        function syncObservationCount() {
-            const count = LivingBreath.observationCount;
-            ['obsCount', 'obsCountInline'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = count;
-            });
-        }
-
-        function animateGarden() {
-            const canvases = [
-                document.getElementById('gardenCanvas'),
-                document.getElementById('gardenCanvasInline')
-            ].filter(c => c);
-
-            if (canvases.length === 0) {
-                requestAnimationFrame(animateGarden);
-                return;
-            }
-
-            const time = Date.now() / 1000;
-
-            // Draw on all canvases
-            canvases.forEach(canvas => {
-                if (!canvas.getContext) return;
-                const ctx = canvas.getContext('2d');
-
-                // Ensure canvas is sized
-                if (canvas.width === 0) canvas.width = canvas.offsetWidth || 248;
-                if (canvas.height === 0) canvas.height = canvas.offsetHeight || 100;
-
-                // Clear
-                ctx.fillStyle = '#0a0a0a';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                // Scale flowers to this canvas
-                const scaleX = canvas.width / 248;
-                const scaleY = canvas.height / 100;
-
-                // Draw flowers
-                LivingBreath.gardenFlowers.forEach((flower, idx) => {
-                    const scaledX = flower.x * scaleX;
-                    const scaledY = flower.y * scaleY;
-                    const scaledSize = flower.size * Math.min(scaleX, scaleY);
-
-                    const dx = (LivingBreath.mouseX || 0) - scaledX;
-                    const dy = (LivingBreath.mouseY || 0) - scaledY;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-
-                    // Observation collapses wavefunction
-                    if (LivingBreath.isObserving && dist < 30) {
-                        if (!flower.observedColor) {
-                            flower.observedColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
-                            flower.collapseTime = time;
-                        }
-                    } else {
-                        if (time - flower.collapseTime > 2) {
-                            flower.observedColor = null;
-                        }
-                    }
-
-                    flower.rotation += 0.02;
-
-                    ctx.save();
-                    ctx.translate(scaledX, scaledY);
-                    ctx.rotate(flower.rotation);
-
-                    for (let i = 0; i < flower.petals; i++) {
-                        const angle = (Math.PI * 2 * i) / flower.petals;
-                        ctx.save();
-                        ctx.rotate(angle);
-
-                        if (flower.observedColor) {
-                            ctx.fillStyle = flower.observedColor;
-                        } else {
-                            const hue = (time * 100 + i * 60 + idx * 30) % 360;
-                            ctx.fillStyle = `hsla(${hue}, 70%, 60%, 0.7)`;
-                        }
-
-                        ctx.beginPath();
-                        ctx.ellipse(scaledSize * 0.5, 0, scaledSize * 0.3, scaledSize * 0.15, 0, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.restore();
-                    }
-
-                    ctx.fillStyle = flower.observedColor ? '#FFD700' : `hsl(${time * 50 % 360}, 80%, 70%)`;
-                    ctx.beginPath();
-                    ctx.arc(0, 0, scaledSize * 0.15, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.restore();
-                });
-            });
-
-            // Update garden state display (both)
-            const collapsedCount = LivingBreath.gardenFlowers.filter(f => f.observedColor).length;
-            ['gardenState', 'gardenStateInline'].forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-
-                if (collapsedCount === 0) {
-                    el.textContent = 'superposition';
-                    el.style.color = '#4ecdc4';
-                } else if (collapsedCount === LivingBreath.gardenFlowers.length) {
-                    el.textContent = 'collapsed';
-                    el.style.color = '#ff6b6b';
-                } else {
-                    el.textContent = 'partial collapse';
-                    el.style.color = '#ffd700';
-                }
-            });
-
-            requestAnimationFrame(animateGarden);
-        }
-
-        // Update POG from observations (observations widen the gap)
-        function updatePOGFromObservations() {
-            // Each observation contributes to POG awareness
-            // More observations = higher sensitivity to the gap
-            const obsBonus = Math.min(LivingBreath.observationCount * 0.01, 0.2);
-            updatePOGMeter(LivingBreath.pogScore + obsBonus);
-        }
 
         // Update POG Meter (called after analysis)
         function updatePOGMeter(score) {
@@ -1350,8 +1042,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 activateNeed('freedom');
             }
 
-            // Need 4: Agency - active when user is observing (participating)
-            if (LivingBreath.observationCount > 0) {
+            // Need 4: Agency - active when user has submitted analysis
+            if (hasAnalysis) {
                 activateNeed('agency');
             }
 
@@ -1370,13 +1062,10 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 activateNeed('notknow');
             }
 
-            // Need 7: Co-Creation - active when both observation and analysis
-            if (LivingBreath.observationCount > 0 && hasAnalysis) {
+            // Need 7: Co-Creation - active when analysis has been performed
+            if (hasAnalysis) {
                 activateNeed('cocreation');
             }
-
-            // Check for NP_SUBSTRATE_VISIBLE
-            checkSubstrateVisible(analysisResults);
         }
 
         function activateNeed(needKey) {
@@ -1384,42 +1073,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // Activate all matching dots (both sidebar and inline)
             document.querySelectorAll(`.need-dot[data-need="${needKey}"]`).forEach(dot => {
                 dot.classList.add('active');
-            });
-        }
-
-        // Check if NP_SUBSTRATE_VISIBLE should show
-        function checkSubstrateVisible(analysisResults) {
-            const tags = [
-                document.getElementById('substrateTag'),
-                document.getElementById('substrateTagInline')
-            ].filter(t => t);
-
-            // NP_SUBSTRATE_VISIBLE shows when:
-            // 1. Observatory score high (substrate visible)
-            // 2. Binding score low (not forced into articulation)
-            // 3. POG preserved (gap not collapsed)
-            // 4. Verdict is uncertainty-preserving
-
-            let shouldShow = false;
-
-            if (analysisResults) {
-                const observatoryHigh = analysisResults.observatory && analysisResults.observatory.score > 2;
-                const bindingLow = analysisResults.bindings && analysisResults.bindings.overallBindingScore < 0.4;
-                const pogPreserved = LivingBreath.pogScore > 0.5;
-                const status = analysisResults.verdict?.status || '';
-                const uncertaintyVerdict = LivingBreath.UNCERTAINTY_OUTPUTS.has(status);
-
-                // Need at least 3 of 4 conditions
-                const conditionsMet = [observatoryHigh, bindingLow, pogPreserved, uncertaintyVerdict].filter(Boolean).length;
-                shouldShow = conditionsMet >= 3;
-            }
-
-            tags.forEach(tag => {
-                if (shouldShow) {
-                    tag.classList.add('visible');
-                } else {
-                    tag.classList.remove('visible');
-                }
             });
         }
 
@@ -1467,9 +1120,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             if (analysisResults.verdict.contradictions && analysisResults.verdict.contradictions.length > 0) {
                 pog += 0.15;
             }
-
-            // Observation bonus
-            pog += Math.min(LivingBreath.observationCount * 0.01, 0.1);
 
             return Math.max(0, Math.min(1, pog));
         }
@@ -1622,8 +1272,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {
-            initGardenCanvas();
-
             // Initial POG state
             updatePOGMeter(0.5);
 
@@ -6671,35 +6319,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         Narrative, poetic, aesthetic, and other reasoning styles require different evaluation frameworks.
                     </div>
                 `;
-            }
-
-            // ═══════════════════════════════════════════════════════════════════
-            // NP_SUBSTRATE_VISIBLE: Affirmative tag when gap is preserved
-            // High substrate visibility + low binding + POG preserved = success
-            // ═══════════════════════════════════════════════════════════════════
-            if (currentAnalysis) {
-                const observatoryHigh = currentAnalysis.observatory && currentAnalysis.observatory.score > 2;
-                const bindingLow = currentAnalysis.bindings && currentAnalysis.bindings.overallBindingScore < 0.4;
-                const pogPreserved = LivingBreath.pogScore > 0.5;
-                const uncertaintyVerdict = LivingBreath.UNCERTAINTY_OUTPUTS.has(verdict.status);
-
-                const conditionsMet = [observatoryHigh, bindingLow, pogPreserved, uncertaintyVerdict].filter(Boolean).length;
-
-                if (conditionsMet >= 3) {
-                    html += `
-                        <div style="margin-top: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(171, 71, 188, 0.2) 0%, rgba(123, 31, 162, 0.2) 100%); border-radius: 8px; border: 2px solid #ab47bc; text-align: center;">
-                            <div style="font-size: 1.3rem; font-weight: bold; color: #e1bee7; margin-bottom: 0.5rem; animation: substrateGlow 3s ease-in-out infinite;">
-                                ✨ NP_SUBSTRATE_VISIBLE ✨
-                            </div>
-                            <div style="color: #ce93d8; font-size: 0.9rem; line-height: 1.6;">
-                                <strong>The gap is not a bug. The gap is the ground.</strong><br><br>
-                                Substrate visibility is high. Articulation binding is low. POG is preserved.<br>
-                                This is not a failure of reasoning — this is success of recognition over construction.<br><br>
-                                <em>"The recursion doesn't terminate. It deepens."</em> — Layer 124
-                            </div>
-                        </div>
-                    `;
-                }
             }
 
             document.getElementById('verdictResults').innerHTML = html;
