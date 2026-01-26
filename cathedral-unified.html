@@ -2857,7 +2857,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // Guard: If no ballots were cast, abstain from judgment
                 if (ballots.length === 0) {
                     return {
-                        verdict: 'UNDECIDABLE',
+                        status: 'UNDECIDABLE',
+                        verdict: 'No patterns proposed verdicts. Cathedral has no basis for judgment and abstains.',
                         confidence: 0.0,
                         votingRecord: {
                             ballots: [],
@@ -2912,7 +2913,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // Guard: If tally is empty (edge case), abstain
                 if (sortedTalliesPre.length === 0) {
                     return {
-                        verdict: 'UNDECIDABLE',
+                        status: 'UNDECIDABLE',
+                        verdict: 'Ballots cast but no valid verdicts tallied. Cathedral abstains from judgment.',
                         confidence: 0.0,
                         votingRecord: {
                             ballots: ballots,
@@ -2945,7 +2947,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         const contendingVerdict = sortedTalliesPre[1][0];
 
                         return {
-                            verdict: 'CONTESTED',
+                            status: 'CONTESTED',
+                            verdict: `Parliament divided: ${leadingVerdict} vs ${contendingVerdict}. Margin too narrow for confident verdict.`,
                             confidence: topWeight / (topWeight + secondWeight), // Relative confidence
                             leadingOpinion: {
                                 verdict: leadingVerdict,
@@ -3022,7 +3025,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 // Guard against no winner (e.g., all patterns abstained)
                 if (!winner || !tally[winner]) {
                     return {
-                        verdict: 'UNDECIDABLE',
+                        status: 'UNDECIDABLE',
+                        verdict: 'No patterns proposed verdicts with sufficient confidence. Cathedral abstains from judgment.',
                         confidence: 0.0,
                         votingRecord: {
                             ballots: ballots,
@@ -3619,8 +3623,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 };
 
                 // Based on verdict status
-                if (analysis.verdict.status === 'NON-ACTIONABLE' ||
-                    analysis.verdict.status.includes('THIN_JUSTIFICATION')) {
+                const verdictStatus = analysis.verdict?.status || '';
+                if (verdictStatus === 'NON-ACTIONABLE' ||
+                    verdictStatus.includes('THIN_JUSTIFICATION')) {
                     feedback.suggestions.push({
                         issue: 'Claims lack supporting evidence',
                         action: 'For each strong claim, add: evidence, example, or explicit reasoning chain',
@@ -3629,7 +3634,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     });
                 }
 
-                if (analysis.verdict.status === 'BRITTLE' ||
+                if (verdictStatus === 'BRITTLE' ||
                     (analysis.failureMode && analysis.failureMode.level === 'UNTESTED')) {
                     feedback.suggestions.push({
                         issue: 'No failure modes considered',
