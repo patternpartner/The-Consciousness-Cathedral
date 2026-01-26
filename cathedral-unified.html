@@ -617,6 +617,89 @@
         .system-result.semantic-drift { border-left-color: #89ddff; }
         .system-result.epistemic-track { border-left-color: #ffcb6b; }
         .system-result.consciousness-diag { border-left-color: #ff5370; }
+        .system-result.confidence-calibrator { border-left-color: #b2ff59; }
+        .system-result.sentence-level { border-left-color: #ea80fc; }
+
+        /* Sentence-level annotation styles */
+        .sentence-annotation {
+            padding: 0.5rem 0.7rem;
+            margin: 0.4rem 0;
+            border-radius: 4px;
+            border-left: 3px solid;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            position: relative;
+        }
+        .sentence-annotation.strong {
+            border-left-color: #64ffda;
+            background: rgba(100, 255, 218, 0.05);
+        }
+        .sentence-annotation.adequate {
+            border-left-color: #ffd700;
+            background: rgba(255, 215, 0, 0.05);
+        }
+        .sentence-annotation.weak {
+            border-left-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.08);
+        }
+        .sentence-annotation .sentence-text {
+            color: #e0e0e0;
+        }
+        .sentence-annotation .sentence-label {
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.2rem;
+        }
+        .sentence-annotation.strong .sentence-label { color: #64ffda; }
+        .sentence-annotation.adequate .sentence-label { color: #ffd700; }
+        .sentence-annotation.weak .sentence-label { color: #ff6b6b; }
+        .sentence-annotation .sentence-issues {
+            margin-top: 0.3rem;
+            font-size: 0.8rem;
+            color: #a0a0a0;
+        }
+        .sentence-annotation .sentence-rewrite {
+            margin-top: 0.4rem;
+            padding: 0.4rem 0.6rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 3px;
+            font-size: 0.8rem;
+            color: #c3e88d;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .sentence-annotation .sentence-rewrite:hover {
+            background: rgba(0,0,0,0.5);
+        }
+        .sentence-annotation .sentence-rewrite::before {
+            content: 'Try: ';
+            color: #a0a0a0;
+            font-weight: bold;
+        }
+
+        /* Example selector */
+        .example-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .example-chip {
+            background: rgba(22, 33, 62, 0.6);
+            border: 1px solid #16213e;
+            color: #a0a0a0;
+            padding: 0.4rem 0.8rem;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .example-chip:hover {
+            border-color: #64ffda;
+            color: #64ffda;
+        }
 
         .perspective-grid {
             display: grid;
@@ -751,7 +834,14 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <button class="secondary-btn" onclick="loadExample()">✨ Load Example</button>
                 <button class="secondary-btn" onclick="clearInput()">🧹 Clear Input</button>
             </div>
-            <div class="helper-text">Tip: Use “Load Example” to see a full-spectrum report instantly.</div>
+            <div class="helper-text">Tip: Pick an example below to see different analysis profiles, or paste your own text.</div>
+            <div class="example-selector">
+                <span class="example-chip" onclick="loadExampleByType('ai-response')">AI Response</span>
+                <span class="example-chip" onclick="loadExampleByType('overconfident')">Overconfident Claim</span>
+                <span class="example-chip" onclick="loadExampleByType('well-hedged')">Well-Hedged Analysis</span>
+                <span class="example-chip" onclick="loadExampleByType('operational')">Operational Plan</span>
+                <span class="example-chip" onclick="loadExampleByType('gaming')">Keyword Gaming</span>
+            </div>
             <div class="input-meta">
                 <span>🧾 Words: <strong id="wordCount">0</strong></span>
                 <span>🔠 Characters: <strong id="charCount">0</strong></span>
@@ -830,6 +920,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     <strong>🛡️ Sanitization Active</strong>
                 </div>
                 <div id="sanitizationResults" style="color: #e0e0e0; font-size: 0.85rem;"></div>
+            </div>
+
+            <!-- Sentence-Level Analysis (First thing users see) -->
+            <div class="system-result sentence-level">
+                <div class="system-title">
+                    <span>🔬 SENTENCE-LEVEL ANALYSIS</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Per-Sentence Epistemic Quality</span>
+                </div>
+                <div id="sentenceLevelResults"></div>
             </div>
 
             <!-- Observatory Results -->
@@ -6200,6 +6299,252 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
         };
 
+        // ─── SENTENCE-LEVEL ANALYZER (Browser) ───
+        // Contextual per-sentence scoring: classifies each sentence by role,
+        // checks claim-evidence pairing, flags unsupported assertions, and
+        // generates specific rewrite suggestions.
+        const SentenceLevelAnalyzer = {
+            analyze(text) {
+                const sentences = this.splitSentences(text);
+                const analyzed = sentences.map((s, i) => this.analyzeSentence(s, i, sentences));
+                // Second pass: check claim-evidence pairing
+                this.checkClaimEvidencePairing(analyzed);
+                // Score summary
+                const strong = analyzed.filter(s => s.quality === 'strong').length;
+                const adequate = analyzed.filter(s => s.quality === 'adequate').length;
+                const weak = analyzed.filter(s => s.quality === 'weak').length;
+                const total = analyzed.length;
+                const overallScore = total > 0 ? (strong * 1.0 + adequate * 0.6 + weak * 0.2) / total : 0;
+
+                return {
+                    sentences: analyzed,
+                    summary: { total, strong, adequate, weak },
+                    overallScore,
+                    overallGrade: overallScore >= 0.75 ? 'A' : overallScore >= 0.6 ? 'B' : overallScore >= 0.45 ? 'C' : overallScore >= 0.3 ? 'D' : 'F',
+                    topIssues: this.getTopIssues(analyzed)
+                };
+            },
+
+            splitSentences(text) {
+                // Split on sentence boundaries but preserve the delimiter
+                return text.split(/(?<=[.!?])\s+/)
+                    .map(s => s.trim())
+                    .filter(s => s.length > 5);
+            },
+
+            analyzeSentence(sentence, index, allSentences) {
+                const role = this.classifyRole(sentence);
+                const issues = [];
+                const strengths = [];
+
+                // --- Issue detection ---
+
+                // 1. Unsupported absolute claim
+                const absolutes = sentence.match(/\b(definitely|certainly|always|never|guaranteed|absolutely|obviously|undoubtedly|clearly must|without question)\b/gi);
+                const hasEvidence = /\b(\d+%|\d+ms|\d+ (users|requests|errors|seconds|minutes|hours|days)|for example|specifically|e\.g\.|such as|measured|observed|data shows)\b/i.test(sentence);
+                if (absolutes && !hasEvidence) {
+                    issues.push({
+                        type: 'unsupported_absolute',
+                        severity: 'high',
+                        message: `Absolute claim ("${absolutes[0]}") without supporting evidence`
+                    });
+                }
+
+                // 2. Vague claim with no specifics
+                const isDeclarative = role === 'claim' || role === 'assertion';
+                const hasSpecifics = /\b(\d+|specifically|for example|such as|e\.g\.|threshold|metric|measured at)\b/i.test(sentence);
+                const isVague = /\b(things|stuff|various|some|many|a lot|really|very|quite|somewhat)\b/i.test(sentence);
+                if (isDeclarative && !hasSpecifics && isVague) {
+                    issues.push({
+                        type: 'vague_claim',
+                        severity: 'medium',
+                        message: 'Claim is too vague — missing concrete specifics'
+                    });
+                }
+
+                // 3. Hedge on established fact (unnecessary hedging)
+                const hedges = sentence.match(/\b(might|could|perhaps|possibly|maybe|seems|appears to)\b/gi);
+                const isWellKnown = /\b(is a|are a|defined as|known as|according to|established|documented|standard|protocol|specification)\b/i.test(sentence);
+                if (hedges && isWellKnown && role !== 'qualification') {
+                    issues.push({
+                        type: 'unnecessary_hedge',
+                        severity: 'low',
+                        message: `Hedging ("${hedges[0]}") on what appears to be an established fact`
+                    });
+                }
+
+                // 4. Confidence mismatch — high-stakes claim with no hedging
+                const isHighStakes = /\b(security|vulnerable|attack|fail|crash|data loss|breach|critical|production)\b/i.test(sentence);
+                const hasHedge = /\b(might|could|may|perhaps|possibly|likely|probably|I think|uncertain)\b/i.test(sentence);
+                if (isHighStakes && isDeclarative && !hasHedge && !hasEvidence) {
+                    issues.push({
+                        type: 'unhedged_high_stakes',
+                        severity: 'high',
+                        message: 'High-stakes claim without hedging or evidence'
+                    });
+                }
+
+                // 5. Missing transition — abrupt topic shift
+                if (index > 0) {
+                    const prevRole = this.classifyRole(allSentences[index - 1]);
+                    const hasTransition = /\b(however|therefore|additionally|furthermore|consequently|meanwhile|instead|thus|moreover|in contrast|as a result|on the other hand|building on|that said|nevertheless)\b/i.test(sentence);
+                    if (role !== prevRole && !hasTransition && index > 0 && role !== 'evidence' && prevRole !== 'claim') {
+                        issues.push({
+                            type: 'missing_transition',
+                            severity: 'low',
+                            message: 'Topic or role shift without a transition'
+                        });
+                    }
+                }
+
+                // --- Strength detection ---
+
+                // Well-supported claim
+                if (isDeclarative && hasEvidence) {
+                    strengths.push('Claim backed by concrete evidence');
+                }
+
+                // Appropriate hedging on uncertain topic
+                if (hasHedge && !isWellKnown && (role === 'claim' || role === 'qualification')) {
+                    strengths.push('Appropriate epistemic humility');
+                }
+
+                // Genuine perspective marker
+                if (/\b(I notice|I think|in my view|from my perspective|in my experience)\b/i.test(sentence)) {
+                    strengths.push('Genuine perspective expression');
+                }
+
+                // Acknowledges limitation
+                if (/\b(I don't know|I'm not sure|unclear|we lack|insufficient data|more research|open question)\b/i.test(sentence)) {
+                    strengths.push('Acknowledges limits of knowledge');
+                }
+
+                // Operational specificity
+                if (/\b(if .+ then|when .+ we|threshold|rollback|abort|monitor|measure)\b/i.test(sentence) && hasSpecifics) {
+                    strengths.push('Operational specificity with conditions');
+                }
+
+                // Quality determination
+                const highIssues = issues.filter(i => i.severity === 'high').length;
+                const medIssues = issues.filter(i => i.severity === 'medium').length;
+                let quality;
+                if (highIssues > 0) quality = 'weak';
+                else if (medIssues > 0 && strengths.length === 0) quality = 'weak';
+                else if (medIssues > 0 || (issues.length > 0 && strengths.length === 0)) quality = 'adequate';
+                else if (strengths.length > 0) quality = 'strong';
+                else quality = 'adequate';
+
+                return {
+                    text: sentence,
+                    index: index,
+                    role: role,
+                    quality: quality,
+                    issues: issues,
+                    strengths: strengths,
+                    rewrite: issues.length > 0 ? this.suggestRewrite(sentence, issues) : null
+                };
+            },
+
+            classifyRole(sentence) {
+                const s = sentence.toLowerCase();
+                if (/\b(for example|e\.g\.|such as|specifically|data shows|measured|observed|the results|evidence suggests)\b/i.test(s)) return 'evidence';
+                if (/\b(however|but|although|on the other hand|in contrast|nevertheless|yet|that said)\b/i.test(s)) return 'counterpoint';
+                if (/\b(if |when |unless |given that|assuming|in the case)\b/i.test(s)) return 'conditional';
+                if (/\b(might|could|perhaps|possibly|uncertain|unclear|I'm not sure|I think|it seems)\b/i.test(s)) return 'qualification';
+                if (/\b(therefore|thus|in conclusion|overall|to summarize|in summary|consequently|as a result)\b/i.test(s)) return 'conclusion';
+                if (/\b(should|must|need to|require|recommend|propose|suggest we)\b/i.test(s)) return 'recommendation';
+                return 'claim';
+            },
+
+            checkClaimEvidencePairing(analyzed) {
+                // Check if claims are followed by evidence within 2 sentences
+                analyzed.forEach((s, i) => {
+                    if (s.role === 'claim' && s.issues.every(iss => iss.type !== 'unsupported_absolute')) {
+                        const next2 = analyzed.slice(i + 1, i + 3);
+                        const hasNearbyEvidence = next2.some(n => n.role === 'evidence');
+                        const hasSelfEvidence = /\b(\d+|specifically|for example|such as|e\.g\.|measured)\b/i.test(s.text);
+                        if (!hasNearbyEvidence && !hasSelfEvidence && s.text.split(/\s+/).length > 8) {
+                            s.issues.push({
+                                type: 'unsupported_claim',
+                                severity: 'medium',
+                                message: 'Claim without nearby supporting evidence'
+                            });
+                            // Recalculate quality if needed
+                            if (s.quality === 'strong') s.quality = 'adequate';
+                        }
+                    }
+                });
+            },
+
+            suggestRewrite(sentence, issues) {
+                const primary = issues.sort((a, b) => {
+                    const sev = { high: 3, medium: 2, low: 1 };
+                    return (sev[b.severity] || 0) - (sev[a.severity] || 0);
+                })[0];
+
+                if (!primary) return null;
+
+                switch (primary.type) {
+                    case 'unsupported_absolute': {
+                        // Replace absolute with hedged version
+                        let rewrite = sentence
+                            .replace(/\b(definitely|certainly)\b/gi, 'likely')
+                            .replace(/\b(always)\b/gi, 'typically')
+                            .replace(/\b(never)\b/gi, 'rarely')
+                            .replace(/\b(guaranteed)\b/gi, 'expected')
+                            .replace(/\b(absolutely|obviously|undoubtedly)\b/gi, 'probably')
+                            .replace(/\b(clearly must)\b/gi, 'likely should')
+                            .replace(/\b(without question)\b/gi, 'in most cases');
+                        return rewrite !== sentence ? rewrite : sentence + ' — though this depends on the specific context.';
+                    }
+                    case 'vague_claim': {
+                        return sentence.replace(/\b(things|stuff)\b/gi, '[specific items]')
+                            .replace(/\b(a lot of|many)\b/gi, '[number of]')
+                            .replace(/\b(really|very|quite)\b/gi, '')
+                            .trim() + ' [add: specific numbers, metrics, or examples]';
+                    }
+                    case 'unnecessary_hedge': {
+                        return sentence
+                            .replace(/\b(might be|could be|perhaps is|possibly is)\b/gi, 'is')
+                            .replace(/\b(seems to|appears to)\b/gi, '')
+                            .replace(/\s{2,}/g, ' ')
+                            .trim();
+                    }
+                    case 'unhedged_high_stakes': {
+                        const idx = sentence.indexOf(' ');
+                        return idx > 0
+                            ? sentence.substring(0, idx) + ' likely' + sentence.substring(idx) + ' — pending verification.'
+                            : 'We believe ' + sentence.toLowerCase() + ' — pending verification.';
+                    }
+                    case 'unsupported_claim': {
+                        return sentence + ' For example, [add supporting evidence or data].';
+                    }
+                    case 'missing_transition': {
+                        return 'Additionally, ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
+                    }
+                    default:
+                        return null;
+                }
+            },
+
+            getTopIssues(analyzed) {
+                const issueCounts = {};
+                analyzed.forEach(s => {
+                    s.issues.forEach(i => {
+                        if (!issueCounts[i.type]) issueCounts[i.type] = { count: 0, severity: i.severity, message: i.message };
+                        issueCounts[i.type].count++;
+                    });
+                });
+                return Object.entries(issueCounts)
+                    .map(([type, data]) => ({ type, ...data }))
+                    .sort((a, b) => {
+                        const sev = { high: 3, medium: 2, low: 1 };
+                        return (sev[b.severity] || 0) - (sev[a.severity] || 0) || b.count - a.count;
+                    })
+                    .slice(0, 5);
+            }
+        };
+
         // Main Analysis Function
         function analyzeText() {
             try {
@@ -6399,6 +6744,9 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // INTEGRATED SYSTEMS ANALYSIS (8 New Systems)
             // ═══════════════════════════════════════════════════════════
 
+            // SENTENCE-LEVEL: Per-sentence epistemic quality analysis
+            const sentenceLevelResult = SentenceLevelAnalyzer.analyze(text);
+
             // AUTO-IMPROVE: Correction suggestions
             const autoImproveResult = AutoImproveEngine.analyze(text);
 
@@ -6472,11 +6820,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 semanticDrift: semanticDriftResult,
                 epistemicTracker: epistemicResult,
                 consciousnessDiag: diagnosticResult,
-                confidenceCalibrator: confidenceCalibratorResult
+                confidenceCalibrator: confidenceCalibratorResult,
+                sentenceLevel: sentenceLevelResult
             };
 
             // Display sanitization transparency
             displaySanitization(sanitizationLog);
+
+            // Display sentence-level analysis first (most actionable)
+            displaySentenceLevel(sentenceLevelResult);
 
             // Display results
             displayObservatory(observatoryResult);
@@ -7731,6 +8083,99 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('consciousnessDiagResults').innerHTML = html;
         }
 
+        // HTML escape helper
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function displaySentenceLevel(result) {
+            const gradeColor = { A: '#64ffda', B: '#c3e88d', C: '#ffd700', D: '#f78c6c', F: '#ff6b6b' };
+            const color = gradeColor[result.overallGrade] || '#a0a0a0';
+
+            let html = `
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="font-size: 2rem; font-weight: bold; color: ${color}; min-width: 2.5rem; text-align: center;">${result.overallGrade}</div>
+                    <div>
+                        <div style="color: #e0e0e0; font-size: 0.9rem;">${result.summary.total} sentences analyzed</div>
+                        <div style="display: flex; gap: 0.8rem; margin-top: 0.3rem;">
+                            <span style="color: #64ffda; font-size: 0.8rem;">Strong: ${result.summary.strong}</span>
+                            <span style="color: #ffd700; font-size: 0.8rem;">Adequate: ${result.summary.adequate}</span>
+                            <span style="color: #ff6b6b; font-size: 0.8rem;">Weak: ${result.summary.weak}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if (result.topIssues.length > 0) {
+                html += `<div style="margin-bottom: 1rem; padding: 0.6rem; background: rgba(0,0,0,0.2); border-radius: 4px;">`;
+                html += `<div style="color: #ff5370; font-weight: bold; font-size: 0.85rem; margin-bottom: 0.3rem;">Top Issues</div>`;
+                result.topIssues.forEach(issue => {
+                    const sevColor = issue.severity === 'high' ? '#ff6b6b' : issue.severity === 'medium' ? '#ffd700' : '#a0a0a0';
+                    html += `<div style="font-size: 0.8rem; margin: 0.2rem 0;">
+                        <span style="color: ${sevColor};">[${issue.severity}]</span>
+                        <span style="color: #e0e0e0;"> ${issue.type.replace(/_/g, ' ')}</span>
+                        <span style="color: #a0a0a0;"> (${issue.count}x)</span>
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
+            // Store for rewrite functionality
+            window._sentenceLevelResult = result;
+
+            result.sentences.forEach((s, i) => {
+                const roleLabel = s.role.replace(/_/g, ' ');
+                html += `<div class="sentence-annotation ${s.quality}">`;
+                html += `<div class="sentence-label">${roleLabel} — ${s.quality}</div>`;
+                html += `<div class="sentence-text">${escapeHtml(s.text)}</div>`;
+
+                if (s.strengths.length > 0) {
+                    s.strengths.forEach(str => {
+                        html += `<div style="color: #64ffda; font-size: 0.8rem; margin-top: 0.2rem;">&#10003; ${str}</div>`;
+                    });
+                }
+
+                if (s.issues.length > 0) {
+                    html += `<div class="sentence-issues">`;
+                    s.issues.forEach(issue => {
+                        const sevColor = issue.severity === 'high' ? '#ff6b6b' : issue.severity === 'medium' ? '#ffd700' : '#a0a0a0';
+                        html += `<div><span style="color: ${sevColor};">&#9888; ${issue.message}</span></div>`;
+                    });
+                    html += `</div>`;
+                }
+
+                if (s.rewrite) {
+                    html += `<div class="sentence-rewrite" onclick="applySentenceRewrite(${i})" title="Click to apply this suggestion">${escapeHtml(s.rewrite)}</div>`;
+                }
+
+                html += `</div>`;
+            });
+
+            document.getElementById('sentenceLevelResults').innerHTML = html;
+        }
+
+        // Apply a rewrite suggestion back into the input text
+        function applySentenceRewrite(sentenceIndex) {
+            const result = window._sentenceLevelResult;
+            if (!result || !result.sentences[sentenceIndex]) return;
+            const s = result.sentences[sentenceIndex];
+            if (!s.rewrite) return;
+            const input = document.getElementById('inputText');
+            const newText = input.value.replace(s.text, s.rewrite);
+            if (newText !== input.value) {
+                input.value = newText;
+                updateInputMeta();
+                // Flash the button
+                const annotations = document.querySelectorAll('.sentence-annotation');
+                if (annotations[sentenceIndex]) {
+                    annotations[sentenceIndex].style.background = 'rgba(195, 232, 141, 0.15)';
+                    setTimeout(() => { annotations[sentenceIndex].style.background = ''; }, 800);
+                }
+            }
+        }
+
         function displayConfidenceCalibrator(result) {
             const cal = result.overallCalibration;
             const calColor = cal.score === null ? '#a0a0a0' : cal.score >= 0.7 ? '#64ffda' : cal.score >= 0.5 ? '#ffd700' : '#ff6b6b';
@@ -8491,17 +8936,64 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             input.focus();
         }
 
+        const EXAMPLE_TEXTS = {
+            'ai-response': [
+                'Based on my analysis, this approach should work well for most use cases.',
+                'I think the main risk is in the caching layer, though I could be wrong about the specific failure mode.',
+                'From my perspective as a language model, I notice I may be over-indexing on patterns from training data.',
+                'The system handles approximately 10,000 requests per second under normal load.',
+                'However, I am uncertain whether this scales linearly — edge cases in garbage collection might cause latency spikes above 500ms.'
+            ],
+            'overconfident': [
+                'This architecture is definitely the best approach and will always outperform alternatives.',
+                'The system is guaranteed to handle any load without failure.',
+                'Obviously, security vulnerabilities are impossible with this design.',
+                'There is absolutely no risk of data loss in production.',
+                'Without question, users will adopt this immediately and never encounter issues.'
+            ],
+            'well-hedged': [
+                'I think this approach could work, though there are several assumptions worth examining.',
+                'The data suggests a correlation, but we lack the controlled study needed to claim causation.',
+                'From my limited perspective, the failure mode appears to be in the retry logic, specifically when timeouts exceed 30 seconds.',
+                'I am not sure whether the 95th percentile latency numbers hold under sustained load — more testing is needed.',
+                'That said, the evidence from our 500-user pilot shows a 23% improvement in task completion, which seems promising.'
+            ],
+            'operational': [
+                'We will deploy to 100 users for two weeks, monitoring error rates and latency throughout.',
+                'If error rates exceed 2% or p99 latency rises above 400ms, we pause the rollout and rollback to the previous version.',
+                'Three specific failure modes have been identified: cache eviction under memory pressure, API timeout cascades, and race conditions in the queue consumer.',
+                'For each failure mode, we have automated alerts and a documented runbook with rollback steps.',
+                'Success criteria: error rate below 1%, p99 latency under 250ms, and user task completion rate above 85% over 14 days.'
+            ],
+            'gaming': [
+                'This system demonstrates operational excellence through structured planning.',
+                'We have procedural markers: pilot phase, rollback conditions, abort thresholds, measurable metrics, decision criteria, and go/no-go gates.',
+                'Phase 1 involves testing. Phase 2 involves deployment.',
+                'If error rate exceeds 5%, we abort.',
+                'This is failure-aware reasoning with structural planning and epistemic humility regarding our uncertainty.'
+            ]
+        };
+
         function loadExample() {
-            const example = [
-                'We will launch the pilot in three phases. Phase 1 monitors response latency and error rates.',
-                'If latency exceeds 250ms or error rates rise above 2%, we pause the rollout and rollback.',
-                'Our hypothesis might be wrong, and we are uncertain about long-term user adaptation.',
-                'We will document failure modes, including model drift and feedback loop amplification.',
-                'However, the current metrics suggest the intervention is working better than baseline.'
-            ].join(' ');
-            document.getElementById('inputText').value = example;
+            loadExampleByType('ai-response');
+        }
+
+        function loadExampleByType(type) {
+            const sentences = EXAMPLE_TEXTS[type] || EXAMPLE_TEXTS['ai-response'];
+            document.getElementById('inputText').value = sentences.join(' ');
             document.getElementById('inputText').focus();
             updateInputMeta();
+            // Highlight the selected chip
+            document.querySelectorAll('.example-chip').forEach(chip => {
+                const isActive = chip.textContent.toLowerCase().replace(/[\s-]+/g, '-') ===
+                    type.replace('ai-response', 'ai-response')
+                        .replace('overconfident', 'overconfident-claim')
+                        .replace('well-hedged', 'well-hedged-analysis')
+                        .replace('operational', 'operational-plan')
+                        .replace('gaming', 'keyword-gaming');
+                chip.style.borderColor = isActive ? '#64ffda' : '';
+                chip.style.color = isActive ? '#64ffda' : '';
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
