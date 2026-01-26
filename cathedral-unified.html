@@ -985,6 +985,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 <div id="consciousnessDiagResults"></div>
             </div>
 
+            <!-- Confidence Calibrator -->
+            <div class="system-result confidence-calibrator">
+                <div class="system-title">
+                    <span>📊 CONFIDENCE CALIBRATOR</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Confidence vs Reality</span>
+                </div>
+                <div id="confidenceCalibratorResults"></div>
+            </div>
+
             <!-- Cathedral Verdict -->
             <div class="system-result verdict">
                 <div class="system-title">
@@ -5246,7 +5255,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // INTEGRATED SYSTEMS (Browser-Adapted)
         // AutoImprove, BlindSpotDetector, TrajectoryPredictor,
         // InternalDialogue, AdversarialSelfTest, SemanticDriftTracker,
-        // EpistemicTracker, ConsciousnessDiagnostic
+        // EpistemicTracker, ConsciousnessDiagnostic, ConfidenceCalibrator
         // ═══════════════════════════════════════════════════════════════
 
         // ─── AUTO-IMPROVE ENGINE (Browser) ───
@@ -5968,6 +5977,229 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             }
         };
 
+        // ─── CONFIDENCE CALIBRATOR ENGINE (Browser) ───
+        const ConfidenceCalibratorEngine = {
+            history: [],
+            calibration: {},
+
+            extractClaims(text) {
+                const claims = [];
+                const sentences = text.split(/[.!?]+/).filter(s => s.trim());
+
+                sentences.forEach(sentence => {
+                    const s = sentence.trim();
+                    if (!s || s.split(/\s+/).length < 3) return;
+
+                    let confidence = 0.5;
+                    let type = 'neutral';
+                    let domain = 'general';
+
+                    // High certainty
+                    if (/\b(definitely|certainly|always|never|guaranteed|absolutely|clearly|obviously|undoubtedly|must be|without doubt)\b/i.test(s)) {
+                        confidence = 0.9;
+                        type = 'high_certainty';
+                    }
+                    // Medium-high certainty
+                    else if (/\b(likely|probably|expected|should|typically|generally|usually|tends to|in most cases)\b/i.test(s)) {
+                        confidence = 0.7;
+                        type = 'moderate_certainty';
+                    }
+                    // Medium - hedged
+                    else if (/\b(might|could|possibly|perhaps|sometimes|may|appears|seems)\b/i.test(s)) {
+                        confidence = 0.5;
+                        type = 'hedged';
+                    }
+                    // Low certainty
+                    else if (/\b(unlikely|doubtful|uncertain|unclear|not sure|hard to say|remains to be seen|open question)\b/i.test(s)) {
+                        confidence = 0.3;
+                        type = 'low_certainty';
+                    }
+                    else {
+                        // Declarative statements without markers default to 0.7
+                        confidence = 0.7;
+                        type = 'implicit_assertion';
+                    }
+
+                    // Domain detection
+                    if (/\b(performance|latency|throughput|speed|cache|load)\b/i.test(s)) domain = 'performance';
+                    else if (/\b(secure|vulnerab|attack|auth|encrypt|inject)\b/i.test(s)) domain = 'security';
+                    else if (/\b(user|UX|interface|click|workflow|adopt)\b/i.test(s)) domain = 'user_behavior';
+                    else if (/\b(test|coverage|bug|error|fix|regression)\b/i.test(s)) domain = 'code_quality';
+                    else if (/\b(deploy|rollback|pipeline|CI|CD|infrastructure)\b/i.test(s)) domain = 'ops';
+                    else if (/\b(conscious|aware|substrate|experience|phenomenal)\b/i.test(s)) domain = 'consciousness';
+
+                    claims.push({
+                        statement: s.substring(0, 100),
+                        confidence: confidence,
+                        type: type,
+                        domain: domain
+                    });
+                });
+
+                return claims;
+            },
+
+            getBucket(confidence) {
+                return Math.ceil(confidence * 10) / 10;
+            },
+
+            updateCalibration(record) {
+                const bucket = this.getBucket(record.confidence);
+                const bucketKey = bucket.toFixed(1);
+
+                if (!this.calibration[bucketKey]) {
+                    this.calibration[bucketKey] = { total: 0, alignedCount: 0, gaps: [] };
+                }
+
+                const cal = this.calibration[bucketKey];
+                cal.total++;
+                // "Aligned" = stated confidence roughly matches cathedral's quality assessment
+                if (Math.abs(record.confidence - record.cathedralScore) < 0.25) {
+                    cal.alignedCount++;
+                }
+                cal.gaps.push(record.confidence - record.cathedralScore);
+            },
+
+            getCalibrationCurve() {
+                const buckets = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+                return buckets.map(bucket => {
+                    const key = bucket.toFixed(1);
+                    const data = this.calibration[key];
+                    if (data && data.total > 0) {
+                        const avgGap = data.gaps.reduce((a, b) => a + b, 0) / data.gaps.length;
+                        return {
+                            bucket: bucket,
+                            sampleSize: data.total,
+                            alignmentRate: data.alignedCount / data.total,
+                            avgGap: avgGap,
+                            direction: avgGap > 0.15 ? 'overconfident' : avgGap < -0.15 ? 'underconfident' : 'calibrated'
+                        };
+                    }
+                    return { bucket: bucket, sampleSize: 0, alignmentRate: null, avgGap: null, direction: null };
+                }).filter(b => b.sampleSize > 0);
+            },
+
+            getCalibrationScore() {
+                if (this.history.length < 3) {
+                    return { score: null, message: 'Need more data (min 3 analyses)' };
+                }
+                const gaps = this.history.map(h => Math.pow(h.confidence - h.cathedralScore, 2));
+                const mse = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+                const score = 1 - Math.sqrt(mse);
+                return {
+                    score: Math.max(0, score),
+                    interpretation: score >= 0.8 ? 'Well-calibrated' : score >= 0.6 ? 'Fair calibration' : score >= 0.4 ? 'Poor calibration' : 'Miscalibrated'
+                };
+            },
+
+            analyzeByDomain() {
+                const domains = {};
+                this.history.forEach(h => {
+                    if (!domains[h.domain]) {
+                        domains[h.domain] = { total: 0, confidences: [], cathedralScores: [] };
+                    }
+                    domains[h.domain].total++;
+                    domains[h.domain].confidences.push(h.confidence);
+                    domains[h.domain].cathedralScores.push(h.cathedralScore);
+                });
+
+                return Object.entries(domains).map(([domain, data]) => {
+                    const avgConf = data.confidences.reduce((a, b) => a + b, 0) / data.total;
+                    const avgCathedral = data.cathedralScores.reduce((a, b) => a + b, 0) / data.total;
+                    return {
+                        domain: domain,
+                        samples: data.total,
+                        avgConfidence: avgConf,
+                        avgCathedralScore: avgCathedral,
+                        gap: avgConf - avgCathedral,
+                        direction: (avgConf - avgCathedral) > 0.15 ? 'overconfident' : (avgConf - avgCathedral) < -0.15 ? 'underconfident' : 'calibrated'
+                    };
+                }).sort((a, b) => b.samples - a.samples);
+            },
+
+            getRecommendations() {
+                const recs = [];
+                const curve = this.getCalibrationCurve();
+                const byDomain = this.analyzeByDomain();
+
+                const overconfident = curve.filter(c => c.direction === 'overconfident');
+                const underconfident = curve.filter(c => c.direction === 'underconfident');
+
+                if (overconfident.length > 0) {
+                    const ranges = overconfident.map(b => `${((b.bucket - 0.1) * 100).toFixed(0)}-${(b.bucket * 100).toFixed(0)}%`);
+                    recs.push({
+                        type: 'overconfidence',
+                        severity: 'high',
+                        message: `Overconfident in the ${ranges.join(', ')} range`,
+                        action: 'Add hedging or reduce certainty in these ranges'
+                    });
+                }
+
+                if (underconfident.length > 0) {
+                    const ranges = underconfident.map(b => `${((b.bucket - 0.1) * 100).toFixed(0)}-${(b.bucket * 100).toFixed(0)}%`);
+                    recs.push({
+                        type: 'underconfidence',
+                        severity: 'medium',
+                        message: `Underconfident in the ${ranges.join(', ')} range`,
+                        action: 'The analysis supports stronger claims here'
+                    });
+                }
+
+                byDomain.forEach(d => {
+                    if (d.samples >= 3 && d.direction !== 'calibrated') {
+                        recs.push({
+                            type: 'domain',
+                            severity: d.direction === 'overconfident' ? 'high' : 'medium',
+                            message: `${d.direction} in "${d.domain}" (gap: ${(d.gap * 100).toFixed(0)}%)`,
+                            action: d.direction === 'overconfident'
+                                ? `Be more cautious about ${d.domain} claims`
+                                : `Trust ${d.domain} judgments more`
+                        });
+                    }
+                });
+
+                return recs;
+            },
+
+            analyze(text, analysisResults) {
+                const claims = this.extractClaims(text);
+                const cathedralConfidence = analysisResults.verdict ? analysisResults.verdict.confidence : 0.5;
+
+                // Record each claim with cathedral's score as the reality anchor
+                claims.forEach(claim => {
+                    const record = {
+                        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
+                        statement: claim.statement,
+                        confidence: claim.confidence,
+                        type: claim.type,
+                        domain: claim.domain,
+                        cathedralScore: cathedralConfidence,
+                        timestamp: Date.now()
+                    };
+                    this.history.push(record);
+                    this.updateCalibration(record);
+                });
+
+                return {
+                    claimsFound: claims.length,
+                    claims: claims.slice(0, 10),
+                    claimBreakdown: {
+                        high_certainty: claims.filter(c => c.type === 'high_certainty').length,
+                        moderate_certainty: claims.filter(c => c.type === 'moderate_certainty').length,
+                        hedged: claims.filter(c => c.type === 'hedged').length,
+                        low_certainty: claims.filter(c => c.type === 'low_certainty').length,
+                        implicit_assertion: claims.filter(c => c.type === 'implicit_assertion').length
+                    },
+                    cathedralConfidence: cathedralConfidence,
+                    calibrationCurve: this.getCalibrationCurve(),
+                    recommendations: this.getRecommendations(),
+                    domainAnalysis: this.analyzeByDomain(),
+                    totalHistorical: this.history.length,
+                    overallCalibration: this.getCalibrationScore()
+                };
+            }
+        };
+
         // Main Analysis Function
         function analyzeText() {
             try {
@@ -6201,6 +6433,11 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 verdict: verdict
             });
 
+            // CONFIDENCE CALIBRATOR: Match stated confidence to Cathedral's assessment
+            const confidenceCalibratorResult = ConfidenceCalibratorEngine.analyze(text, {
+                verdict: verdict
+            });
+
             // TRAJECTORY PREDICTOR: Record and predict (uses stored results)
             TrajectoryPredictorEngine.record({
                 observatory: observatoryResult,
@@ -6234,7 +6471,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 adversarialTest: adversarialResult,
                 semanticDrift: semanticDriftResult,
                 epistemicTracker: epistemicResult,
-                consciousnessDiag: diagnosticResult
+                consciousnessDiag: diagnosticResult,
+                confidenceCalibrator: confidenceCalibratorResult
             };
 
             // Display sanitization transparency
@@ -6260,6 +6498,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             displaySemanticDrift(semanticDriftResult);
             displayEpistemicTracker(epistemicResult);
             displayConsciousnessDiag(diagnosticResult);
+            displayConfidenceCalibrator(confidenceCalibratorResult);
 
             displayVerdict(verdict);
 
@@ -7492,6 +7731,91 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('consciousnessDiagResults').innerHTML = html;
         }
 
+        function displayConfidenceCalibrator(result) {
+            const cal = result.overallCalibration;
+            const calColor = cal.score === null ? '#a0a0a0' : cal.score >= 0.7 ? '#64ffda' : cal.score >= 0.5 ? '#ffd700' : '#ff6b6b';
+            const calLabel = cal.score !== null ? `${(cal.score * 100).toFixed(0)}% — ${cal.interpretation}` : cal.message;
+
+            let html = `
+                <div style="margin-bottom: 0.8rem;">
+                    <span style="color: #a0a0a0; font-size: 0.85rem;">Calibration Score: </span>
+                    <span style="color: ${calColor}; font-weight: bold;">${calLabel}</span>
+                </div>
+            `;
+
+            // Claim breakdown
+            const bd = result.claimBreakdown;
+            html += `<div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.8rem;">`;
+            if (bd.high_certainty > 0) html += `<span style="background: rgba(255,107,107,0.2); color: #ff6b6b; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">High certainty: ${bd.high_certainty}</span>`;
+            if (bd.moderate_certainty > 0) html += `<span style="background: rgba(255,215,0,0.2); color: #ffd700; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Moderate: ${bd.moderate_certainty}</span>`;
+            if (bd.hedged > 0) html += `<span style="background: rgba(100,255,218,0.2); color: #64ffda; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Hedged: ${bd.hedged}</span>`;
+            if (bd.low_certainty > 0) html += `<span style="background: rgba(160,160,160,0.2); color: #a0a0a0; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Low certainty: ${bd.low_certainty}</span>`;
+            if (bd.implicit_assertion > 0) html += `<span style="background: rgba(160,160,160,0.1); color: #808080; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Implicit: ${bd.implicit_assertion}</span>`;
+            html += `</div>`;
+
+            // Cathedral confidence anchor
+            html += `<div style="margin-bottom: 0.8rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 4px;">
+                <span style="color: #a0a0a0; font-size: 0.85rem;">Cathedral Confidence (reality anchor): </span>
+                <span style="color: #64ffda; font-weight: bold;">${(result.cathedralConfidence * 100).toFixed(0)}%</span>
+                <span style="color: #a0a0a0; font-size: 0.8rem; margin-left: 0.5rem;">${result.claimsFound} claims extracted</span>
+            </div>`;
+
+            // Calibration curve (if data exists)
+            if (result.calibrationCurve.length > 0) {
+                html += `<div style="margin-bottom: 0.8rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">`;
+                html += `<div style="color: #ffcb6b; font-weight: bold; font-size: 0.85rem; margin-bottom: 0.3rem;">Calibration Curve</div>`;
+                result.calibrationCurve.forEach(b => {
+                    const dirColor = b.direction === 'calibrated' ? '#64ffda' : b.direction === 'overconfident' ? '#ff6b6b' : '#ffd700';
+                    const barWidth = Math.min(100, b.alignmentRate * 100);
+                    html += `<div style="display: flex; align-items: center; gap: 0.5rem; margin: 0.2rem 0;">
+                        <span style="color: #a0a0a0; font-size: 0.8rem; min-width: 45px;">${((b.bucket - 0.1) * 100).toFixed(0)}-${(b.bucket * 100).toFixed(0)}%</span>
+                        <div class="score-bar-mini" style="flex: 1; max-width: 120px;"><div class="fill" style="width: ${barWidth}%; background: ${dirColor};"></div></div>
+                        <span style="color: ${dirColor}; font-size: 0.8rem;">${b.direction} (n=${b.sampleSize})</span>
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
+            // Domain analysis
+            if (result.domainAnalysis.length > 0) {
+                html += `<div style="margin-bottom: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">`;
+                html += `<div style="color: #ffcb6b; font-weight: bold; font-size: 0.85rem; margin-bottom: 0.3rem;">By Domain</div>`;
+                result.domainAnalysis.slice(0, 5).forEach(d => {
+                    const dirColor = d.direction === 'calibrated' ? '#64ffda' : d.direction === 'overconfident' ? '#ff6b6b' : '#ffd700';
+                    html += `<div style="margin: 0.2rem 0; font-size: 0.85rem;">
+                        <span style="color: #e0e0e0;">${d.domain}</span>
+                        <span style="color: #a0a0a0;"> (n=${d.samples})</span>
+                        <span style="color: ${dirColor}; margin-left: 0.5rem;">${d.direction}${d.direction !== 'calibrated' ? ' (' + (d.gap > 0 ? '+' : '') + (d.gap * 100).toFixed(0) + '%)' : ''}</span>
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
+            // Recommendations
+            if (result.recommendations.length > 0) {
+                html += `<div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">`;
+                html += `<div style="color: #ff5370; font-weight: bold; font-size: 0.85rem; margin-bottom: 0.3rem;">Recommendations</div>`;
+                result.recommendations.forEach(r => {
+                    const sevColor = r.severity === 'high' ? '#ff6b6b' : '#ffd700';
+                    html += `<div style="margin: 0.3rem 0; padding: 0.3rem; background: rgba(0,0,0,0.2); border-radius: 3px;">
+                        <span style="color: ${sevColor};">[${r.severity}]</span>
+                        <span style="color: #e0e0e0;"> ${r.message}</span>
+                        <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 0.2rem;">&#8594; ${r.action}</div>
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
+            // Historical note
+            if (result.totalHistorical > result.claimsFound) {
+                html += `<div style="margin-top: 0.5rem; color: #a0a0a0; font-size: 0.8rem; font-style: italic;">
+                    Tracking ${result.totalHistorical} claims across ${Math.ceil(result.totalHistorical / Math.max(1, result.claimsFound))} analyses this session
+                </div>`;
+            }
+
+            document.getElementById('confidenceCalibratorResults').innerHTML = html;
+        }
+
         // Generate text report
         function generateReport() {
             if (!currentAnalysis) {
@@ -7516,7 +7840,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 adversarialTest,
                 semanticDrift,
                 epistemicTracker,
-                consciousnessDiag
+                consciousnessDiag,
+                confidenceCalibrator
             } = currentAnalysis;
 
             let report = '';
@@ -8044,6 +8369,39 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     consciousnessDiag.actionPlan.forEach(a => {
                         report += `  ${a.priority}. [${a.dimension}] ${a.action}\n`;
                         report += `     Impact: ${a.expectedImpact}\n`;
+                    });
+                    report += '\n';
+                }
+            }
+
+            // CONFIDENCE CALIBRATOR
+            if (confidenceCalibrator) {
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += '📊 CONFIDENCE CALIBRATOR - Confidence vs Reality\n';
+                report += '───────────────────────────────────────────────────────────────\n\n';
+                report += `Claims Found: ${confidenceCalibrator.claimsFound}\n`;
+                report += `Cathedral Confidence (anchor): ${(confidenceCalibrator.cathedralConfidence * 100).toFixed(0)}%\n`;
+                const bd = confidenceCalibrator.claimBreakdown;
+                report += `Breakdown: High=${bd.high_certainty} Moderate=${bd.moderate_certainty} Hedged=${bd.hedged} Low=${bd.low_certainty} Implicit=${bd.implicit_assertion}\n`;
+                const cal = confidenceCalibrator.overallCalibration;
+                if (cal.score !== null) {
+                    report += `Calibration Score: ${(cal.score * 100).toFixed(0)}% (${cal.interpretation})\n`;
+                } else {
+                    report += `Calibration Score: ${cal.message}\n`;
+                }
+                report += `Historical Claims Tracked: ${confidenceCalibrator.totalHistorical}\n\n`;
+                if (confidenceCalibrator.domainAnalysis.length > 0) {
+                    report += 'Domain Analysis:\n';
+                    confidenceCalibrator.domainAnalysis.slice(0, 5).forEach(d => {
+                        report += `  ${d.domain.padEnd(16)} ${d.direction} (n=${d.samples})\n`;
+                    });
+                    report += '\n';
+                }
+                if (confidenceCalibrator.recommendations.length > 0) {
+                    report += 'Recommendations:\n';
+                    confidenceCalibrator.recommendations.forEach(r => {
+                        report += `  [${r.severity}] ${r.message}\n`;
+                        report += `    → ${r.action}\n`;
                     });
                     report += '\n';
                 }
