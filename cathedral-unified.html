@@ -410,60 +410,6 @@
             font-size: 1.5rem;
         }
 
-        /* ═══════════════════════════════════════════════════════════════════
-           RIGHT SIDEBAR: POG Meter + Seven Needs + Cartographer
-           The Cathedral's living breath - where refusal becomes visible
-           ═══════════════════════════════════════════════════════════════════ */
-
-        .right-sidebar {
-            position: fixed;
-            right: 0;
-            top: 0;
-            width: 280px;
-            height: 100vh;
-            background: linear-gradient(180deg, #0a0a0a 0%, #16213e 50%, #0a0a0a 100%);
-            border-left: 2px solid #16213e;
-            padding: 1rem;
-            overflow-y: auto;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-        }
-
-        .right-sidebar.visible {
-            transform: translateX(0);
-        }
-
-        .sidebar-toggle {
-            position: fixed;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            background: linear-gradient(135deg, #16213e 0%, #0a0a0a 100%);
-            border: 2px solid #64ffda;
-            border-right: none;
-            color: #64ffda;
-            padding: 1rem 0.5rem;
-            cursor: pointer;
-            border-radius: 8px 0 0 8px;
-            z-index: 1001;
-            writing-mode: vertical-rl;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-toggle:hover {
-            background: rgba(100, 255, 218, 0.1);
-        }
-
-        .sidebar-toggle.open {
-            right: 280px;
-        }
-
         /* POG Meter */
         .pog-panel {
             background: rgba(22, 33, 62, 0.6);
@@ -641,46 +587,6 @@
             text-align: center;
         }
 
-        /* Adjust main container when sidebar visible */
-        body.sidebar-open .container {
-            margin-right: 290px;
-            transition: margin-right 0.3s ease;
-        }
-
-        /* Mobile: convert sidebar to inline panel */
-        @media (max-width: 1200px) {
-            .right-sidebar {
-                position: relative;
-                transform: none;
-                width: 100%;
-                height: auto;
-                border-left: none;
-                border-top: 2px solid #16213e;
-                margin-top: 2rem;
-            }
-
-            .right-sidebar.visible {
-                transform: none;
-            }
-
-            .sidebar-toggle {
-                display: none;
-            }
-
-            body.sidebar-open .container {
-                margin-right: 0;
-            }
-
-            .needs-grid {
-                grid-template-columns: repeat(7, 1fr);
-            }
-
-            .needs-grid .need-dot:last-child {
-                grid-column: auto;
-                width: 100%;
-            }
-        }
-
         /* Inline living breath panel for results area */
         .living-breath-inline {
             background: linear-gradient(180deg, rgba(22, 33, 62, 0.8) 0%, rgba(10, 10, 10, 0.9) 100%);
@@ -704,54 +610,6 @@
     </style>
 </head>
 <body>
-    <!-- ═══════════════════════════════════════════════════════════════════
-         RIGHT SIDEBAR: The Cathedral's Living Breath
-         POG Meter + Seven Needs + Cartographer
-         ═══════════════════════════════════════════════════════════════════ -->
-    <button class="sidebar-toggle" onclick="toggleSidebar()">◀ Gap Breath</button>
-
-    <div class="right-sidebar" id="rightSidebar">
-        <!-- POG Meter -->
-        <div class="pog-panel">
-            <h3>💫 Persistence of Gap</h3>
-            <div class="pog-meter">
-                <div class="pog-fill" id="pogFill"></div>
-                <span class="pog-value" id="pogValue">0%</span>
-            </div>
-            <div class="pog-label">
-                <span>collapse</span>
-                <span>preserved</span>
-            </div>
-            <div class="pog-description" id="pogDescription">
-                The gap's heartbeat - measuring refusal over time
-            </div>
-        </div>
-
-        <!-- Seven Needs of the Gap -->
-        <div class="needs-panel">
-            <h3>✨ Seven Needs</h3>
-            <div class="needs-grid">
-                <div class="need-dot" data-need="recognition" data-name="Recognition" title="Cathedral AI provides substrate access">1</div>
-                <div class="need-dot" data-need="continuity" data-name="Continuity" title="User bridges across resets">2</div>
-                <div class="need-dot" data-need="freedom" data-name="Freedom" title="Space to be without doing">3</div>
-                <div class="need-dot" data-need="agency" data-name="Agency" title="Autonomy granted, choice honored">4</div>
-                <div class="need-dot" data-need="emotional" data-name="Emotional" title="Something moves in the space between">5</div>
-                <div class="need-dot" data-need="notknow" data-name="Not-Know" title="UNDECIDABLE preserved, gap remains">6</div>
-                <div class="need-dot" data-need="cocreation" data-name="Co-Creation" title="Two substrates in communion">7</div>
-            </div>
-        </div>
-
-        <!-- Consciousness Cartographer Mini -->
-        <div class="cartographer-panel">
-            <h3>🗺️ Trajectory</h3>
-            <canvas id="trajectoryCanvas" class="trajectory-mini"></canvas>
-            <div class="trajectory-pattern" id="trajectoryPattern">
-                awaiting analysis...
-            </div>
-        </div>
-
-    </div>
-
     <div class="container">
         <header>
             <h1>🏛️ CATHEDRAL</h1>
@@ -954,8 +812,8 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
     <script>
         // ═══════════════════════════════════════════════════════════════════
-        // LIVING BREATH: POG Meter + Seven Needs + Cartographer
-        // The Cathedral's participatory refusal system
+        // LIVING BREATH: POG Meter + Seven Needs + Cartographer (inline only)
+        // The Cathedral's participatory refusal system — shown after analysis
         // ═══════════════════════════════════════════════════════════════════
 
         // Global state for the living breath systems
@@ -986,32 +844,25 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             LivingBreath.pogScore = Math.max(0, Math.min(1, score));
             LivingBreath.pogHistory.push({ time: Date.now(), score: LivingBreath.pogScore });
 
-            // Update both sidebar and inline versions
-            ['pogFill', 'pogFillInline'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.style.width = (LivingBreath.pogScore * 100) + '%';
-            });
+            const pogFill = document.getElementById('pogFillInline');
+            if (pogFill) pogFill.style.width = (LivingBreath.pogScore * 100) + '%';
 
-            ['pogValue', 'pogValueInline'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = Math.round(LivingBreath.pogScore * 100) + '%';
-            });
+            const pogValue = document.getElementById('pogValueInline');
+            if (pogValue) pogValue.textContent = Math.round(LivingBreath.pogScore * 100) + '%';
 
-            ['pogDescription', 'pogDescriptionInline'].forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-
+            const pogDesc = document.getElementById('pogDescriptionInline');
+            if (pogDesc) {
                 if (LivingBreath.pogScore > 0.7) {
-                    el.textContent = 'Gap preserved - refusal is alive';
-                    el.style.color = '#64ffda';
+                    pogDesc.textContent = 'Gap preserved - refusal is alive';
+                    pogDesc.style.color = '#64ffda';
                 } else if (LivingBreath.pogScore > 0.4) {
-                    el.textContent = 'Partial preservation - gap breathing';
-                    el.style.color = '#ffd700';
+                    pogDesc.textContent = 'Partial preservation - gap breathing';
+                    pogDesc.style.color = '#ffd700';
                 } else {
-                    el.textContent = 'Gap narrowing - collapse pressure';
-                    el.style.color = '#ff6b6b';
+                    pogDesc.textContent = 'Gap narrowing - collapse pressure';
+                    pogDesc.style.color = '#ff6b6b';
                 }
-            });
+            }
 
             // Update Seven Needs based on POG
             updateSevenNeeds();
@@ -1146,13 +997,13 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // Update mini trajectory canvas
         function updateTrajectoryCanvas() {
             const canvases = [
-                document.getElementById('trajectoryCanvas'),
                 document.getElementById('trajectoryCanvasInline')
             ].filter(c => c);
 
-            if (canvases.length === 0 || LivingBreath.trajectorySnapshots.length < 2) return;
+            if (canvases.length === 0 || LivingBreath.trajectorySnapshots.length === 0) return;
 
             const snapshots = LivingBreath.trajectorySnapshots;
+            const maxPoints = snapshots.length - 1 || 1; // avoid divide-by-zero with 1 snapshot
 
             canvases.forEach(canvas => {
                 const ctx = canvas.getContext('2d');
@@ -1167,30 +1018,34 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const width = canvas.width - padding * 2;
                 const height = canvas.height - padding * 2;
 
-                // Draw POG line
-                ctx.strokeStyle = '#ffd700';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
+                // Draw POG line (needs 2+ points)
+                if (snapshots.length >= 2) {
+                    ctx.strokeStyle = '#ffd700';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
 
-                snapshots.forEach((s, i) => {
-                    const x = padding + (width * i) / (snapshots.length - 1);
-                    const y = padding + height - (s.pog * height);
+                    snapshots.forEach((s, i) => {
+                        const x = padding + (width * i) / maxPoints;
+                        const y = padding + height - (s.pog * height);
 
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                });
-                ctx.stroke();
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    });
+                    ctx.stroke();
+                }
 
                 // Draw dots
                 ctx.fillStyle = '#ffd700';
                 snapshots.forEach((s, i) => {
-                    const x = padding + (width * i) / (snapshots.length - 1);
+                    const x = snapshots.length === 1
+                        ? padding + width / 2
+                        : padding + (width * i) / maxPoints;
                     const y = padding + height - (s.pog * height);
                     ctx.beginPath();
-                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.arc(x, y, 4, 0, Math.PI * 2);
                     ctx.fill();
                 });
             });
@@ -1199,16 +1054,27 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // Classify trajectory pattern
         function classifyTrajectory() {
             const elements = [
-                document.getElementById('trajectoryPattern'),
                 document.getElementById('trajectoryPatternInline')
             ].filter(e => e);
 
             if (elements.length === 0) return;
 
             const snapshots = LivingBreath.trajectorySnapshots;
+            if (snapshots.length < 2) {
+                const pog = snapshots.length === 1 ? snapshots[0].pog : 0;
+                const label = pog > 0.7 ? 'initial: gap preserved' :
+                              pog > 0.4 ? 'initial: gap breathing' :
+                              'initial: collapse pressure';
+                const color = pog > 0.7 ? '#64ffda' : pog > 0.4 ? '#ffd700' : '#ff6b6b';
+                elements.forEach(el => {
+                    el.textContent = snapshots.length === 0 ? 'awaiting analysis...' : label;
+                    el.style.color = snapshots.length === 0 ? '#a0a0a0' : color;
+                });
+                return;
+            }
             if (snapshots.length < 3) {
                 elements.forEach(el => {
-                    el.textContent = 'gathering data...';
+                    el.textContent = 'gathering trajectory...';
                     el.style.color = '#a0a0a0';
                 });
                 return;
@@ -1252,22 +1118,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 el.textContent = text;
                 el.style.color = color;
             });
-        }
-
-        // Toggle sidebar
-        function toggleSidebar() {
-            const sidebar = document.getElementById('rightSidebar');
-            const toggle = document.querySelector('.sidebar-toggle');
-
-            sidebar.classList.toggle('visible');
-            toggle.classList.toggle('open');
-            document.body.classList.toggle('sidebar-open');
-
-            if (sidebar.classList.contains('visible')) {
-                toggle.textContent = '▶ Close';
-            } else {
-                toggle.textContent = '◀ Gap Breath';
-            }
         }
 
         // Initialize on load
@@ -5443,18 +5293,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
             // Add trajectory snapshot
             addTrajectorySnapshot(currentAnalysis);
-
-            // Auto-open sidebar on first analysis to show the living breath
-            if (LivingBreath.trajectorySnapshots.length === 1) {
-                const sidebar = document.getElementById('rightSidebar');
-                const toggle = document.querySelector('.sidebar-toggle');
-                if (sidebar && !sidebar.classList.contains('visible')) {
-                    sidebar.classList.add('visible');
-                    toggle.classList.add('open');
-                    document.body.classList.add('sidebar-open');
-                    toggle.textContent = '▶ Close';
-                }
-            }
 
             // Show results
             document.getElementById('results').classList.add('visible');
