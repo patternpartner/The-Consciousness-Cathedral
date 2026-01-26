@@ -1,0 +1,56 @@
+name: Cathedral Test Suite
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Run Cathedral boundary-probing tests
+        run: node run-tests.js
+
+      - name: Verify boundary tests pass
+        run: |
+          node -e "
+          const results = require('./test-results.json');
+          const { analyzeTestResult } = require('./run-tests.js');
+          const passed = results.filter(r => analyzeTestResult(r).passedWorksCheck).length;
+          const failed = results.filter(r => analyzeTestResult(r).passedFailsCheck).length;
+          console.log('Passed:', passed, '/ Failed:', failed, '/ Total:', results.length);
+          if (failed > 0) {
+            console.error('FAIL: Cathedral has ' + failed + ' gameable test(s)');
+            process.exit(1);
+          }
+          if (passed < results.length) {
+            console.warn('WARN: ' + (results.length - passed) + ' test(s) unclear');
+          }
+          console.log('All boundary tests acceptable');
+          "
+
+      - name: Run integration tests (paired comparisons)
+        run: node test-integration.js
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-node${{ matrix.node-version }}
+          path: |
+            test-results.txt
+            test-results.json

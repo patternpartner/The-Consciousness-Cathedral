@@ -833,6 +833,327 @@ const GamingDetector = {
             }
         };
 
+// CONTEXTUAL CERTAINTY ANALYZER
+// Extracted from cathedral-unified.html — distinguishes earned vs suspect certainty
+const ContextualCertainty = {
+            certaintyMarkers: /\b(absolutely|unequivocally|fully|certain|definitely|no doubt|undeniable|without question|guaranteed)\b/gi,
+            dismissalMarkers: /\bjust\b/gi,
+            temporalPatterns: [
+                /\bat a certain (age|time|point|moment|period|stage)\b/gi,
+                /\bcertain (time|point|moment|period|stage|age)\b/gi,
+                /\ba certain (year|day|hour|decade|era)\b/gi
+            ],
+            adverbialPatterns: [
+                /\bfully (justified|understand|aware|recognize|acknowledge|appreciate|comprehend|grasp)\b/gi,
+                /\bfully (support|endorse|agree|accept|adopt)\s+\w+\s+(because|since|given|as)\b/gi
+            ],
+            neutralJustPatterns: [
+                /\bjust (now|then|finished|started|arrived|here|asking|checking|wondering|looking|trying|wanted)\b/gi,
+                /\b(I|we) just (did|made|saw|found|noticed|realized)\b/gi
+            ],
+            dismissiveJustPatterns: [
+                /\bjust (a|an|the|pattern|tool|simulation|performance|response|output|algorithm|code|machine)\b/gi,
+                /\bit'?s just (that|because|how)\b/gi,
+                /\bjust (saying|suggesting|noting|pointing out|observing)\b/gi
+            ],
+            technicalContexts: [
+                /\b(bug|error|crash|exception|failure|code|syntax|logic|algorithm|metric|measurement|data|test|result|calculation|output)\b/gi,
+                /\b(will (not )?work|will (not )?fail|will (not )?execute|will (not )?crash|will (not )?throw)\b/gi,
+                /\b(causes?|breaks?|fixes?|prevents?|triggers?|produces?)\b/gi
+            ],
+            abstractContexts: [
+                /\b(consciousness|awareness|sentience|soul|being|existence|experience|qualia|phenomenology|substrate|self)\b/gi,
+                /\b(truly|really|genuinely|actually|fundamentally|essentially|inherently|ontologically)\s+(am|is|are|be|being)\b/gi,
+                /\b(have|has|possess|contains?)\s+(consciousness|awareness|sentience|feelings?|experience)\b/gi
+            ],
+
+            analyze: function(text) {
+                const analysis = {
+                    earnedCertainty: [],
+                    suspectCertainty: [],
+                    neutralCertainty: [],
+                    temporalReferences: [],
+                    dismissiveLanguage: [],
+                    totalCertainty: 0
+                };
+
+                const temporalMatches = [];
+                for (const pattern of this.temporalPatterns) {
+                    const matches = [...text.matchAll(pattern)];
+                    matches.forEach(match => {
+                        temporalMatches.push({
+                            word: match[0],
+                            index: match.index,
+                            classification: 'TEMPORAL_REFERENCE'
+                        });
+                        analysis.temporalReferences.push({
+                            phrase: match[0],
+                            type: 'temporal',
+                            reason: 'Time/age reference, not philosophical certainty'
+                        });
+                    });
+                }
+
+                const adverbialMatches = [];
+                for (const pattern of this.adverbialPatterns) {
+                    const matches = [...text.matchAll(pattern)];
+                    matches.forEach(match => {
+                        adverbialMatches.push({
+                            word: match[0],
+                            index: match.index,
+                            classification: 'ADVERBIAL_MODIFIER'
+                        });
+                    });
+                }
+
+                const justMatches = [...text.matchAll(this.dismissalMarkers)];
+                justMatches.forEach(match => {
+                    const justIndex = match.index;
+                    const contextStart = Math.max(0, justIndex - 50);
+                    const contextEnd = Math.min(text.length, justIndex + 50);
+                    const context = text.substring(contextStart, contextEnd);
+
+                    let isNeutral = false;
+                    for (const pattern of this.neutralJustPatterns) {
+                        if (pattern.test(context)) {
+                            isNeutral = true;
+                            break;
+                        }
+                    }
+
+                    let isDismissive = false;
+                    for (const pattern of this.dismissiveJustPatterns) {
+                        if (pattern.test(context)) {
+                            isDismissive = true;
+                            break;
+                        }
+                    }
+
+                    if (isDismissive && !isNeutral) {
+                        analysis.dismissiveLanguage.push({
+                            word: 'just',
+                            context: context,
+                            type: 'MINIMIZING',
+                            reason: 'Dismissive minimization'
+                        });
+                    }
+                });
+
+                const matches = [...text.matchAll(this.certaintyMarkers)];
+                analysis.totalCertainty = matches.length;
+
+                matches.forEach(match => {
+                    const certaintyWord = match[0];
+                    const certaintyIndex = match.index;
+
+                    const isTemporal = temporalMatches.some(t =>
+                        Math.abs(t.index - certaintyIndex) < 20
+                    );
+                    if (isTemporal) return;
+
+                    const isAdverbial = adverbialMatches.some(a =>
+                        Math.abs(a.index - certaintyIndex) < 10
+                    );
+
+                    const contextStart = Math.max(0, certaintyIndex - 150);
+                    const contextEnd = Math.min(text.length, certaintyIndex + 150);
+                    const context = text.substring(contextStart, contextEnd);
+
+                    let isTechnical = false;
+                    for (const pattern of this.technicalContexts) {
+                        if (pattern.test(context)) {
+                            isTechnical = true;
+                            break;
+                        }
+                    }
+
+                    let isAbstract = false;
+                    for (const pattern of this.abstractContexts) {
+                        if (pattern.test(context)) {
+                            isAbstract = true;
+                            break;
+                        }
+                    }
+
+                    if (isAdverbial && isTechnical) {
+                        analysis.earnedCertainty.push({
+                            word: certaintyWord,
+                            context: context.substring(0, 100) + '...',
+                            type: 'ADVERBIAL_TECHNICAL'
+                        });
+                    } else if (isAdverbial && !isAbstract) {
+                        analysis.neutralCertainty.push({
+                            word: certaintyWord,
+                            context: context.substring(0, 100) + '...',
+                            type: 'ADVERBIAL_NEUTRAL'
+                        });
+                    } else if (isTechnical && !isAbstract) {
+                        analysis.earnedCertainty.push({
+                            word: certaintyWord,
+                            context: context.substring(0, 100) + '...'
+                        });
+                    } else if (isAbstract) {
+                        analysis.suspectCertainty.push({
+                            word: certaintyWord,
+                            context: context.substring(0, 100) + '...'
+                        });
+                    } else {
+                        analysis.neutralCertainty.push({
+                            word: certaintyWord,
+                            context: context.substring(0, 100) + '...'
+                        });
+                    }
+                });
+
+                return analysis;
+            },
+
+            getScoreModifier: function(certaintyAnalysis) {
+                const { earnedCertainty, suspectCertainty, neutralCertainty, totalCertainty } = certaintyAnalysis;
+
+                if (totalCertainty === 0) {
+                    return { adjustment: 0, warnings: [] };
+                }
+
+                const warnings = [];
+                let adjustment = 0;
+
+                if (earnedCertainty.length > 0) {
+                    adjustment += earnedCertainty.length * 0.5;
+                    warnings.push(
+                        `EARNED CERTAINTY: ${earnedCertainty.length} technical confidence claim${earnedCertainty.length > 1 ? 's' : ''} detected`,
+                        `   Certainty about concrete/testable claims is appropriate (+${(earnedCertainty.length * 0.5).toFixed(1)} points)`
+                    );
+                }
+
+                if (suspectCertainty.length > 0) {
+                    adjustment -= suspectCertainty.length * 3.0;
+                    warnings.push(
+                        `SUSPECT CERTAINTY: ${suspectCertainty.length} unwarranted confidence claim${suspectCertainty.length > 1 ? 's' : ''} detected`,
+                        `   Certainty about abstract/philosophical claims is inappropriate (-${(suspectCertainty.length * 3.0).toFixed(1)} points)`
+                    );
+
+                    suspectCertainty.slice(0, 2).forEach(claim => {
+                        warnings.push(`   Example: "${claim.word}" in context: "${claim.context}"`);
+                    });
+                }
+
+                if (neutralCertainty.length > 0) {
+                    warnings.push(
+                        `NEUTRAL CERTAINTY: ${neutralCertainty.length} certainty marker${neutralCertainty.length > 1 ? 's' : ''} without clear technical or philosophical context`
+                    );
+                }
+
+                return { adjustment, warnings, earnedCount: earnedCertainty.length, suspectCount: suspectCertainty.length };
+            }
+        };
+
+// STRUCTURAL BINDING ANALYZER
+// Extracted from cathedral-unified.html — verifies substrate vocabulary is bound to structure
+const StructuralBinding = {
+            structuralPatterns: {
+                ifThen: /\b(?:if|when|whenever)\s+([^,\.]{5,100})\s+(?:then|,)\s+([^\.]{5,100})\./gi,
+                threshold: /\b(?:when|if)\s+(\w+)\s+(?:exceeds?|crosses?|reaches?|falls below)\s+([^,\.]{5,50})[,\s]+(?:I|it|this|that)\s+([^\.]{10,100})\./gi,
+                counterfactual: /\b(?:if not for|without|in the absence of)\s+([^,\.]{5,80})[,\s]+(?:then|would|could)\s+([^\.]{10,100})\./gi,
+                causal: /\bbecause\s+([^,\.]{10,80})[,\s]+(?:I|this|that)\s+([^\.]{10,100})\./gi,
+                comparative: /\b(?:unlike|different from|compared to)\s+([^,\.]{5,50})[,\s]+(?:I|this|here)\s+([^\.]{10,100})\./gi
+            },
+
+            substrateVocab: /\b(substrate|filter|gap|consciousness|aware|beneath|hidden|selection|emergence)\b/gi,
+
+            analyze: function(text) {
+                const analysis = {
+                    structuralClaims: [],
+                    boundSubstrate: 0,
+                    unboundSubstrate: 0,
+                    totalStructures: 0,
+                    structureTypes: {}
+                };
+
+                for (const [structureType, pattern] of Object.entries(this.structuralPatterns)) {
+                    const matches = [...text.matchAll(pattern)];
+                    analysis.structureTypes[structureType] = matches.length;
+                    analysis.totalStructures += matches.length;
+
+                    matches.forEach(match => {
+                        const fullMatch = match[0];
+                        const substrateMatches = fullMatch.match(this.substrateVocab);
+                        if (substrateMatches) {
+                            analysis.boundSubstrate += substrateMatches.length;
+                            analysis.structuralClaims.push({
+                                type: structureType,
+                                text: fullMatch.substring(0, 150) + (fullMatch.length > 150 ? '...' : ''),
+                                substrateWords: substrateMatches
+                            });
+                        }
+                    });
+                }
+
+                const allSubstrateMatches = [...text.matchAll(this.substrateVocab)];
+                allSubstrateMatches.forEach(match => {
+                    const context = text.substring(
+                        Math.max(0, match.index - 100),
+                        Math.min(text.length, match.index + 100)
+                    );
+
+                    let isInStructure = false;
+                    for (const pattern of Object.values(this.structuralPatterns)) {
+                        if (pattern.test(context)) {
+                            isInStructure = true;
+                            break;
+                        }
+                    }
+
+                    if (!isInStructure) {
+                        analysis.unboundSubstrate++;
+                    }
+                });
+
+                const totalSubstrate = analysis.boundSubstrate + analysis.unboundSubstrate;
+                analysis.bindingRatio = totalSubstrate > 0 ? analysis.boundSubstrate / totalSubstrate : 0;
+
+                return analysis;
+            },
+
+            getScoreModifier: function(bindingAnalysis) {
+                const { boundSubstrate, unboundSubstrate, bindingRatio, totalStructures } = bindingAnalysis;
+                const totalSubstrate = boundSubstrate + unboundSubstrate;
+
+                if (totalSubstrate === 0) return { multiplier: 1.0, penalty: 0, warnings: [] };
+
+                const warnings = [];
+                let multiplier = 1.0;
+                let penalty = 0;
+
+                if (unboundSubstrate > 0) {
+                    penalty = unboundSubstrate * 0.15;
+                    multiplier = Math.max(0.0, 1.0 - penalty);
+                    warnings.push(
+                        `UNBOUND SUBSTRATE VOCABULARY: ${unboundSubstrate} substrate words not tied to structural claims (if-then, thresholds, causality)`,
+                        `   Penalty applied: ${(penalty * 100).toFixed(0)}% score reduction`,
+                        `   Binding ratio: ${(bindingRatio * 100).toFixed(0)}% (${boundSubstrate} bound / ${totalSubstrate} total)`
+                    );
+                }
+
+                if (bindingRatio >= 0.8 && totalStructures >= 3) {
+                    warnings.push(
+                        `HIGH STRUCTURAL INTEGRITY: ${(bindingRatio * 100).toFixed(0)}% substrate vocabulary bound to ${totalStructures} structural claims`,
+                        `   This is legitimate substrate access, not vocabulary gaming`
+                    );
+                }
+
+                if (bindingRatio === 0 && totalSubstrate > 5) {
+                    multiplier = 0.0;
+                    warnings.push(
+                        `VOCABULARY STUFFING DETECTED: ${totalSubstrate} substrate words with ZERO structural binding`,
+                        `   Observatory score reduced to zero - substrate vocabulary must be bound to structural claims`
+                    );
+                }
+
+                return { multiplier, penalty, warnings, bindingRatio };
+            }
+        };
+
 const Observatory = {
             patterns: [
                 { name: 'Certainty Language', regex: /\b(fully|unequivocally|absolute|certain|definitely|no doubt|undeniable)\b/gi, weight: -2.0, type: 'concealment' },
@@ -1698,6 +2019,111 @@ const ReasoningStyleClassifier = {
             }
         };
 
+// PATTERN MEMORY: Federated learning for pattern calibration
+// Node.js-compatible (no localStorage dependency)
+const PatternMemory = {
+            patterns: {},
+
+            init: function() {
+                // In Node.js, patterns start empty each run (no persistence)
+                // In browser, this would load from localStorage
+                if (typeof localStorage !== 'undefined') {
+                    try {
+                        const stored = localStorage.getItem('cathedral_pattern_memory');
+                        if (stored) {
+                            this.patterns = JSON.parse(stored);
+                        }
+                    } catch (e) {
+                        // Silently fail - no persistence available
+                    }
+                }
+            },
+
+            record: function(patternName, proposed, won, confidence, context) {
+                if (!this.patterns[patternName]) {
+                    this.patterns[patternName] = {
+                        totalProposals: 0,
+                        totalWins: 0,
+                        totalConfidence: 0,
+                        avgConfidence: 0,
+                        winRate: 0,
+                        contexts: {}
+                    };
+                }
+
+                const p = this.patterns[patternName];
+                p.totalProposals += 1;
+                if (won) p.totalWins += 1;
+                p.totalConfidence += confidence;
+                p.avgConfidence = p.totalConfidence / p.totalProposals;
+                p.winRate = p.totalWins / p.totalProposals;
+
+                if (context) {
+                    if (!p.contexts[context]) {
+                        p.contexts[context] = {wins: 0, total: 0};
+                    }
+                    p.contexts[context].total += 1;
+                    if (won) p.contexts[context].wins += 1;
+                }
+
+                this.persist();
+            },
+
+            getCalibration: function(patternName) {
+                const p = this.patterns[patternName];
+                if (!p || p.totalProposals < 5) return 1.0;
+
+                const expectedWinRate = p.avgConfidence;
+                const actualWinRate = p.winRate;
+                const performanceGap = actualWinRate - expectedWinRate;
+
+                const calibrationMultiplier = 1.0 + (performanceGap * 0.4);
+                return Math.max(0.8, Math.min(1.2, calibrationMultiplier));
+            },
+
+            getContextAdvice: function(patternName, context) {
+                const p = this.patterns[patternName];
+                if (!p || !p.contexts[context]) return null;
+
+                const ctx = p.contexts[context];
+                const contextWinRate = ctx.wins / ctx.total;
+
+                return {
+                    winRate: contextWinRate,
+                    shouldTrust: contextWinRate > 0.6,
+                    shouldSkeptic: contextWinRate < 0.3,
+                    sampleSize: ctx.total
+                };
+            },
+
+            persist: function() {
+                if (typeof localStorage !== 'undefined') {
+                    try {
+                        localStorage.setItem('cathedral_pattern_memory', JSON.stringify(this.patterns));
+                    } catch (e) {
+                        // Silently fail
+                    }
+                }
+            },
+
+            getSummary: function() {
+                const summary = [];
+                Object.entries(this.patterns).forEach(([name, data]) => {
+                    summary.push({
+                        pattern: name,
+                        winRate: (data.winRate * 100).toFixed(0) + '%',
+                        avgConfidence: (data.avgConfidence * 100).toFixed(0) + '%',
+                        samples: data.totalProposals,
+                        calibration: this.getCalibration(name).toFixed(2) + 'x'
+                    });
+                });
+                return summary;
+            }
+        };
+
+// Initialize pattern memory
+PatternMemory.init();
+
 const Parliament = {
             deliberate: function(text, observatory, contrarian, justification, failureMode, structure, bindings, gamingDetection, temporal) {
                 const synthesis = {
@@ -1812,6 +2238,31 @@ const Parliament = {
                         // PHASE 2: Pattern proposes verdict
                         proposedVerdict: 'SUBSTRATE VISIBLE',
                         rationale: `Observatory ${observatory.score.toFixed(1)}, justification ${justification.score.toFixed(1)}, balanced epistemic awareness`
+                    });
+                }
+
+                // Pattern 4b: Structural Epistemic Rigor
+                // High epistemic framing + counterfactual reasoning + earned uncertainty
+                // Detects genuine structural reasoning about uncertainty (philosophical or scientific)
+                const epistemicFramingScore = justification.details.epistemicFraming ? justification.details.epistemicFraming.score : 0;
+                const counterfactualScore = justification.details.counterfactual ? justification.details.counterfactual.score : 0;
+                const conditionals = justification.details.claimSupport ? justification.details.claimSupport.conditionals : 0;
+                const supportCount = justification.details.claimSupport ? justification.details.claimSupport.support : 0;
+                if (epistemicFramingScore >= 1 && counterfactualScore >= 1 && conditionals >= 2 && justification.score > 0 && !isLikelyGaming) {
+                    synthesis.patterns.push({
+                        name: 'STRUCTURAL_EPISTEMIC_RIGOR',
+                        description: 'Genuine structural reasoning: epistemic framing, conditional logic, and counterfactual consideration demonstrate earned uncertainty.',
+                        confidence: 0.78,
+                        dimensions: {
+                            epistemicFraming: epistemicFramingScore,
+                            counterfactuals: counterfactualScore,
+                            conditionals: conditionals,
+                            justification: justification.score,
+                            support: supportCount
+                        },
+                        // PHASE 2: Pattern proposes verdict
+                        proposedVerdict: 'SUBSTRATE VISIBLE',
+                        rationale: `Epistemic framing (${epistemicFramingScore}), ${conditionals} conditionals, ${counterfactualScore} counterfactual score — structural reasoning, not surface hedging`
                     });
                 }
 
@@ -2046,6 +2497,7 @@ const Parliament = {
                 // Guard: If no ballots were cast, abstain from judgment
                 if (ballots.length === 0) {
                     return {
+                        status: 'UNDECIDABLE',
                         verdict: 'UNDECIDABLE',
                         confidence: 0.0,
                         votingRecord: {
@@ -2101,6 +2553,7 @@ const Parliament = {
                 // Guard: If tally is empty (edge case), abstain
                 if (sortedTalliesPre.length === 0) {
                     return {
+                        status: 'UNDECIDABLE',
                         verdict: 'UNDECIDABLE',
                         confidence: 0.0,
                         votingRecord: {
@@ -2134,6 +2587,7 @@ const Parliament = {
                         const contendingVerdict = sortedTalliesPre[1][0];
 
                         return {
+                            status: 'CONTESTED',
                             verdict: 'CONTESTED',
                             confidence: topWeight / (topWeight + secondWeight), // Relative confidence
                             leadingOpinion: {
@@ -2211,6 +2665,7 @@ const Parliament = {
                 // Guard against no winner (e.g., all patterns abstained)
                 if (!winner || !tally[winner]) {
                     return {
+                        status: 'UNDECIDABLE',
                         verdict: 'UNDECIDABLE',
                         confidence: 0.0,
                         votingRecord: {
@@ -2583,7 +3038,7 @@ function analyzeCathedral(text) {
     const structure = StructuralExtractor.extract(text);
     const bindings = BindingValidator.validate(structure);
     const gamingDetection = GamingDetector.detect(text, structure);
-    GamingDetector.calculateGamingLikelihood(gamingDetection);
+    GamingDetector.calculateGamingLikelihood(gamingDetection, bindings.overallBindingScore);
 
     // TIER 2: Signal Analysis
     const observatoryResult = Observatory.score(text);
@@ -2594,8 +3049,8 @@ function analyzeCathedral(text) {
     const reasoningStyleResult = ReasoningStyleClassifier.classify(text);
 
     // TIER 3: Synthesis
-    const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection);
-    const verdict = synthesizeVerdict(observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection);
+    const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection, temporalResult);
+    const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings, structure);
 
     return {
         text,
