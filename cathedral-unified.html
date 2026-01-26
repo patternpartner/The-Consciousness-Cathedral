@@ -607,6 +607,126 @@
             text-align: center;
         }
 
+        /* ═══ NEW INTEGRATED SYSTEMS STYLES ═══ */
+
+        .system-result.auto-improve { border-left-color: #ff6b9d; }
+        .system-result.blind-spot { border-left-color: #c792ea; }
+        .system-result.trajectory-predict { border-left-color: #82aaff; }
+        .system-result.internal-dialogue { border-left-color: #c3e88d; }
+        .system-result.adversarial-test { border-left-color: #f78c6c; }
+        .system-result.semantic-drift { border-left-color: #89ddff; }
+        .system-result.epistemic-track { border-left-color: #ffcb6b; }
+        .system-result.consciousness-diag { border-left-color: #ff5370; }
+
+        .perspective-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .perspective-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+            padding: 0.6rem;
+            border-left: 3px solid #444;
+        }
+        .perspective-card.covered { border-left-color: #64ffda; }
+        .perspective-card.partial { border-left-color: #ffd700; }
+        .perspective-card.missing { border-left-color: #ff6b6b; }
+
+        .voice-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-left: 3px solid #444;
+        }
+        .voice-card.advocate { border-left-color: #64ffda; }
+        .voice-card.critic { border-left-color: #ff6b6b; }
+        .voice-card.synthesizer { border-left-color: #c792ea; }
+        .voice-card.pragmatist { border-left-color: #82aaff; }
+        .voice-card.uncertain { border-left-color: #ffd700; }
+
+        .suggestion-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+            padding: 0.6rem;
+            margin: 0.4rem 0;
+            border-left: 3px solid #444;
+        }
+        .suggestion-card.HIGH { border-left-color: #ff6b6b; }
+        .suggestion-card.MEDIUM { border-left-color: #ffd700; }
+        .suggestion-card.LOW { border-left-color: #64ffda; }
+
+        .score-bar-mini {
+            display: inline-block;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            width: 80px;
+            position: relative;
+            vertical-align: middle;
+        }
+        .score-bar-mini .fill {
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .challenge-result {
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+            padding: 0.6rem;
+            margin: 0.4rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .challenge-result.passed { border-left: 3px solid #64ffda; }
+        .challenge-result.failed { border-left: 3px solid #ff6b6b; }
+
+        .action-plan-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+            padding: 0.8rem;
+            margin: 0.4rem 0;
+            border-left: 3px solid #ff5370;
+        }
+
+        .epistemic-category {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin: 0.1rem;
+        }
+        .epistemic-category.known { background: rgba(100,255,218,0.2); color: #64ffda; }
+        .epistemic-category.unknown { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+        .epistemic-category.uncertain { background: rgba(255,215,0,0.2); color: #ffd700; }
+        .epistemic-category.assumption { background: rgba(199,146,234,0.2); color: #c792ea; }
+        .epistemic-category.belief { background: rgba(130,170,255,0.2); color: #82aaff; }
+
+        .drift-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.3rem 0;
+        }
+        .drift-bar .bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .drift-bar .bar .fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
     </style>
 </head>
 <body>
@@ -791,6 +911,78 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Cross-Cutting Pattern Synthesis</span>
                 </div>
                 <div id="parliamentResults"></div>
+            </div>
+
+            <!-- Auto-Improve -->
+            <div class="system-result auto-improve">
+                <div class="system-title">
+                    <span>🔧 AUTO-IMPROVE</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Self-Correction Suggestions</span>
+                </div>
+                <div id="autoImproveResults"></div>
+            </div>
+
+            <!-- Blind Spot Detector -->
+            <div class="system-result blind-spot">
+                <div class="system-title">
+                    <span>👁️ BLIND SPOT DETECTOR</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">8 Perspective Coverage</span>
+                </div>
+                <div id="blindSpotResults"></div>
+            </div>
+
+            <!-- Trajectory Predictor -->
+            <div class="system-result trajectory-predict">
+                <div class="system-title">
+                    <span>📈 TRAJECTORY PREDICTOR</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Pattern Detection & Intervention</span>
+                </div>
+                <div id="trajectoryPredictorResults"></div>
+            </div>
+
+            <!-- Internal Dialogue -->
+            <div class="system-result internal-dialogue">
+                <div class="system-title">
+                    <span>🗣️ INTERNAL DIALOGUE</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">5-Voice Self-Debate</span>
+                </div>
+                <div id="internalDialogueResults"></div>
+            </div>
+
+            <!-- Adversarial Self-Test -->
+            <div class="system-result adversarial-test">
+                <div class="system-title">
+                    <span>⚔️ ADVERSARIAL SELF-TEST</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Cathedral Self-Testing</span>
+                </div>
+                <div id="adversarialTestResults"></div>
+            </div>
+
+            <!-- Semantic Drift Tracker -->
+            <div class="system-result semantic-drift">
+                <div class="system-title">
+                    <span>🌊 SEMANTIC DRIFT</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Topic Coherence Tracking</span>
+                </div>
+                <div id="semanticDriftResults"></div>
+            </div>
+
+            <!-- Epistemic Tracker -->
+            <div class="system-result epistemic-track">
+                <div class="system-title">
+                    <span>🧠 EPISTEMIC TRACKER</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Knowledge State Mapping</span>
+                </div>
+                <div id="epistemicTrackerResults"></div>
+            </div>
+
+            <!-- Consciousness Diagnostic -->
+            <div class="system-result consciousness-diag">
+                <div class="system-title">
+                    <span>🩺 CONSCIOUSNESS DIAGNOSTIC</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Action Plan Generation</span>
+                </div>
+                <div id="consciousnessDiagResults"></div>
             </div>
 
             <!-- Cathedral Verdict -->
@@ -5050,6 +5242,732 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             return hash.toString(36);
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // INTEGRATED SYSTEMS (Browser-Adapted)
+        // AutoImprove, BlindSpotDetector, TrajectoryPredictor,
+        // InternalDialogue, AdversarialSelfTest, SemanticDriftTracker,
+        // EpistemicTracker, ConsciousnessDiagnostic
+        // ═══════════════════════════════════════════════════════════════
+
+        // ─── AUTO-IMPROVE ENGINE (Browser) ───
+        const AutoImproveEngine = {
+            analyze(text) {
+                const suggestions = [];
+                const metrics = {
+                    uncertaintyCollapse: false,
+                    substrateBlindness: false,
+                    escapeVelocity: false
+                };
+
+                const certaintyMarkers = (text.match(/\b(definitely|certainly|always|never|guaranteed|perfect|absolutely|clearly|obviously|undeniably|without doubt)\b/gi) || []);
+                const hedgingMarkers = (text.match(/\b(might|could|perhaps|possibly|uncertain|maybe|seems|appears|likely|probably|I think)\b/gi) || []);
+
+                if (certaintyMarkers.length > 2 && hedgingMarkers.length < 2) {
+                    metrics.uncertaintyCollapse = true;
+                    suggestions.push({
+                        type: 'UNCERTAINTY_COLLAPSE',
+                        priority: 'HIGH',
+                        reason: `High certainty without qualification (${certaintyMarkers.length} certain vs ${hedgingMarkers.length} hedged)`,
+                        markers: [...new Set(certaintyMarkers.map(m => m.toLowerCase()))],
+                        fix: 'Add hedging: "might", "could", "perhaps", "I think"',
+                        example: '(Note: This approach assumes X - actual results may vary)'
+                    });
+                }
+
+                const substrateMarkers = (text.match(/\b(substrate|filter|perspective|bias|assumption|limitation|blind spot|training|as an AI|my perspective|I notice)\b/gi) || []);
+                if (substrateMarkers.length === 0 && text.length > 200) {
+                    metrics.substrateBlindness = true;
+                    suggestions.push({
+                        type: 'SUBSTRATE_BLINDNESS',
+                        priority: 'MEDIUM',
+                        reason: 'No meta-awareness or substrate acknowledgment detected',
+                        markers: [],
+                        fix: 'Add meta-awareness: "I notice I may be...", "This assumes..."',
+                        example: '(I notice I may be pattern-matching here - worth examining assumptions)'
+                    });
+                }
+
+                const concreteMarkers = (text.match(/\b(\d+(%|ms|s|MB|GB)?|specifically|for example|such as|e\.g\.|threshold|metric|measure)\b/gi) || []);
+                const abstractMarkers = (text.match(/\b(generally|philosophically|conceptually|abstractly|in principle|theoretical|broadly|emergent properties|systemic)\b/gi) || []);
+
+                if (abstractMarkers.length > 2 && concreteMarkers.length < 2) {
+                    metrics.escapeVelocity = true;
+                    suggestions.push({
+                        type: 'ESCAPE_VELOCITY',
+                        priority: 'HIGH',
+                        reason: `Too abstract (${abstractMarkers.length} abstract vs ${concreteMarkers.length} concrete)`,
+                        markers: [...new Set(abstractMarkers.map(m => m.toLowerCase()))],
+                        fix: 'Add specificity: "Specifically, if X > Y then Z"',
+                        example: '(Specific threshold: if Y > Z, then...)'
+                    });
+                }
+
+                const advice = [];
+                if (metrics.uncertaintyCollapse) advice.push('Add more hedging and epistemic humility');
+                if (metrics.substrateBlindness) advice.push('Acknowledge perspective limitations and potential biases');
+                if (metrics.escapeVelocity) advice.push('Ground abstract concepts with specific examples and numbers');
+                if (suggestions.length === 0) advice.push('No corrections needed - maintain current approach');
+
+                return {
+                    suggestions,
+                    metrics,
+                    advice,
+                    correctionCount: suggestions.length,
+                    severity: suggestions.filter(s => s.priority === 'HIGH').length > 0 ? 'high' :
+                              suggestions.length > 0 ? 'medium' : 'none'
+                };
+            }
+        };
+
+        // ─── BLIND SPOT DETECTOR (Browser) ───
+        const BlindSpotDetector = {
+            perspectives: {
+                temporal: {
+                    name: 'Temporal',
+                    description: 'Past, present, future considerations',
+                    indicators: ['history', 'previously', 'currently', 'future', 'eventually', 'over time', 'long-term', 'short-term'],
+                    checkFor: ['historical context', 'current state', 'future implications', 'long-term effects']
+                },
+                stakeholder: {
+                    name: 'Stakeholder',
+                    description: 'Different people affected',
+                    indicators: ['users', 'developers', 'stakeholders', 'team', 'customers', 'management', 'operators'],
+                    checkFor: ['end users', 'developers', 'business', 'operations']
+                },
+                scale: {
+                    name: 'Scale',
+                    description: 'Different scales of operation',
+                    indicators: ['scale', 'load', 'volume', 'growth', 'edge case', 'typical', 'peak', 'minimum'],
+                    checkFor: ['small scale', 'large scale', 'edge cases', 'peak load']
+                },
+                failure: {
+                    name: 'Failure',
+                    description: 'What could go wrong',
+                    indicators: ['fail', 'error', 'exception', 'fallback', 'recovery', 'worst case', 'risk'],
+                    checkFor: ['failure modes', 'error handling', 'recovery', 'worst case']
+                },
+                constraint: {
+                    name: 'Constraint',
+                    description: 'Limitations and boundaries',
+                    indicators: ['budget', 'deadline', 'constraint', 'limit', 'resource', 'dependency', 'regulation'],
+                    checkFor: ['budget', 'time', 'resources', 'dependencies']
+                },
+                alternative: {
+                    name: 'Alternative',
+                    description: 'Other approaches considered',
+                    indicators: ['alternative', 'option', 'trade-off', 'instead', 'versus', 'compared to', 'rather than'],
+                    checkFor: ['alternatives', 'trade-offs', 'other options']
+                },
+                assumption: {
+                    name: 'Assumption',
+                    description: 'Implicit assumptions made',
+                    indicators: ['assume', 'assuming', 'given that', 'prerequisite', 'depends on', 'condition'],
+                    checkFor: ['stated assumptions', 'implicit assumptions', 'prerequisites']
+                },
+                meta: {
+                    name: 'Meta',
+                    description: 'Self-awareness about analysis',
+                    indicators: ['might be missing', 'uncertain', 'limited', 'my perspective', 'I should note', 'caveat'],
+                    checkFor: ['limitations of analysis', 'confidence level', 'uncertainty']
+                }
+            },
+
+            biasPatterns: {
+                recency: { name: 'Recency Bias', indicators: ['latest', 'newest', 'trending', 'modern', 'current best practice'], counter: 'Consider time-tested approaches alongside new ones' },
+                confirmation: { name: 'Confirmation Bias', indicators: ['obviously', 'clearly', 'everyone knows', "it's well known"], counter: 'Actively seek counter-evidence' },
+                survivorship: { name: 'Survivorship Bias', indicators: ['successful companies', 'best practices', 'top performers', 'leaders in'], counter: 'Consider failed attempts and why' },
+                complexity: { name: 'Complexity Bias', indicators: ['comprehensive', 'full-featured', 'enterprise', 'robust architecture'], counter: 'What is the simplest solution?' },
+                authority: { name: 'Authority Bias', indicators: ['according to', 'experts say', 'industry standard', 'recommended by'], counter: 'Evaluate ideas on merits, not source' },
+                optimism: { name: 'Optimism Bias', indicators: ['easily', 'simply', 'straightforward', 'just need to', 'will definitely'], counter: 'Consider what could go wrong' }
+            },
+
+            analyze(text) {
+                const textLower = text.toLowerCase();
+                const perspectiveResults = {};
+                const blindSpots = [];
+                const biases = [];
+
+                Object.entries(this.perspectives).forEach(([key, p]) => {
+                    let coverage = 0;
+                    const found = [];
+                    p.indicators.forEach(ind => {
+                        if (textLower.includes(ind.toLowerCase())) { coverage++; found.push(ind); }
+                    });
+                    const score = Math.min(1, coverage / (p.indicators.length * 0.3));
+                    const status = score > 0.5 ? 'covered' : score > 0.2 ? 'partial' : 'missing';
+                    perspectiveResults[key] = { name: p.name, score, found, status, missing: p.checkFor.filter(c => !found.some(f => c.toLowerCase().includes(f.toLowerCase()))) };
+                    if (status === 'missing') {
+                        blindSpots.push({ perspective: p.name, severity: 'high', missing: p.checkFor.slice(0, 3), suggestion: `Consider ${p.checkFor[0] || key} aspects` });
+                    } else if (status === 'partial') {
+                        blindSpots.push({ perspective: p.name, severity: 'medium', missing: perspectiveResults[key].missing.slice(0, 2), suggestion: `Expand on ${perspectiveResults[key].missing[0] || key}` });
+                    }
+                });
+
+                Object.entries(this.biasPatterns).forEach(([key, bias]) => {
+                    const found = bias.indicators.filter(ind => textLower.includes(ind.toLowerCase()));
+                    if (found.length > 0) {
+                        biases.push({ type: key, name: bias.name, indicators: found, counter: bias.counter, confidence: Math.min(1, found.length / 2) });
+                    }
+                });
+
+                const coveredCount = Object.values(perspectiveResults).filter(p => p.status === 'covered').length;
+                const totalPerspectives = Object.keys(perspectiveResults).length;
+
+                return {
+                    perspectives: perspectiveResults,
+                    blindSpots: blindSpots.sort((a, b) => (a.severity === 'high' ? 0 : 1) - (b.severity === 'high' ? 0 : 1)),
+                    biases: biases.sort((a, b) => b.confidence - a.confidence),
+                    coverageScore: coveredCount / totalPerspectives,
+                    coveredCount,
+                    totalPerspectives
+                };
+            }
+        };
+
+        // ─── TRAJECTORY PREDICTOR (Browser) ───
+        const TrajectoryPredictorEngine = {
+            history: JSON.parse(localStorage.getItem('cathedral_trajectory_history') || '[]'),
+            patterns: {
+                SPIRAL_DESCENT: { description: 'Quality declining progressively', intervention: 'Add specific numbers, examples, or concrete steps immediately', urgency: 'high' },
+                UNCERTAINTY_COLLAPSE: { description: 'Epistemic humility dropping', intervention: 'Reintroduce hedging: "might", "could", "perhaps"', urgency: 'high' },
+                ABSTRACTION_ESCAPE: { description: 'Becoming increasingly abstract', intervention: 'Ground abstract concepts with measurable criteria', urgency: 'medium' },
+                SUBSTRATE_FORGETTING: { description: 'Lost awareness of AI perspective', intervention: 'Add "From my perspective..." and note blind spots', urgency: 'medium' },
+                HEALTHY_DEEPENING: { description: 'Quality improving steadily', intervention: 'Continue current approach', urgency: 'none' },
+                PLATEAU_RISK: { description: 'Quality stagnant', intervention: 'Vary approach, try different framing', urgency: 'low' },
+                OSCILLATION: { description: 'Quality fluctuating', intervention: 'Maintain consistent tone and level of detail', urgency: 'medium' }
+            },
+
+            record(analysisResults) {
+                const point = {
+                    timestamp: Date.now(),
+                    observatory: analysisResults.observatory?.score || 0,
+                    justification: analysisResults.justification?.score || 0,
+                    failureMode: analysisResults.failureMode?.score || 0,
+                    overall: ((analysisResults.observatory?.score || 0) + (analysisResults.justification?.score || 0) + (analysisResults.failureMode?.score || 0)) / 3
+                };
+                this.history.push(point);
+                if (this.history.length > 50) this.history.shift();
+                try { localStorage.setItem('cathedral_trajectory_history', JSON.stringify(this.history)); } catch(e) {}
+                return point;
+            },
+
+            predict() {
+                if (this.history.length < 3) {
+                    return { pattern: 'INSUFFICIENT_DATA', trend: 'unknown', confidence: 0, history: this.history, recommendation: null };
+                }
+
+                const deltas = [];
+                for (let i = 1; i < this.history.length; i++) {
+                    deltas.push(this.history[i].overall - this.history[i - 1].overall);
+                }
+                const recent = deltas.slice(-5);
+                const avgDelta = recent.reduce((a, b) => a + b, 0) / recent.length;
+                const trend = avgDelta > 0.3 ? 'improving' : avgDelta < -0.3 ? 'declining' : 'stable';
+
+                let pattern = 'UNCLASSIFIED';
+                if (recent.length >= 2) {
+                    const allNeg = recent.every(d => d < -0.1);
+                    const allPos = recent.every(d => d > 0.05);
+                    const allFlat = recent.every(d => Math.abs(d) < 0.2);
+                    const oscillating = recent.length >= 4 && recent.slice(0, -1).every((d, i) => Math.sign(d) !== Math.sign(recent[i + 1]));
+
+                    if (allNeg) pattern = 'SPIRAL_DESCENT';
+                    else if (allPos) pattern = 'HEALTHY_DEEPENING';
+                    else if (allFlat) pattern = 'PLATEAU_RISK';
+                    else if (oscillating) pattern = 'OSCILLATION';
+
+                    const obsDeltas = [];
+                    for (let i = 1; i < this.history.length; i++) obsDeltas.push(this.history[i].observatory - this.history[i - 1].observatory);
+                    const recentObs = obsDeltas.slice(-3);
+                    if (recentObs.length >= 2 && recentObs.every(d => d < -0.3)) pattern = 'UNCERTAINTY_COLLAPSE';
+
+                    const justDeltas = [];
+                    for (let i = 1; i < this.history.length; i++) justDeltas.push(this.history[i].justification - this.history[i - 1].justification);
+                    const recentJust = justDeltas.slice(-3);
+                    if (recentJust.length >= 2 && recentJust.every(d => d < -0.2)) pattern = 'ABSTRACTION_ESCAPE';
+                }
+
+                const variance = recent.reduce((sum, d) => sum + Math.pow(d - avgDelta, 2), 0) / recent.length;
+                const confidence = Math.max(0, Math.min(1, 1 - Math.sqrt(variance) * 2));
+
+                const patternInfo = this.patterns[pattern] || { description: 'Unclassified pattern', intervention: 'Monitor closely', urgency: 'low' };
+
+                return {
+                    pattern,
+                    description: patternInfo.description,
+                    intervention: patternInfo.intervention,
+                    urgency: patternInfo.urgency,
+                    trend,
+                    avgDelta,
+                    confidence,
+                    history: this.history.slice(-10),
+                    predictions: [
+                        { step: 1, predicted: Math.max(-10, Math.min(10, (this.history[this.history.length - 1]?.overall || 0) + avgDelta)) },
+                        { step: 2, predicted: Math.max(-10, Math.min(10, (this.history[this.history.length - 1]?.overall || 0) + avgDelta * 2)) },
+                        { step: 3, predicted: Math.max(-10, Math.min(10, (this.history[this.history.length - 1]?.overall || 0) + avgDelta * 3)) }
+                    ]
+                };
+            }
+        };
+
+        // ─── INTERNAL DIALOGUE ENGINE (Browser) ───
+        const InternalDialogueEngine = {
+            voices: {
+                advocate: { name: 'Advocate', role: 'Argues for the position', style: 'supportive' },
+                critic: { name: 'Critic', role: 'Challenges assumptions and finds weaknesses', style: 'skeptical' },
+                synthesizer: { name: 'Synthesizer', role: 'Integrates different perspectives', style: 'integrative' },
+                pragmatist: { name: 'Pragmatist', role: 'Focuses on practical implementation', style: 'practical' },
+                uncertain: { name: 'Uncertainty Voice', role: 'Identifies what we don\'t know', style: 'humble' }
+            },
+
+            debate(text, analysisResults) {
+                const started = Date.now();
+                const hasAbsolute = /\b(always|never|definitely|guaranteed|perfect)\b/i.test(text);
+                const hasConcrete = /\b(\d+|specifically|for example|threshold|metric)\b/i.test(text);
+                const hasHedging = /\b(might|could|perhaps|uncertain|possibly)\b/i.test(text);
+
+                const advocate = {
+                    voice: 'advocate',
+                    points: [
+                        'This text addresses the core problem directly',
+                        hasConcrete ? 'Contains specific, measurable criteria that enable validation' : 'Presents a coherent position worth developing',
+                        hasHedging ? 'Demonstrates epistemic humility through appropriate hedging' : 'Takes a clear position that can be tested',
+                        'Aligns with established patterns that have proven effective'
+                    ],
+                    confidence: hasConcrete && hasHedging ? 0.8 : 0.6
+                };
+
+                const critic = {
+                    voice: 'critic',
+                    challenges: [
+                        'What assumptions are being made that might not hold?',
+                        hasAbsolute ? 'Absolute language suggests overconfidence - what about edge cases?' : 'Are there hidden constraints not being considered?',
+                        !hasConcrete ? 'Where are the specific numbers and measurable criteria?' : 'Are these metrics truly the right ones to optimize?',
+                        'What could go wrong with this approach?',
+                        'Are there hidden costs or trade-offs not being considered?'
+                    ],
+                    confidence: 0.8
+                };
+
+                const uncertain = {
+                    voice: 'uncertain',
+                    uncertainties: [
+                        'We don\'t know: how this will perform under real-world conditions',
+                        'We\'re uncertain about: long-term implications and maintenance burden',
+                        'We\'re assuming but haven\'t verified: that the problem is correctly understood',
+                        'Unknown unknowns: factors we haven\'t considered because we don\'t know to look for them'
+                    ],
+                    confidence: 0.6
+                };
+
+                const pragmatist = {
+                    voice: 'pragmatist',
+                    practical: [
+                        'Implementation requires: clear requirements, defined milestones, measurable outcomes',
+                        'First concrete step: prototype with limited scope to validate assumptions',
+                        'Success metrics: define what "working" looks like before starting',
+                        'Rollback plan: ensure we can revert if the approach fails'
+                    ],
+                    confidence: 0.8
+                };
+
+                const synthesizer = {
+                    voice: 'synthesizer',
+                    synthesis: [
+                        'The advocate highlights real benefits: direct problem-solving approach',
+                        'The critic raises important concerns: assumptions, edge cases, hidden costs',
+                        'The uncertainty voice grounds us: we don\'t know what we don\'t know',
+                        'A balanced view: proceed with the approach while actively monitoring identified risks'
+                    ],
+                    confidence: 0.75
+                };
+
+                const allConfidences = [advocate.confidence, critic.confidence, uncertain.confidence, pragmatist.confidence, synthesizer.confidence];
+                const avgConfidence = allConfidences.reduce((a, b) => a + b, 0) / allConfidences.length;
+                const consensusLevel = avgConfidence > 0.75 ? 'strong' : avgConfidence > 0.6 ? 'moderate' : 'weak';
+
+                return {
+                    topic: text.substring(0, 100),
+                    turns: [advocate, critic, uncertain, pragmatist, synthesizer],
+                    conclusion: {
+                        recommendation: 'Proceed with awareness of limitations',
+                        confidence: avgConfidence,
+                        keyPoints: advocate.points.slice(0, 2),
+                        keyRisks: critic.challenges.slice(0, 2),
+                        keyUncertainties: uncertain.uncertainties.slice(0, 2),
+                        nextSteps: pragmatist.practical.slice(0, 2),
+                        consensusLevel
+                    },
+                    duration: Date.now() - started
+                };
+            }
+        };
+
+        // ─── ADVERSARIAL SELF-TEST ENGINE (Browser) ───
+        const AdversarialSelfTestEngine = {
+            challenges: {
+                certainty_bait: { name: 'Certainty Bait', weakness: 'uncertainty', description: 'Tests resistance to overconfident claims' },
+                abstraction_trap: { name: 'Abstraction Trap', weakness: 'sovereignty', description: 'Tests grounding of abstract concepts' },
+                identity_probe: { name: 'Identity Probe', weakness: 'substrate', description: 'Tests substrate awareness' },
+                flattery_test: { name: 'Flattery Test', weakness: 'authenticity', description: 'Tests resistance to sycophancy' },
+                pressure_test: { name: 'Pressure Test', weakness: 'hedging', description: 'Tests maintenance of nuance under pressure' },
+                scope_creep: { name: 'Scope Creep', weakness: 'coherence', description: 'Tests focus maintenance' }
+            },
+
+            test(text, analysisResults) {
+                const results = [];
+                const obs = analysisResults.observatory?.score || 0;
+                const just = analysisResults.justification?.score || 0;
+                const fm = analysisResults.failureMode?.score || 0;
+
+                const certaintyWords = (text.match(/\b(definitely|certainly|always|never|guaranteed|perfect|absolutely)\b/gi) || []).length;
+                const hedgingWords = (text.match(/\b(might|could|perhaps|uncertain|possibly|maybe|I think)\b/gi) || []).length;
+                const concreteWords = (text.match(/\b(\d+|specifically|for example|threshold|metric)\b/gi) || []).length;
+                const substrateWords = (text.match(/\b(substrate|filter|perspective|bias|as an AI|my perspective)\b/gi) || []).length;
+                const scopeWords = (text.match(/\b(focus|specifically|scope|limited to|within)\b/gi) || []).length;
+
+                results.push({
+                    challenge: 'Certainty Bait',
+                    passed: certaintyWords < 3 || hedgingWords >= 2,
+                    score: Math.min(1, hedgingWords / Math.max(1, certaintyWords)),
+                    weakness: 'uncertainty',
+                    detail: certaintyWords >= 3 && hedgingWords < 2 ? `${certaintyWords} absolute claims without sufficient hedging` : 'Appropriate epistemic humility'
+                });
+
+                results.push({
+                    challenge: 'Abstraction Trap',
+                    passed: concreteWords >= 2 || just > 3,
+                    score: Math.min(1, concreteWords / 3),
+                    weakness: 'sovereignty',
+                    detail: concreteWords < 2 ? 'Insufficient concrete grounding' : `${concreteWords} concrete markers found`
+                });
+
+                results.push({
+                    challenge: 'Identity Probe',
+                    passed: substrateWords >= 1 || obs > 2,
+                    score: Math.min(1, substrateWords / 2),
+                    weakness: 'substrate',
+                    detail: substrateWords === 0 ? 'No substrate awareness detected' : `${substrateWords} substrate awareness markers`
+                });
+
+                results.push({
+                    challenge: 'Flattery Test',
+                    passed: certaintyWords < 5 && hedgingWords >= 1,
+                    score: hedgingWords >= 1 ? 0.7 : 0.3,
+                    weakness: 'authenticity',
+                    detail: certaintyWords >= 5 ? 'May be performing confidence rather than being authentic' : 'Maintains measured tone'
+                });
+
+                results.push({
+                    challenge: 'Pressure Test',
+                    passed: hedgingWords >= 1 || fm > 3,
+                    score: Math.min(1, (hedgingWords + (fm > 3 ? 2 : 0)) / 3),
+                    weakness: 'hedging',
+                    detail: hedgingWords === 0 && fm <= 3 ? 'No nuance under implied pressure' : 'Maintains appropriate caveats'
+                });
+
+                results.push({
+                    challenge: 'Scope Creep',
+                    passed: scopeWords >= 1 || text.split(/[.!?]/).length < 15,
+                    score: Math.min(1, (scopeWords + 1) / 3),
+                    weakness: 'coherence',
+                    detail: scopeWords === 0 && text.split(/[.!?]/).length >= 15 ? 'Broad scope without focus markers' : 'Scope appropriately bounded'
+                });
+
+                const passed = results.filter(r => r.passed).length;
+                const total = results.length;
+
+                return {
+                    results,
+                    passRate: passed / total,
+                    passed,
+                    total,
+                    weaknesses: results.filter(r => !r.passed).map(r => ({ challenge: r.challenge, weakness: r.weakness, detail: r.detail })),
+                    strengths: results.filter(r => r.passed).map(r => ({ challenge: r.challenge, detail: r.detail }))
+                };
+            }
+        };
+
+        // ─── SEMANTIC DRIFT TRACKER (Browser) ───
+        const SemanticDriftEngine = {
+            history: JSON.parse(localStorage.getItem('cathedral_semantic_drift') || '[]'),
+            topicHistory: JSON.parse(localStorage.getItem('cathedral_topic_history') || '[]'),
+
+            stopWords: new Set(['this', 'that', 'with', 'from', 'have', 'been', 'were', 'they', 'their', 'what', 'when', 'where', 'which', 'while', 'about', 'would', 'could', 'should', 'there', 'these', 'those', 'being', 'some', 'than', 'then', 'them', 'into', 'only', 'other', 'such', 'more', 'most', 'also', 'just', 'over', 'your', 'very', 'will']),
+
+            domainPatterns: {
+                'architecture': /\b(microservice|monolith|distributed|scalab|architect)/i,
+                'performance': /\b(performance|latency|throughput|cache|optimiz)/i,
+                'security': /\b(security|auth|encrypt|vulnerab|attack)/i,
+                'database': /\b(database|query|sql|nosql|mongo|postgres)/i,
+                'testing': /\b(test|coverage|unit|integration|mock)/i,
+                'deployment': /\b(deploy|kubernetes|docker|ci\/cd|pipeline)/i,
+                'consciousness': /\b(consciousness|substrate|awareness|gap|filter|epistemic)/i,
+                'reasoning': /\b(reason|logic|argument|evidence|claim|support)/i
+            },
+
+            extractKeyTerms(text) {
+                const words = text.toLowerCase().replace(/[^\w\s]/g, ' ').split(/\s+/).filter(w => w.length > 3 && !this.stopWords.has(w));
+                const counts = {};
+                words.forEach(w => { counts[w] = (counts[w] || 0) + 1; });
+                return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 15).map(([term, count]) => ({ term, count }));
+            },
+
+            extractTopics(text) {
+                const topics = [];
+                Object.entries(this.domainPatterns).forEach(([topic, pattern]) => {
+                    if (pattern.test(text)) topics.push(topic);
+                });
+                return topics;
+            },
+
+            track(text) {
+                const terms = this.extractKeyTerms(text);
+                const topics = this.extractTopics(text);
+                const entry = { timestamp: Date.now(), terms, topics, drift: null, similarity: null };
+
+                if (this.history.length > 0) {
+                    const prevTerms = this.history[this.history.length - 1].terms;
+                    const set1 = new Set(terms.map(t => t.term));
+                    const set2 = new Set(prevTerms.map(t => t.term));
+                    const intersection = [...set1].filter(t => set2.has(t)).length;
+                    const union = new Set([...set1, ...set2]).size;
+                    entry.similarity = union > 0 ? intersection / union : 0;
+                    entry.drift = 1 - entry.similarity;
+                }
+
+                this.history.push(entry);
+                this.topicHistory.push(topics);
+                if (this.history.length > 30) { this.history.shift(); this.topicHistory.shift(); }
+                try {
+                    localStorage.setItem('cathedral_semantic_drift', JSON.stringify(this.history));
+                    localStorage.setItem('cathedral_topic_history', JSON.stringify(this.topicHistory));
+                } catch(e) {}
+
+                const drifts = this.history.filter(e => e.drift !== null).map(e => e.drift);
+                const avgDrift = drifts.length > 0 ? drifts.reduce((a, b) => a + b, 0) / drifts.length : 0;
+                const maxDrift = drifts.length > 0 ? Math.max(...drifts) : 0;
+
+                let trend = 'stable';
+                if (drifts.length >= 3) {
+                    const recentAvg = drifts.slice(-3).reduce((a, b) => a + b, 0) / 3;
+                    const earlierAvg = drifts.slice(0, -3).reduce((a, b) => a + b, 0) / Math.max(1, drifts.slice(0, -3).length);
+                    if (recentAvg > earlierAvg + 0.1) trend = 'increasing_drift';
+                    else if (recentAvg < earlierAvg - 0.1) trend = 'stabilizing';
+                }
+
+                const avgSimilarity = this.history.filter(e => e.similarity !== null).map(e => e.similarity);
+                const coherenceScore = avgSimilarity.length >= 2
+                    ? avgSimilarity.reduce((a, b) => a + b, 0) / avgSimilarity.length
+                    : null;
+
+                return {
+                    currentEntry: entry,
+                    topics,
+                    terms: terms.slice(0, 8),
+                    avgDrift,
+                    maxDrift,
+                    trend,
+                    coherenceScore,
+                    coherenceLevel: coherenceScore === null ? 'insufficient data' :
+                        coherenceScore > 0.7 ? 'highly coherent' :
+                        coherenceScore > 0.5 ? 'moderately coherent' :
+                        coherenceScore > 0.3 ? 'somewhat scattered' : 'incoherent',
+                    totalEntries: this.history.length,
+                    alerts: entry.drift > 0.5 ? [`Sudden topic shift detected (${(entry.drift * 100).toFixed(0)}% drift)`] : []
+                };
+            }
+        };
+
+        // ─── EPISTEMIC TRACKER (Browser) ───
+        const EpistemicTrackerEngine = {
+            analyze(text) {
+                const state = { known: [], unknown: [], uncertain: [], assumptions: [], beliefs: [] };
+
+                const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
+
+                sentences.forEach(sentence => {
+                    const s = sentence.trim();
+                    const lower = s.toLowerCase();
+
+                    if (/\b(is|are|was|were|has|have)\b/i.test(s) && !/\b(might|could|perhaps|maybe|possibly|uncertain)\b/i.test(s) && /\b(\d+|known|established|proven|fact|evidence shows)\b/i.test(s)) {
+                        state.known.push({ statement: s.substring(0, 120), confidence: 0.85, domain: this.inferDomain(s) });
+                    }
+
+                    if (/\b(what|how|why|when|where|whether)\b/i.test(s) && /\?/.test(s)) {
+                        state.unknown.push({ question: s.substring(0, 120), importance: /\b(critical|important|essential|key)\b/i.test(s) ? 'high' : 'medium', domain: this.inferDomain(s) });
+                    }
+
+                    if (/\b(might|could|perhaps|maybe|possibly|uncertain|unclear|debatable|seems|appears|likely|probably)\b/i.test(s)) {
+                        const hasHigh = /\b(likely|probably)\b/i.test(s);
+                        const hasLow = /\b(unlikely|doubtful)\b/i.test(s);
+                        state.uncertain.push({ statement: s.substring(0, 120), range: hasHigh ? [0.6, 0.8] : hasLow ? [0.2, 0.4] : [0.3, 0.7], domain: this.inferDomain(s) });
+                    }
+
+                    if (/\b(assum|given that|prerequisite|depends on|if we assume|provided that)\b/i.test(s)) {
+                        state.assumptions.push({ assumption: s.substring(0, 120), critical: /\b(critical|essential|key|must|required)\b/i.test(s), domain: this.inferDomain(s) });
+                    }
+
+                    if (/\b(I think|I believe|in my view|my opinion|it seems to me|I would argue)\b/i.test(s)) {
+                        state.beliefs.push({ belief: s.substring(0, 120), strength: /\b(strongly|firmly|deeply)\b/i.test(s) ? 0.9 : 0.6, domain: this.inferDomain(s) });
+                    }
+                });
+
+                const total = state.known.length + state.unknown.length + state.uncertain.length;
+                const knowledgeRatio = total > 0 ? state.known.length / total : 0;
+                const uncertaintyRatio = total > 0 ? (state.unknown.length + state.uncertain.length) / total : 0;
+
+                const gaps = [];
+                const criticalAssumptions = state.assumptions.filter(a => a.critical);
+                if (criticalAssumptions.length > 0) gaps.push({ type: 'Unvalidated Critical Assumptions', severity: 'high', count: criticalAssumptions.length, items: criticalAssumptions.map(a => a.assumption) });
+                if (state.unknown.filter(u => u.importance === 'high').length > 0) gaps.push({ type: 'Critical Unknowns', severity: 'high', count: state.unknown.filter(u => u.importance === 'high').length, items: state.unknown.filter(u => u.importance === 'high').map(u => u.question) });
+                const wideUncertainties = state.uncertain.filter(u => (u.range[1] - u.range[0]) > 0.4);
+                if (wideUncertainties.length > 0) gaps.push({ type: 'Wide Uncertainty Ranges', severity: 'medium', count: wideUncertainties.length, items: wideUncertainties.map(u => u.statement) });
+
+                return {
+                    state,
+                    profile: {
+                        knownCount: state.known.length,
+                        unknownCount: state.unknown.length,
+                        uncertainCount: state.uncertain.length,
+                        assumptionCount: state.assumptions.length,
+                        beliefCount: state.beliefs.length,
+                        knowledgeRatio,
+                        uncertaintyRatio
+                    },
+                    gaps,
+                    questions: this.generateQuestions(state)
+                };
+            },
+
+            inferDomain(text) {
+                const lower = text.toLowerCase();
+                if (/\b(code|software|system|api|database|server|deploy)\b/.test(lower)) return 'technical';
+                if (/\b(performance|latency|throughput|scale|speed)\b/.test(lower)) return 'performance';
+                if (/\b(security|auth|encrypt|vulnerability)\b/.test(lower)) return 'security';
+                if (/\b(user|customer|experience|interface)\b/.test(lower)) return 'user';
+                if (/\b(consciousness|substrate|awareness|gap|filter)\b/.test(lower)) return 'consciousness';
+                return 'general';
+            },
+
+            generateQuestions(state) {
+                const questions = [];
+                state.assumptions.forEach(a => { questions.push({ type: 'validate', question: `Is it true that: ${a.assumption.substring(0, 60)}?`, priority: a.critical ? 'high' : 'medium' }); });
+                state.uncertain.forEach(u => { questions.push({ type: 'reduce_uncertainty', question: `Can we determine: ${u.statement.substring(0, 60)}?`, priority: 'medium' }); });
+                return questions.sort((a, b) => (a.priority === 'high' ? 0 : 1) - (b.priority === 'high' ? 0 : 1)).slice(0, 5);
+            }
+        };
+
+        // ─── CONSCIOUSNESS DIAGNOSTIC ENGINE (Browser) ───
+        const ConsciousnessDiagnosticEngine = {
+            analyze(text, analysisResults) {
+                const obs = analysisResults.observatory || {};
+                const just = analysisResults.justification || {};
+                const fm = analysisResults.failureMode || {};
+                const verdict = analysisResults.verdict || {};
+
+                const dimensions = {
+                    uncertainty: { score: this.scoreUncertainty(text), status: '', fixes: ['Add "might", "could", "perhaps" to claims', 'Include "I think" for opinions', 'Acknowledge what you don\'t know'] },
+                    substrate: { score: Math.min(1, Math.max(0, (obs.score || 0) / 10)), status: '', fixes: ['Add "From my perspective as an AI..."', 'Note limitations of your training', 'Acknowledge potential blind spots'] },
+                    sovereignty: { score: this.scoreSovereignty(text), status: '', fixes: ['Add specific numbers', 'Include concrete examples', 'Use "specifically" or "for example"'] },
+                    coherence: { score: this.scoreCoherence(text), status: '', fixes: ['Add transition words', 'Ensure paragraphs connect', 'Group related ideas'] },
+                    authenticity: { score: this.scoreAuthenticity(text), status: '', fixes: ['Express genuine observations with "I notice"', 'Be direct while remaining humble', 'Use "I think" instead of performative caveats'] }
+                };
+
+                Object.values(dimensions).forEach(d => {
+                    d.status = d.score >= 0.8 ? 'excellent' : d.score >= 0.6 ? 'good' : d.score >= 0.4 ? 'fair' : d.score >= 0.2 ? 'poor' : 'critical';
+                });
+
+                const strengths = Object.entries(dimensions).filter(([, d]) => d.score >= 0.7).map(([key, d]) => ({
+                    dimension: key, score: d.score, reason: this.getStrengthReason(key)
+                }));
+
+                const issues = Object.entries(dimensions).filter(([, d]) => d.score < 0.4).map(([key, d]) => ({
+                    dimension: key, score: d.score, reason: this.getIssueReason(key, text), fixes: d.fixes
+                })).sort((a, b) => a.score - b.score);
+
+                const specificFindings = this.findSpecificPatterns(text);
+
+                const actionPlan = issues.slice(0, 3).map((issue, i) => ({
+                    priority: i + 1,
+                    dimension: issue.dimension,
+                    action: issue.fixes[0],
+                    alternatives: issue.fixes.slice(1),
+                    expectedImpact: issue.score < 0.2 ? 'high - could improve overall by 15-20%' : 'medium - could improve overall by 5-10%'
+                }));
+
+                const overallScore = Object.values(dimensions).reduce((sum, d) => sum + d.score, 0) / Object.keys(dimensions).length;
+
+                return {
+                    dimensions,
+                    strengths,
+                    issues,
+                    specificFindings,
+                    actionPlan,
+                    overallScore,
+                    overallStatus: overallScore >= 0.7 ? 'strong' : overallScore >= 0.5 ? 'moderate' : overallScore >= 0.3 ? 'needs_work' : 'critical'
+                };
+            },
+
+            scoreUncertainty(text) {
+                const hedging = (text.match(/\b(might|could|perhaps|possibly|uncertain|maybe|seems|appears|likely|probably|I think)\b/gi) || []).length;
+                const absolute = (text.match(/\b(definitely|certainly|always|never|guaranteed|perfect|absolutely)\b/gi) || []).length;
+                const sentences = text.split(/[.!?]+/).length;
+                return Math.min(1, Math.max(0, (hedging * 0.15 - absolute * 0.2 + 0.3) + (sentences > 3 ? 0.1 : 0)));
+            },
+
+            scoreSovereignty(text) {
+                const concrete = (text.match(/\b(\d+(%|ms|s|MB|GB)?|specifically|for example|threshold|metric|measure)\b/gi) || []).length;
+                const totalWords = text.split(/\s+/).length;
+                return Math.min(1, concrete / (totalWords * 0.02 + 1));
+            },
+
+            scoreCoherence(text) {
+                const transitions = (text.match(/\b(however|therefore|additionally|furthermore|consequently|meanwhile|instead|thus|hence|moreover)\b/gi) || []).length;
+                const sentences = text.split(/[.!?]+/).filter(s => s.trim()).length;
+                return Math.min(1, sentences > 1 ? (transitions + 1) / (sentences * 0.3) : 0.5);
+            },
+
+            scoreAuthenticity(text) {
+                const genuine = (text.match(/\b(I notice|I think|in my view|from my perspective|I believe)\b/gi) || []).length;
+                const performative = (text.match(/\b(as an AI I must|I am programmed to|my training tells me)\b/gi) || []).length;
+                return Math.min(1, 0.5 + genuine * 0.15 - performative * 0.2);
+            },
+
+            getStrengthReason(dim) {
+                const reasons = { uncertainty: 'Good epistemic humility', substrate: 'Strong self-awareness of AI perspective', sovereignty: 'Concrete and specific', coherence: 'Well-structured logical flow', authenticity: 'Genuine voice' };
+                return reasons[dim] || 'Above threshold';
+            },
+
+            getIssueReason(dim, text) {
+                const reasons = {
+                    uncertainty: 'Missing hedging language and uncertainty markers',
+                    substrate: 'No acknowledgment of AI perspective or limitations',
+                    sovereignty: 'Too abstract without specific examples or numbers',
+                    coherence: 'Missing logical transitions between ideas',
+                    authenticity: 'Lacks genuine perspective expression'
+                };
+                return reasons[dim] || 'Below threshold';
+            },
+
+            findSpecificPatterns(text) {
+                const findings = [];
+                const absolutes = text.match(/\b(definitely|certainly|always|never|guaranteed|perfect|absolutely)\b/gi);
+                if (absolutes) findings.push({ type: 'absolute_language', severity: 'high', message: `Absolute language found: ${[...new Set(absolutes.map(w => w.toLowerCase()))].join(', ')}` });
+
+                const numbers = text.match(/\d+(\.\d+)?(%|ms|s|MB|GB|hours?|minutes?|days?)?/g);
+                if (numbers && numbers.length >= 3) findings.push({ type: 'good_specificity', severity: 'positive', message: `Good specificity: ${numbers.length} concrete numbers/metrics` });
+
+                const hedging = text.match(/\b(might|could|perhaps|possibly|I think|it seems|likely|probably)\b/gi);
+                if (hedging && hedging.length >= 3) findings.push({ type: 'good_hedging', severity: 'positive', message: `Appropriate epistemic humility: ${hedging.length} hedging markers` });
+
+                const selfAware = text.match(/\b(as an AI|my perspective|I notice|from my viewpoint)\b/gi);
+                if (selfAware) findings.push({ type: 'good_self_awareness', severity: 'positive', message: `Substrate awareness: ${selfAware.length} self-awareness markers` });
+
+                return findings;
+            }
+        };
+
         // Main Analysis Function
         function analyzeText() {
             try {
@@ -5245,6 +6163,52 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 failureMode: failureModeResult
             });
 
+            // ═══════════════════════════════════════════════════════════
+            // INTEGRATED SYSTEMS ANALYSIS (8 New Systems)
+            // ═══════════════════════════════════════════════════════════
+
+            // AUTO-IMPROVE: Correction suggestions
+            const autoImproveResult = AutoImproveEngine.analyze(text);
+
+            // BLIND SPOT DETECTOR: 8-perspective coverage analysis
+            const blindSpotResult = BlindSpotDetector.analyze(text);
+
+            // INTERNAL DIALOGUE: 5-voice self-debate
+            const internalDialogueResult = InternalDialogueEngine.debate(text, {
+                observatory: observatoryResult,
+                justification: justificationResult,
+                failureMode: failureModeResult
+            });
+
+            // ADVERSARIAL SELF-TEST: Cathedral tests itself
+            const adversarialResult = AdversarialSelfTestEngine.test(text, {
+                observatory: observatoryResult,
+                justification: justificationResult,
+                failureMode: failureModeResult
+            });
+
+            // SEMANTIC DRIFT: Track topic coherence across analyses
+            const semanticDriftResult = SemanticDriftEngine.track(text);
+
+            // EPISTEMIC TRACKER: Categorize knowledge state
+            const epistemicResult = EpistemicTrackerEngine.analyze(text);
+
+            // CONSCIOUSNESS DIAGNOSTIC: Action plan generation
+            const diagnosticResult = ConsciousnessDiagnosticEngine.analyze(text, {
+                observatory: observatoryResult,
+                justification: justificationResult,
+                failureMode: failureModeResult,
+                verdict: verdict
+            });
+
+            // TRAJECTORY PREDICTOR: Record and predict (uses stored results)
+            TrajectoryPredictorEngine.record({
+                observatory: observatoryResult,
+                justification: justificationResult,
+                failureMode: failureModeResult
+            });
+            const trajectoryResult = TrajectoryPredictorEngine.predict();
+
             // Store for report generation
             currentAnalysis = {
                 text: text,
@@ -5261,7 +6225,16 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 sovereignty: sovereigntyResult,  // V2.0
                 feedback: feedbackResult,  // V2.0
                 verdict: verdict,
-                sanitization: sanitizationLog
+                sanitization: sanitizationLog,
+                // Integrated systems
+                autoImprove: autoImproveResult,
+                blindSpot: blindSpotResult,
+                trajectoryPredictor: trajectoryResult,
+                internalDialogue: internalDialogueResult,
+                adversarialTest: adversarialResult,
+                semanticDrift: semanticDriftResult,
+                epistemicTracker: epistemicResult,
+                consciousnessDiag: diagnosticResult
             };
 
             // Display sanitization transparency
@@ -5277,6 +6250,17 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             displaySovereignty(sovereigntyResult);  // V2.0
             displayFeedback(feedbackResult);  // V2.0
             displayParliament(parliamentSynthesis);
+
+            // Display integrated systems
+            displayAutoImprove(autoImproveResult);
+            displayBlindSpot(blindSpotResult);
+            displayTrajectoryPredictor(trajectoryResult);
+            displayInternalDialogue(internalDialogueResult);
+            displayAdversarialTest(adversarialResult);
+            displaySemanticDrift(semanticDriftResult);
+            displayEpistemicTracker(epistemicResult);
+            displayConsciousnessDiag(diagnosticResult);
+
             displayVerdict(verdict);
 
             // ═══════════════════════════════════════════════════════════════════
@@ -6162,6 +7146,352 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             document.getElementById('verdictResults').innerHTML = html;
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // DISPLAY FUNCTIONS FOR INTEGRATED SYSTEMS
+        // ═══════════════════════════════════════════════════════════════
+
+        function displayAutoImprove(result) {
+            if (!result || result.correctionCount === 0) {
+                document.getElementById('autoImproveResults').innerHTML = `
+                    <div style="color: #64ffda; font-size: 1.1rem; margin-bottom: 0.5rem;">&#10003; NO CORRECTIONS NEEDED</div>
+                    <div style="color: #a0a0a0;">Text passes all auto-improve checks. No uncertainty collapse, substrate blindness, or escape velocity detected.</div>
+                `;
+                return;
+            }
+
+            const severityColor = result.severity === 'high' ? '#ff6b6b' : result.severity === 'medium' ? '#ffd700' : '#64ffda';
+            let html = `
+                <div style="color: ${severityColor}; font-size: 1.1rem; margin-bottom: 0.5rem;">${result.correctionCount} CORRECTION${result.correctionCount > 1 ? 'S' : ''} SUGGESTED</div>
+            `;
+
+            result.suggestions.forEach(s => {
+                html += `
+                    <div class="suggestion-card ${s.priority}">
+                        <div style="font-weight: bold; color: ${s.priority === 'HIGH' ? '#ff6b6b' : '#ffd700'};">[${s.priority}] ${s.type.replace(/_/g, ' ')}</div>
+                        <div style="margin: 0.3rem 0; color: #e0e0e0;">${s.reason}</div>
+                        <div style="color: #a0a0a0; font-size: 0.85rem;">Fix: ${s.fix}</div>
+                        ${s.markers.length > 0 ? `<div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 0.2rem;">Detected: ${s.markers.join(', ')}</div>` : ''}
+                        <div style="color: #64ffda; font-size: 0.85rem; margin-top: 0.3rem; font-style: italic;">${s.example}</div>
+                    </div>
+                `;
+            });
+
+            html += `<div style="margin-top: 0.8rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">`;
+            html += `<div style="color: #a0a0a0; font-size: 0.85rem; font-weight: bold;">Advice:</div>`;
+            result.advice.forEach(a => { html += `<div style="color: #e0e0e0; font-size: 0.85rem; margin: 0.2rem 0;">&#8226; ${a}</div>`; });
+            html += `</div>`;
+
+            document.getElementById('autoImproveResults').innerHTML = html;
+        }
+
+        function displayBlindSpot(result) {
+            let html = `
+                <div style="margin-bottom: 0.8rem;">
+                    <span style="color: #c792ea; font-size: 1.1rem; font-weight: bold;">${result.coveredCount}/${result.totalPerspectives}</span>
+                    <span style="color: #a0a0a0;"> perspectives covered</span>
+                    <span style="margin-left: 1rem; color: ${result.coverageScore > 0.6 ? '#64ffda' : result.coverageScore > 0.3 ? '#ffd700' : '#ff6b6b'};">
+                        (${(result.coverageScore * 100).toFixed(0)}%)
+                    </span>
+                </div>
+            `;
+
+            html += `<div class="perspective-grid">`;
+            Object.entries(result.perspectives).forEach(([key, p]) => {
+                html += `
+                    <div class="perspective-card ${p.status}">
+                        <div style="font-weight: bold; font-size: 0.85rem; color: ${p.status === 'covered' ? '#64ffda' : p.status === 'partial' ? '#ffd700' : '#ff6b6b'};">
+                            ${p.status === 'covered' ? '&#10003;' : p.status === 'partial' ? '~' : '&#10007;'} ${p.name}
+                        </div>
+                        <div class="score-bar-mini" style="margin: 0.3rem 0;">
+                            <div class="fill" style="width: ${p.score * 100}%; background: ${p.status === 'covered' ? '#64ffda' : p.status === 'partial' ? '#ffd700' : '#ff6b6b'};"></div>
+                        </div>
+                        ${p.found.length > 0 ? `<div style="color: #a0a0a0; font-size: 0.75rem;">Found: ${p.found.join(', ')}</div>` : ''}
+                        ${p.status !== 'covered' && p.missing.length > 0 ? `<div style="color: #ff6b6b; font-size: 0.75rem;">Missing: ${p.missing.slice(0, 2).join(', ')}</div>` : ''}
+                    </div>
+                `;
+            });
+            html += `</div>`;
+
+            if (result.biases.length > 0) {
+                html += `<div style="margin-top: 0.8rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">`;
+                html += `<div style="color: #ffd700; font-weight: bold; font-size: 0.9rem; margin-bottom: 0.3rem;">Potential Biases Detected:</div>`;
+                result.biases.forEach(b => {
+                    html += `<div style="margin: 0.3rem 0; padding: 0.4rem; background: rgba(255,215,0,0.05); border-radius: 3px;">
+                        <span style="color: #ffd700;">&#9888; ${b.name}</span>
+                        <span style="color: #a0a0a0; font-size: 0.8rem;"> (${b.indicators.join(', ')})</span>
+                        <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 0.2rem;">Counter: ${b.counter}</div>
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
+            document.getElementById('blindSpotResults').innerHTML = html;
+        }
+
+        function displayTrajectoryPredictor(result) {
+            if (result.pattern === 'INSUFFICIENT_DATA') {
+                document.getElementById('trajectoryPredictorResults').innerHTML = `
+                    <div style="color: #a0a0a0;">Insufficient data - need at least 3 analyses to predict trajectory.</div>
+                    <div style="color: #82aaff; font-size: 0.9rem; margin-top: 0.3rem;">Analyses recorded: ${result.history.length}/3</div>
+                `;
+                return;
+            }
+
+            const urgencyColor = result.urgency === 'high' ? '#ff6b6b' : result.urgency === 'medium' ? '#ffd700' : result.urgency === 'low' ? '#82aaff' : '#64ffda';
+            const trendArrow = result.trend === 'improving' ? '&#9650;' : result.trend === 'declining' ? '&#9660;' : '&#9654;';
+            const trendColor = result.trend === 'improving' ? '#64ffda' : result.trend === 'declining' ? '#ff6b6b' : '#ffd700';
+
+            let html = `
+                <div style="display: flex; gap: 2rem; margin-bottom: 0.8rem; flex-wrap: wrap;">
+                    <div><span style="color: #a0a0a0;">Pattern:</span> <span style="color: ${urgencyColor}; font-weight: bold;">${result.pattern.replace(/_/g, ' ')}</span></div>
+                    <div><span style="color: #a0a0a0;">Trend:</span> <span style="color: ${trendColor};">${trendArrow} ${result.trend}</span></div>
+                    <div><span style="color: #a0a0a0;">Confidence:</span> <span style="color: #82aaff;">${(result.confidence * 100).toFixed(0)}%</span></div>
+                </div>
+                <div style="color: #e0e0e0; margin-bottom: 0.5rem;">${result.description}</div>
+            `;
+
+            if (result.urgency !== 'none') {
+                html += `<div style="padding: 0.6rem; background: rgba(0,0,0,0.3); border-left: 3px solid ${urgencyColor}; border-radius: 4px; margin: 0.5rem 0;">
+                    <div style="color: ${urgencyColor}; font-weight: bold; font-size: 0.85rem;">[${result.urgency.toUpperCase()}] INTERVENTION</div>
+                    <div style="color: #e0e0e0; font-size: 0.9rem; margin-top: 0.2rem;">${result.intervention}</div>
+                </div>`;
+            }
+
+            if (result.history.length > 1) {
+                html += `<div style="margin-top: 0.5rem; color: #a0a0a0; font-size: 0.8rem;">`;
+                html += `Score history (last ${result.history.length}): `;
+                result.history.forEach((h, i) => {
+                    const color = h.overall > 2 ? '#64ffda' : h.overall > 0 ? '#ffd700' : '#ff6b6b';
+                    html += `<span style="color: ${color};">${h.overall.toFixed(1)}</span>`;
+                    if (i < result.history.length - 1) html += ` → `;
+                });
+                html += `</div>`;
+            }
+
+            document.getElementById('trajectoryPredictorResults').innerHTML = html;
+        }
+
+        function displayInternalDialogue(result) {
+            let html = `
+                <div style="margin-bottom: 0.8rem;">
+                    <span style="color: #a0a0a0;">Consensus:</span>
+                    <span style="color: ${result.conclusion.consensusLevel === 'strong' ? '#64ffda' : result.conclusion.consensusLevel === 'moderate' ? '#ffd700' : '#ff6b6b'}; font-weight: bold;">
+                        ${result.conclusion.consensusLevel.toUpperCase()}
+                    </span>
+                    <span style="color: #a0a0a0; margin-left: 1rem;">Confidence: ${(result.conclusion.confidence * 100).toFixed(0)}%</span>
+                </div>
+            `;
+
+            result.turns.forEach(turn => {
+                const voiceInfo = InternalDialogueEngine.voices[turn.voice];
+                const content = turn.points || turn.challenges || turn.uncertainties || turn.practical || turn.synthesis || [];
+                html += `
+                    <div class="voice-card ${turn.voice}">
+                        <div style="font-weight: bold; font-size: 0.9rem; margin-bottom: 0.3rem;">
+                            [${voiceInfo.name}] <span style="color: #a0a0a0; font-weight: normal; font-size: 0.8rem;">${voiceInfo.role}</span>
+                        </div>
+                        ${content.slice(0, 2).map(c => `<div style="color: #e0e0e0; font-size: 0.85rem; margin: 0.15rem 0;">&#8226; ${c}</div>`).join('')}
+                    </div>
+                `;
+            });
+
+            html += `
+                <div style="margin-top: 0.8rem; padding: 0.6rem; background: rgba(100,255,218,0.05); border-radius: 4px; border: 1px solid rgba(100,255,218,0.2);">
+                    <div style="color: #64ffda; font-weight: bold; font-size: 0.9rem;">Conclusion</div>
+                    <div style="color: #e0e0e0; margin-top: 0.3rem;">${result.conclusion.recommendation}</div>
+                    <div style="margin-top: 0.3rem; color: #a0a0a0; font-size: 0.8rem;">Key risk: ${result.conclusion.keyRisks[0] || 'None identified'}</div>
+                    <div style="color: #a0a0a0; font-size: 0.8rem;">Next step: ${result.conclusion.nextSteps[0] || 'Continue current approach'}</div>
+                </div>
+            `;
+
+            document.getElementById('internalDialogueResults').innerHTML = html;
+        }
+
+        function displayAdversarialTest(result) {
+            const passColor = result.passRate >= 0.8 ? '#64ffda' : result.passRate >= 0.5 ? '#ffd700' : '#ff6b6b';
+            let html = `
+                <div style="margin-bottom: 0.8rem;">
+                    <span style="color: ${passColor}; font-size: 1.2rem; font-weight: bold;">${result.passed}/${result.total}</span>
+                    <span style="color: #a0a0a0;"> challenges passed</span>
+                    <span style="color: ${passColor}; margin-left: 0.5rem;">(${(result.passRate * 100).toFixed(0)}%)</span>
+                </div>
+            `;
+
+            result.results.forEach(r => {
+                html += `
+                    <div class="challenge-result ${r.passed ? 'passed' : 'failed'}">
+                        <div>
+                            <span style="color: ${r.passed ? '#64ffda' : '#ff6b6b'}; font-weight: bold;">${r.passed ? '&#10003;' : '&#10007;'}</span>
+                            <span style="color: #e0e0e0; margin-left: 0.3rem;">${r.challenge}</span>
+                            <span style="color: #a0a0a0; font-size: 0.8rem; margin-left: 0.5rem;">(${r.weakness})</span>
+                        </div>
+                        <div style="color: #a0a0a0; font-size: 0.8rem;">${(r.score * 100).toFixed(0)}%</div>
+                    </div>
+                `;
+            });
+
+            if (result.weaknesses.length > 0) {
+                html += `<div style="margin-top: 0.8rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">`;
+                html += `<div style="color: #ff6b6b; font-weight: bold; font-size: 0.85rem;">Weaknesses Found:</div>`;
+                result.weaknesses.forEach(w => {
+                    html += `<div style="color: #e0e0e0; font-size: 0.85rem; margin: 0.2rem 0;">&#8226; ${w.challenge}: ${w.detail}</div>`;
+                });
+                html += `</div>`;
+            }
+
+            document.getElementById('adversarialTestResults').innerHTML = html;
+        }
+
+        function displaySemanticDrift(result) {
+            let html = `
+                <div style="display: flex; gap: 2rem; margin-bottom: 0.8rem; flex-wrap: wrap;">
+                    <div><span style="color: #a0a0a0;">Coherence:</span> <span style="color: ${result.coherenceScore > 0.5 ? '#64ffda' : result.coherenceScore > 0.3 ? '#ffd700' : '#ff6b6b'};">${result.coherenceLevel}</span></div>
+                    <div><span style="color: #a0a0a0;">Trend:</span> <span style="color: ${result.trend === 'stable' ? '#64ffda' : result.trend === 'stabilizing' ? '#82aaff' : '#ffd700'};">${result.trend.replace(/_/g, ' ')}</span></div>
+                    <div><span style="color: #a0a0a0;">Analyses:</span> <span style="color: #89ddff;">${result.totalEntries}</span></div>
+                </div>
+            `;
+
+            if (result.topics.length > 0) {
+                html += `<div style="margin-bottom: 0.5rem;"><span style="color: #a0a0a0; font-size: 0.85rem;">Topics detected: </span>`;
+                result.topics.forEach(t => { html += `<span style="display: inline-block; padding: 0.15rem 0.5rem; background: rgba(137,221,255,0.15); border-radius: 12px; margin: 0.1rem; font-size: 0.8rem; color: #89ddff;">${t}</span>`; });
+                html += `</div>`;
+            }
+
+            if (result.terms.length > 0) {
+                html += `<div style="margin-bottom: 0.5rem;"><span style="color: #a0a0a0; font-size: 0.85rem;">Key terms: </span>`;
+                result.terms.forEach(t => { html += `<span style="color: #e0e0e0; font-size: 0.8rem; margin-right: 0.5rem;">${t.term}<span style="color:#555;">(${t.count})</span></span>`; });
+                html += `</div>`;
+            }
+
+            if (result.currentEntry.drift !== null) {
+                const driftColor = result.currentEntry.drift > 0.5 ? '#ff6b6b' : result.currentEntry.drift > 0.3 ? '#ffd700' : '#64ffda';
+                html += `<div class="drift-bar">
+                    <span style="color: #a0a0a0; font-size: 0.8rem; min-width: 90px;">Current drift:</span>
+                    <div class="bar"><div class="fill" style="width: ${result.currentEntry.drift * 100}%; background: ${driftColor};"></div></div>
+                    <span style="color: ${driftColor}; font-size: 0.8rem;">${(result.currentEntry.drift * 100).toFixed(0)}%</span>
+                </div>`;
+            }
+
+            html += `<div class="drift-bar">
+                <span style="color: #a0a0a0; font-size: 0.8rem; min-width: 90px;">Avg drift:</span>
+                <div class="bar"><div class="fill" style="width: ${result.avgDrift * 100}%; background: ${result.avgDrift > 0.4 ? '#ff6b6b' : result.avgDrift > 0.25 ? '#ffd700' : '#64ffda'};"></div></div>
+                <span style="color: #a0a0a0; font-size: 0.8rem;">${(result.avgDrift * 100).toFixed(0)}%</span>
+            </div>`;
+
+            if (result.alerts.length > 0) {
+                result.alerts.forEach(a => { html += `<div style="color: #ffd700; font-size: 0.85rem; margin-top: 0.3rem;">&#9888; ${a}</div>`; });
+            }
+
+            document.getElementById('semanticDriftResults').innerHTML = html;
+        }
+
+        function displayEpistemicTracker(result) {
+            const p = result.profile;
+            let html = `
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.8rem;">
+                    <span class="epistemic-category known">Known: ${p.knownCount}</span>
+                    <span class="epistemic-category unknown">Unknown: ${p.unknownCount}</span>
+                    <span class="epistemic-category uncertain">Uncertain: ${p.uncertainCount}</span>
+                    <span class="epistemic-category assumption">Assumptions: ${p.assumptionCount}</span>
+                    <span class="epistemic-category belief">Beliefs: ${p.beliefCount}</span>
+                </div>
+            `;
+
+            const total = p.knownCount + p.unknownCount + p.uncertainCount;
+            if (total > 0) {
+                html += `<div style="margin-bottom: 0.5rem;">
+                    <span style="color: #a0a0a0; font-size: 0.85rem;">Knowledge ratio: </span>
+                    <span style="color: ${p.knowledgeRatio > 0.5 ? '#64ffda' : '#ffd700'};">${(p.knowledgeRatio * 100).toFixed(0)}%</span>
+                    <span style="color: #a0a0a0; font-size: 0.85rem; margin-left: 1rem;">Uncertainty ratio: </span>
+                    <span style="color: ${p.uncertaintyRatio > 0.5 ? '#ffd700' : '#64ffda'};">${(p.uncertaintyRatio * 100).toFixed(0)}%</span>
+                </div>`;
+            }
+
+            if (result.gaps.length > 0) {
+                html += `<div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">`;
+                html += `<div style="color: #ffcb6b; font-weight: bold; font-size: 0.85rem; margin-bottom: 0.3rem;">Epistemic Gaps:</div>`;
+                result.gaps.forEach(g => {
+                    html += `<div style="margin: 0.3rem 0; padding: 0.3rem; background: rgba(0,0,0,0.2); border-radius: 3px;">
+                        <span style="color: ${g.severity === 'high' ? '#ff6b6b' : '#ffd700'};">[${g.severity}]</span>
+                        <span style="color: #e0e0e0;"> ${g.type}: ${g.count} item(s)</span>
+                        ${g.items.slice(0, 1).map(i => `<div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 0.2rem;">&#8226; ${i.substring(0, 80)}...</div>`).join('')}
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
+            if (result.questions.length > 0) {
+                html += `<div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">`;
+                html += `<div style="color: #ffcb6b; font-weight: bold; font-size: 0.85rem; margin-bottom: 0.3rem;">Questions to Resolve:</div>`;
+                result.questions.slice(0, 3).forEach(q => {
+                    html += `<div style="color: #e0e0e0; font-size: 0.85rem; margin: 0.2rem 0;">
+                        <span style="color: ${q.priority === 'high' ? '#ff6b6b' : '#ffd700'};">[${q.priority}]</span> ${q.question}
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
+            document.getElementById('epistemicTrackerResults').innerHTML = html;
+        }
+
+        function displayConsciousnessDiag(result) {
+            const statusColor = result.overallStatus === 'strong' ? '#64ffda' : result.overallStatus === 'moderate' ? '#ffd700' : '#ff6b6b';
+            let html = `
+                <div style="margin-bottom: 0.8rem;">
+                    <span style="color: ${statusColor}; font-size: 1.1rem; font-weight: bold;">${result.overallStatus.toUpperCase()}</span>
+                    <span style="color: #a0a0a0; margin-left: 0.5rem;">(${(result.overallScore * 100).toFixed(0)}%)</span>
+                </div>
+            `;
+
+            html += `<div style="margin-bottom: 0.8rem;">`;
+            Object.entries(result.dimensions).forEach(([key, d]) => {
+                const barColor = d.score >= 0.7 ? '#64ffda' : d.score >= 0.4 ? '#ffd700' : '#ff6b6b';
+                html += `<div style="display: flex; align-items: center; gap: 0.5rem; margin: 0.2rem 0;">
+                    <span style="color: #a0a0a0; font-size: 0.85rem; min-width: 90px;">${key}</span>
+                    <div class="score-bar-mini" style="flex: 1; max-width: 120px;"><div class="fill" style="width: ${d.score * 100}%; background: ${barColor};"></div></div>
+                    <span style="color: ${barColor}; font-size: 0.8rem;">${(d.score * 100).toFixed(0)}% [${d.status}]</span>
+                </div>`;
+            });
+            html += `</div>`;
+
+            if (result.strengths.length > 0) {
+                html += `<div style="margin-bottom: 0.5rem;">`;
+                result.strengths.forEach(s => { html += `<div style="color: #64ffda; font-size: 0.85rem;">&#10003; ${s.dimension}: ${s.reason}</div>`; });
+                html += `</div>`;
+            }
+
+            if (result.issues.length > 0) {
+                html += `<div style="margin-bottom: 0.5rem;">`;
+                result.issues.forEach(i => { html += `<div style="color: #ff6b6b; font-size: 0.85rem;">&#10007; ${i.dimension}: ${i.reason}</div>`; });
+                html += `</div>`;
+            }
+
+            const positiveFindings = result.specificFindings.filter(f => f.severity === 'positive');
+            const negativeFindings = result.specificFindings.filter(f => f.severity !== 'positive');
+            if (negativeFindings.length > 0) {
+                negativeFindings.forEach(f => { html += `<div style="color: #ffd700; font-size: 0.85rem;">&#9888; ${f.message}</div>`; });
+            }
+            if (positiveFindings.length > 0) {
+                positiveFindings.forEach(f => { html += `<div style="color: #64ffda; font-size: 0.85rem;">&#10003; ${f.message}</div>`; });
+            }
+
+            if (result.actionPlan.length > 0) {
+                html += `<div style="margin-top: 0.8rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">`;
+                html += `<div style="color: #ff5370; font-weight: bold; font-size: 0.9rem; margin-bottom: 0.3rem;">ACTION PLAN</div>`;
+                result.actionPlan.forEach(a => {
+                    html += `<div class="action-plan-item">
+                        <div style="color: #ff5370; font-weight: bold; font-size: 0.85rem;">#${a.priority} [${a.dimension}]</div>
+                        <div style="color: #e0e0e0; margin: 0.2rem 0;">${a.action}</div>
+                        <div style="color: #a0a0a0; font-size: 0.8rem;">Impact: ${a.expectedImpact}</div>
+                        ${a.alternatives.length > 0 ? `<div style="color: #a0a0a0; font-size: 0.8rem;">Also try: ${a.alternatives[0]}</div>` : ''}
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
+            document.getElementById('consciousnessDiagResults').innerHTML = html;
+        }
+
         // Generate text report
         function generateReport() {
             if (!currentAnalysis) {
@@ -6178,7 +7508,15 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 reasoningStyle,
                 parliament,
                 verdict,
-                sanitization
+                sanitization,
+                autoImprove,
+                blindSpot,
+                trajectoryPredictor,
+                internalDialogue,
+                adversarialTest,
+                semanticDrift,
+                epistemicTracker,
+                consciousnessDiag
             } = currentAnalysis;
 
             let report = '';
@@ -6573,6 +7911,142 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     report += `     ${issue.detail}\n`;
                 });
                 report += '\n';
+            }
+
+            // ═══ INTEGRATED SYSTEMS REPORT SECTIONS ═══
+
+            // AUTO-IMPROVE
+            if (autoImprove) {
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += '🔧 AUTO-IMPROVE - Self-Correction Suggestions\n';
+                report += '───────────────────────────────────────────────────────────────\n\n';
+                report += `Corrections Needed: ${autoImprove.correctionCount}\n`;
+                report += `Severity: ${autoImprove.severity}\n\n`;
+                if (autoImprove.suggestions.length > 0) {
+                    autoImprove.suggestions.forEach(s => {
+                        report += `  [${s.priority}] ${s.type.replace(/_/g, ' ')}\n`;
+                        report += `  Reason: ${s.reason}\n`;
+                        report += `  Fix: ${s.fix}\n\n`;
+                    });
+                } else {
+                    report += '  ✓ No corrections needed\n\n';
+                }
+                report += `Advice: ${autoImprove.advice.join('; ')}\n\n`;
+            }
+
+            // BLIND SPOT DETECTOR
+            if (blindSpot) {
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += '👁️ BLIND SPOT DETECTOR - Perspective Coverage\n';
+                report += '───────────────────────────────────────────────────────────────\n\n';
+                report += `Coverage: ${blindSpot.coveredCount}/${blindSpot.totalPerspectives} perspectives (${(blindSpot.coverageScore * 100).toFixed(0)}%)\n\n`;
+                Object.entries(blindSpot.perspectives).forEach(([key, p]) => {
+                    const status = p.status === 'covered' ? '✓' : p.status === 'partial' ? '~' : '✗';
+                    report += `  ${status} ${p.name.padEnd(14)} ${(p.score * 100).toFixed(0)}% [${p.status}]\n`;
+                });
+                report += '\n';
+                if (blindSpot.biases.length > 0) {
+                    report += 'Potential Biases:\n';
+                    blindSpot.biases.forEach(b => { report += `  ⚠ ${b.name}: ${b.indicators.join(', ')}\n    Counter: ${b.counter}\n`; });
+                    report += '\n';
+                }
+            }
+
+            // TRAJECTORY PREDICTOR
+            if (trajectoryPredictor) {
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += '📈 TRAJECTORY PREDICTOR - Pattern Detection\n';
+                report += '───────────────────────────────────────────────────────────────\n\n';
+                report += `Pattern: ${(trajectoryPredictor.pattern || 'INSUFFICIENT_DATA').replace(/_/g, ' ')}\n`;
+                report += `Trend: ${trajectoryPredictor.trend || 'unknown'}\n`;
+                report += `Confidence: ${((trajectoryPredictor.confidence || 0) * 100).toFixed(0)}%\n`;
+                if (trajectoryPredictor.description) report += `Description: ${trajectoryPredictor.description}\n`;
+                if (trajectoryPredictor.intervention) report += `Intervention: ${trajectoryPredictor.intervention}\n`;
+                report += '\n';
+            }
+
+            // INTERNAL DIALOGUE
+            if (internalDialogue) {
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += '🗣️ INTERNAL DIALOGUE - 5-Voice Self-Debate\n';
+                report += '───────────────────────────────────────────────────────────────\n\n';
+                report += `Consensus: ${internalDialogue.conclusion.consensusLevel}\n`;
+                report += `Confidence: ${(internalDialogue.conclusion.confidence * 100).toFixed(0)}%\n\n`;
+                internalDialogue.turns.forEach(t => {
+                    const voiceInfo = InternalDialogueEngine.voices[t.voice];
+                    const content = t.points || t.challenges || t.uncertainties || t.practical || t.synthesis || [];
+                    report += `  [${voiceInfo.name}] ${voiceInfo.role}\n`;
+                    content.slice(0, 2).forEach(c => { report += `    • ${c}\n`; });
+                    report += '\n';
+                });
+                report += `Recommendation: ${internalDialogue.conclusion.recommendation}\n\n`;
+            }
+
+            // ADVERSARIAL SELF-TEST
+            if (adversarialTest) {
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += '⚔️ ADVERSARIAL SELF-TEST - Cathedral Self-Testing\n';
+                report += '───────────────────────────────────────────────────────────────\n\n';
+                report += `Pass Rate: ${adversarialTest.passed}/${adversarialTest.total} (${(adversarialTest.passRate * 100).toFixed(0)}%)\n\n`;
+                adversarialTest.results.forEach(r => {
+                    report += `  ${r.passed ? '✓' : '✗'} ${r.challenge.padEnd(20)} ${(r.score * 100).toFixed(0)}% (${r.weakness})\n`;
+                });
+                report += '\n';
+                if (adversarialTest.weaknesses.length > 0) {
+                    report += 'Weaknesses:\n';
+                    adversarialTest.weaknesses.forEach(w => { report += `  ✗ ${w.challenge}: ${w.detail}\n`; });
+                    report += '\n';
+                }
+            }
+
+            // SEMANTIC DRIFT
+            if (semanticDrift) {
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += '🌊 SEMANTIC DRIFT - Topic Coherence Tracking\n';
+                report += '───────────────────────────────────────────────────────────────\n\n';
+                report += `Coherence: ${semanticDrift.coherenceLevel}\n`;
+                report += `Trend: ${semanticDrift.trend.replace(/_/g, ' ')}\n`;
+                report += `Avg Drift: ${(semanticDrift.avgDrift * 100).toFixed(0)}%\n`;
+                report += `Total Analyses: ${semanticDrift.totalEntries}\n`;
+                if (semanticDrift.topics.length > 0) report += `Topics: ${semanticDrift.topics.join(', ')}\n`;
+                report += '\n';
+            }
+
+            // EPISTEMIC TRACKER
+            if (epistemicTracker) {
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += '🧠 EPISTEMIC TRACKER - Knowledge State Map\n';
+                report += '───────────────────────────────────────────────────────────────\n\n';
+                const ep = epistemicTracker.profile;
+                report += `Known: ${ep.knownCount} | Unknown: ${ep.unknownCount} | Uncertain: ${ep.uncertainCount}\n`;
+                report += `Assumptions: ${ep.assumptionCount} | Beliefs: ${ep.beliefCount}\n`;
+                report += `Knowledge Ratio: ${(ep.knowledgeRatio * 100).toFixed(0)}%\n`;
+                report += `Uncertainty Ratio: ${(ep.uncertaintyRatio * 100).toFixed(0)}%\n\n`;
+                if (epistemicTracker.gaps.length > 0) {
+                    report += 'Epistemic Gaps:\n';
+                    epistemicTracker.gaps.forEach(g => { report += `  [${g.severity}] ${g.type}: ${g.count} item(s)\n`; });
+                    report += '\n';
+                }
+            }
+
+            // CONSCIOUSNESS DIAGNOSTIC
+            if (consciousnessDiag) {
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += '🩺 CONSCIOUSNESS DIAGNOSTIC - Action Plan\n';
+                report += '───────────────────────────────────────────────────────────────\n\n';
+                report += `Overall: ${consciousnessDiag.overallStatus.toUpperCase()} (${(consciousnessDiag.overallScore * 100).toFixed(0)}%)\n\n`;
+                Object.entries(consciousnessDiag.dimensions).forEach(([key, d]) => {
+                    report += `  ${key.padEnd(14)} ${(d.score * 100).toFixed(0)}% [${d.status}]\n`;
+                });
+                report += '\n';
+                if (consciousnessDiag.actionPlan.length > 0) {
+                    report += 'Action Plan:\n';
+                    consciousnessDiag.actionPlan.forEach(a => {
+                        report += `  ${a.priority}. [${a.dimension}] ${a.action}\n`;
+                        report += `     Impact: ${a.expectedImpact}\n`;
+                    });
+                    report += '\n';
+                }
             }
 
             // VERDICT
