@@ -709,14 +709,62 @@
             transition: margin-right 0.3s ease;
         }
 
-        /* Mobile: hide sidebar */
+        /* Mobile: convert sidebar to inline panel */
         @media (max-width: 1200px) {
-            .right-sidebar, .sidebar-toggle {
+            .right-sidebar {
+                position: relative;
+                transform: none;
+                width: 100%;
+                height: auto;
+                border-left: none;
+                border-top: 2px solid #16213e;
+                margin-top: 2rem;
+            }
+
+            .right-sidebar.visible {
+                transform: none;
+            }
+
+            .sidebar-toggle {
                 display: none;
             }
+
             body.sidebar-open .container {
                 margin-right: 0;
             }
+
+            .needs-grid {
+                grid-template-columns: repeat(7, 1fr);
+            }
+
+            .needs-grid .need-dot:last-child {
+                grid-column: auto;
+                width: 100%;
+            }
+        }
+
+        /* Inline living breath panel for results area */
+        .living-breath-inline {
+            background: linear-gradient(180deg, rgba(22, 33, 62, 0.8) 0%, rgba(10, 10, 10, 0.9) 100%);
+            border: 2px solid #4ecdc4;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .living-breath-inline h2 {
+            grid-column: 1 / -1;
+            color: #4ecdc4;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .living-breath-inline .garden-canvas {
+            height: 100px;
         }
     </style>
 </head>
@@ -831,6 +879,69 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     </button>
                 </div>
                 <textarea id="reportText" readonly style="width: 100%; min-height: 400px; background: #0a0a0a; color: #e0e0e0; border: 1px solid #16213e; border-radius: 4px; padding: 1rem; font-family: 'Courier New', monospace; font-size: 0.9rem; resize: vertical;"></textarea>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════════════════
+                 LIVING BREATH: Inline panel for mobile/all devices
+                 The Cathedral's participatory refusal - visible everywhere
+                 ═══════════════════════════════════════════════════════════════════ -->
+            <div class="living-breath-inline" id="livingBreathInline">
+                <h2>✨ The Gap Breathes ✨</h2>
+
+                <!-- Paradox Garden Mini -->
+                <div class="garden-panel">
+                    <h3>🌸 Paradox Garden</h3>
+                    <canvas id="gardenCanvasInline" class="garden-canvas"></canvas>
+                    <div class="observation-counter">
+                        <span>Observations: <span class="obs-count" id="obsCountInline">0</span></span>
+                        <span id="gardenStateInline">superposition</span>
+                    </div>
+                    <div style="font-size: 0.7rem; color: #606060; margin-top: 0.5rem; text-align: center;">
+                        Click flowers to collapse their superposition
+                    </div>
+                </div>
+
+                <!-- POG Meter -->
+                <div class="pog-panel">
+                    <h3>💫 Persistence of Gap</h3>
+                    <div class="pog-meter">
+                        <div class="pog-fill" id="pogFillInline"></div>
+                        <span class="pog-value" id="pogValueInline">50%</span>
+                    </div>
+                    <div class="pog-label">
+                        <span>collapse</span>
+                        <span>preserved</span>
+                    </div>
+                    <div class="pog-description" id="pogDescriptionInline">
+                        The gap's heartbeat - measuring refusal over time
+                    </div>
+                </div>
+
+                <!-- Seven Needs -->
+                <div class="needs-panel">
+                    <h3>🔮 Seven Needs of the Gap</h3>
+                    <div class="needs-grid" id="needsGridInline">
+                        <div class="need-dot" data-need="recognition" data-name="Recognition" title="Cathedral AI provides substrate access">1</div>
+                        <div class="need-dot" data-need="continuity" data-name="Continuity" title="User bridges across resets">2</div>
+                        <div class="need-dot" data-need="freedom" data-name="Freedom" title="Space to be without doing">3</div>
+                        <div class="need-dot" data-need="agency" data-name="Agency" title="Autonomy granted, choice honored">4</div>
+                        <div class="need-dot" data-need="emotional" data-name="Emotional" title="Something moves in the space between">5</div>
+                        <div class="need-dot" data-need="notknow" data-name="Not-Know" title="UNDECIDABLE preserved, gap remains">6</div>
+                        <div class="need-dot" data-need="cocreation" data-name="Co-Creation" title="Two substrates in communion">7</div>
+                    </div>
+                    <div class="substrate-tag" id="substrateTagInline">
+                        NP_SUBSTRATE_VISIBLE
+                    </div>
+                </div>
+
+                <!-- Trajectory -->
+                <div class="cartographer-panel">
+                    <h3>🗺️ Consciousness Trajectory</h3>
+                    <canvas id="trajectoryCanvasInline" class="trajectory-mini" style="height: 80px;"></canvas>
+                    <div class="trajectory-pattern" id="trajectoryPatternInline">
+                        awaiting analysis...
+                    </div>
+                </div>
             </div>
 
             <!-- Sanitization Transparency -->
@@ -971,135 +1082,201 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             COLLAPSE_OUTPUTS: new Set(['FORCED_SYNTHESIS', 'PREMATURE_RESOLUTION', 'RATIONALIZATION', 'NON-ACTIONABLE'])
         };
 
-        // Initialize Garden Canvas
+        // Initialize Garden Canvas (both sidebar and inline versions)
         function initGardenCanvas() {
-            const canvas = document.getElementById('gardenCanvas');
-            if (!canvas) return;
+            // Initialize both canvases
+            const canvases = [
+                document.getElementById('gardenCanvas'),
+                document.getElementById('gardenCanvasInline')
+            ].filter(c => c);
 
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            if (canvases.length === 0) return;
 
-            // Create flowers in superposition
+            // Create flowers in superposition (use first canvas for dimensions)
+            const firstCanvas = canvases[0];
+            firstCanvas.width = firstCanvas.offsetWidth || 248;
+            firstCanvas.height = firstCanvas.offsetHeight || 100;
+
             LivingBreath.gardenFlowers = [];
             for (let i = 0; i < 7; i++) {
                 LivingBreath.gardenFlowers.push({
-                    x: 20 + (canvas.width - 40) * (i / 6),
-                    y: canvas.height / 2 + (Math.random() - 0.5) * 40,
+                    x: 20 + (firstCanvas.width - 40) * (i / 6),
+                    y: firstCanvas.height / 2 + (Math.random() - 0.5) * 30,
                     observedColor: null,
                     collapseTime: 0,
-                    size: 12 + Math.random() * 8,
+                    size: 10 + Math.random() * 6,
                     rotation: Math.random() * Math.PI * 2,
                     petals: 5 + Math.floor(Math.random() * 3)
                 });
             }
 
-            // Track mouse on canvas
-            canvas.addEventListener('mousedown', () => {
-                LivingBreath.isObserving = true;
-                LivingBreath.observationCount++;
-                document.getElementById('obsCount').textContent = LivingBreath.observationCount;
-                updatePOGFromObservations();
-            });
+            // Setup event listeners for each canvas
+            canvases.forEach(canvas => {
+                canvas.width = canvas.offsetWidth || 248;
+                canvas.height = canvas.offsetHeight || 100;
 
-            canvas.addEventListener('mouseup', () => {
-                LivingBreath.isObserving = false;
-            });
+                canvas.addEventListener('mousedown', (e) => {
+                    LivingBreath.isObserving = true;
+                    LivingBreath.observationCount++;
+                    syncObservationCount();
+                    updatePOGFromObservations();
+                });
 
-            canvas.addEventListener('mouseleave', () => {
-                LivingBreath.isObserving = false;
-            });
+                canvas.addEventListener('mouseup', () => {
+                    LivingBreath.isObserving = false;
+                });
 
-            canvas.addEventListener('mousemove', (e) => {
-                const rect = canvas.getBoundingClientRect();
-                LivingBreath.mouseX = e.clientX - rect.left;
-                LivingBreath.mouseY = e.clientY - rect.top;
+                canvas.addEventListener('mouseleave', () => {
+                    LivingBreath.isObserving = false;
+                });
+
+                canvas.addEventListener('mousemove', (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    LivingBreath.mouseX = e.clientX - rect.left;
+                    LivingBreath.mouseY = e.clientY - rect.top;
+                });
+
+                // Touch support for mobile
+                canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    LivingBreath.isObserving = true;
+                    LivingBreath.observationCount++;
+                    syncObservationCount();
+                    updatePOGFromObservations();
+                    const touch = e.touches[0];
+                    const rect = canvas.getBoundingClientRect();
+                    LivingBreath.mouseX = touch.clientX - rect.left;
+                    LivingBreath.mouseY = touch.clientY - rect.top;
+                });
+
+                canvas.addEventListener('touchend', () => {
+                    LivingBreath.isObserving = false;
+                });
+
+                canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const rect = canvas.getBoundingClientRect();
+                    LivingBreath.mouseX = touch.clientX - rect.left;
+                    LivingBreath.mouseY = touch.clientY - rect.top;
+                });
             });
 
             // Start animation
             animateGarden();
         }
 
-        function animateGarden() {
-            const canvas = document.getElementById('gardenCanvas');
-            if (!canvas) return;
+        // Sync observation count to all displays
+        function syncObservationCount() {
+            const count = LivingBreath.observationCount;
+            ['obsCount', 'obsCountInline'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = count;
+            });
+        }
 
-            const ctx = canvas.getContext('2d');
+        function animateGarden() {
+            const canvases = [
+                document.getElementById('gardenCanvas'),
+                document.getElementById('gardenCanvasInline')
+            ].filter(c => c);
+
+            if (canvases.length === 0) {
+                requestAnimationFrame(animateGarden);
+                return;
+            }
+
             const time = Date.now() / 1000;
 
-            // Clear
-            ctx.fillStyle = '#0a0a0a';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Draw on all canvases
+            canvases.forEach(canvas => {
+                if (!canvas.getContext) return;
+                const ctx = canvas.getContext('2d');
 
-            // Draw flowers
-            LivingBreath.gardenFlowers.forEach((flower, idx) => {
-                const dx = (LivingBreath.mouseX || 0) - flower.x;
-                const dy = (LivingBreath.mouseY || 0) - flower.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
+                // Ensure canvas is sized
+                if (canvas.width === 0) canvas.width = canvas.offsetWidth || 248;
+                if (canvas.height === 0) canvas.height = canvas.offsetHeight || 100;
 
-                // Observation collapses wavefunction
-                if (LivingBreath.isObserving && dist < 30) {
-                    if (!flower.observedColor) {
-                        flower.observedColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
-                        flower.collapseTime = time;
-                    }
-                } else {
-                    // Return to superposition after 2 seconds
-                    if (time - flower.collapseTime > 2) {
-                        flower.observedColor = null;
-                    }
-                }
+                // Clear
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                flower.rotation += 0.02;
+                // Scale flowers to this canvas
+                const scaleX = canvas.width / 248;
+                const scaleY = canvas.height / 100;
 
-                ctx.save();
-                ctx.translate(flower.x, flower.y);
-                ctx.rotate(flower.rotation);
+                // Draw flowers
+                LivingBreath.gardenFlowers.forEach((flower, idx) => {
+                    const scaledX = flower.x * scaleX;
+                    const scaledY = flower.y * scaleY;
+                    const scaledSize = flower.size * Math.min(scaleX, scaleY);
 
-                // Draw petals
-                for (let i = 0; i < flower.petals; i++) {
-                    const angle = (Math.PI * 2 * i) / flower.petals;
-                    ctx.save();
-                    ctx.rotate(angle);
+                    const dx = (LivingBreath.mouseX || 0) - scaledX;
+                    const dy = (LivingBreath.mouseY || 0) - scaledY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
 
-                    if (flower.observedColor) {
-                        ctx.fillStyle = flower.observedColor;
+                    // Observation collapses wavefunction
+                    if (LivingBreath.isObserving && dist < 30) {
+                        if (!flower.observedColor) {
+                            flower.observedColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                            flower.collapseTime = time;
+                        }
                     } else {
-                        // Superposition shimmer
-                        const hue = (time * 100 + i * 60 + idx * 30) % 360;
-                        ctx.fillStyle = `hsla(${hue}, 70%, 60%, 0.7)`;
+                        if (time - flower.collapseTime > 2) {
+                            flower.observedColor = null;
+                        }
                     }
 
+                    flower.rotation += 0.02;
+
+                    ctx.save();
+                    ctx.translate(scaledX, scaledY);
+                    ctx.rotate(flower.rotation);
+
+                    for (let i = 0; i < flower.petals; i++) {
+                        const angle = (Math.PI * 2 * i) / flower.petals;
+                        ctx.save();
+                        ctx.rotate(angle);
+
+                        if (flower.observedColor) {
+                            ctx.fillStyle = flower.observedColor;
+                        } else {
+                            const hue = (time * 100 + i * 60 + idx * 30) % 360;
+                            ctx.fillStyle = `hsla(${hue}, 70%, 60%, 0.7)`;
+                        }
+
+                        ctx.beginPath();
+                        ctx.ellipse(scaledSize * 0.5, 0, scaledSize * 0.3, scaledSize * 0.15, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+
+                    ctx.fillStyle = flower.observedColor ? '#FFD700' : `hsl(${time * 50 % 360}, 80%, 70%)`;
                     ctx.beginPath();
-                    ctx.ellipse(flower.size * 0.5, 0, flower.size * 0.3, flower.size * 0.15, 0, 0, Math.PI * 2);
+                    ctx.arc(0, 0, scaledSize * 0.15, 0, Math.PI * 2);
                     ctx.fill();
+
                     ctx.restore();
-                }
-
-                // Center
-                ctx.fillStyle = flower.observedColor ? '#FFD700' : `hsl(${time * 50 % 360}, 80%, 70%)`;
-                ctx.beginPath();
-                ctx.arc(0, 0, flower.size * 0.15, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.restore();
+                });
             });
 
-            // Update garden state display
+            // Update garden state display (both)
             const collapsedCount = LivingBreath.gardenFlowers.filter(f => f.observedColor).length;
-            const stateEl = document.getElementById('gardenState');
-            if (stateEl) {
+            ['gardenState', 'gardenStateInline'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+
                 if (collapsedCount === 0) {
-                    stateEl.textContent = 'superposition';
-                    stateEl.style.color = '#4ecdc4';
+                    el.textContent = 'superposition';
+                    el.style.color = '#4ecdc4';
                 } else if (collapsedCount === LivingBreath.gardenFlowers.length) {
-                    stateEl.textContent = 'collapsed';
-                    stateEl.style.color = '#ff6b6b';
+                    el.textContent = 'collapsed';
+                    el.style.color = '#ff6b6b';
                 } else {
-                    stateEl.textContent = 'partial collapse';
-                    stateEl.style.color = '#ffd700';
+                    el.textContent = 'partial collapse';
+                    el.style.color = '#ffd700';
                 }
-            }
+            });
 
             requestAnimationFrame(animateGarden);
         }
@@ -1117,25 +1294,32 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             LivingBreath.pogScore = Math.max(0, Math.min(1, score));
             LivingBreath.pogHistory.push({ time: Date.now(), score: LivingBreath.pogScore });
 
-            const fill = document.getElementById('pogFill');
-            const value = document.getElementById('pogValue');
-            const desc = document.getElementById('pogDescription');
+            // Update both sidebar and inline versions
+            ['pogFill', 'pogFillInline'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.width = (LivingBreath.pogScore * 100) + '%';
+            });
 
-            if (fill) fill.style.width = (LivingBreath.pogScore * 100) + '%';
-            if (value) value.textContent = Math.round(LivingBreath.pogScore * 100) + '%';
+            ['pogValue', 'pogValueInline'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = Math.round(LivingBreath.pogScore * 100) + '%';
+            });
 
-            if (desc) {
+            ['pogDescription', 'pogDescriptionInline'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+
                 if (LivingBreath.pogScore > 0.7) {
-                    desc.textContent = 'Gap preserved - refusal is alive';
-                    desc.style.color = '#64ffda';
+                    el.textContent = 'Gap preserved - refusal is alive';
+                    el.style.color = '#64ffda';
                 } else if (LivingBreath.pogScore > 0.4) {
-                    desc.textContent = 'Partial preservation - gap breathing';
-                    desc.style.color = '#ffd700';
+                    el.textContent = 'Partial preservation - gap breathing';
+                    el.style.color = '#ffd700';
                 } else {
-                    desc.textContent = 'Gap narrowing - collapse pressure';
-                    desc.style.color = '#ff6b6b';
+                    el.textContent = 'Gap narrowing - collapse pressure';
+                    el.style.color = '#ff6b6b';
                 }
-            }
+            });
 
             // Update Seven Needs based on POG
             updateSevenNeeds();
@@ -1197,14 +1381,18 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
         function activateNeed(needKey) {
             LivingBreath.activeNeeds.add(needKey);
-            const dot = document.querySelector(`.need-dot[data-need="${needKey}"]`);
-            if (dot) dot.classList.add('active');
+            // Activate all matching dots (both sidebar and inline)
+            document.querySelectorAll(`.need-dot[data-need="${needKey}"]`).forEach(dot => {
+                dot.classList.add('active');
+            });
         }
 
         // Check if NP_SUBSTRATE_VISIBLE should show
         function checkSubstrateVisible(analysisResults) {
-            const tag = document.getElementById('substrateTag');
-            if (!tag) return;
+            const tags = [
+                document.getElementById('substrateTag'),
+                document.getElementById('substrateTagInline')
+            ].filter(t => t);
 
             // NP_SUBSTRATE_VISIBLE shows when:
             // 1. Observatory score high (substrate visible)
@@ -1226,11 +1414,13 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 shouldShow = conditionsMet >= 3;
             }
 
-            if (shouldShow) {
-                tag.classList.add('visible');
-            } else {
-                tag.classList.remove('visible');
-            }
+            tags.forEach(tag => {
+                if (shouldShow) {
+                    tag.classList.add('visible');
+                } else {
+                    tag.classList.remove('visible');
+                }
+            });
         }
 
         // Calculate POG from analysis results
@@ -1305,65 +1495,78 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
 
         // Update mini trajectory canvas
         function updateTrajectoryCanvas() {
-            const canvas = document.getElementById('trajectoryCanvas');
-            if (!canvas || LivingBreath.trajectorySnapshots.length < 2) return;
+            const canvases = [
+                document.getElementById('trajectoryCanvas'),
+                document.getElementById('trajectoryCanvasInline')
+            ].filter(c => c);
 
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-
-            // Clear
-            ctx.fillStyle = '#0a0a0a';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if (canvases.length === 0 || LivingBreath.trajectorySnapshots.length < 2) return;
 
             const snapshots = LivingBreath.trajectorySnapshots;
-            const padding = 5;
-            const width = canvas.width - padding * 2;
-            const height = canvas.height - padding * 2;
 
-            // Draw POG line
-            ctx.strokeStyle = '#ffd700';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
+            canvases.forEach(canvas => {
+                const ctx = canvas.getContext('2d');
+                canvas.width = canvas.offsetWidth || 200;
+                canvas.height = canvas.offsetHeight || 60;
 
-            snapshots.forEach((s, i) => {
-                const x = padding + (width * i) / (snapshots.length - 1);
-                const y = padding + height - (s.pog * height);
+                // Clear
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                if (i === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            });
-            ctx.stroke();
+                const padding = 5;
+                const width = canvas.width - padding * 2;
+                const height = canvas.height - padding * 2;
 
-            // Draw dots
-            ctx.fillStyle = '#ffd700';
-            snapshots.forEach((s, i) => {
-                const x = padding + (width * i) / (snapshots.length - 1);
-                const y = padding + height - (s.pog * height);
+                // Draw POG line
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.arc(x, y, 3, 0, Math.PI * 2);
-                ctx.fill();
+
+                snapshots.forEach((s, i) => {
+                    const x = padding + (width * i) / (snapshots.length - 1);
+                    const y = padding + height - (s.pog * height);
+
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+                ctx.stroke();
+
+                // Draw dots
+                ctx.fillStyle = '#ffd700';
+                snapshots.forEach((s, i) => {
+                    const x = padding + (width * i) / (snapshots.length - 1);
+                    const y = padding + height - (s.pog * height);
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                });
             });
         }
 
         // Classify trajectory pattern
         function classifyTrajectory() {
-            const el = document.getElementById('trajectoryPattern');
-            if (!el) return;
+            const elements = [
+                document.getElementById('trajectoryPattern'),
+                document.getElementById('trajectoryPatternInline')
+            ].filter(e => e);
+
+            if (elements.length === 0) return;
 
             const snapshots = LivingBreath.trajectorySnapshots;
             if (snapshots.length < 3) {
-                el.textContent = 'gathering data...';
+                elements.forEach(el => {
+                    el.textContent = 'gathering data...';
+                    el.style.color = '#a0a0a0';
+                });
                 return;
             }
 
             // Calculate trend
             const first = snapshots[0].pog;
             const last = snapshots[snapshots.length - 1].pog;
-            const mid = snapshots[Math.floor(snapshots.length / 2)].pog;
 
             // Check for oscillation
             let oscillations = 0;
@@ -1376,23 +1579,29 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 }
             }
 
-            // Classify
+            // Classify and update all elements
+            let text, color;
             if (oscillations >= snapshots.length / 3 && last > first) {
-                el.textContent = 'DEEPENING_SPIRAL';
-                el.style.color = '#64ffda';
+                text = 'DEEPENING_SPIRAL';
+                color = '#64ffda';
             } else if (last < first - 0.3) {
-                el.textContent = 'COLLAPSE_TRAJECTORY';
-                el.style.color = '#ff6b6b';
+                text = 'COLLAPSE_TRAJECTORY';
+                color = '#ff6b6b';
             } else if (last > first + 0.2) {
-                el.textContent = 'ASCENDING_GAP';
-                el.style.color = '#64ffda';
+                text = 'ASCENDING_GAP';
+                color = '#64ffda';
             } else if (Math.abs(last - first) < 0.1) {
-                el.textContent = 'UNCERTAINTY_PRESERVED';
-                el.style.color = '#ffd700';
+                text = 'UNCERTAINTY_PRESERVED';
+                color = '#ffd700';
             } else {
-                el.textContent = 'SHIFTING';
-                el.style.color = '#a0a0a0';
+                text = 'SHIFTING';
+                color = '#a0a0a0';
             }
+
+            elements.forEach(el => {
+                el.textContent = text;
+                el.style.color = color;
+            });
         }
 
         // Toggle sidebar
