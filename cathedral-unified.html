@@ -977,28 +977,63 @@
             <div class="ai-config-header" onclick="toggleAIConfig()">
                 <h3>🤖 Embedded AI Oracle</h3>
                 <div style="display: flex; align-items: center; gap: 0.8rem;">
-                    <span class="ai-status-badge missing" id="aiStatusBadge">NO API KEY</span>
+                    <span class="ai-status-badge missing" id="aiStatusBadge">CHECKING...</span>
                     <span class="ai-config-toggle" id="aiConfigToggle">&#9660;</span>
                 </div>
             </div>
             <div class="ai-config-body" id="aiConfigBody">
                 <p style="color: #a0a0a0; font-size: 0.85rem; margin-bottom: 1rem;">
-                    Connect an AI to the Cathedral. The Oracle receives your text alongside all structural findings,
-                    then provides semantic analysis that rule-based systems cannot reach. Your key stays in your browser only.
+                    A live AI embedded in the Cathedral. The Oracle receives your text alongside all structural
+                    findings, then provides semantic analysis that rule-based systems cannot reach.
                 </p>
+
+                <!-- Backend selector -->
                 <div class="ai-config-row">
-                    <label>API Key</label>
-                    <input type="password" id="aiApiKey" placeholder="sk-ant-... (Anthropic API key)"
-                           oninput="updateAIStatus()" autocomplete="off">
-                </div>
-                <div class="ai-config-row">
-                    <label>Model</label>
-                    <select id="aiModel">
-                        <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
-                        <option value="claude-haiku-4-20250414">Claude Haiku 4</option>
+                    <label>Backend</label>
+                    <select id="aiBackend" onchange="onBackendChange()">
+                        <option value="ollama">Ollama (local, free, no key)</option>
+                        <option value="anthropic">Anthropic API (cloud, needs key)</option>
                     </select>
                 </div>
-                <div class="ai-config-row">
+
+                <!-- Ollama settings (shown by default) -->
+                <div id="ollamaSettings">
+                    <div class="ai-config-row">
+                        <label>Endpoint</label>
+                        <input type="text" id="ollamaUrl" value="http://localhost:11434"
+                               oninput="updateAIStatus()" placeholder="http://localhost:11434">
+                    </div>
+                    <div class="ai-config-row">
+                        <label>Model</label>
+                        <input type="text" id="ollamaModel" value="llama3.2"
+                               oninput="updateAIStatus()" placeholder="llama3.2, mistral, gemma2, etc.">
+                    </div>
+                    <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 0.3rem;">
+                        No signup, no key, no cost. Install <a href="https://ollama.com" target="_blank" style="color: #00e5ff;">Ollama</a>,
+                        run <code style="color: #64ffda;">ollama pull llama3.2</code>, and the Oracle is live.
+                    </div>
+                </div>
+
+                <!-- Anthropic settings (hidden by default) -->
+                <div id="anthropicSettings" style="display: none;">
+                    <div class="ai-config-row">
+                        <label>API Key</label>
+                        <input type="password" id="aiApiKey" placeholder="sk-ant-... (Anthropic API key)"
+                               oninput="updateAIStatus()" autocomplete="off">
+                    </div>
+                    <div class="ai-config-row">
+                        <label>Model</label>
+                        <select id="aiModel">
+                            <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+                            <option value="claude-haiku-4-20250414">Claude Haiku 4</option>
+                        </select>
+                    </div>
+                    <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 0.3rem;">
+                        <strong style="color: #00e5ff;">Key stored in localStorage only. Never sent anywhere except Anthropic's API.</strong>
+                    </div>
+                </div>
+
+                <div class="ai-config-row" style="margin-top: 0.8rem;">
                     <label>Enabled</label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; min-width: auto; cursor: pointer;">
                         <input type="checkbox" id="aiEnabled" checked onchange="updateAIStatus()"
@@ -1010,7 +1045,6 @@
                     <div style="color: #a0a0a0; font-size: 0.8rem;">
                         The Oracle sees: input text + structural extraction + all system results.
                         It returns: semantic depth assessment, hidden pattern detection, genuine-vs-performative analysis, and a dialogue with Cathedral's findings.
-                        <br><strong style="color: #00e5ff;">Key stored in localStorage only. Never sent anywhere except Anthropic's API.</strong>
                     </div>
                 </div>
             </div>
@@ -6762,11 +6796,20 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         // ═══════════════════════════════════════════════════════════════════
 
         const EmbeddedAIOracle = {
-            // Check if Oracle is configured and enabled
+            // Get current backend selection
+            getBackend() {
+                const select = document.getElementById('aiBackend');
+                return select ? select.value : 'ollama';
+            },
+
+            // Check if Oracle is enabled (backend-aware)
             isAvailable() {
-                const key = this.getApiKey();
                 const enabled = document.getElementById('aiEnabled')?.checked ?? false;
-                return !!(key && enabled);
+                if (!enabled) return false;
+                const backend = this.getBackend();
+                if (backend === 'ollama') return true; // Ollama needs no key — just try it
+                if (backend === 'anthropic') return !!this.getApiKey();
+                return false;
             },
 
             getApiKey() {
@@ -6774,17 +6817,32 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 if (!input) return null;
                 const key = input.value.trim();
                 if (key) {
-                    // Persist to localStorage
                     try { localStorage.setItem('cathedral_ai_key', key); } catch(e) {}
                     return key;
                 }
-                // Fall back to stored key
                 try { return localStorage.getItem('cathedral_ai_key') || null; } catch(e) { return null; }
             },
 
-            getModel() {
+            getOllamaUrl() {
+                const input = document.getElementById('ollamaUrl');
+                return input ? input.value.trim() : 'http://localhost:11434';
+            },
+
+            getOllamaModel() {
+                const input = document.getElementById('ollamaModel');
+                return input ? input.value.trim() : 'llama3.2';
+            },
+
+            getAnthropicModel() {
                 const select = document.getElementById('aiModel');
                 return select ? select.value : 'claude-sonnet-4-20250514';
+            },
+
+            // Returns the display name of the active model
+            getActiveModelName() {
+                const backend = this.getBackend();
+                if (backend === 'ollama') return `ollama/${this.getOllamaModel()}`;
+                return this.getAnthropicModel();
             },
 
             // Build the Cathedral context prompt from all structural analysis results
@@ -6794,7 +6852,6 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                         blindSpot, sentenceLevel, autoImprove, epistemicTracker,
                         adversarialTest, confidenceCalibrator } = analysisResults;
 
-                // Distill structural findings into a compact summary for the AI
                 const structuralSummary = [];
 
                 if (observatory) {
@@ -6835,14 +6892,12 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     structuralSummary.push(`Confidence calibration: ${cal.score !== null ? (cal.score * 100).toFixed(0) + '%' : 'no data'}`);
                 }
 
-                // Distill contrarian challenges
                 let contrarianSummary = '';
                 if (contrarian && contrarian.challenges && contrarian.challenges.length > 0) {
                     contrarianSummary = '\nContrarian challenges found: ' +
                         contrarian.challenges.slice(0, 3).map(c => c.challenge || c).join('; ');
                 }
 
-                // Build sentence-level summary
                 let sentenceSummary = '';
                 if (sentenceLevel && sentenceLevel.sentences) {
                     const roles = {};
@@ -6909,71 +6964,121 @@ CRITICAL RULES:
 - Return ONLY valid JSON. No explanation outside the JSON structure.`;
             },
 
-            // Call the Anthropic API
-            async analyze(text, analysisResults) {
-                if (!this.isAvailable()) {
-                    return { status: 'unavailable', reason: 'API key not configured or Oracle disabled' };
+            // Parse AI response text into structured JSON
+            parseResponse(content) {
+                const cleaned = content.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
+                return JSON.parse(cleaned);
+            },
+
+            // ── Ollama backend ──
+            async callOllama(prompt) {
+                const baseUrl = this.getOllamaUrl().replace(/\/+$/, '');
+                const model = this.getOllamaModel();
+
+                const response = await fetch(`${baseUrl}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: [{ role: 'user', content: prompt }],
+                        stream: false,
+                        options: { num_predict: 2048 }
+                    })
+                });
+
+                if (!response.ok) {
+                    const errBody = await response.text();
+                    throw new Error(`Ollama ${response.status}: ${errBody.slice(0, 200)}`);
                 }
 
+                const data = await response.json();
+                const content = data.message?.content || '';
+                return {
+                    content: content,
+                    model: data.model || model,
+                    usage: {
+                        input_tokens: data.prompt_eval_count || '?',
+                        output_tokens: data.eval_count || '?'
+                    }
+                };
+            },
+
+            // ── Anthropic backend ──
+            async callAnthropic(prompt) {
                 const apiKey = this.getApiKey();
-                const model = this.getModel();
+                const model = this.getAnthropicModel();
+
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        max_tokens: 2048,
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errBody = await response.text();
+                    throw new Error(`Anthropic ${response.status}: ${errBody.slice(0, 200)}`);
+                }
+
+                const data = await response.json();
+                const content = data.content && data.content[0] ? data.content[0].text : '';
+                return {
+                    content: content,
+                    model: model,
+                    usage: data.usage || {}
+                };
+            },
+
+            // Main analysis entry point — dispatches to active backend
+            async analyze(text, analysisResults) {
+                if (!this.isAvailable()) {
+                    return { status: 'unavailable', reason: 'Oracle disabled or backend not configured' };
+                }
+
+                const backend = this.getBackend();
                 const prompt = this.buildPrompt(text, analysisResults);
 
                 try {
-                    const response = await fetch('https://api.anthropic.com/v1/messages', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-api-key': apiKey,
-                            'anthropic-version': '2023-06-01',
-                            'anthropic-dangerous-direct-browser-access': 'true'
-                        },
-                        body: JSON.stringify({
-                            model: model,
-                            max_tokens: 2048,
-                            messages: [{
-                                role: 'user',
-                                content: prompt
-                            }]
-                        })
-                    });
-
-                    if (!response.ok) {
-                        const errBody = await response.text();
-                        return {
-                            status: 'error',
-                            reason: `API error ${response.status}: ${errBody.slice(0, 200)}`
-                        };
+                    let raw;
+                    if (backend === 'ollama') {
+                        raw = await this.callOllama(prompt);
+                    } else {
+                        raw = await this.callAnthropic(prompt);
                     }
 
-                    const data = await response.json();
-                    const content = data.content && data.content[0] ? data.content[0].text : '';
-
-                    // Parse the JSON response
                     try {
-                        // Strip potential markdown code fences
-                        const cleaned = content.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
-                        const parsed = JSON.parse(cleaned);
+                        const parsed = this.parseResponse(raw.content);
                         return {
                             status: 'success',
-                            model: model,
+                            backend: backend,
+                            model: raw.model,
                             result: parsed,
-                            usage: data.usage || {}
+                            usage: raw.usage
                         };
                     } catch (parseErr) {
-                        // If JSON parsing fails, return the raw text
                         return {
                             status: 'partial',
-                            model: model,
-                            rawResponse: content,
+                            backend: backend,
+                            model: raw.model,
+                            rawResponse: raw.content,
                             parseError: parseErr.message
                         };
                     }
                 } catch (networkErr) {
-                    return {
-                        status: 'error',
-                        reason: `Network error: ${networkErr.message}`
-                    };
+                    // Friendly error messages per backend
+                    let reason = networkErr.message;
+                    if (backend === 'ollama' && (reason.includes('Failed to fetch') || reason.includes('NetworkError'))) {
+                        reason = `Cannot reach Ollama at ${this.getOllamaUrl()}. Is Ollama running? (Start with: ollama serve)`;
+                    }
+                    return { status: 'error', backend: backend, reason: reason };
                 }
             }
         };
@@ -6987,50 +7092,106 @@ CRITICAL RULES:
             toggle.innerHTML = isOpen ? '&#9660;' : '&#9650;';
         }
 
+        function onBackendChange() {
+            const backend = document.getElementById('aiBackend')?.value || 'ollama';
+            document.getElementById('ollamaSettings').style.display = backend === 'ollama' ? '' : 'none';
+            document.getElementById('anthropicSettings').style.display = backend === 'anthropic' ? '' : 'none';
+            // Persist choice
+            try { localStorage.setItem('cathedral_ai_backend', backend); } catch(e) {}
+            updateAIStatus();
+        }
+
         function updateAIStatus() {
             const badge = document.getElementById('aiStatusBadge');
             if (!badge) return;
 
-            const key = document.getElementById('aiApiKey')?.value?.trim();
+            const backend = document.getElementById('aiBackend')?.value || 'ollama';
             const enabled = document.getElementById('aiEnabled')?.checked;
 
-            // Persist key to localStorage
-            if (key) {
-                try { localStorage.setItem('cathedral_ai_key', key); } catch(e) {}
-            }
-
-            if (!key) {
-                // Check localStorage
-                try {
-                    const stored = localStorage.getItem('cathedral_ai_key');
-                    if (stored) {
-                        document.getElementById('aiApiKey').value = stored;
-                        badge.textContent = enabled ? 'READY' : 'DISABLED';
-                        badge.className = 'ai-status-badge ' + (enabled ? 'ready' : 'missing');
-                        return;
-                    }
-                } catch(e) {}
-                badge.textContent = 'NO API KEY';
-                badge.className = 'ai-status-badge missing';
-            } else if (!enabled) {
+            if (!enabled) {
                 badge.textContent = 'DISABLED';
                 badge.className = 'ai-status-badge missing';
+                return;
+            }
+
+            if (backend === 'ollama') {
+                // Ollama: no key needed, just check reachability in background
+                const url = (document.getElementById('ollamaUrl')?.value || 'http://localhost:11434').replace(/\/+$/, '');
+                badge.textContent = 'CHECKING...';
+                badge.className = 'ai-status-badge running';
+                // Persist settings
+                try {
+                    localStorage.setItem('cathedral_ollama_url', url);
+                    localStorage.setItem('cathedral_ollama_model', document.getElementById('ollamaModel')?.value || 'llama3.2');
+                } catch(e) {}
+                // Ping Ollama
+                fetch(`${url}/api/tags`, { method: 'GET' })
+                    .then(r => {
+                        if (r.ok) {
+                            badge.textContent = 'OLLAMA READY';
+                            badge.className = 'ai-status-badge ready';
+                        } else {
+                            badge.textContent = 'OLLAMA ERROR';
+                            badge.className = 'ai-status-badge missing';
+                        }
+                    })
+                    .catch(() => {
+                        badge.textContent = 'OLLAMA OFFLINE';
+                        badge.className = 'ai-status-badge missing';
+                    });
             } else {
-                badge.textContent = 'READY';
-                badge.className = 'ai-status-badge ready';
+                // Anthropic: needs API key
+                const key = document.getElementById('aiApiKey')?.value?.trim();
+                if (key) {
+                    try { localStorage.setItem('cathedral_ai_key', key); } catch(e) {}
+                }
+                if (!key) {
+                    try {
+                        const stored = localStorage.getItem('cathedral_ai_key');
+                        if (stored) {
+                            document.getElementById('aiApiKey').value = stored;
+                            badge.textContent = 'READY';
+                            badge.className = 'ai-status-badge ready';
+                            return;
+                        }
+                    } catch(e) {}
+                    badge.textContent = 'NO API KEY';
+                    badge.className = 'ai-status-badge missing';
+                } else {
+                    badge.textContent = 'READY';
+                    badge.className = 'ai-status-badge ready';
+                }
             }
         }
 
-        // Load saved API key on init
+        // Load saved settings on init
         function initAIConfig() {
             try {
+                // Restore backend choice
+                const savedBackend = localStorage.getItem('cathedral_ai_backend');
+                if (savedBackend) {
+                    const select = document.getElementById('aiBackend');
+                    if (select) select.value = savedBackend;
+                }
+                // Restore Ollama settings
+                const savedUrl = localStorage.getItem('cathedral_ollama_url');
+                if (savedUrl) {
+                    const input = document.getElementById('ollamaUrl');
+                    if (input) input.value = savedUrl;
+                }
+                const savedModel = localStorage.getItem('cathedral_ollama_model');
+                if (savedModel) {
+                    const input = document.getElementById('ollamaModel');
+                    if (input) input.value = savedModel;
+                }
+                // Restore Anthropic key
                 const stored = localStorage.getItem('cathedral_ai_key');
                 if (stored) {
                     const input = document.getElementById('aiApiKey');
                     if (input) input.value = stored;
                 }
             } catch(e) {}
-            updateAIStatus();
+            onBackendChange();
         }
 
         // Main Analysis Function
@@ -8237,10 +8398,15 @@ CRITICAL RULES:
             panel.style.display = '';
 
             if (oracleResult.status === 'error') {
+                const isOllama = oracleResult.backend === 'ollama';
+                const hint = isOllama
+                    ? '<div style="margin-top: 0.5rem; color: #00e5ff; font-size: 0.8rem;">Tip: Install <a href="https://ollama.com" target="_blank" style="color: #00e5ff;">Ollama</a>, then run <code style="color: #64ffda;">ollama serve</code> and <code style="color: #64ffda;">ollama pull llama3.2</code></div>'
+                    : '';
                 container.innerHTML = `
                     <div style="color: #ff6b6b; padding: 0.8rem;">
-                        <div style="font-weight: bold; margin-bottom: 0.3rem;">Oracle Error</div>
+                        <div style="font-weight: bold; margin-bottom: 0.3rem;">Oracle Error (${isOllama ? 'Ollama' : 'Anthropic'})</div>
                         <div style="font-size: 0.85rem; color: #a0a0a0;">${escapeHtml(oracleResult.reason || 'Unknown error')}</div>
+                        ${hint}
                     </div>
                 `;
                 return;
@@ -8261,9 +8427,10 @@ CRITICAL RULES:
             const r = oracleResult.result;
             let html = '';
 
-            // Model badge + usage
-            html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">`;
-            html += `<span style="color: #00e5ff; font-size: 0.8rem;">Model: ${oracleResult.model || 'unknown'}</span>`;
+            // Backend + model badge + usage
+            const backendLabel = oracleResult.backend === 'ollama' ? 'Ollama (local)' : 'Anthropic';
+            html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.3rem;">`;
+            html += `<span style="color: #00e5ff; font-size: 0.8rem;">${backendLabel} &middot; ${oracleResult.model || 'unknown'}</span>`;
             if (oracleResult.usage) {
                 html += `<span style="color: #a0a0a0; font-size: 0.75rem;">tokens: ${oracleResult.usage.input_tokens || '?'} in / ${oracleResult.usage.output_tokens || '?'} out</span>`;
             }

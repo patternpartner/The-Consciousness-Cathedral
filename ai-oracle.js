@@ -6,22 +6,38 @@
  * The 19th system. An actual AI that dialogues with the Cathedral's structural
  * findings, providing semantic depth analysis beyond pattern matching.
  *
+ * Supports two backends:
+ *   - Ollama (local, free, no key) — default
+ *   - Anthropic API (cloud, needs key)
+ *
  * Usage:
  *   const AIOracle = require('./ai-oracle');
- *   const oracle = new AIOracle({ apiKey: 'sk-ant-...' });
+ *
+ *   // Ollama (default — no key needed)
+ *   const oracle = new AIOracle({ backend: 'ollama' });
+ *   const result = await oracle.analyze(text, cathedralResults);
+ *
+ *   // Anthropic
+ *   const oracle = new AIOracle({ backend: 'anthropic', apiKey: 'sk-ant-...' });
  *   const result = await oracle.analyze(text, cathedralResults);
  */
 
 class AIOracle {
   constructor(options = {}) {
+    this.backend = options.backend || process.env.AI_ORACLE_BACKEND || 'ollama';
+    // Ollama settings
+    this.ollamaUrl = options.ollamaUrl || process.env.OLLAMA_URL || 'http://localhost:11434';
+    this.ollamaModel = options.ollamaModel || process.env.OLLAMA_MODEL || 'llama3.2';
+    // Anthropic settings
     this.apiKey = options.apiKey || process.env.ANTHROPIC_API_KEY || null;
-    this.model = options.model || 'claude-sonnet-4-20250514';
+    this.anthropicModel = options.model || 'claude-sonnet-4-20250514';
     this.maxTokens = options.maxTokens || 2048;
-    this.apiUrl = options.apiUrl || 'https://api.anthropic.com/v1/messages';
   }
 
   isAvailable() {
-    return !!this.apiKey;
+    if (this.backend === 'ollama') return true; // Always "available" — connection tested at call time
+    if (this.backend === 'anthropic') return !!this.apiKey;
+    return false;
   }
 
   /**
@@ -142,79 +158,134 @@ CRITICAL RULES:
   }
 
   /**
-   * Call the Anthropic API and return structured analysis
+   * Parse AI response content into structured JSON
+   */
+  parseResponse(content) {
+    const cleaned = content.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
+    return JSON.parse(cleaned);
+  }
+
+  /**
+   * Resolve a fetch function for the current runtime
+   */
+  async getFetch() {
+    if (typeof fetch !== 'undefined') return fetch;
+    try {
+      return (await import('node-fetch')).default;
+    } catch (e) {
+      return globalThis.fetch;
+    }
+  }
+
+  /**
+   * Call Ollama (local, free, no key)
+   */
+  async callOllama(prompt) {
+    const fetchFn = await this.getFetch();
+    const baseUrl = this.ollamaUrl.replace(/\/+$/, '');
+
+    const response = await fetchFn(`${baseUrl}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: this.ollamaModel,
+        messages: [{ role: 'user', content: prompt }],
+        stream: false,
+        options: { num_predict: this.maxTokens }
+      })
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      throw new Error(`Ollama ${response.status}: ${errBody.slice(0, 200)}`);
+    }
+
+    const data = await response.json();
+    return {
+      content: data.message?.content || '',
+      model: data.model || this.ollamaModel,
+      usage: {
+        input_tokens: data.prompt_eval_count || '?',
+        output_tokens: data.eval_count || '?'
+      }
+    };
+  }
+
+  /**
+   * Call Anthropic API (cloud, needs key)
+   */
+  async callAnthropic(prompt) {
+    const fetchFn = await this.getFetch();
+
+    const response = await fetchFn('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': this.apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: this.anthropicModel,
+        max_tokens: this.maxTokens,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      throw new Error(`Anthropic ${response.status}: ${errBody.slice(0, 200)}`);
+    }
+
+    const data = await response.json();
+    return {
+      content: data.content && data.content[0] ? data.content[0].text : '',
+      model: this.anthropicModel,
+      usage: data.usage || {}
+    };
+  }
+
+  /**
+   * Main analysis entry point — dispatches to active backend
    */
   async analyze(text, analysisResults) {
     if (!this.isAvailable()) {
-      return { status: 'unavailable', reason: 'API key not configured' };
+      return { status: 'unavailable', reason: 'Backend not configured (Anthropic needs API key)' };
     }
 
     const prompt = this.buildPrompt(text, analysisResults);
 
     try {
-      // Use dynamic import for fetch in Node.js if needed
-      let fetchFn;
-      if (typeof fetch !== 'undefined') {
-        fetchFn = fetch;
+      let raw;
+      if (this.backend === 'ollama') {
+        raw = await this.callOllama(prompt);
       } else {
-        try {
-          fetchFn = (await import('node-fetch')).default;
-        } catch (e) {
-          // Node 18+ has global fetch
-          fetchFn = globalThis.fetch;
-        }
+        raw = await this.callAnthropic(prompt);
       }
-
-      const response = await fetchFn(this.apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': this.apiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: this.model,
-          max_tokens: this.maxTokens,
-          messages: [{
-            role: 'user',
-            content: prompt
-          }]
-        })
-      });
-
-      if (!response.ok) {
-        const errBody = await response.text();
-        return {
-          status: 'error',
-          reason: `API error ${response.status}: ${errBody.slice(0, 200)}`
-        };
-      }
-
-      const data = await response.json();
-      const content = data.content && data.content[0] ? data.content[0].text : '';
 
       try {
-        const cleaned = content.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
-        const parsed = JSON.parse(cleaned);
+        const parsed = this.parseResponse(raw.content);
         return {
           status: 'success',
-          model: this.model,
+          backend: this.backend,
+          model: raw.model,
           result: parsed,
-          usage: data.usage || {}
+          usage: raw.usage
         };
       } catch (parseErr) {
         return {
           status: 'partial',
-          model: this.model,
-          rawResponse: content,
+          backend: this.backend,
+          model: raw.model,
+          rawResponse: raw.content,
           parseError: parseErr.message
         };
       }
     } catch (networkErr) {
-      return {
-        status: 'error',
-        reason: `Network error: ${networkErr.message}`
-      };
+      let reason = networkErr.message;
+      if (this.backend === 'ollama' && (reason.includes('ECONNREFUSED') || reason.includes('fetch'))) {
+        reason = `Cannot reach Ollama at ${this.ollamaUrl}. Is Ollama running? (Start with: ollama serve)`;
+      }
+      return { status: 'error', backend: this.backend, reason: reason };
     }
   }
 
@@ -229,6 +300,7 @@ CRITICAL RULES:
     const r = oracleResult.result;
     return {
       available: true,
+      backend: oracleResult.backend || null,
       semanticDepthScore: r.semanticDepth?.score || null,
       genuineVsPerformative: r.genuineVsPerformative?.assessment || null,
       genuineConfidence: r.genuineVsPerformative?.confidence || null,
@@ -244,25 +316,29 @@ CRITICAL RULES:
 // CLI mode
 if (require.main === module) {
   const text = process.argv[2] || 'This system demonstrates operational excellence through structured planning.';
+  const backend = process.argv[3] || process.env.AI_ORACLE_BACKEND || 'ollama';
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.log('AI Oracle — Neural Semantic Layer');
-    console.log('================================');
-    console.log('');
-    console.log('Set ANTHROPIC_API_KEY environment variable to use the Oracle.');
+  console.log('AI Oracle — Neural Semantic Layer');
+  console.log('================================');
+  console.log(`Backend: ${backend}`);
+  console.log('');
+
+  if (backend === 'anthropic' && !process.env.ANTHROPIC_API_KEY) {
+    console.log('Anthropic backend requires ANTHROPIC_API_KEY environment variable.');
     console.log('');
     console.log('Usage:');
-    console.log('  ANTHROPIC_API_KEY=sk-ant-... node ai-oracle.js "text to analyze"');
+    console.log('  node ai-oracle.js "text" ollama         (default, free, no key)');
+    console.log('  ANTHROPIC_API_KEY=sk-ant-... node ai-oracle.js "text" anthropic');
     console.log('');
     console.log('Or require as module:');
     console.log('  const AIOracle = require("./ai-oracle");');
-    console.log('  const oracle = new AIOracle({ apiKey: "sk-ant-..." });');
+    console.log('  const oracle = new AIOracle({ backend: "ollama" });');
     console.log('  const result = await oracle.analyze(text, cathedralResults);');
     process.exit(0);
   }
 
-  const oracle = new AIOracle();
-  console.log('AI Oracle analyzing...');
+  const oracle = new AIOracle({ backend });
+  console.log(`Analyzing with ${backend}...`);
   oracle.analyze(text, {}).then(result => {
     console.log(JSON.stringify(result, null, 2));
   }).catch(err => {
