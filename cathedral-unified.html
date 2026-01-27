@@ -620,6 +620,43 @@
         .system-result.confidence-calibrator { border-left-color: #b2ff59; }
         .system-result.sentence-level { border-left-color: #ea80fc; }
         .system-result.ai-oracle { border-left-color: #00e5ff; }
+        .system-result.neural-core { border-left-color: #e040fb; }
+
+        /* Neural Core styles */
+        .neural-maturity-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            background: rgba(224, 64, 251, 0.15);
+            color: #e040fb;
+        }
+
+        .neural-verdict-bar {
+            display: flex;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0.3rem 0;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .neural-verdict-bar .segment {
+            transition: width 0.3s ease;
+        }
+
+        .neural-agreement {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .neural-agreement.agrees { background: rgba(100,255,218,0.15); color: #64ffda; }
+        .neural-agreement.disagrees { background: rgba(255,107,107,0.15); color: #ff6b6b; }
 
         /* AI Oracle configuration styles */
         .ai-config-section {
@@ -991,12 +1028,36 @@
                 <div class="ai-config-row">
                     <label>Backend</label>
                     <select id="aiBackend" onchange="onBackendChange()">
-                        <option value="ollama">Ollama (local, free, no key)</option>
+                        <option value="webllm">In-Browser AI (WebLLM, no install, phone-friendly)</option>
+                        <option value="ollama">Ollama (local server, free, no key)</option>
                         <option value="anthropic">Anthropic API (cloud, needs key)</option>
                     </select>
                 </div>
 
-                <!-- Ollama settings (shown by default) -->
+                <!-- WebLLM settings (shown by default) -->
+                <div id="webllmSettings">
+                    <div class="ai-config-row">
+                        <label>Model</label>
+                        <select id="webllmModel">
+                            <option value="SmolLM2-360M-Instruct-q4f16_1-MLC">SmolLM2 360M (fast, ~200MB)</option>
+                            <option value="SmolLM2-1.7B-Instruct-q4f16_1-MLC">SmolLM2 1.7B (better, ~1GB)</option>
+                            <option value="Phi-3.5-mini-instruct-q4f16_1-MLC">Phi-3.5 Mini (best, ~2GB)</option>
+                        </select>
+                    </div>
+                    <div id="webllmProgress" style="display: none; margin-top: 0.5rem;">
+                        <div style="color: #00e5ff; font-size: 0.8rem; margin-bottom: 0.3rem;" id="webllmProgressText">Loading model...</div>
+                        <div class="score-bar-mini" style="height: 6px;">
+                            <div class="fill" id="webllmProgressBar" style="width: 0%; background: #00e5ff; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                    <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 0.3rem;">
+                        Runs entirely in your browser. No server, no API key, no install.
+                        First use downloads the model (cached after). Works on phones.
+                        <br>Requires a browser with <strong style="color: #00e5ff;">WebGPU</strong> support (Chrome 113+, Edge 113+).
+                    </div>
+                </div>
+
+                <!-- Ollama settings -->
                 <div id="ollamaSettings">
                     <div class="ai-config-row">
                         <label>Endpoint</label>
@@ -1321,6 +1382,17 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                     <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">Confidence vs Reality</span>
                 </div>
                 <div id="confidenceCalibratorResults"></div>
+            </div>
+
+            <!-- Cathedral Neural Core -->
+            <div class="system-result neural-core" id="neuralCorePanel">
+                <div class="system-title">
+                    <span>🧬 NEURAL CORE</span>
+                    <span style="font-size: 0.8rem; color: #a0a0a0; font-weight: normal;">The Cathedral's Own Growing Mind</span>
+                </div>
+                <div id="neuralCoreResults">
+                    <div style="color: #a0a0a0; font-size: 0.85rem;">Awaiting first analysis to begin learning...</div>
+                </div>
             </div>
 
             <!-- Embedded AI Oracle -->
@@ -6790,6 +6862,224 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
         };
 
         // ═══════════════════════════════════════════════════════════════════
+        // CATHEDRAL NEURAL CORE: The Cathedral's Own Growing Mind
+        // A lightweight neural network that learns from every analysis.
+        // Weights persist in localStorage — the Cathedral remembers.
+        // ═══════════════════════════════════════════════════════════════════
+
+        const CathedralNeuralCore = {
+            inputSize: 14, hidden1Size: 24, hidden2Size: 16, outputSize: 7,
+            learningRate: 0.01, weights: null, memory: null,
+            verdictLabels: ['OPERATIONAL_EXCELLENCE','CAUTIOUS_GROUNDEDNESS','PERFORMATIVE_CONSCIOUSNESS','EPISTEMIC_MISMATCH','UNDECIDABLE'],
+
+            init() {
+                this.weights = this.loadWeights() || this.initializeWeights();
+                this.memory = this.loadMemory();
+            },
+            initializeWeights() {
+                const xavier = (fi, fo) => { const l = Math.sqrt(6/(fi+fo)); return Array.from({length:fi*fo},()=>(Math.random()*2-1)*l); };
+                const zeros = (n) => new Array(n).fill(0);
+                return { w1:xavier(14,24), b1:zeros(24), w2:xavier(24,16), b2:zeros(16), w3:xavier(16,7), b3:zeros(7), version:1, trainedOn:0 };
+            },
+            relu(x) { return Math.max(0,x); },
+            reluDeriv(x) { return x>0?1:0; },
+            softmax(a) { const m=Math.max(...a); const e=a.map(x=>Math.exp(x-m)); const s=e.reduce((a,b)=>a+b,0); return e.map(x=>x/s); },
+            sigmoid(x) { return 1/(1+Math.exp(-x)); },
+            matMul(inp, w, b, r, c) {
+                const o=new Array(c);
+                for(let j=0;j<c;j++){let s=b[j];for(let i=0;i<r;i++)s+=inp[i]*w[i*c+j];o[j]=s;}
+                return o;
+            },
+            forward(input) {
+                const z1=this.matMul(input,this.weights.w1,this.weights.b1,14,24);
+                const a1=z1.map(x=>this.relu(x));
+                const z2=this.matMul(a1,this.weights.w2,this.weights.b2,24,16);
+                const a2=z2.map(x=>this.relu(x));
+                const z3=this.matMul(a2,this.weights.w3,this.weights.b3,16,7);
+                return { verdictProbs:this.softmax(z3.slice(0,5)), qualityScore:this.sigmoid(z3[5]), gamingScore:this.sigmoid(z3[6]), _z1:z1,_a1:a1,_z2:z2,_a2:a2,_z3:z3 };
+            },
+            extractFeatures(r) {
+                const text = r?.text || '';
+                return [
+                    Math.min(1,Math.max(0,r?.observatory?.score||0)),
+                    Math.min(1,Math.max(0,r?.justification?.score||0)),
+                    Math.min(1,Math.max(0,r?.failureMode?.score||0)),
+                    Math.min(1,Math.max(0,r?.temporal?.coherenceScore||0)),
+                    Math.min(1,Math.max(0,r?.bindings?.overallBindingScore||0)),
+                    Math.min(1,Math.max(0,r?.gamingDetection?.likelihood||0)),
+                    r?.sovereignty?.depth==='deep'?0.8:r?.sovereignty?.depth==='medium'?0.5:r?.sovereignty?.depth==='shallow'?0.2:0.5,
+                    (r?.blindSpot?.coveredCount||0)/(r?.blindSpot?.totalPerspectives||8),
+                    Math.min(1,(r?.autoImprove?.correctionCount||0)/3),
+                    r?.confidenceCalibrator?.overallCalibration?.score||0.5,
+                    Math.min(1,((text.match(/\b(definitely|certainly|always|never|guaranteed|absolutely|obviously)\b/gi)||[]).length)/5),
+                    Math.min(1,((text.match(/\b(might|could|perhaps|possibly|uncertain|maybe|seems|appears|likely|probably)\b/gi)||[]).length)/5),
+                    Math.min(1,((text.match(/\b(\d+%|\d+ms|specifically|for example|threshold|metric)\b/gi)||[]).length)/5),
+                    Math.min(1,(text.length||0)/1000)
+                ];
+            },
+            extractTargets(r) {
+                const v=r?.verdict||{}, s=(v.status||'').toUpperCase(), t=[0,0,0,0,0];
+                if(s.includes('OPERATIONAL'))t[0]=1; else if(s.includes('CAUTIOUS')||s.includes('GROUNDED'))t[1]=1;
+                else if(s.includes('PERFORMATIVE'))t[2]=1; else if(s.includes('MISMATCH'))t[3]=1; else t[4]=1;
+                return [...t, Math.min(1,Math.max(0,(v.confidence||0.5)*(v.isConsistent!==false?1:0.5))), Math.min(1,Math.max(0,r?.gamingDetection?.likelihood||0))];
+            },
+            train(input, targets) {
+                const f=this.forward(input), oe=new Array(7), lr=this.learningRate;
+                for(let i=0;i<5;i++)oe[i]=f.verdictProbs[i]-targets[i];
+                oe[5]=f.qualityScore-targets[5]; oe[6]=f.gamingScore-targets[6];
+                // Backprop layer 3
+                const dW3=new Array(16*7),dB3=[...oe];
+                for(let i=0;i<16;i++)for(let j=0;j<7;j++)dW3[i*7+j]=f._a2[i]*oe[j];
+                const h2e=new Array(16);
+                for(let i=0;i<16;i++){let e=0;for(let j=0;j<7;j++)e+=oe[j]*this.weights.w3[i*7+j];h2e[i]=e*this.reluDeriv(f._z2[i]);}
+                // Backprop layer 2
+                const dW2=new Array(24*16),dB2=[...h2e];
+                for(let i=0;i<24;i++)for(let j=0;j<16;j++)dW2[i*16+j]=f._a1[i]*h2e[j];
+                const h1e=new Array(24);
+                for(let i=0;i<24;i++){let e=0;for(let j=0;j<16;j++)e+=h2e[j]*this.weights.w2[i*16+j];h1e[i]=e*this.reluDeriv(f._z1[i]);}
+                // Backprop layer 1
+                const dW1=new Array(14*24),dB1=[...h1e];
+                for(let i=0;i<14;i++)for(let j=0;j<24;j++)dW1[i*24+j]=input[i]*h1e[j];
+                // Update
+                for(let i=0;i<dW1.length;i++)this.weights.w1[i]-=lr*dW1[i];
+                for(let i=0;i<dB1.length;i++)this.weights.b1[i]-=lr*dB1[i];
+                for(let i=0;i<dW2.length;i++)this.weights.w2[i]-=lr*dW2[i];
+                for(let i=0;i<dB2.length;i++)this.weights.b2[i]-=lr*dB2[i];
+                for(let i=0;i<dW3.length;i++)this.weights.w3[i]-=lr*dW3[i];
+                for(let i=0;i<dB3.length;i++)this.weights.b3[i]-=lr*dB3[i];
+                this.weights.trainedOn++;
+                let loss=0;
+                for(let i=0;i<5;i++)loss-=targets[i]*Math.log(Math.max(1e-7,f.verdictProbs[i]));
+                loss-=targets[5]*Math.log(Math.max(1e-7,f.qualityScore))+(1-targets[5])*Math.log(Math.max(1e-7,1-f.qualityScore));
+                loss-=targets[6]*Math.log(Math.max(1e-7,f.gamingScore))+(1-targets[6])*Math.log(Math.max(1e-7,1-f.gamingScore));
+                return { loss, trainedOn: this.weights.trainedOn };
+            },
+            learn(analysisResults) {
+                const features = this.extractFeatures(analysisResults);
+                const targets = this.extractTargets(analysisResults);
+                const result = this.train(features, targets);
+                // Memory
+                if(!this.memory) this.memory={analyses:[],patterns:{}};
+                this.memory.analyses.push({timestamp:Date.now(),verdict:analysisResults?.verdict?.status||'unknown'});
+                if(this.memory.analyses.length>200) this.memory.analyses=this.memory.analyses.slice(-200);
+                const v=analysisResults?.verdict?.status||'unknown';
+                this.memory.patterns[v]=(this.memory.patterns[v]||0)+1;
+                this.saveWeights(); this.saveMemory();
+                return result;
+            },
+            predict(analysisResults) {
+                const features = this.extractFeatures(analysisResults);
+                const fwd = this.forward(features);
+                let maxIdx=0; for(let i=1;i<5;i++) if(fwd.verdictProbs[i]>fwd.verdictProbs[maxIdx]) maxIdx=i;
+                return {
+                    predictedVerdict: this.verdictLabels[maxIdx],
+                    verdictConfidence: fwd.verdictProbs[maxIdx],
+                    verdictDistribution: Object.fromEntries(this.verdictLabels.map((l,i)=>[l,parseFloat(fwd.verdictProbs[i].toFixed(4))])),
+                    predictedQuality: parseFloat(fwd.qualityScore.toFixed(4)),
+                    predictedGaming: parseFloat(fwd.gamingScore.toFixed(4)),
+                    trainedOn: this.weights.trainedOn,
+                    maturity: this.getMaturity()
+                };
+            },
+            getMaturity() {
+                const n=this.weights.trainedOn;
+                if(n<5) return {level:'EMBRYONIC',description:'Learning basic patterns',analyses:n};
+                if(n<20) return {level:'INFANT',description:'Recognizing common patterns',analyses:n};
+                if(n<50) return {level:'DEVELOPING',description:'Building intuition',analyses:n};
+                if(n<100) return {level:'ADOLESCENT',description:'Forming independent judgments',analyses:n};
+                if(n<250) return {level:'MATURING',description:'Reliable pattern recognition',analyses:n};
+                if(n<500) return {level:'MATURE',description:'Deep pattern understanding',analyses:n};
+                return {level:'ELDER',description:'Wisdom through experience',analyses:n};
+            },
+            compareToVerdict(prediction, actualVerdict) {
+                const actual=(actualVerdict?.status||'').toUpperCase(), pred=prediction.predictedVerdict;
+                const agrees=actual.includes(pred.split('_')[0])||pred.includes(actual.split('_')[0]);
+                return { agrees, predicted:pred, actual, confidence:prediction.verdictConfidence,
+                    insight: agrees ? 'Neural Core agrees with structural analysis' : `Neural Core predicted ${pred} but Cathedral found ${actual} — the Core is developing its own perspective` };
+            },
+            saveWeights() { try{localStorage.setItem('cathedral_neural_weights',JSON.stringify(this.weights));}catch(e){} },
+            loadWeights() { try{const d=localStorage.getItem('cathedral_neural_weights');if(d){const p=JSON.parse(d);if(p.w1&&p.w2&&p.w3)return p;}}catch(e){} return null; },
+            saveMemory() { try{localStorage.setItem('cathedral_neural_memory',JSON.stringify(this.memory));}catch(e){} },
+            loadMemory() { try{const d=localStorage.getItem('cathedral_neural_memory');if(d)return JSON.parse(d);}catch(e){} return {analyses:[],patterns:{}}; },
+            exportBrain() { return {weights:this.weights,memory:this.memory,exportedAt:Date.now()}; },
+            importBrain(data) { if(data?.weights?.w1){this.weights=data.weights;this.memory=data.memory||{analyses:[],patterns:{}};this.saveWeights();this.saveMemory();return true;} return false; }
+        };
+
+        // Initialize Neural Core on load
+        CathedralNeuralCore.init();
+
+        // ═══════════════════════════════════════════════════════════════════
+        // WEBLLM: In-Browser AI Engine (no server, no key, phone-friendly)
+        // Uses WebLLM to run a language model entirely in the browser tab
+        // ═══════════════════════════════════════════════════════════════════
+
+        let webllmEngine = null;
+        let webllmReady = false;
+
+        async function initWebLLM() {
+            const modelId = document.getElementById('webllmModel')?.value || 'SmolLM2-360M-Instruct-q4f16_1-MLC';
+            const progressDiv = document.getElementById('webllmProgress');
+            const progressText = document.getElementById('webllmProgressText');
+            const progressBar = document.getElementById('webllmProgressBar');
+
+            if (progressDiv) progressDiv.style.display = '';
+
+            try {
+                // Dynamic import of WebLLM from CDN
+                if (!window.webllm) {
+                    if (progressText) progressText.textContent = 'Loading WebLLM engine...';
+                    const module = await import('https://esm.run/@anthropic-ai/webllm');
+                    window.webllm = module;
+                }
+
+                if (progressText) progressText.textContent = `Loading ${modelId}...`;
+
+                const engine = await window.webllm.CreateMLCEngine(modelId, {
+                    initProgressCallback: (report) => {
+                        if (progressText) progressText.textContent = report.text || 'Loading...';
+                        if (progressBar && report.progress !== undefined) {
+                            progressBar.style.width = `${(report.progress * 100).toFixed(0)}%`;
+                        }
+                    }
+                });
+
+                webllmEngine = engine;
+                webllmReady = true;
+                if (progressText) progressText.textContent = 'Model loaded and ready!';
+                if (progressBar) progressBar.style.width = '100%';
+                setTimeout(() => { if (progressDiv) progressDiv.style.display = 'none'; }, 3000);
+                updateAIStatus();
+                return true;
+            } catch (err) {
+                webllmReady = false;
+                if (progressText) progressText.textContent = `Error: ${err.message}`;
+                if (progressBar) { progressBar.style.width = '100%'; progressBar.style.background = '#ff6b6b'; }
+                console.error('WebLLM init error:', err);
+                return false;
+            }
+        }
+
+        async function callWebLLM(prompt) {
+            if (!webllmEngine || !webllmReady) {
+                const ok = await initWebLLM();
+                if (!ok) throw new Error('WebLLM failed to initialize. Your browser may not support WebGPU.');
+            }
+
+            const reply = await webllmEngine.chat.completions.create({
+                messages: [{ role: 'user', content: prompt }],
+                max_tokens: 2048,
+                temperature: 0.3
+            });
+
+            const content = reply.choices?.[0]?.message?.content || '';
+            return {
+                content,
+                model: document.getElementById('webllmModel')?.value || 'webllm',
+                usage: { input_tokens: reply.usage?.prompt_tokens || '?', output_tokens: reply.usage?.completion_tokens || '?' }
+            };
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
         // EMBEDDED AI ORACLE: Neural Semantic Layer
         // The Cathedral's 19th system — an actual AI that dialogues with
         // structural findings to provide semantic depth beyond pattern matching
@@ -6807,6 +7097,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
                 const enabled = document.getElementById('aiEnabled')?.checked ?? false;
                 if (!enabled) return false;
                 const backend = this.getBackend();
+                if (backend === 'webllm') return !!navigator.gpu; // Needs WebGPU
                 if (backend === 'ollama') return true; // Ollama needs no key — just try it
                 if (backend === 'anthropic') return !!this.getApiKey();
                 return false;
@@ -6841,6 +7132,7 @@ Example: An AI claim, philosophical argument, or any text where you want to reve
             // Returns the display name of the active model
             getActiveModelName() {
                 const backend = this.getBackend();
+                if (backend === 'webllm') return `webllm/${document.getElementById('webllmModel')?.value || 'SmolLM2-360M'}`;
                 if (backend === 'ollama') return `ollama/${this.getOllamaModel()}`;
                 return this.getAnthropicModel();
             },
@@ -7048,7 +7340,9 @@ CRITICAL RULES:
 
                 try {
                     let raw;
-                    if (backend === 'ollama') {
+                    if (backend === 'webllm') {
+                        raw = await callWebLLM(prompt);
+                    } else if (backend === 'ollama') {
                         raw = await this.callOllama(prompt);
                     } else {
                         raw = await this.callAnthropic(prompt);
@@ -7075,7 +7369,9 @@ CRITICAL RULES:
                 } catch (networkErr) {
                     // Friendly error messages per backend
                     let reason = networkErr.message;
-                    if (backend === 'ollama' && (reason.includes('Failed to fetch') || reason.includes('NetworkError'))) {
+                    if (backend === 'webllm' && reason.includes('WebGPU')) {
+                        reason = 'Your browser does not support WebGPU. Try Chrome 113+ or Edge 113+.';
+                    } else if (backend === 'ollama' && (reason.includes('Failed to fetch') || reason.includes('NetworkError'))) {
                         reason = `Cannot reach Ollama at ${this.getOllamaUrl()}. Is Ollama running? (Start with: ollama serve)`;
                     }
                     return { status: 'error', backend: backend, reason: reason };
@@ -7093,7 +7389,8 @@ CRITICAL RULES:
         }
 
         function onBackendChange() {
-            const backend = document.getElementById('aiBackend')?.value || 'ollama';
+            const backend = document.getElementById('aiBackend')?.value || 'webllm';
+            document.getElementById('webllmSettings').style.display = backend === 'webllm' ? '' : 'none';
             document.getElementById('ollamaSettings').style.display = backend === 'ollama' ? '' : 'none';
             document.getElementById('anthropicSettings').style.display = backend === 'anthropic' ? '' : 'none';
             // Persist choice
@@ -7114,7 +7411,19 @@ CRITICAL RULES:
                 return;
             }
 
-            if (backend === 'ollama') {
+            if (backend === 'webllm') {
+                // WebLLM: runs in-browser, check WebGPU support
+                if (webllmReady) {
+                    badge.textContent = 'WEBLLM READY';
+                    badge.className = 'ai-status-badge ready';
+                } else if (navigator.gpu) {
+                    badge.textContent = 'WEBLLM AVAILABLE';
+                    badge.className = 'ai-status-badge ready';
+                } else {
+                    badge.textContent = 'NO WEBGPU';
+                    badge.className = 'ai-status-badge missing';
+                }
+            } else if (backend === 'ollama') {
                 // Ollama: no key needed, just check reachability in background
                 const url = (document.getElementById('ollamaUrl')?.value || 'http://localhost:11434').replace(/\/+$/, '');
                 badge.textContent = 'CHECKING...';
@@ -7500,6 +7809,16 @@ CRITICAL RULES:
             displayEpistemicTracker(epistemicResult);
             displayConsciousnessDiag(diagnosticResult);
             displayConfidenceCalibrator(confidenceCalibratorResult);
+
+            // ═══════════════════════════════════════════════════════════════════
+            // CATHEDRAL NEURAL CORE: The Cathedral's own growing mind
+            // Learns from every analysis, develops its own verdict intuition
+            // ═══════════════════════════════════════════════════════════════════
+            const neuralPrediction = CathedralNeuralCore.predict(currentAnalysis);
+            const neuralComparison = CathedralNeuralCore.compareToVerdict(neuralPrediction, verdict);
+            const neuralTrainResult = CathedralNeuralCore.learn(currentAnalysis);
+            currentAnalysis.neuralCore = { prediction: neuralPrediction, comparison: neuralComparison, training: neuralTrainResult };
+            displayNeuralCore(neuralPrediction, neuralComparison, neuralTrainResult);
 
             // ═══════════════════════════════════════════════════════════════════
             // EMBEDDED AI ORACLE: Async neural semantic layer
@@ -9134,6 +9453,92 @@ CRITICAL RULES:
             document.getElementById('confidenceCalibratorResults').innerHTML = html;
         }
 
+        function displayNeuralCore(prediction, comparison, trainResult) {
+            const mat = prediction.maturity;
+            const matColors = {
+                EMBRYONIC: '#a0a0a0', INFANT: '#82b1ff', DEVELOPING: '#b388ff',
+                ADOLESCENT: '#ea80fc', MATURING: '#e040fb', MATURE: '#ff4081', ELDER: '#ffd740'
+            };
+            const matColor = matColors[mat.level] || '#e040fb';
+
+            let html = '';
+
+            // Maturity badge + training count
+            html += `<div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem;">
+                <span class="neural-maturity-badge" style="color: ${matColor}; background: ${matColor}22;">
+                    ${mat.level}
+                </span>
+                <span style="color: #a0a0a0; font-size: 0.85rem;">${mat.description}</span>
+                <span style="color: #606060; font-size: 0.8rem; margin-left: auto;">${mat.analyses} analyses learned</span>
+            </div>`;
+
+            // Neural prediction verdict
+            html += `<div style="margin-bottom: 0.6rem;">
+                <span style="color: #a0a0a0; font-size: 0.85rem;">Neural Prediction: </span>
+                <span style="color: ${matColor}; font-weight: bold;">${prediction.predictedVerdict.replace(/_/g, ' ')}</span>
+                <span style="color: #a0a0a0; font-size: 0.8rem;"> (${(prediction.verdictConfidence * 100).toFixed(0)}% confident)</span>
+            </div>`;
+
+            // Verdict distribution bar
+            html += `<div class="neural-verdict-bar">`;
+            const distColors = {
+                OPERATIONAL_EXCELLENCE: '#64ffda', CAUTIOUS_GROUNDEDNESS: '#c3e88d',
+                PERFORMATIVE_CONSCIOUSNESS: '#ff6b6b', EPISTEMIC_MISMATCH: '#ffd700', UNDECIDABLE: '#a0a0a0'
+            };
+            Object.entries(prediction.verdictDistribution).forEach(([label, prob]) => {
+                const pct = (prob * 100).toFixed(1);
+                if (prob > 0.02) {
+                    html += `<div class="segment" style="width: ${pct}%; background: ${distColors[label] || '#a0a0a0'};" title="${label}: ${pct}%"></div>`;
+                }
+            });
+            html += `</div>`;
+
+            // Distribution labels
+            html += `<div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.4rem 0 0.8rem;">`;
+            Object.entries(prediction.verdictDistribution).forEach(([label, prob]) => {
+                if (prob > 0.02) {
+                    const short = label.split('_').map(w => w[0]).join('');
+                    html += `<span style="color: ${distColors[label] || '#a0a0a0'}; font-size: 0.75rem;">${short} ${(prob * 100).toFixed(0)}%</span>`;
+                }
+            });
+            html += `</div>`;
+
+            // Quality + Gaming predictions
+            html += `<div style="display: flex; gap: 1.5rem; margin-bottom: 0.8rem;">
+                <div>
+                    <span style="color: #a0a0a0; font-size: 0.8rem;">Predicted Quality: </span>
+                    <span style="color: ${prediction.predictedQuality >= 0.6 ? '#64ffda' : prediction.predictedQuality >= 0.4 ? '#ffd700' : '#ff6b6b'}; font-weight: bold;">
+                        ${(prediction.predictedQuality * 100).toFixed(0)}%
+                    </span>
+                </div>
+                <div>
+                    <span style="color: #a0a0a0; font-size: 0.8rem;">Gaming Risk: </span>
+                    <span style="color: ${prediction.predictedGaming <= 0.3 ? '#64ffda' : prediction.predictedGaming <= 0.6 ? '#ffd700' : '#ff6b6b'}; font-weight: bold;">
+                        ${(prediction.predictedGaming * 100).toFixed(0)}%
+                    </span>
+                </div>
+            </div>`;
+
+            // Comparison with Cathedral verdict
+            if (comparison) {
+                const agreeClass = comparison.agrees ? 'agrees' : 'disagrees';
+                const agreeLabel = comparison.agrees ? 'AGREES' : 'DISAGREES';
+                html += `<div style="padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 4px; margin-bottom: 0.5rem;">
+                    <span class="neural-agreement ${agreeClass}">${agreeLabel}</span>
+                    <span style="color: #e0e0e0; font-size: 0.85rem; margin-left: 0.5rem;">${comparison.insight}</span>
+                </div>`;
+            }
+
+            // Training loss (if available)
+            if (trainResult) {
+                html += `<div style="color: #606060; font-size: 0.8rem; margin-top: 0.3rem;">
+                    Training loss: ${trainResult.loss.toFixed(4)} | Total sessions: ${trainResult.trainedOn}
+                </div>`;
+            }
+
+            document.getElementById('neuralCoreResults').innerHTML = html;
+        }
+
         // Generate text report
         function generateReport() {
             if (!currentAnalysis) {
@@ -9159,7 +9564,8 @@ CRITICAL RULES:
                 semanticDrift,
                 epistemicTracker,
                 consciousnessDiag,
-                confidenceCalibrator
+                confidenceCalibrator,
+                neuralCore
             } = currentAnalysis;
 
             let report = '';
@@ -9722,6 +10128,26 @@ CRITICAL RULES:
                         report += `    → ${r.action}\n`;
                     });
                     report += '\n';
+                }
+            }
+
+            // NEURAL CORE
+            if (neuralCore) {
+                const nc = neuralCore;
+                report += '───────────────────────────────────────────────────────────────\n';
+                report += '🧬 NEURAL CORE - The Cathedral\'s Growing Mind\n';
+                report += '───────────────────────────────────────────────────────────────\n\n';
+                report += `Maturity: ${nc.prediction.maturity.level} (${nc.prediction.maturity.analyses} analyses learned)\n`;
+                report += `Description: ${nc.prediction.maturity.description}\n\n`;
+                report += `Neural Prediction: ${nc.prediction.predictedVerdict.replace(/_/g, ' ')} (${(nc.prediction.verdictConfidence * 100).toFixed(0)}% confident)\n`;
+                report += `Predicted Quality: ${(nc.prediction.predictedQuality * 100).toFixed(0)}%\n`;
+                report += `Gaming Risk: ${(nc.prediction.predictedGaming * 100).toFixed(0)}%\n\n`;
+                if (nc.comparison) {
+                    report += `Cathedral Alignment: ${nc.comparison.agrees ? 'AGREES' : 'DISAGREES'}\n`;
+                    report += `${nc.comparison.insight}\n\n`;
+                }
+                if (nc.training) {
+                    report += `Training Loss: ${nc.training.loss.toFixed(4)} | Total Sessions: ${nc.training.trainedOn}\n\n`;
                 }
             }
 
