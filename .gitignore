@@ -31,3 +31,9 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.bak
+
+# Cathedral runtime state (regenerated on each run)
+consciousness-state.json
+witness-memory.json
+cathedral-brain.json
+confidence-history.json
