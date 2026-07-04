@@ -112,7 +112,14 @@ console.log(result.coConstruction.roundTrips);   // "lease" and "stamp" each
 
 It classifies uptake (`TRANSFORMATIVE` / `WEAK` / `ECHO`), detects vocabulary **round trips** (a term introduced by one speaker, adopted by the other, returned to by the originator — the smallest measurable unit of something existing *in the exchange* rather than in either party), tracks convergence, symmetry, and repair sequences. A verbatim mirror scores `MIRRORED EXCHANGE`, not uptake — reflection is the keyword-stuffing of dialogue, and it's detected the same way. Verdicts carry a mandatory boundary statement: this measures interaction *structure*, never consciousness. Design and honest-limits ledger: **[docs/RELATIONAL-PROGRAM.md](docs/RELATIONAL-PROGRAM.md)**.
 
-**Externally validated:** on 488 dialogues from corpora we didn't write (DailyDialog, Anthropic hh-rlhf), real dialogue separates from shuffle-destroyed controls by an order of magnitude on uptake and round-trip measures — while a fluency- or keyword-based scorer would rate the controls nearly identically. Findings, including the ones against the instrument, in **[docs/R1X-VALIDATION.md](docs/R1X-VALIDATION.md)**.
+## What the relational program has found
+
+Six pre-registered validation runs against nine external corpora populations (DailyDialog, Anthropic hh-rlhf, UltraChat, MultiWOZ, CAMEL, Magpie MT), none broken. The consolidated report is **[docs/FINDINGS.md](docs/FINDINGS.md)**; headlines:
+
+- **The instrument measures relation, not fluency or topic.** Real dialogue separates from shuffle-destroyed controls by an order of magnitude, and from maximum-topic-overlap chimeras by ~3× — a keyword or fluency scorer rates all three nearly identically.
+- **The echo law.** Near-verbatim reflection orders every population by machine presence — *human–human task 0.4% < human–human casual 2.3% < human–AI 4.0% ≪ machine–machine 16–48%* — robust to turn length, register (a human playing assistant echoes *least*), generation pipeline, and model generation (GPT-3.5 era → Llama-3 era). Machine echo *compounds* with turn length; human echo doesn't. One line: humans move meaning, machines move tokens.
+- **The mirror-plus-source signature.** In human–AI transcripts the assistant performs 71% of uptake while humans introduce 69% of round-trip vocabulary — asymmetric circulation, quantified per exchange.
+- **Three published negative results.** Surface-pattern and distributional approaches to paraphrase-level uptake both failed their own pre-stated gates and ship opt-in only; the write-ups say why precisely. The instrument's rules apply to its maker.
 
 ## What Cathedral is for — and not for
 
