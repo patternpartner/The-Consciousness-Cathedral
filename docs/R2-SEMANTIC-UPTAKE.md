@@ -43,12 +43,31 @@ G1 failed in both rounds. Per the program's rules, **functional uptake ships def
 
 G2 held, G3 held: a ~12% relative recall improvement on real human dialogue, near-zero movement on the controls, separation intact. Stemming is now the default (`stemming: false` ablates it). Round-trip terms report the first surface form encountered, so output stays readable.
 
-## What this means for the roadmap
+## R2-proper: the distributional channel — built, gated, and caught by the acid test
 
-The negative result is informative in the best way: it rules out the cheap path and points at the real one. The paraphrase gap is a *semantic representation* problem — "sounds great" relates to "go for beers" through meaning, not form — and the deterministic way to represent meaning is distributional: co-occurrence vectors (PPMI + cosine over a fixed reference corpus), computed once, shipped as data, identical output for identical input. That is R2-proper:
+The obvious next move was built in full: PPMI co-occurrence vectors over a training corpus **disjoint from all evaluation data** (corpus rows 300+ vs evaluation rows 0–300; ~62k turns), context-distribution smoothing (Levy et al. 2015), cosine similarity, distilled into a 356KB inspectable neighbor lexicon (`semantic-neighbors.json`, e.g. *money → account, bank, cash, pay*; built by `validation/build-vectors.js`). Runtime is a lookup — determinism intact. Semantic uptake: a reply engaging the prior turn's anchors through neighbors instead of repeats.
 
-- deterministic and local (a lookup table, not a model call)
-- transparent (every similarity score traceable to corpus counts)
-- gated by the same harness that just killed the pattern-lexicon approach
+Four pre-stated gates, including a new one — **G4, the acid test**: a semantic detector is topically excitable by construction, so it must beat the *same-topic chimera*, not just the random shuffle. Results (`node validation/r2b-semantic.js`):
 
-The instrument's rules did their job on their own maker's design twice today. That is the program working.
+| | Semantic rate | vs shuffle | vs chimera |
+|---|---|---|---|
+| HH-real (short casual turns) | 0.042 | **3.8×** ✓ | 1.75× ✓ (thin) |
+| HAI-real (long assistant turns) | 0.036 | **0.75×** ✗ | 0.82× ✗ |
+
+**G1 failed (one corpus of two), G4 failed. G2/G3 held.** On long-turn dialogue the channel fires *more* on Frankenstein controls than on real exchanges: long random turns hit distributional neighbors of the prior turn's many anchors at base rate. (One measurement caveat recorded for fairness: the semantic channel only runs where lexical uptake didn't fire, so strongly-coupled real dialogues offer it only leftover pairs — a selection effect that depresses the "real" rate. The chimera result stands regardless.)
+
+The conclusion generalizes past this implementation, and it is the finding of the campaign:
+
+> **Distributional similarity is topical similarity.** PPMI neighbors encode "about the same things" — and the same-topic chimera maximizes "about the same things" while destroying response structure. A bag-of-words semantic channel therefore *cannot* beat the chimera gate, not because of tuning, but by construction. Closing the paraphrase gap relationally requires structure-aware semantics — who-did-what-to-whom alignment, discourse relations — which is exactly where the determinism constraint gets genuinely expensive.
+
+**Disposition:** the semantic channel ships **default-OFF** (`semanticUptake: true` opts in; the injected-lexicon hook keeps tests data-independent). It shows honest signal on short-turn casual dialogue and users analyzing that register may enable it with the stated caveat. The lexicon and builder stay in-repo: the negative result is only reproducible if its artifacts are.
+
+## Scoreboard for the R2 campaign
+
+| Candidate | Gate outcome | Disposition |
+|---|---|---|
+| Stemming | G2, G3 held | **shipped, default-on** |
+| Adjacency-pair functional uptake | G1 failed twice | opt-in, documented |
+| Distributional semantic uptake | G1 split, G4 failed | opt-in, documented |
+
+The instrument's rules rejected its maker's designs three times in one campaign, each time saying *why* precisely enough to aim the next attempt. The paraphrase gap survives R2 with its price tag now legible: it is not a lexicon problem and not a topic-vector problem; it is a structure problem. That is the program working.

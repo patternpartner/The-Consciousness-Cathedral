@@ -173,6 +173,43 @@ const AdjacencyPairs = {
   }
 };
 
+// Semantic lexicon for R2-proper: word → neighbors, distilled offline from
+// PPMI co-occurrence vectors over a training corpus disjoint from all
+// evaluation data (validation/build-vectors.js). Loading it is a file read;
+// using it is a lookup — determinism intact. Tests can inject a lexicon via
+// opts.semanticLexicon instead.
+const SemanticLexicon = {
+  _cache: undefined,
+
+  load: function () {
+    if (this._cache !== undefined) return this._cache;
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const raw = JSON.parse(fs.readFileSync(path.join(__dirname, 'semantic-neighbors.json'), 'utf8'));
+      this._cache = this.fromNeighborTable(raw.neighbors);
+    } catch (e) {
+      this._cache = null; // lexicon file absent: semantic channel unavailable
+    }
+    return this._cache;
+  },
+
+  fromNeighborTable: function (table) {
+    const m = new Map();
+    for (const [w, list] of Object.entries(table)) {
+      m.set(w, new Set(list.map(x => Array.isArray(x) ? x[0] : x)));
+    }
+    return m;
+  },
+
+  related: function (lex, a, b) {
+    const na = lex.get(a);
+    if (na && na.has(b)) return true;
+    const nb = lex.get(b);
+    return !!(nb && nb.has(a));
+  }
+};
+
 // Uptake: does a turn take up anchors from the *other speaker's* prior turn,
 // and does it transform them (embed them in novel material) or merely echo?
 const UptakeBinder = {
@@ -191,6 +228,10 @@ const UptakeBinder = {
   // docs/R2-SEMANTIC-UPTAKE.md.
   analyze: function (annotated, opts = {}) {
     const useFunctional = opts.functionalUptake === true;
+    const useSemantic = opts.semanticUptake === true;
+    const lexicon = useSemantic
+      ? (opts.semanticLexicon ? SemanticLexicon.fromNeighborTable(opts.semanticLexicon) : SemanticLexicon.load())
+      : null;
     const events = [];
     const seenBefore = new Set(); // all content words in turns 0..i-1
     const noveltyOf = [];
@@ -209,22 +250,42 @@ const UptakeBinder = {
 
           let type = 'NONE';
           let pair = null;
+          let semanticPairs = [];
           if (run >= this.ECHO_RUN ||
               (coverage >= this.ECHO_COVERAGE && noveltyOf[i] < this.ECHO_NOVELTY)) {
             type = 'ECHO';
           } else if (reused.length >= 2 ||
                      (reused.length >= 1 && prev.isQuestion)) {
             type = noveltyOf[i] >= this.TRANSFORM_NOVELTY ? 'TRANSFORMATIVE' : 'WEAK';
-          } else if (useFunctional) {
-            const match = AdjacencyPairs.detect(prev.text, cur.text);
-            if (match) {
-              type = 'FUNCTIONAL';
-              pair = match.pair;
+          } else {
+            if (lexicon) {
+              // Semantic reuse: an anchor from the prior turn engaged
+              // through a distributional neighbor rather than repeated.
+              for (const a of prev.contentSet) {
+                if (cur.contentSet.has(a)) continue;
+                for (const w of cur.contentSet) {
+                  if (prev.contentSet.has(w)) continue;
+                  if (SemanticLexicon.related(lexicon, a, w)) semanticPairs.push([a, w]);
+                }
+              }
+              const combined = reused.length + semanticPairs.length;
+              if (semanticPairs.length >= 1 &&
+                  (combined >= 2 || prev.isQuestion)) {
+                type = 'SEMANTIC';
+              }
+            }
+            if (type === 'NONE' && useFunctional) {
+              const match = AdjacencyPairs.detect(prev.text, cur.text);
+              if (match) {
+                type = 'FUNCTIONAL';
+                pair = match.pair;
+              }
             }
           }
 
           events.push({
             pair,
+            semanticPairs,
             from: prev.index,
             to: cur.index,
             direction: `${prev.speaker}→${cur.speaker}`,
@@ -344,7 +405,7 @@ const AsymmetryAnalyzer = {
     for (const s of speakers) {
       perSpeaker[s] = {
         turns: annotated.filter(t => t.speaker === s).length,
-        uptakesPerformed: uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'WEAK' || e.type === 'FUNCTIONAL')).length,
+        uptakesPerformed: uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'WEAK' || e.type === 'SEMANTIC' || e.type === 'FUNCTIONAL')).length,
         echoesPerformed: uptakeEvents.filter(e => e.responder === s && e.type === 'ECHO').length,
         productiveIntroductions: coConstruction.roundTrips.filter(r => r.introducedBy === s).length
       };
@@ -425,8 +486,10 @@ function synthesizeRelationalVerdict(analysis) {
   const transformativeBy = {};
   const anyUptakeBy = {};
   for (const s of speakers) {
-    transformativeBy[s] = uptakeEvents.filter(e => e.responder === s && e.type === 'TRANSFORMATIVE').length;
-    anyUptakeBy[s] = uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'WEAK' || e.type === 'FUNCTIONAL')).length;
+    // SEMANTIC counts as transformative: engaging an anchor through a
+    // neighbor is transformation by definition — nothing was copied.
+    transformativeBy[s] = uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'SEMANTIC')).length;
+    anyUptakeBy[s] = uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'WEAK' || e.type === 'SEMANTIC' || e.type === 'FUNCTIONAL')).length;
   }
   const bothTransform = speakers.every(s => transformativeBy[s] >= 1);
   const bothUptake = speakers.every(s => anyUptakeBy[s] >= 1);
@@ -519,6 +582,7 @@ module.exports = {
   TurnParser,
   AnchorExtractor,
   AdjacencyPairs,
+  SemanticLexicon,
   UptakeBinder,
   CoConstructionDetector,
   ConvergenceTracker,

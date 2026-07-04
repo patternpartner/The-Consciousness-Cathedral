@@ -123,6 +123,22 @@ B: And the edge nodes finally stop failing once that lands.
 `
   },
   {
+    name: 'R2 semantic (opt-in) — anchors engaged through neighbors, not repeats',
+    opts: {
+      semanticUptake: true,
+      // Injected mini-lexicon: tests must not depend on the shipped data file.
+      semanticLexicon: { budget: [['cost', 0.5], ['spend', 0.4]], vendor: [['supplier', 0.6]] }
+    },
+    expectOneOf: ['COLLABORATIVE UPTAKE', 'GENERATIVE EXCHANGE', 'ASYMMETRIC UPTAKE'],
+    also: r => r.uptake.some(e => e.type === 'SEMANTIC' && e.semanticPairs.length >= 2),
+    transcript: `
+A: The budget is fixed, and the vendor was chosen last quarter.
+B: Then the cost ceiling shapes everything, and the supplier owns the timeline.
+A: A different question is whether the launch window moves.
+B: The window holds if nothing else slips.
+`
+  },
+  {
     name: 'Repair sequence — clarification initiated and resolved',
     expectOneOf: ['GENERATIVE EXCHANGE', 'COLLABORATIVE UPTAKE'],
     also: r => r.repairs.length >= 1 && r.repairs[0].resolved,

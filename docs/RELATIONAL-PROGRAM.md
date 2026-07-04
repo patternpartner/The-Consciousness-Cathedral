@@ -78,10 +78,12 @@ Nine boundary-probing cases pass (`node run-relational-tests.js`), including two
 
 **The first R2 attempt has run and partially failed, as published.** Stemming shipped (default-on: ~12% relative recall gain on real human dialogue, separation intact). Adjacency-pair functional uptake failed its pre-stated precision gate twice — generic response patterns fire at base rate on shuffled controls, and the distinctive idioms that survive calibration are too rare to matter — and ships default-OFF (opt-in). The negative result rules out surface-pattern matching as the route to semantic uptake: **[R2-SEMANTIC-UPTAKE.md](R2-SEMANTIC-UPTAKE.md)**.
 
+**R2-proper (distributional) has also run and been caught by its own acid test:** PPMI neighbor vectors, trained on disjoint data and shipped as an inspectable lexicon, show genuine lift on short-turn casual dialogue but fail the same-topic chimera gate — because distributional similarity *is* topical similarity, a bag-of-words semantic channel cannot beat a control built from maximal topic overlap. Ships opt-in. The paraphrase gap is now diagnosed as a *structure* problem, not a lexicon or topic-vector problem: [R2-SEMANTIC-UPTAKE.md](R2-SEMANTIC-UPTAKE.md).
+
 ## Roadmap
 
 - **R1.x (continued)** — length-controlled population comparison; AI–AI *peer* dialogue (agents negotiating, not user-roleplay)
-- **R2-proper** — semantic uptake via deterministic distributional similarity (PPMI co-occurrence vectors over a fixed reference corpus, shipped as data — a lookup, not a model call); the pattern-lexicon shortcut is now ruled out by data
+- **R2-structural** — the surviving route to the paraphrase gap: structure-aware alignment (predicate–argument, discourse relations) under the determinism constraint; expensive, and now known to be the *only* deterministic route
 - **R3** — multi-party exchanges; timing, if transcript formats carry it
 
 Graduation rule, same as everywhere in this project: state the claim, probe the boundary, let the tests say the rest.

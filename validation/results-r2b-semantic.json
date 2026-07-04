@@ -1,0 +1,95 @@
+{
+  "date": "2026-07-04T14:50:33.736Z",
+  "results": {
+    "HH-real|base": {
+      "n": 272,
+      "combinedRate": 0.144,
+      "semanticRate": 0,
+      "semanticEvents": 0,
+      "pctParallel": 0.496
+    },
+    "HH-real|+sem": {
+      "n": 272,
+      "combinedRate": 0.187,
+      "semanticRate": 0.042,
+      "semanticEvents": 79,
+      "pctParallel": 0.412
+    },
+    "HH-chimera|base": {
+      "n": 272,
+      "combinedRate": 0.045,
+      "semanticRate": 0,
+      "semanticEvents": 0,
+      "pctParallel": 0.79
+    },
+    "HH-chimera|+sem": {
+      "n": 272,
+      "combinedRate": 0.068,
+      "semanticRate": 0.024,
+      "semanticEvents": 44,
+      "pctParallel": 0.713
+    },
+    "HH-shuffled|base": {
+      "n": 272,
+      "combinedRate": 0.005,
+      "semanticRate": 0,
+      "semanticEvents": 0,
+      "pctParallel": 0.963
+    },
+    "HH-shuffled|+sem": {
+      "n": 272,
+      "combinedRate": 0.017,
+      "semanticRate": 0.011,
+      "semanticEvents": 21,
+      "pctParallel": 0.89
+    },
+    "HAI-real|base": {
+      "n": 216,
+      "combinedRate": 0.291,
+      "semanticRate": 0,
+      "semanticEvents": 0,
+      "pctParallel": 0.264
+    },
+    "HAI-real|+sem": {
+      "n": 216,
+      "combinedRate": 0.327,
+      "semanticRate": 0.036,
+      "semanticEvents": 40,
+      "pctParallel": 0.218
+    },
+    "HAI-chimera|base": {
+      "n": 216,
+      "combinedRate": 0.112,
+      "semanticRate": 0,
+      "semanticEvents": 0,
+      "pctParallel": 0.63
+    },
+    "HAI-chimera|+sem": {
+      "n": 216,
+      "combinedRate": 0.156,
+      "semanticRate": 0.044,
+      "semanticEvents": 49,
+      "pctParallel": 0.532
+    },
+    "HAI-shuffled|base": {
+      "n": 216,
+      "combinedRate": 0.05,
+      "semanticRate": 0,
+      "semanticEvents": 0,
+      "pctParallel": 0.801
+    },
+    "HAI-shuffled|+sem": {
+      "n": 216,
+      "combinedRate": 0.099,
+      "semanticRate": 0.048,
+      "semanticEvents": 54,
+      "pctParallel": 0.63
+    }
+  },
+  "gates": {
+    "g1": false,
+    "g2": true,
+    "g3": true,
+    "g4": false
+  }
+}
