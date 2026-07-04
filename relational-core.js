@@ -219,6 +219,15 @@ const SemanticLexicon = {
 // expressions are rare as turn content, so the conditional lift has a
 // chance to clear the precision gate. The gate decides, as always.
 const TypedAnswers = {
+  // Active pairs: only those that individually cleared the per-pair gate
+  // (pooled >=5 real events, >3x shuffle, > chimera — validation/r2c-typed.js).
+  // Attempted and REJECTED by their own gates (slice 2, kept for the record):
+  //   WHERE→PLACE  — 3 real vs 2 shuffled vs 2 chimera: place expressions
+  //                  sit at base rate; the pair detects nothing
+  //   WHY→REASON   — 9 vs 3 vs 3: exactly 3.0x, gate requires >3x; "because"
+  //                  is base-rate furniture in casual speech
+  // HOWMANY→QUANTITY is evidence-thin (4 pooled events) and retained on the
+  // slice-1 channel-level verdict; flagged for review as corpora grow.
   questionTypes: [
     { type: 'WHEN', re: /\b(when|what time|how soon)\b[^.!?]*\?/i },
     { type: 'HOWMANY', re: /\bhow (many|much)\b[^.!?]*\?/i },
@@ -228,6 +237,11 @@ const TypedAnswers = {
   TIME_RE: /\b(\d{1,2}[:.]\d{2}|\d{1,2}\s*(a\.?m\.?|p\.?m\.?|o'?clock)|(half|quarter) (past|to)\s+\w+|(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+o'?clock|monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|june|july|august|september|october|november|december|tomorrow|tonight|yesterday|noon|midnight|weekend|next (week|month|year)|in (a|an|\d+) (minute|hour|day|week|month|year)s?|\d+\s*(minutes?|hours?|days?|weeks?|months?|years?))\b/i,
   QTY_RE: /\b(\d+([.,]\d+)?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty|hundred|thousand|dozen|a couple|a few|several|half|none)\b/i,
   KIN_RE: /\b(my|your|his|her|our|their) (brother|sister|mother|father|mom|dad|parents|friend|boss|wife|husband|son|daughter|colleague|neighbor|cousin|uncle|aunt|teacher|manager)\b/i,
+  // Place: preposition + a concrete place noun, or preposition + capitalized
+  // token (proper place name). Bare "at home / in there" style words are
+  // included; the gate decides if the base rate kills them.
+  PLACE_RE: /\b(in|at|on|near|inside|outside|behind|opposite|around) (the |a |an )?(station|airport|office|school|university|restaurant|cafe|park|hotel|hospital|bank|store|shop|mall|library|gym|church|cinema|theater|museum|beach|corner|street|downtown|kitchen|garden|garage|basement|lobby)\b|\b(at home|upstairs|downstairs|next door|across the (street|road|hall))\b|\b(in|at|near|to) [A-Z][a-z]{2,}/,
+  REASON_RE: /\b(because|since (i|you|we|they|he|she|it|the|my|your)|so that|in order to|that'?s why|the reason)\b/i,
 
   hasPersonExpression: function (text) {
     if (this.KIN_RE.test(text)) return true;

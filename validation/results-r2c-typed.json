@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-04T15:26:54.661Z",
+  "date": "2026-07-04T15:31:23.377Z",
   "results": {
     "HH-real": {
       "n": 272,
@@ -63,5 +63,25 @@
     "g1": true,
     "g4": true,
     "g3": true
+  },
+  "pairVerdicts": {
+    "HOWMANY→QUANTITY": {
+      "real": 4,
+      "shuffled": 0,
+      "chimera": 2,
+      "verdict": "INSUFFICIENT EVIDENCE"
+    },
+    "WHEN→TIME": {
+      "real": 6,
+      "shuffled": 0,
+      "chimera": 3,
+      "verdict": "PASS"
+    },
+    "WHO→PERSON": {
+      "real": 8,
+      "shuffled": 1,
+      "chimera": 3,
+      "verdict": "PASS"
+    }
   }
 }

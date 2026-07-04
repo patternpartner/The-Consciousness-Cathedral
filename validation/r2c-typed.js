@@ -137,6 +137,33 @@ console.log(g1 && g4 && g3
   ? 'All gates held → typed answers ship default-on.'
   : 'At least one gate failed → ships default-off (opt-in), published as-is.');
 
+// Per-pair gate (pre-stated for slice 2): a pair type ships only if,
+// POOLED across both corpora, it has >=5 real events, real > 3x shuffle,
+// and real > chimera. Pairs failing the floor are 'insufficient evidence'.
+const pool = suffix => {
+  const merged = {};
+  for (const corpus of ['HH', 'HAI']) {
+    for (const [pair, n] of Object.entries(results[`${corpus}-${suffix}`].byPair)) {
+      merged[pair] = (merged[pair] || 0) + n;
+    }
+  }
+  return merged;
+};
+const pReal = pool('real'), pShuf = pool('shuffled'), pChim = pool('chimera');
+const allPairs = [...new Set([...Object.keys(pReal), ...Object.keys(pShuf), ...Object.keys(pChim)])].sort();
+
+console.log('\nPer-pair gate (pooled HH+HAI; floor 5 real events, >3x shuffle, > chimera):');
+const pairVerdicts = {};
+for (const pair of allPairs) {
+  const r = pReal[pair] || 0, s = pShuf[pair] || 0, c = pChim[pair] || 0;
+  let verdict;
+  if (r < 5) verdict = 'INSUFFICIENT EVIDENCE';
+  else if (r > 3 * Math.max(1, s) && r > c) verdict = 'PASS';
+  else verdict = 'FAIL';
+  pairVerdicts[pair] = { real: r, shuffled: s, chimera: c, verdict };
+  console.log(`  ${pair.padEnd(20)} real ${String(r).padEnd(4)} shuf ${String(s).padEnd(4)} chim ${String(c).padEnd(4)} → ${verdict}`);
+}
+
 fs.writeFileSync(path.join(__dirname, 'results-r2c-typed.json'),
-  JSON.stringify({ date: new Date().toISOString(), results, gates: { g1, g4, g3 } }, null, 2));
+  JSON.stringify({ date: new Date().toISOString(), results, gates: { g1, g4, g3 }, pairVerdicts }, null, 2));
 console.log('\nresults written to validation/results-r2c-typed.json');

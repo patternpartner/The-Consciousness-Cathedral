@@ -30,3 +30,6 @@
 
 ## 3.5.0 — 2026-07-04
 - R2-structural, first slice: typed question–answer slot binding (when→time, how many→quantity, who→person). A reply filling the prior question's typed slot is structural uptake with zero lexical overlap. First channel since stemming to clear all three gates including the same-topic chimera acid test (16:1 over shuffle, 2.3:1 over chimera on human dialogue) — ships default-on (`typedAnswers: false` ablates). HAI counts are Poisson-fragile (2 vs 0); the HH result carries the decision. `validation/r2c-typed.js` reproduces.
+
+## 3.5.1 — 2026-07-04
+- Slice 2 of the typed channel: WHERE→PLACE and WHY→REASON attempted under a new pre-stated **per-pair gate** (pooled ≥5 real events, >3× shuffle, > chimera). Both rejected by their own numbers — WHY at exactly 3.0× ("because" is base-rate furniture), WHERE at 3:2:2 (place expressions sit at base rate) — and their noise diluted the channel aggregate into failing G1, vindicating per-pair gating. Reverted from active detection, kept in the source as documented rejections. Channel restored to the proven three pairs; all gates hold again. HOWMANY→QUANTITY flagged evidence-thin (4 pooled events).
