@@ -1,0 +1,105 @@
+{
+  "date": "2026-07-04T14:54:01.601Z",
+  "bands": [
+    {
+      "band": "3-15",
+      "cells": {
+        "HH": {
+          "pairs": 1475,
+          "echoRate": 0.024,
+          "uptakeRate": 0.119
+        },
+        "HAI": {
+          "pairs": 818,
+          "echoRate": 0.046,
+          "uptakeRate": 0.249
+        },
+        "AIAI": {
+          "pairs": 161,
+          "echoRate": 0.273,
+          "uptakeRate": 0.602
+        }
+      }
+    },
+    {
+      "band": "15-40",
+      "cells": {
+        "HH": {
+          "pairs": 326,
+          "echoRate": 0.009,
+          "uptakeRate": 0.282
+        },
+        "HAI": {
+          "pairs": 196,
+          "echoRate": 0.031,
+          "uptakeRate": 0.556
+        },
+        "AIAI": {
+          "pairs": 1045,
+          "echoRate": 0.308,
+          "uptakeRate": 0.646
+        }
+      }
+    },
+    {
+      "band": "40-100",
+      "cells": {
+        "HH": {
+          "pairs": 7,
+          "echoRate": 0,
+          "uptakeRate": 0.429
+        },
+        "HAI": {
+          "pairs": 9,
+          "echoRate": 0,
+          "uptakeRate": 1
+        },
+        "AIAI": {
+          "pairs": 307,
+          "echoRate": 0.436,
+          "uptakeRate": 0.564
+        }
+      }
+    },
+    {
+      "band": "100+",
+      "cells": {
+        "HH": {
+          "pairs": 0,
+          "echoRate": 0,
+          "uptakeRate": 0
+        },
+        "HAI": {
+          "pairs": 1,
+          "echoRate": 0,
+          "uptakeRate": 1
+        },
+        "AIAI": {
+          "pairs": 53,
+          "echoRate": 0.698,
+          "uptakeRate": 0.302
+        }
+      }
+    }
+  ],
+  "truncation": {
+    "HH": {
+      "opp": 1870,
+      "echoRate": 0.022
+    },
+    "HAI": {
+      "opp": 1114,
+      "echoRate": 0.031
+    },
+    "AIAI": {
+      "opp": 1566,
+      "echoRate": 0.208
+    }
+  },
+  "prediction": {
+    "comparable": 4,
+    "survived": 4,
+    "truncSurvives": true,
+    "failures": []
+  }
+}

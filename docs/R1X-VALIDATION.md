@@ -106,3 +106,32 @@ The AIAI verdict split is itself diagnostic: 128 `GENERATIVE EXCHANGE` alongside
 ## Status after run 2
 
 Both pre-stated predictions held; the three-way separability question is answered **yes**, with the echo axis as an unexpected, near-categorical human/machine discriminator. Next: length-controlled comparison, AI–AI peer dialogue, and R2 semantic uptake — whose absence is now quantified from both directions (it under-counts humans, and its lexical proxy over-counts machines).
+
+---
+
+# Run 3 — Length Control: the Echo Discriminator Is Not an Artifact
+
+*Same date. Run 2 flagged its own confound: UltraChat turns are essay-length, and longer adjacent turns give a ≥6-token verbatim run more chances to occur. This run controls for it two ways, with the prediction stated first: the AIAI-vs-human echo separation must survive within matched length bands and under truncation, or the flagship finding gets downgraded here, prominently. Reproduce: `node validation/r1x3-length-control.js`; numbers in `validation/results-run3.json`.*
+
+## Matched bands — echo rate by min(prev, cur) turn tokens
+
+| Band | HH | HAI | AIAI |
+|---|---|---|---|
+| 3–15 tokens | 2.4% [n=1475] | 4.6% [n=818] | **27.3%** [n=161] |
+| 15–40 tokens | 0.9% [n=326] | 3.1% [n=196] | **30.8%** [n=1045] |
+| 40–100 tokens | 0.0% [n=7]\* | 0.0% [n=9]\* | 43.6% [n=307] |
+| 100+ tokens | — | — | 69.8% [n=53] |
+
+\* below the pre-stated n≥30 comparability floor; not scored.
+
+**All four comparable cells passed** (AIAI > 3× the human rate at matched length), and truncating every turn to its first 30 tokens across all populations leaves the separation intact (2.2% / 3.1% / **20.8%**). The prediction held: the echo discriminator is a property of *who is talking*, not of how long they talk.
+
+## The bonus finding: echo grows with length — in machines only
+
+Within AIAI, echo climbs monotonically with turn length: 27% → 31% → 44% → 70%. Within the human populations it is flat to *falling* (HH: 2.4% → 0.9%). Longer human turns add novel material; longer machine turns add more of each other. This sharpens run 2's one-liner into something quantitative: **human dialogue dilutes repetition with length; machine–machine dialogue compounds it.** The 100+ band — where 70% of long AI-to-AI replies are near-verbatim reflections of long prior turns — is the purest picture of lexical hyper-coupling in the data.
+
+The lexical-coupling ladder also survives length control: within the 3–15 band, uptake runs HH 11.9% < HAI 24.9% < AIAI 60.2% — the run-2 ordering at matched length.
+
+## Status after run 3
+
+The flagship finding is hardened: the run-2 threat-to-validity ("turn length differs enormously across populations") is now retired for the echo axis and the coupling ladder. Remaining open fronts: AI–AI *peer* dialogue (UltraChat's user-side is a roleplaying LLM, not a peer), register confounds, and R2-structural.
