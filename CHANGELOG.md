@@ -39,3 +39,9 @@
 
 ## 3.5.3 — 2026-07-04
 - Phone support for the demo (the maintainer works phone-first — the original all-in-one HTML design was always about this, and the repo now honors it). Symmetry table scrolls inside its card instead of pushing the page wide; verified at 390px with touch: no sideways scroll, zero errors. `relational-demo-standalone.html` rebuilt.
+
+## 3.6.0 — 2026-07-04
+- Answered "is the original cathedral-unified.html still useful?" with measurement: its 2026-01-25 rewrite (+2,563 lines, post-extraction) **disagrees with the tested module on the flagship example** (HTML: UNDECIDABLE; tested core: VERIFIED CONSISTENT 65%) and has zero test coverage. Moved to `legacy/` with the measured divergence documented — preserved, clearly labeled untested, never deleted.
+- New `cathedral-demo.html` + generated `cathedral-demo-standalone.html`: small phone-first demo of the core evaluator built from the tested module — verdict, engine table, gaming signals, four samples. Verified alone in an empty folder at phone size, zero errors, no sideways scroll.
+- `extract-core.js` retired to `legacy/` — the direction of truth is reversed for good (module → generated pages, `npm run build:demo` builds both standalones).
+- Fixed a real bug in build-demo.js: `String.replace` treated `$&` inside module source as a magic pattern, corrupting the inlined analyzer; replacer function inserts literally now.

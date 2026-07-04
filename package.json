@@ -1,6 +1,6 @@
 {
   "name": "cathedral-rigor",
-  "version": "3.5.3",
+  "version": "3.6.0",
   "description": "Deterministic structural evaluator for operational reasoning in AI-generated text. Validates threshold→action bindings instead of counting keywords. No LLM calls, no dependencies, reproducible verdicts.",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,6 @@
     "test:core": "node run-tests.js",
     "test:relational": "node run-relational-tests.js",
     "test:tier2": "node test-tier2.js",
-    "extract": "node extract-core.js",
     "build:demo": "node build-demo.js"
   },
   "keywords": [

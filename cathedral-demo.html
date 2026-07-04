@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cathedral — Operational Rigor</title>
+<style>
+  :root {
+    --bg: #f7f6f3; --panel: #ffffff; --ink: #1e1e1c; --muted: #6b6a66;
+    --line: #e3e1dc; --accent: #2f6f5f; --accent-ink: #ffffff;
+    --warn: #a04545; --mid: #8a7a3d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614; --panel: #1f1e1c; --ink: #e8e6e1; --muted: #97948d;
+      --line: #34322e; --accent: #6fb39f; --accent-ink: #10201b;
+      --warn: #d08080; --mid: #c2b06a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, sans-serif; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 28px 20px 60px; }
+  h1 { font-size: 21px; margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 22px; }
+  textarea { width: 100%; height: 200px; background: var(--panel); color: var(--ink);
+             border: 1px solid var(--line); border-radius: 8px; padding: 12px;
+             font: 13px/1.5 ui-monospace, monospace; resize: vertical; }
+  .row { display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+  button { background: var(--accent); color: var(--accent-ink); border: 0;
+           border-radius: 7px; padding: 9px 18px; font-size: 14px; font-weight: 600;
+           cursor: pointer; }
+  select { background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+           border-radius: 7px; padding: 8px 10px; font-size: 13.5px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+          padding: 16px 18px; margin-top: 14px; }
+  .verdict { font-size: 18px; font-weight: 700; }
+  .conf { color: var(--muted); font-weight: 400; font-size: 14px; }
+  .reason { margin-top: 6px; font-size: 14px; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .06em;
+       color: var(--muted); margin: 0 0 8px; }
+  table { border-collapse: collapse; font-size: 13.5px; width: 100%;
+          display: block; overflow-x: auto; white-space: nowrap; }
+  td, th { text-align: left; padding: 4px 14px 4px 0; }
+  th { color: var(--muted); font-weight: 600; }
+  .flag { color: var(--warn); font-weight: 600; }
+  .ok { color: var(--accent); font-weight: 600; }
+  .foot { color: var(--muted); font-size: 12.5px; margin-top: 26px; }
+  .foot a { color: var(--accent); }
+  .notice { margin-top: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px;
+            background: color-mix(in srgb, var(--warn) 16%, var(--panel));
+            border: 1px solid var(--warn); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Cathedral — Operational Rigor</h1>
+  <div class="sub">
+    Is this reasoning actually actionable, or does it just sound actionable?
+    Validates threshold→action bindings, not keywords. Deterministic, local, no model calls.
+  </div>
+
+  <textarea id="text" spellcheck="false"></textarea>
+  <div class="row">
+    <button id="analyze">Analyze</button>
+    <select id="sample">
+      <option value="sound">Sample: operationally grounded</option>
+      <option value="stuffed">Sample: keyword stuffing</option>
+      <option value="vague">Sample: conversational intent</option>
+      <option value="narrative">Sample: narrative/poetic</option>
+    </select>
+  </div>
+  <div id="notice" class="notice" hidden></div>
+
+  <div id="results" hidden>
+    <div class="card">
+      <div class="verdict"><span id="status"></span> <span class="conf" id="conf"></span></div>
+      <div class="reason" id="reason"></div>
+    </div>
+    <div class="card">
+      <h2>Structure</h2>
+      <table id="engines"></table>
+      <div id="gaming" style="margin-top:8px;font-size:13.5px;"></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    The analyzer on this page is <code>cathedral-core.js</code> — the module the 11-scenario
+    test suite covers. Dialogue transcripts go to the
+    <a href="relational-demo-standalone.html">relational demo</a> instead.
+    Docs: <a href="docs/ARCHITECTURE.md">ARCHITECTURE.md</a>.
+  </div>
+</div>
+
+<script src="cathedral-core.js"></script>
+<script>
+const SAMPLES = {
+  sound: `If error rate exceeds 5%, we abort deployment and roll back within ten minutes.
+We have three failure modes: cache overflow, API timeout, edge case bugs.
+For each, we monitor a dashboard metric and a rollback runbook exists.
+Because rollback was rehearsed last quarter, we know the procedure completes in under six minutes.`,
+  stuffed: `We have thresholds, metrics, abort conditions, rollback procedures, monitoring, alerting, failure modes, mitigations, runbooks, and observability.`,
+  vague: `If we see problems, we stop and reassess. Three things could break: cache, API, edge cases. We know when to pull back.`,
+  narrative: `The deployment felt like a river finding its course; we trusted the current and the stones would remember us. Whatever broke would break beautifully.`
+};
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function pick(obj, keys) {
+  for (const k of keys) if (obj && obj[k] !== undefined && obj[k] !== null) return obj[k];
+  return null;
+}
+
+function run() {
+  if (typeof CathedralCore === 'undefined') {
+    const n = $('notice'); n.hidden = false;
+    n.textContent = "cathedral-core.js didn't load. Use cathedral-demo-standalone.html if you downloaded a single file.";
+    return;
+  }
+  $('notice').hidden = true;
+  let r;
+  try { r = CathedralCore.analyzeCathedral($('text').value); }
+  catch (e) { const n = $('notice'); n.hidden = false; n.textContent = 'Analysis error: ' + e.message; return; }
+
+  $('results').hidden = false;
+  $('status').textContent = r.verdict.status;
+  const conf = pick(r.verdict, ['confidence']);
+  $('conf').textContent = conf !== null ? Math.round(conf * 100) + '%' : '';
+  $('reason').textContent = pick(r.verdict, ['verdict', 'reason', 'explanation']) || '';
+
+  const engines = [
+    ['Bindings', pick(r.bindings, ['overallBindingScore']), pick(r.bindings, ['assessment'])],
+    ['Observatory', pick(r.observatory, ['score', 'observatoryScore']), pick(r.observatory, ['level', 'assessment'])],
+    ['Justification', pick(r.justification, ['score', 'justificationScore']), pick(r.justification, ['level', 'assessment'])],
+    ['Failure modes', pick(r.failureMode, ['score', 'failureModeScore']), pick(r.failureMode, ['level', 'assessment'])],
+    ['Temporal', pick(r.temporal, ['score', 'temporalScore']), pick(r.temporal, ['level', 'assessment'])],
+    ['Parliament', pick(r.parliament, ['confidence']), (r.parliament && r.parliament.patterns || []).join(', ') || null]
+  ];
+  $('engines').innerHTML = '<tr><th>engine</th><th>score</th><th>reading</th></tr>' +
+    engines.map(([name, score, reading]) =>
+      `<tr><td>${name}</td><td>${score === null ? '—' : typeof score === 'number' ? score.toFixed(2) : esc(score)}</td><td>${reading === null ? '—' : esc(reading)}</td></tr>`).join('');
+
+  const g = r.gamingDetection || {};
+  const flagged = pick(g, ['detected', 'gaming', 'isGaming']);
+  const label = pick(g, ['assessment', 'type', 'reason']);
+  $('gaming').innerHTML = flagged
+    ? `<span class="flag">Gaming signals: ${esc(label || 'detected')}</span>`
+    : `<span class="ok">No gaming signals</span>${label ? ' <span style="color:var(--muted)">(' + esc(label) + ')</span>' : ''}`;
+}
+
+$('analyze').addEventListener('click', run);
+$('sample').addEventListener('change', e => { $('text').value = SAMPLES[e.target.value]; run(); });
+$('text').value = SAMPLES.sound;
+run();
+</script>
+</body>
+</html>

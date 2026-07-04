@@ -17,7 +17,7 @@ console.log(result.verdict.status);     // "OPERATIONALLY SOUND"
 console.log(result.verdict.confidence); // 0.88
 ```
 
-Or open **[`cathedral-unified.html`](cathedral-unified.html)** in a browser, paste text, and click Analyze.
+Or open **[`cathedral-demo-standalone.html`](cathedral-demo-standalone.html)** in a browser — one self-contained file, phone-friendly, generated from the tested module — paste text, and hit Analyze.
 
 ---
 
@@ -148,10 +148,12 @@ Test cases live in [`cathedral-test-cases.md`](cathedral-test-cases.md); results
 cathedral-core.js         The evaluator (Node.js module — the thing this README describes)
 relational-core.js        Tier R1: structural analysis of dialogue transcripts
 relational-demo.html      Browser demo for the relational tier (loads relational-core.js directly)
-cathedral-unified.html    Self-contained browser demo of the core evaluator
+cathedral-demo.html       Browser demo of the core evaluator (loads cathedral-core.js directly)
+cathedral-demo-standalone.html  Single-file version for downloading (generated; phone-friendly)
 index.js                  Entry point: core API + lazy `experimental` namespace
 run-tests.js              Test suite
-extract-core.js           Regenerates cathedral-core.js from the HTML (legacy pipeline)
+build-demo.js             Generates both standalone demo files from the tested modules
+legacy/                   The original all-in-one HTML and its extraction script (untested; see legacy/README.md)
 docs/                     Architecture and tier-by-tier findings
 experimental/             Exploratory instruments built around the core — see its README
 ```
