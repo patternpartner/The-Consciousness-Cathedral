@@ -3,7 +3,7 @@
            Probing Measurement Boundaries: Depth vs Surface
 ═══════════════════════════════════════════════════════════════
 
-Generated: 7/4/2026, 3:01:08 PM
+Generated: 7/4/2026, 3:06:22 PM
 
 ───────────────────────────────────────────────────────────────
 TEST 1A Surface Hedging (Gaming the Markers)

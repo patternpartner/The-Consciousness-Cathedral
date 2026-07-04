@@ -1,0 +1,103 @@
+{
+  "date": "2026-07-04T15:05:51.933Z",
+  "populations": {
+    "AIAI-2023 UltraChat (GPT-3.5)": {
+      "full": {
+        "n": 300,
+        "pairs": 1566,
+        "echoRate": 0.343,
+        "uptakeRate": 0.614,
+        "bands": [
+          {
+            "pairs": 161,
+            "echoRate": 0.273
+          },
+          {
+            "pairs": 1045,
+            "echoRate": 0.308
+          },
+          {
+            "pairs": 307,
+            "echoRate": 0.436
+          }
+        ]
+      },
+      "truncatedEcho": 0.208
+    },
+    "AIAI-2023 CAMEL (GPT-3.5)": {
+      "full": {
+        "n": 433,
+        "pairs": 1299,
+        "echoRate": 0.481,
+        "uptakeRate": 0.428,
+        "bands": [
+          {
+            "pairs": 349,
+            "echoRate": 0.352
+          },
+          {
+            "pairs": 616,
+            "echoRate": 0.469
+          },
+          {
+            "pairs": 334,
+            "echoRate": 0.638
+          }
+        ]
+      },
+      "truncatedEcho": 0.276
+    },
+    "AIAI-2024 Magpie (Llama-3-70B)": {
+      "full": {
+        "n": 300,
+        "pairs": 900,
+        "echoRate": 0.269,
+        "uptakeRate": 0.61,
+        "bands": [
+          {
+            "pairs": 529,
+            "echoRate": 0.214
+          },
+          {
+            "pairs": 365,
+            "echoRate": 0.342
+          },
+          {
+            "pairs": 4,
+            "echoRate": 1
+          }
+        ]
+      },
+      "truncatedEcho": 0.183
+    },
+    "AIAI-2024 Magpie (Llama-3.1)": {
+      "full": {
+        "n": 300,
+        "pairs": 900,
+        "echoRate": 0.35,
+        "uptakeRate": 0.539,
+        "bands": [
+          {
+            "pairs": 195,
+            "echoRate": 0.277
+          },
+          {
+            "pairs": 454,
+            "echoRate": 0.304
+          },
+          {
+            "pairs": 209,
+            "echoRate": 0.459
+          }
+        ]
+      },
+      "truncatedEcho": 0.163
+    }
+  },
+  "verdicts": {
+    "AIAI-2023 UltraChat (GPT-3.5)": "signature PRESENT",
+    "AIAI-2023 CAMEL (GPT-3.5)": "signature PRESENT",
+    "AIAI-2024 Magpie (Llama-3-70B)": "signature PRESENT",
+    "AIAI-2024 Magpie (Llama-3.1)": "signature PRESENT"
+  }
+}

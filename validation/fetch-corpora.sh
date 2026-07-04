@@ -30,3 +30,9 @@ for off in $(seq 0 100 1900); do
 done
 
 echo "Corpora fetched into $(pwd)"
+
+# Machine-machine, 2024 generation (run 5): Magpie MT — one model, both sides
+for off in 0 100 200; do
+  curl -sS "https://datasets-server.huggingface.co/rows?dataset=Magpie-Align%2FMagpie-Llama-3.1-Pro-MT-300K-Filtered&config=default&split=train&offset=$off&length=100" -o mg31_$off.json; sleep 0.3
+  curl -sS "https://datasets-server.huggingface.co/rows?dataset=Magpie-Align%2FMagpie-Pro-MT-300K-v0.1&config=default&split=train&offset=$off&length=100" -o mg3_$off.json; sleep 0.3
+done
