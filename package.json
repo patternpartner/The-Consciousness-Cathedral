@@ -1,0 +1,29 @@
+{
+  "name": "cathedral-rigor",
+  "version": "3.0.0",
+  "description": "Deterministic structural evaluator for operational reasoning in AI-generated text. Validates threshold→action bindings instead of counting keywords. No LLM calls, no dependencies, reproducible verdicts.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node run-tests.js",
+    "test:tier2": "node test-tier2.js",
+    "extract": "node extract-core.js"
+  },
+  "keywords": [
+    "llm-evaluation",
+    "evals",
+    "reasoning-quality",
+    "deterministic-evaluation",
+    "operational-rigor",
+    "plan-validation",
+    "ai-text-analysis"
+  ],
+  "author": "patternpartner",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/patternpartner/The-Consciousness-Cathedral.git"
+  }
+}
