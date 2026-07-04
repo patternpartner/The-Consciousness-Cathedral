@@ -110,6 +110,8 @@ console.log(result.coConstruction.roundTrips);   // "lease" and "stamp" each
 
 It classifies uptake (`TRANSFORMATIVE` / `WEAK` / `ECHO`), detects vocabulary **round trips** (a term introduced by one speaker, adopted by the other, returned to by the originator — the smallest measurable unit of something existing *in the exchange* rather than in either party), tracks convergence, symmetry, and repair sequences. A verbatim mirror scores `MIRRORED EXCHANGE`, not uptake — reflection is the keyword-stuffing of dialogue, and it's detected the same way. Verdicts carry a mandatory boundary statement: this measures interaction *structure*, never consciousness. Design and honest-limits ledger: **[docs/RELATIONAL-PROGRAM.md](docs/RELATIONAL-PROGRAM.md)**.
 
+**Externally validated:** on 488 dialogues from corpora we didn't write (DailyDialog, Anthropic hh-rlhf), real dialogue separates from shuffle-destroyed controls by an order of magnitude on uptake and round-trip measures — while a fluency- or keyword-based scorer would rate the controls nearly identically. Findings, including the ones against the instrument, in **[docs/R1X-VALIDATION.md](docs/R1X-VALIDATION.md)**.
+
 ## What Cathedral is for — and not for
 
 **Designed for** evaluating reasoning about system design, risk analysis, failure modes and mitigations, technical tradeoffs, deployment plans — anywhere "sounds rigorous" and "is rigorous" need to be told apart. Increasingly relevant for evaluating **agent plans** before execution.

@@ -1,0 +1,70 @@
+{
+  "date": "2026-07-04T11:17:59.866Z",
+  "populations": [
+    {
+      "name": "HH-real (DailyDialog)",
+      "n": 272,
+      "verdicts": {
+        "PARALLEL MONOLOGUES": 142,
+        "ASYMMETRIC UPTAKE": 89,
+        "COLLABORATIVE UPTAKE": 32,
+        "GENERATIVE EXCHANGE": 9
+      },
+      "uptakeRate": 0.128,
+      "transformativeRate": 0.118,
+      "echoRate": 0.021,
+      "pctWithRoundTrip": 0.283,
+      "meanRoundTrips": 0.47,
+      "repairsResolved": 2
+    },
+    {
+      "name": "HH-shuffled (control)",
+      "n": 272,
+      "verdicts": {
+        "PARALLEL MONOLOGUES": 264,
+        "ASYMMETRIC UPTAKE": 8
+      },
+      "uptakeRate": 0.004,
+      "transformativeRate": 0.004,
+      "echoRate": 0.001,
+      "pctWithRoundTrip": 0.015,
+      "meanRoundTrips": 0.02,
+      "repairsResolved": 1
+    },
+    {
+      "name": "HAI-real (hh-rlhf)",
+      "n": 216,
+      "verdicts": {
+        "PARALLEL MONOLOGUES": 61,
+        "ASYMMETRIC UPTAKE": 94,
+        "COLLABORATIVE UPTAKE": 44,
+        "GENERATIVE EXCHANGE": 17
+      },
+      "uptakeRate": 0.27,
+      "transformativeRate": 0.247,
+      "echoRate": 0.039,
+      "pctWithRoundTrip": 0.44,
+      "meanRoundTrips": 0.8,
+      "repairsResolved": 9
+    },
+    {
+      "name": "HAI-shuffled (control)",
+      "n": 216,
+      "verdicts": {
+        "PARALLEL MONOLOGUES": 186,
+        "ASYMMETRIC UPTAKE": 27,
+        "COLLABORATIVE UPTAKE": 3
+      },
+      "uptakeRate": 0.035,
+      "transformativeRate": 0.034,
+      "echoRate": 0,
+      "pctWithRoundTrip": 0.042,
+      "meanRoundTrips": 0.06,
+      "repairsResolved": 0
+    }
+  ],
+  "separation": {
+    "hh": true,
+    "hai": true
+  }
+}

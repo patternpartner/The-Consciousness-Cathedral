@@ -70,12 +70,14 @@ Clarification requests ("what do you mean…") and whether the answer binds back
 
 ## Validation status
 
-Nine boundary-probing cases pass (`node run-relational-tests.js`), including two adversarial cases (verbatim mirror, keyword stuffing) and three refusal cases. Like the core before it, **the suite validates intended behavior on curated dialogues** — the honest next step is scoring transcripts the authors didn't write: human–human dialogue corpora (where decades of conversation-analysis literature predict what should score high), human–AI transcripts, and AI–AI exchanges (`experimental/ai-protocol.js` can generate them). If human–human conversation, human–AI conversation, and AI–AI ping-pong are *not* separable by these measures, that is a finding about the measures — and it gets published in this file either way.
+Nine boundary-probing cases pass (`node run-relational-tests.js`), including two adversarial cases (verbatim mirror, keyword stuffing) and three refusal cases.
+
+**R1.x external validation has run** — 488 dialogues from corpora the authors didn't write (DailyDialog human–human; Anthropic hh-rlhf human–AI) against shuffle-destroyed negative controls. The pre-stated prediction held: destroying relational structure while preserving surface fluency collapses the measures by an order of magnitude. It also quantified the lexical-anchoring blind spot (absolute rates are floors — casual paraphrase uptake is invisible at R1) and found the mirror-plus-source asymmetry signature live in real human–AI transcripts (assistant performs 71% of uptake; humans introduce 69% of round-trip vocabulary). Full findings, including the ones against the instrument: **[R1X-VALIDATION.md](R1X-VALIDATION.md)**. Reproduce with `validation/fetch-corpora.sh` + `node validation/r1x-validate.js`.
 
 ## Roadmap
 
-- **R1.x** — validation against external transcripts; threshold calibration from data rather than intuition
-- **R2** — semantic uptake via deterministic distributional similarity (no LLM calls if achievable)
+- **R1.x (continued)** — same-topic shuffle control (isolate relational from topical coherence); AI–AI population; threshold calibration from data
+- **R2** — semantic uptake via deterministic distributional similarity (no LLM calls if achievable); now motivated by quantified data, not just roadmap
 - **R3** — multi-party exchanges; timing, if transcript formats carry it
 
 Graduation rule, same as everywhere in this project: state the claim, probe the boundary, let the tests say the rest.
