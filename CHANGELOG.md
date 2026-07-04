@@ -36,3 +36,6 @@
 
 ## 3.5.2 — 2026-07-04
 - Demo fixed for real-world use (user-reported: downloaded the HTML alone from GitHub, Analyze did nothing). Three fixes: (1) `relational-demo-standalone.html`, a self-contained build artifact generated from the module by `npm run build:demo` — single-file download now works; (2) the linked demo fails loudly with instructions when `relational-core.js` is missing instead of dying silently; (3) tolerant transcript parsing ("You said:"/"ChatGPT said:" blocks, labels on their own line) plus an always-visible "Read N turns from M speakers" notice so parse failures are never invisible. Verified in Chromium across all four scenarios.
+
+## 3.5.3 — 2026-07-04
+- Phone support for the demo (the maintainer works phone-first — the original all-in-one HTML design was always about this, and the repo now honors it). Symmetry table scrolls inside its card instead of pushing the page wide; verified at 390px with touch: no sideways scroll, zero errors. `relational-demo-standalone.html` rebuilt.
