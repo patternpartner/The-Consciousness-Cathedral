@@ -80,10 +80,21 @@ Nine boundary-probing cases pass (`node run-relational-tests.js`), including two
 
 **R2-proper (distributional) has also run and been caught by its own acid test:** PPMI neighbor vectors, trained on disjoint data and shipped as an inspectable lexicon, show genuine lift on short-turn casual dialogue but fail the same-topic chimera gate — because distributional similarity *is* topical similarity, a bag-of-words semantic channel cannot beat a control built from maximal topic overlap. Ships opt-in. The paraphrase gap is now diagnosed as a *structure* problem, not a lexicon or topic-vector problem: [R2-SEMANTIC-UPTAKE.md](R2-SEMANTIC-UPTAKE.md).
 
+## R3: multi-party exchanges (shipped 3.4.0 — curated tests only)
+
+With 3+ speakers the dyadic refusal is replaced by group analysis. Design:
+
+- **Windowed uptake.** A reply can answer someone two turns back, so each turn is checked against the nearest prior turn of each *other* speaker within a 3-turn window. **Dyadic behavior is untouched** — adjacent-only, verified by re-running all 488 run-1 dialogues through pre-R3 and post-R3 code: zero differences. The six archived validation runs remain exact records.
+- **Group structure graph.** Uptake becomes directed (who takes up whom): per-speaker performed/received counts, pair coverage (which speaker pairs ever bind), hub share (how much of the graph routes through its busiest node). Round trips already generalized (introduced by X, adopted by anyone, returned by X).
+- **Group verdicts**, diagnosed shape-first — a hub-mediated group can produce round trips while still being a chair running spokes, so topology is checked before generativity: `MIRRORED EXCHANGE` → `PARTIAL ENGAGEMENT` (someone is outside the group's between) → `HUB-AND-SPOKES` (≥90% of uptake involves one node, spokes never bind to each other) → `GROUP GENERATIVE` (≥2 round trips, ≥2 transformers) → `GROUP UPTAKE` → `PARALLEL MONOLOGUES`. Floor: 2 turns per participant, else honest refusal.
+
+**Evidence tier: curated tests only (17/17), external validation pending.** Every servable multi-party corpus probe failed (declare-lab/MELD: split error; MELD text mirrors: unsupported loaders; ishiki-labs/multi-party-dialogue: cast error). R3 verdicts should be treated as designed-and-tested, not validated — the shuffle/chimera harness generalizes and runs the day a corpus becomes reachable.
+
 ## Roadmap
 
-- **R1.x (continued)** — length-controlled population comparison; AI–AI *peer* dialogue (agents negotiating, not user-roleplay)
+- **R3.x** — external multi-party validation, blocked on a servable corpus (MELD, AMI, or meeting transcripts); the harness is ready
+- **R1.x (continued)** — AI–AI *peer* dialogue (agents negotiating, not user-roleplay); frontier-model transcripts for the echo-drift question
 - **R2-structural** — the surviving route to the paraphrase gap: structure-aware alignment (predicate–argument, discourse relations) under the determinism constraint; expensive, and now known to be the *only* deterministic route
-- **R3** — multi-party exchanges; timing, if transcript formats carry it
+- **R4?** — timing, if transcript formats ever carry it
 
 Graduation rule, same as everywhere in this project: state the claim, probe the boundary, let the tests say the rest.

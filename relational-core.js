@@ -226,12 +226,20 @@ const UptakeBinder = {
   // The feature is retained opt-in for future work; the honest path to
   // semantic uptake is distributional, not lexical. See
   // docs/R2-SEMANTIC-UPTAKE.md.
+  // In a dyad, uptake is checked against the adjacent turn only — exactly
+  // the behavior all archived validation runs measured. With 3+ speakers,
+  // a reply can answer someone two turns back, so each turn is checked
+  // against the nearest prior turn of each OTHER speaker within a
+  // 3-turn window (R3).
+  MULTIPARTY_WINDOW: 3,
+
   analyze: function (annotated, opts = {}) {
     const useFunctional = opts.functionalUptake === true;
     const useSemantic = opts.semanticUptake === true;
     const lexicon = useSemantic
       ? (opts.semanticLexicon ? SemanticLexicon.fromNeighborTable(opts.semanticLexicon) : SemanticLexicon.load())
       : null;
+    const multiParty = new Set(annotated.map(t => t.speaker)).size > 2;
     const events = [];
     const seenBefore = new Set(); // all content words in turns 0..i-1
     const noveltyOf = [];
@@ -241,9 +249,21 @@ const UptakeBinder = {
       const novel = cur.content.filter(w => !seenBefore.has(w));
       noveltyOf[i] = cur.content.length > 0 ? novel.length / cur.content.length : 0;
 
-      if (i > 0) {
-        const prev = annotated[i - 1];
-        if (prev.speaker !== cur.speaker) {
+      const candidates = [];
+      if (!multiParty) {
+        if (i > 0 && annotated[i - 1].speaker !== cur.speaker) candidates.push(annotated[i - 1]);
+      } else {
+        const covered = new Set();
+        for (let j = i - 1; j >= Math.max(0, i - this.MULTIPARTY_WINDOW); j--) {
+          const p = annotated[j];
+          if (p.speaker === cur.speaker || covered.has(p.speaker)) continue;
+          covered.add(p.speaker);
+          candidates.push(p);
+        }
+      }
+
+      for (const prev of candidates) {
+        {
           const reused = [...prev.contentSet].filter(w => cur.contentSet.has(w));
           const coverage = cur.content.length > 0 ? reused.length / cur.content.length : 0;
           const run = longestCommonRun(prev.tokens, cur.tokens);
@@ -295,7 +315,8 @@ const UptakeBinder = {
             coverage: Number(coverage.toFixed(2)),
             novelty: Number(noveltyOf[i].toFixed(2)),
             longestRun: run,
-            answersQuestion: prev.isQuestion && reused.length >= 1
+            answersQuestion: prev.isQuestion && reused.length >= 1,
+            adjacent: prev.index === cur.index - 1
           });
         }
       }
@@ -421,6 +442,51 @@ const AsymmetryAnalyzer = {
   }
 };
 
+// Group structure (R3): with 3+ speakers, uptake becomes a directed graph —
+// who takes up whom. From it: engagement (who participates in any binding),
+// pair coverage (which speaker pairs ever touch), and hub share (how much
+// of the graph routes through its busiest node).
+const GroupStructureAnalyzer = {
+  UPTAKE_TYPES: new Set(['TRANSFORMATIVE', 'WEAK', 'SEMANTIC', 'FUNCTIONAL']),
+
+  analyze: function (annotated, uptakeEvents, speakers) {
+    const bySpeaker = {};
+    for (const s of speakers) bySpeaker[s] = { performed: 0, received: 0 };
+    const pairKey = (a, b) => [a, b].sort().join(' ↔ ');
+    const touchedPairs = new Set();
+    let uptakeTotal = 0;
+
+    for (const e of uptakeEvents) {
+      if (!this.UPTAKE_TYPES.has(e.type)) continue;
+      const source = annotated[e.from].speaker;
+      uptakeTotal++;
+      bySpeaker[e.responder].performed++;
+      bySpeaker[source].received++;
+      touchedPairs.add(pairKey(source, e.responder));
+    }
+
+    const allPairs = (speakers.length * (speakers.length - 1)) / 2;
+    const engaged = speakers.filter(s => bySpeaker[s].performed + bySpeaker[s].received > 0);
+    let hub = null, hubShare = 0;
+    for (const s of speakers) {
+      const involvement = uptakeEvents.filter(e =>
+        this.UPTAKE_TYPES.has(e.type) && (e.responder === s || annotated[e.from].speaker === s)).length;
+      const share = uptakeTotal > 0 ? involvement / uptakeTotal : 0;
+      if (share > hubShare) { hubShare = share; hub = s; }
+    }
+
+    return {
+      bySpeaker,
+      uptakeTotal,
+      engaged,
+      disengaged: speakers.filter(s => !engaged.includes(s)),
+      pairCoverage: allPairs > 0 ? +(touchedPairs.size / allPairs).toFixed(2) : 0,
+      hub,
+      hubShare: +hubShare.toFixed(2)
+    };
+  }
+};
+
 // Repair: a clarification request and its resolution — the exchange noticing
 // and correcting its own misalignment is structure, not noise.
 const RepairDetector = {
@@ -463,12 +529,7 @@ function synthesizeRelationalVerdict(analysis) {
     };
   }
   if (speakers.length > 2) {
-    return {
-      status: 'OUTSIDE DESIGN SPACE',
-      confidence: 1.0,
-      reason: `Tier R1 handles dyadic exchanges only (found ${speakers.length} speakers). Multi-party structure is a stated boundary, not a claim.`,
-      boundary
-    };
+    return synthesizeGroupVerdict(analysis, boundary);
   }
   if (annotated.length < 4) {
     return {
@@ -549,6 +610,81 @@ function synthesizeRelationalVerdict(analysis) {
 //                                    precision gate on external corpora and
 //                                    is retained opt-in only. See
 //                                    docs/R2-SEMANTIC-UPTAKE.md.
+// R3 verdicts for 3+ speakers. Ordering is deliberate: structural shape
+// (mirroring, disengagement, hub topology) is diagnosed before generativity,
+// because a hub-mediated group can produce round trips while still having
+// the structure of a chair running spokes — the shape is the finding.
+function synthesizeGroupVerdict(analysis, boundary) {
+  const { annotated, speakers, uptakeEvents, coConstruction, group } = analysis;
+  const floor = Math.max(4, speakers.length * 2);
+
+  if (annotated.length < floor) {
+    return {
+      status: 'INSUFFICIENT EXCHANGE',
+      confidence: 1.0,
+      reason: `${annotated.length} turns among ${speakers.length} speakers. Group structure needs at least ${floor} turns (2 per participant) to exist.`,
+      boundary
+    };
+  }
+
+  const opportunities = uptakeEvents.length;
+  const echoes = uptakeEvents.filter(e => e.type === 'ECHO').length;
+  if (opportunities > 0 && echoes / opportunities >= 0.5) {
+    return {
+      status: 'MIRRORED EXCHANGE',
+      confidence: Math.min(0.9, 0.6 + (echoes / opportunities) * 0.3),
+      reason: `${echoes}/${opportunities} responses are verbatim or near-verbatim echoes. A hall of mirrors is not a meeting.`,
+      boundary
+    };
+  }
+
+  if (group.uptakeTotal > 0 && group.disengaged.length > 0) {
+    return {
+      status: 'PARTIAL ENGAGEMENT',
+      confidence: 0.8,
+      reason: `${group.engaged.length} of ${speakers.length} participants exchange material; ${group.disengaged.join(', ')} neither take(s) up nor get(s) taken up. The group's between excludes them.`,
+      boundary
+    };
+  }
+
+  if (group.uptakeTotal >= 3 && group.hubShare >= 0.9 && speakers.length >= 3 && group.pairCoverage < 0.99) {
+    return {
+      status: 'HUB-AND-SPOKES',
+      confidence: 0.8,
+      reason: `${(group.hubShare * 100).toFixed(0)}% of uptake involves ${group.hub}; the other participants never bind to each other (pair coverage ${group.pairCoverage}). One node is doing the group's relating.`,
+      boundary
+    };
+  }
+
+  const transformers = new Set(uptakeEvents
+    .filter(e => e.type === 'TRANSFORMATIVE' || e.type === 'SEMANTIC')
+    .map(e => e.responder));
+  if (coConstruction.roundTrips.length >= 2 && transformers.size >= 2) {
+    return {
+      status: 'GROUP GENERATIVE',
+      confidence: Math.min(0.9, 0.7 + coConstruction.roundTrips.length * 0.03 + group.pairCoverage * 0.1),
+      reason: `${coConstruction.roundTrips.length} term(s) completed the introduce→adopt→return circuit across the group; ${transformers.size} participants transform rather than repeat; pair coverage ${group.pairCoverage}.`,
+      boundary
+    };
+  }
+
+  if (group.uptakeTotal > 0) {
+    return {
+      status: 'GROUP UPTAKE',
+      confidence: 0.7,
+      reason: `Material crosses between participants (${group.uptakeTotal} uptake event(s)), but little circulates and returns yet.`,
+      boundary
+    };
+  }
+
+  return {
+    status: 'PARALLEL MONOLOGUES',
+    confidence: 0.8,
+    reason: 'Turns alternate among the group but no anchors cross between speakers. A queue of soliloquies sharing a room.',
+    boundary
+  };
+}
+
 function analyzeExchange(input, opts = {}) {
   const turns = TurnParser.parse(input);
   const { annotated, display } = AnchorExtractor.annotate(turns, opts);
@@ -561,8 +697,11 @@ function analyzeExchange(input, opts = {}) {
   const convergence = ConvergenceTracker.analyze(annotated, speakers);
   const asymmetry = AsymmetryAnalyzer.analyze(annotated, uptakeEvents, coConstruction, speakers);
   const repairs = RepairDetector.analyze(annotated);
+  const group = speakers.length > 2
+    ? GroupStructureAnalyzer.analyze(annotated, uptakeEvents, speakers)
+    : null;
 
-  const analysis = { annotated, speakers, uptakeEvents, coConstruction, convergence, asymmetry, repairs };
+  const analysis = { annotated, speakers, uptakeEvents, coConstruction, convergence, asymmetry, repairs, group };
   const verdict = synthesizeRelationalVerdict(analysis);
 
   return {
@@ -573,6 +712,7 @@ function analyzeExchange(input, opts = {}) {
     convergence,
     asymmetry,
     repairs,
+    group,
     verdict
   };
 }
@@ -587,8 +727,10 @@ const RelationalCathedral = {
   CoConstructionDetector,
   ConvergenceTracker,
   AsymmetryAnalyzer,
+  GroupStructureAnalyzer,
   RepairDetector,
-  synthesizeRelationalVerdict
+  synthesizeRelationalVerdict,
+  synthesizeGroupVerdict
 };
 
 // Node module and browser global from the same file — relational-demo.html

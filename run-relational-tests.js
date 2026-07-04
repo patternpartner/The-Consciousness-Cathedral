@@ -78,13 +78,65 @@ A: The metrics roll up to a single dashboard.
 `
   },
   {
-    name: 'Three speakers — dyadic boundary stated, not fudged',
-    expect: 'OUTSIDE DESIGN SPACE',
+    name: 'R3 — three speakers, too few turns: refuse, don\'t guess',
+    expect: 'INSUFFICIENT EXCHANGE',
     transcript: `
 A: The rollout plan needs a canary stage before full deployment.
 B: A canary stage catches regressions early if the metrics are wired.
 C: Wiring the metrics through the canary is a sprint of work at most.
 A: Then the canary metrics land in the next sprint.
+`
+  },
+  {
+    name: 'R3 — group generative: terms circulate across three participants',
+    expect: 'GROUP GENERATIVE',
+    also: r => r.coConstruction.roundTrips.length >= 2 && r.group && r.group.disengaged.length === 0,
+    transcript: `
+A: Every node keeps its own event ledger, and they drift apart under load.
+B: If the ledger drifts, we anchor it with a periodic snapshot each node signs.
+C: A signed snapshot lets any node replay the ledger from the last agreed point.
+A: Then the snapshot becomes the ledger's sync point — drift bounded by replay distance.
+B: And replay cost stays low if the snapshot interval tracks write volume.
+C: So replay from a signed snapshot bounds the ledger drift. Clean.
+`
+  },
+  {
+    name: 'R3 — hub-and-spokes: a chair mediates, spokes never bind to each other',
+    expect: 'HUB-AND-SPOKES',
+    also: r => r.group && r.group.hub === 'C' && r.group.hubShare >= 0.9,
+    transcript: `
+C: Let's go around. A, where does the payroll migration stand?
+A: The payroll migration finished the parallel run; two mismatches left, both rounding.
+C: Good — log those rounding mismatches with the vendor. B, how is the website redesign?
+B: The website redesign passed the accessibility audit; launch waits on the CDN contract.
+C: Then the CDN contract is the blocker to chase. Anything either of you needs?
+A: Only a contact for the payroll mismatches.
+B: And a signature on the CDN paperwork.
+`
+  },
+  {
+    name: 'R3 — partial engagement: one participant outside the group\'s between',
+    expect: 'PARTIAL ENGAGEMENT',
+    also: r => r.group && r.group.disengaged.includes('D'),
+    transcript: `
+A: The forecast model overfits the holiday spike.
+B: Smoothing the holiday spike with a seasonal prior would calm the forecast.
+D: My cat walked across the keyboard this morning.
+A: A seasonal prior helps, but the spike is genuinely new demand, not noise.
+B: Then the forecast needs a demand covariate rather than smoothing alone.
+D: Lunch is at noon, apparently.
+`
+  },
+  {
+    name: 'R3 — three-way parallel monologues: a queue of soliloquies',
+    expect: 'PARALLEL MONOLOGUES',
+    transcript: `
+A: The tomato seedlings germinated early despite the frost this year.
+B: Register allocation dominates compile latency once inlining widens the graph.
+C: The sourdough starter doubled overnight after the second feeding.
+A: Next season the pumpkins move against the fence line.
+B: Linear scan trades peak code speed for a flatter build profile.
+C: A colder proof slows the crumb but deepens the flavor.
 `
   },
   {

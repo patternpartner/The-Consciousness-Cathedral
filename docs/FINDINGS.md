@@ -52,7 +52,8 @@ Details: [R2-SEMANTIC-UPTAKE.md](R2-SEMANTIC-UPTAKE.md) · `node validation/r2-a
 - **Absolute rates are floors.** Lexical anchoring misses paraphrase uptake; ~half of real casual human dialogue scores `PARALLEL MONOLOGUES`. Only *relative* comparisons are validated.
 - English only; casual, assistance, and task registers only; 2023–24-era machine corpora; first-pages sampling.
 - Magpie's machine dialogue is self-talk; genuinely independent modern agents are unmeasured. Frontier 2025–26 models are unmeasured — the instrument is ready when transcripts are.
-- Dyadic only (R3 open). No timing (transcripts don't carry it).
+- Multi-party analysis (R3, v3.4.0) is designed-and-tested but not externally validated — every servable multi-party corpus probe failed; the harness is ready when one is reachable. No timing (transcripts don't carry it).
+- Archived `results*.json` files record the instrument as configured on their run date (run 1 = v3.0.0 defaults, pre-stemming); re-running a script under current defaults can differ by exactly the shipped, documented feature deltas.
 - The instrument measures the structural trace an exchange leaves — on the project's own philosophy, never the flowing itself.
 
 ## Why this matters for the founding question

@@ -22,3 +22,8 @@
 
 ## Pre-3.0
 - Cathedral core (Tiers 1–2): structural binding validation for operational reasoning in single texts; gaming resistance; `OUTSIDE DESIGN SPACE` refusal verdict. See `docs/ARCHITECTURE.md` and the tier findings documents.
+
+## 3.4.0 — 2026-07-04
+- R3: multi-party exchanges (3+ speakers) replace the dyadic refusal. Windowed uptake (nearest prior turn per other speaker, window 3), directed uptake graph (performed/received, pair coverage, hub share), group verdicts diagnosed shape-first: MIRRORED, PARTIAL ENGAGEMENT, HUB-AND-SPOKES, GROUP GENERATIVE, GROUP UPTAKE, PARALLEL MONOLOGUES.
+- Dyadic behavior preserved exactly: 488 run-1 dialogues re-analyzed under pre-R3 and post-R3 code, zero differences. Archived validation runs remain exact records.
+- Evidence tier: curated tests (17/17); external multi-party validation pending a servable corpus (MELD/AMI mirrors currently unservable — probes documented).
