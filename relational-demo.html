@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relational Cathedral — Tier R1</title>
+<style>
+  :root {
+    --bg: #f7f6f3; --panel: #ffffff; --ink: #1e1e1c; --muted: #6b6a66;
+    --line: #e3e1dc; --accent: #2f6f5f; --accent-ink: #ffffff;
+    --echo: #a04545; --transform: #2f6f5f; --weak: #8a7a3d; --none: #9a9892;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614; --panel: #1f1e1c; --ink: #e8e6e1; --muted: #97948d;
+      --line: #34322e; --accent: #6fb39f; --accent-ink: #10201b;
+      --echo: #d08080; --transform: #6fb39f; --weak: #c2b06a; --none: #6f6d67;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, sans-serif; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 28px 20px 60px; }
+  h1 { font-size: 21px; margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 22px; }
+  .cols { display: flex; gap: 20px; flex-wrap: wrap; }
+  .col { flex: 1 1 440px; min-width: 320px; }
+  textarea { width: 100%; height: 240px; background: var(--panel); color: var(--ink);
+             border: 1px solid var(--line); border-radius: 8px; padding: 12px;
+             font: 13px/1.5 ui-monospace, monospace; resize: vertical; }
+  .row { display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+  button { background: var(--accent); color: var(--accent-ink); border: 0;
+           border-radius: 7px; padding: 9px 18px; font-size: 14px; font-weight: 600;
+           cursor: pointer; }
+  select { background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+           border-radius: 7px; padding: 8px 10px; font-size: 13.5px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+          padding: 16px 18px; margin-bottom: 14px; }
+  .verdict { font-size: 18px; font-weight: 700; }
+  .conf { color: var(--muted); font-weight: 400; font-size: 14px; }
+  .reason { margin-top: 6px; font-size: 14px; }
+  .boundary { color: var(--muted); font-size: 12.5px; margin-top: 10px;
+              border-top: 1px solid var(--line); padding-top: 8px; }
+  .pair { display: flex; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line);
+          font-size: 13.5px; align-items: baseline; }
+  .pair:first-of-type { border-top: 0; }
+  .badge { flex: 0 0 auto; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+           padding: 2px 8px; border-radius: 20px; color: var(--accent-ink); }
+  .b-TRANSFORMATIVE { background: var(--transform); }
+  .b-SEMANTIC { background: var(--transform); }
+  .b-FUNCTIONAL { background: var(--transform); }
+  .b-WEAK { background: var(--weak); }
+  .b-ECHO { background: var(--echo); }
+  .b-NONE { background: var(--none); }
+  .anchors { color: var(--muted); }
+  .chip { display: inline-block; background: var(--bg); border: 1px solid var(--line);
+          border-radius: 16px; padding: 3px 11px; margin: 3px 5px 3px 0; font-size: 13px; }
+  .chip b { color: var(--accent); }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .06em;
+       color: var(--muted); margin: 0 0 8px; }
+  table { border-collapse: collapse; font-size: 13.5px; width: 100%; }
+  td, th { text-align: left; padding: 4px 12px 4px 0; }
+  th { color: var(--muted); font-weight: 600; }
+  .foot { color: var(--muted); font-size: 12.5px; margin-top: 26px; }
+  .foot a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Relational Cathedral — Tier R1</h1>
+  <div class="sub">
+    Structural analysis of dialogue: uptake bindings, vocabulary round trips, symmetry, repair.
+    Deterministic, local, no model calls. It measures interaction <em>structure</em> — never consciousness.
+  </div>
+
+  <div class="cols">
+    <div class="col">
+      <textarea id="transcript" spellcheck="false"></textarea>
+      <div class="row">
+        <button id="analyze">Analyze</button>
+        <select id="sample">
+          <option value="generative">Sample: generative exchange</option>
+          <option value="mirror">Sample: mirror</option>
+          <option value="parallel">Sample: parallel monologues</option>
+          <option value="repair">Sample: repair sequence</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="col" id="results" hidden>
+      <div class="card">
+        <div class="verdict"><span id="status"></span> <span class="conf" id="conf"></span></div>
+        <div class="reason" id="reason"></div>
+        <div class="boundary" id="boundary"></div>
+      </div>
+
+      <div class="card">
+        <h2>Turn-by-turn uptake</h2>
+        <div id="pairs"></div>
+      </div>
+
+      <div class="card">
+        <h2>Round trips <span style="text-transform:none;letter-spacing:0">(introduced → adopted → returned)</span></h2>
+        <div id="roundtrips"></div>
+      </div>
+
+      <div class="card">
+        <h2>Symmetry &amp; convergence</h2>
+        <table id="asym"></table>
+        <div id="extra" style="margin-top:8px;font-size:13.5px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    The analyzer running on this page is <code>relational-core.js</code> itself — the same module
+    the test suite and validation runs use. Format: one turn per line, <code>Name: text</code>.
+    Design &amp; validation: <a href="docs/RELATIONAL-PROGRAM.md">RELATIONAL-PROGRAM.md</a>,
+    <a href="docs/R1X-VALIDATION.md">R1X-VALIDATION.md</a>.
+  </div>
+</div>
+
+<script src="relational-core.js"></script>
+<script>
+const SAMPLES = {
+  generative:
+`A: The memory system fails when sessions overlap. Maybe we introduce a lease, a lock that carries an expiry.
+B: A lease could work, but if the lease expires mid-write we get a torn state. Pair it with a version stamp so readers detect staleness.
+A: The version stamp closes the gap — acquire lease, write with stamp, and any reader seeing a stale stamp discards the write.
+B: Then the discard path deserves its own test. The stamp turns the lease from a timing guess into a checkable contract.`,
+  mirror:
+`A: If error rate exceeds five percent we abort the deployment and roll back to the previous release.
+B: If error rate exceeds five percent we abort the deployment and roll back to the previous release.
+A: Monitoring dashboards track latency budgets and every alert routes to the on-call engineer.
+B: Monitoring dashboards track latency budgets and every alert routes to the on-call engineer.`,
+  parallel:
+`A: The tomato seedlings germinated early despite the frost, and the raised beds drained beautifully.
+B: Register allocation dominates compile latency once inlining widens the interference graph.
+A: Next season the pumpkins move against the fence where the marrows exhausted the soil.
+B: Switching the backend to linear scan traded peak code speed for a flatter build profile.`,
+  repair:
+`A: The cache invalidation strategy feels wrong to me.
+B: What do you mean by wrong — stale reads, or the thundering herd on expiry?
+A: Stale reads. The invalidation lags each write by several seconds under load.
+B: Then the invalidation should ride the write path itself, not a timer — the lag disappears when the write carries its own invalidation.`
+};
+
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function render(r) {
+  $('results').hidden = false;
+  $('status').textContent = r.verdict.status;
+  $('conf').textContent = Math.round(r.verdict.confidence * 100) + '%';
+  $('reason').textContent = r.verdict.reason || '';
+  $('boundary').textContent = r.verdict.boundary ? r.verdict.boundary.nonClaim : '';
+
+  $('pairs').innerHTML = r.uptake.length ? r.uptake.map(e => {
+    const detail = e.type === 'ECHO'
+      ? `verbatim run of ${e.longestRun} tokens`
+      : e.reused.length
+        ? `anchors: ${esc(e.reused.join(', '))} · novelty ${e.novelty}`
+        : (e.semanticPairs && e.semanticPairs.length)
+          ? `semantic: ${esc(e.semanticPairs.map(p => p.join('→')).join(', '))}`
+          : e.pair ? `adjacency pair ${esc(e.pair)}` : 'nothing crosses';
+    return `<div class="pair"><span class="badge b-${e.type}">${e.type}</span>
+      <span>turn ${e.from} → ${e.to} <span class="anchors">(${esc(e.direction)})</span><br>
+      <span class="anchors">${detail}</span></span></div>`;
+  }).join('') : '<div class="anchors">no cross-speaker turn pairs</div>';
+
+  $('roundtrips').innerHTML = r.coConstruction.roundTrips.length
+    ? r.coConstruction.roundTrips.map(t =>
+        `<span class="chip"><b>${esc(t.term)}</b> · ${esc(t.introducedBy)} t${t.atTurn} → ${esc(t.adoptedBy)} t${t.adoptedAtTurn} → t${t.returnedAtTurn}</span>`).join('')
+    : '<span class="anchors">none — no term completed the introduce→adopt→return circuit</span>';
+
+  const a = r.asymmetry;
+  $('asym').innerHTML = '<tr><th>speaker</th><th>turns</th><th>uptakes</th><th>echoes</th><th>productive introductions</th></tr>' +
+    Object.entries(a.perSpeaker).map(([s, v]) =>
+      `<tr><td>${esc(s)}</td><td>${v.turns}</td><td>${v.uptakesPerformed}</td><td>${v.echoesPerformed}</td><td>${v.productiveIntroductions}</td></tr>`).join('');
+
+  const conv = r.convergence.measurable
+    ? `Vocabulary convergence: <b>${r.convergence.trend}</b> (overlap ${r.convergence.firstHalfOverlap} → ${r.convergence.secondHalfOverlap})`
+    : 'Vocabulary convergence: unmeasured (needs a 2-speaker exchange of 4+ turns)';
+  const rep = r.repairs.length
+    ? ` · Repairs: ${r.repairs.length} initiated, ${r.repairs.filter(x => x.resolved).length} resolved`
+    : ' · Repairs: none detected';
+  $('extra').innerHTML = conv + rep;
+}
+
+$('analyze').addEventListener('click', () => {
+  render(RelationalCathedral.analyzeExchange($('transcript').value));
+});
+$('sample').addEventListener('change', e => {
+  $('transcript').value = SAMPLES[e.target.value];
+  render(RelationalCathedral.analyzeExchange($('transcript').value));
+});
+$('transcript').value = SAMPLES.generative;
+render(RelationalCathedral.analyzeExchange($('transcript').value));
+</script>
+</body>
+</html>

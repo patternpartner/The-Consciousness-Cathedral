@@ -577,7 +577,7 @@ function analyzeExchange(input, opts = {}) {
   };
 }
 
-module.exports = {
+const RelationalCathedral = {
   analyzeExchange,
   TurnParser,
   AnchorExtractor,
@@ -590,3 +590,11 @@ module.exports = {
   RepairDetector,
   synthesizeRelationalVerdict
 };
+
+// Node module and browser global from the same file — relational-demo.html
+// loads this script directly, so there is exactly one copy of the analyzer.
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = RelationalCathedral;
+} else if (typeof window !== 'undefined') {
+  window.RelationalCathedral = RelationalCathedral;
+}

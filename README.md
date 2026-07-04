@@ -93,6 +93,8 @@ Details in **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 
 The same discipline, one level up. Where the core measures binding *inside one text*, `relational-core.js` measures binding *between participants in a dialogue*: does a reply actually take up what the other speaker introduced, or merely sound like a reply?
 
+Browser demo: open **[`relational-demo.html`](relational-demo.html)** — paste a transcript (`Name: text`, one turn per line) and see the verdict, the turn-by-turn uptake bindings, and the round trips. The analyzer on the page is `relational-core.js` itself, loaded directly; there is no forked copy.
+
 ```javascript
 const { analyzeExchange } = require('./index.js');
 
@@ -134,7 +136,8 @@ Test cases live in [`cathedral-test-cases.md`](cathedral-test-cases.md); results
 ```
 cathedral-core.js         The evaluator (Node.js module — the thing this README describes)
 relational-core.js        Tier R1: structural analysis of dialogue transcripts
-cathedral-unified.html    Self-contained browser demo
+relational-demo.html      Browser demo for the relational tier (loads relational-core.js directly)
+cathedral-unified.html    Self-contained browser demo of the core evaluator
 index.js                  Entry point: core API + lazy `experimental` namespace
 run-tests.js              Test suite
 extract-core.js           Regenerates cathedral-core.js from the HTML (legacy pipeline)
