@@ -89,6 +89,27 @@ Each verdict carries a confidence score and a full structural breakdown.
 
 Details in **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 
+## The relational tier (R1)
+
+The same discipline, one level up. Where the core measures binding *inside one text*, `relational-core.js` measures binding *between participants in a dialogue*: does a reply actually take up what the other speaker introduced, or merely sound like a reply?
+
+```javascript
+const { analyzeExchange } = require('./index.js');
+
+const result = analyzeExchange(`
+A: Maybe we introduce a lease, a lock that carries an expiry.
+B: A lease could work — pair it with a version stamp so readers detect staleness.
+A: The version stamp closes the gap: acquire lease, write with stamp.
+B: The stamp turns the lease from a timing guess into a checkable contract.
+`);
+
+console.log(result.verdict.status);              // "GENERATIVE EXCHANGE"
+console.log(result.coConstruction.roundTrips);   // "lease" and "stamp" each
+                                                 // completed introduce→adopt→return
+```
+
+It classifies uptake (`TRANSFORMATIVE` / `WEAK` / `ECHO`), detects vocabulary **round trips** (a term introduced by one speaker, adopted by the other, returned to by the originator — the smallest measurable unit of something existing *in the exchange* rather than in either party), tracks convergence, symmetry, and repair sequences. A verbatim mirror scores `MIRRORED EXCHANGE`, not uptake — reflection is the keyword-stuffing of dialogue, and it's detected the same way. Verdicts carry a mandatory boundary statement: this measures interaction *structure*, never consciousness. Design and honest-limits ledger: **[docs/RELATIONAL-PROGRAM.md](docs/RELATIONAL-PROGRAM.md)**.
+
 ## What Cathedral is for — and not for
 
 **Designed for** evaluating reasoning about system design, risk analysis, failure modes and mitigations, technical tradeoffs, deployment plans — anywhere "sounds rigorous" and "is rigorous" need to be told apart. Increasingly relevant for evaluating **agent plans** before execution.
@@ -98,8 +119,10 @@ Details in **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 ## Testing
 
 ```bash
-npm test            # full suite (run-tests.js) — 11 boundary-probing scenarios
-npm run test:tier2  # detailed Tier 2 extraction demo
+npm test                 # core (11 scenarios) + relational (9 dialogues)
+npm run test:core        # operational-rigor suite only
+npm run test:relational  # dialogue-structure suite only
+npm run test:tier2       # detailed Tier 2 extraction demo
 ```
 
 Test cases live in [`cathedral-test-cases.md`](cathedral-test-cases.md); results are written to `test-results.txt` / `test-results.json`. The current suite validates intended behavior on curated cases — validation against an external corpus of real AI outputs is the honest next step, and contributions there are especially welcome.
@@ -108,6 +131,7 @@ Test cases live in [`cathedral-test-cases.md`](cathedral-test-cases.md); results
 
 ```
 cathedral-core.js         The evaluator (Node.js module — the thing this README describes)
+relational-core.js        Tier R1: structural analysis of dialogue transcripts
 cathedral-unified.html    Self-contained browser demo
 index.js                  Entry point: core API + lazy `experimental` namespace
 run-tests.js              Test suite

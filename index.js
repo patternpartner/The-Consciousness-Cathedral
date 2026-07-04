@@ -16,12 +16,18 @@
  */
 
 const core = require('./cathedral-core.js');
+const relational = require('./relational-core.js');
 
 module.exports = {
   ...core,
 
   // Convenience alias: analyze(text) === analyzeCathedral(text)
   analyze: core.analyzeCathedral,
+
+  // Tier R1: structural analysis of dialogue transcripts.
+  // analyzeExchange(transcript) — see docs/RELATIONAL-PROGRAM.md
+  analyzeExchange: relational.analyzeExchange,
+  relational,
 
   // Experimental toolkit, loaded only on first access.
   get experimental() {

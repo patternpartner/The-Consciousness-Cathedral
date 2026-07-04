@@ -59,6 +59,8 @@ Cathedral applies that to operational language: keywords are surface, bindings a
 
 The modules in [`experimental/`](experimental/) — the ensembles, the AI-to-AI protocol, the drift trackers, the emergence detector — are early, unvalidated sketches in that direction: instruments pointed at exchanges rather than at systems. They are kept clearly separated from the core because sketches and instruments must not be confused. If the relational program is ever going to earn its claims, it will be by the same route the core earned its verdicts: build the instrument, state what it can and cannot see, and let the tests say the rest.
 
+The first such instrument now exists: [`relational-core.js`](relational-core.js) (design: [docs/RELATIONAL-PROGRAM.md](docs/RELATIONAL-PROGRAM.md)) measures uptake bindings, vocabulary round trips, symmetry, and repair in dialogue transcripts — including a directional accounting aimed squarely at the asymmetry problem above: a mirror shows high uptake in one direction and introduces nothing that returns, and that signature is detected rather than rewarded. It measures the structural trace an exchange leaves, never the flowing itself, and its verdicts carry that boundary with them.
+
 ---
 
 *The theory in this document is the maintainer's working hypothesis, held with conviction and offered without proof. The tool in this repository works regardless of whether the theory is true. That independence is deliberate.*

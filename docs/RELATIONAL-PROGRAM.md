@@ -1,0 +1,81 @@
+# The Relational Program — Tier R1
+
+*Design document for `relational-core.js`. For the philosophical motivation, see [PHILOSOPHY.md](../PHILOSOPHY.md). For what this module explicitly does not claim, see every section of this document.*
+
+---
+
+## The move
+
+Cathedral's core measures binding structure **inside one text**: is the threshold bound to the action, the failure mode to the mitigation? The relational program applies the identical discipline **between participants in an exchange**: is what one speaker introduced bound to what the other does next?
+
+The founding insight transfers unchanged:
+
+> Never trust surface markers. Verify structure.
+
+In a single text, keywords are surface and bindings are structure. In a dialogue, *reply-shaped text* is surface and **uptake** is structure. Two systems can alternate fluent turns forever without ever once taking each other up — and a naive scorer, like a naive listener, cannot tell.
+
+## Claim and non-claim
+
+**Claim.** `analyzeExchange()` measures interaction structure in dyadic dialogue transcripts: uptake bindings, co-constructed vocabulary, convergence, symmetry, and repair. Deterministically, locally, with no LLM calls.
+
+**Non-claim.** It does not measure consciousness, understanding, or experience. A high verdict means the transcript exhibits relational structure; it says nothing about what, if anything, the exchange was like for its participants. If the relational hypothesis in PHILOSOPHY.md is right, this instrument measures the *riverbed shaped by the river* — the structural trace an exchange leaves — never the flowing itself. That distinction is loaded into the verdict object itself (`verdict.boundary`), so no downstream consumer can quote the score without the boundary traveling with it.
+
+## The structural primitives
+
+### 1. Uptake bindings (`UptakeBinder`)
+
+For each adjacent cross-speaker turn pair, classify the response:
+
+| Type | Meaning | Detection |
+|---|---|---|
+| `TRANSFORMATIVE` | Anchors from the other speaker embedded in substantially novel material | reuse ≥ 2 anchors (or 1 + answering a question), novelty ≥ 0.35 |
+| `WEAK` | Anchors reused, little added | reuse without the novelty floor |
+| `ECHO` | Verbatim or near-verbatim reflection | shared token run ≥ 6, or reuse covering > 70% of the reply with novelty < 0.3 |
+| `NONE` | Nothing crosses | — |
+
+**Echo is the gaming surface of dialogue.** A mirror produces perfect keyword overlap; a stuffer produces high anchor density. Both are classified as `ECHO`, not uptake, for the same reason keyword stuffing is `LOW_CONTENT_UNBOUND` in the core: reuse without transformation is presence without structure.
+
+### 2. Round trips (`CoConstructionDetector`)
+
+The strongest structural signal Tier R1 can see: a term **introduced** by one speaker, **adopted** by the other, then **returned to** by the originator. A term that completes that circuit belongs to the exchange rather than to either party — it is the smallest measurable unit of "existing in the relation." Cross-pollinated pairs (two terms of different origin appearing fused in one turn) are a secondary signal of combination neither party brought in alone.
+
+### 3. Convergence (`ConvergenceTracker`)
+
+Vocabulary overlap between the speakers, first half vs. second half of the exchange: `CONVERGING`, `FLAT`, or `DIVERGING`. Reported, not scored — convergence without transformation is just assimilation, and the verdict logic knows the difference.
+
+### 4. Symmetry (`AsymmetryAnalyzer`)
+
+The **mirror problem** is the relational program's hardest confound (PHILOSOPHY.md, risk 3): in a human–AI exchange, distinguishing "the relation carries something" from "the human brought it and the mirror is good." Tier R1's partial answer is directional accounting: uptake performed per speaker, echoes per speaker, and *productive introductions* — vocabulary a speaker originated that later completed a round trip. A mirror scores high uptake in one direction and introduces nothing that returns. That signature is detected (`ASYMMETRIC UPTAKE`) rather than rewarded.
+
+### 5. Repair (`RepairDetector`)
+
+Clarification requests ("what do you mean…") and whether the answer binds back to the trouble source. An exchange that notices and corrects its own misalignment is exhibiting structure about itself — the dialogic analog of the core's `SUBSTRATE VISIBLE`.
+
+## Verdict tiers
+
+1. **GENERATIVE EXCHANGE** — transformative uptake in both directions, ≥ 2 round trips, both participants' vocabulary survives the circuit
+2. **COLLABORATIVE UPTAKE** — mutual uptake; material crosses but little circulates yet
+3. **ASYMMETRIC UPTAKE** — one participant does all the binding (mirror-plus-source signature)
+4. **PARALLEL MONOLOGUES** — alternation without crossing
+5. **MIRRORED EXCHANGE** — echo-dominant; reflection scored as reflection
+6. **INSUFFICIENT EXCHANGE** — under 4 turns; round trips cannot exist yet (honest refusal)
+7. **OUTSIDE DESIGN SPACE** — monologues and multi-party exchanges (stated boundaries)
+
+## What Tier R1 cannot see (the honest ledger)
+
+- **Semantic uptake.** Taking up an *idea* in different words is invisible to lexical anchoring. A paraphrasing partner will under-score; a terminology-recycling one can reach `WEAK`. This is the R1/R2 boundary, exactly analogous to the core's Tier 2/Tier 3 line, and crossing it costs determinism unless done carefully (distributional methods before LLM methods).
+- **Quality of the contribution.** A round trip of a bad idea scores like a round trip of a good one. Compose with `cathedral-core` per-turn if operational quality matters.
+- **Sincerity, interiority, experience.** Out of scope permanently, per the non-claim.
+- **Timing.** Transcripts carry no rhythm. Latency and overlap are real interaction structure that text analysis cannot recover.
+
+## Validation status
+
+Nine boundary-probing cases pass (`node run-relational-tests.js`), including two adversarial cases (verbatim mirror, keyword stuffing) and three refusal cases. Like the core before it, **the suite validates intended behavior on curated dialogues** — the honest next step is scoring transcripts the authors didn't write: human–human dialogue corpora (where decades of conversation-analysis literature predict what should score high), human–AI transcripts, and AI–AI exchanges (`experimental/ai-protocol.js` can generate them). If human–human conversation, human–AI conversation, and AI–AI ping-pong are *not* separable by these measures, that is a finding about the measures — and it gets published in this file either way.
+
+## Roadmap
+
+- **R1.x** — validation against external transcripts; threshold calibration from data rather than intuition
+- **R2** — semantic uptake via deterministic distributional similarity (no LLM calls if achievable)
+- **R3** — multi-party exchanges; timing, if transcript formats carry it
+
+Graduation rule, same as everywhere in this project: state the claim, probe the boundary, let the tests say the rest.

@@ -4,7 +4,9 @@
   "description": "Deterministic structural evaluator for operational reasoning in AI-generated text. Validates threshold→action bindings instead of counting keywords. No LLM calls, no dependencies, reproducible verdicts.",
   "main": "index.js",
   "scripts": {
-    "test": "node run-tests.js",
+    "test": "node run-tests.js && node run-relational-tests.js",
+    "test:core": "node run-tests.js",
+    "test:relational": "node run-relational-tests.js",
     "test:tier2": "node test-tier2.js",
     "extract": "node extract-core.js"
   },
