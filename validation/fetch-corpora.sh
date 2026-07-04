@@ -19,4 +19,14 @@ for off in 0 100 200; do
   curl -sS "https://datasets-server.huggingface.co/rows?dataset=HuggingFaceH4%2Fultrachat_200k&config=default&split=train_sft&offset=$off&length=100" -o ua_$off.json
 done
 
+# Human–human task register (run 4): MultiWOZ — a human plays the assistant
+for off in $(seq 0 100 1400); do
+  curl -sS "https://datasets-server.huggingface.co/rows?dataset=pietrolesci%2Fmultiwoz_all_versions&config=default&split=train&offset=$off&length=100" -o mw_$off.json; sleep 0.3
+done
+
+# AI–AI task register (run 4): CAMEL ai_society — two LLM agents collaborating
+for off in $(seq 0 100 1900); do
+  curl -sS "https://datasets-server.huggingface.co/rows?dataset=HydraLM%2Fcamel_society_standardized&config=default&split=train&offset=$off&length=100" -o cm_$off.json; sleep 0.3
+done
+
 echo "Corpora fetched into $(pwd)"

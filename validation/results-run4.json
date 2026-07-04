@@ -1,0 +1,119 @@
+{
+  "date": "2026-07-04T14:59:52.385Z",
+  "populations": {
+    "HH-casual (DailyDialog)": {
+      "full": {
+        "n": 272,
+        "pairs": 1870,
+        "echoRate": 0.023,
+        "uptakeRate": 0.144,
+        "bands": [
+          {
+            "pairs": 1475,
+            "echoRate": 0.024
+          },
+          {
+            "pairs": 326,
+            "echoRate": 0.009
+          }
+        ]
+      },
+      "truncated": {
+        "echoRate": 0.022,
+        "pairs": 1870
+      }
+    },
+    "HH-task (MultiWOZ)": {
+      "full": {
+        "n": 187,
+        "pairs": 2813,
+        "echoRate": 0.004,
+        "uptakeRate": 0.116,
+        "bands": [
+          {
+            "pairs": 1769,
+            "echoRate": 0.006
+          },
+          {
+            "pairs": 292,
+            "echoRate": 0
+          }
+        ]
+      },
+      "truncated": {
+        "echoRate": 0.004,
+        "pairs": 2813
+      }
+    },
+    "HAI (hh-rlhf)": {
+      "full": {
+        "n": 216,
+        "pairs": 1114,
+        "echoRate": 0.04,
+        "uptakeRate": 0.291,
+        "bands": [
+          {
+            "pairs": 818,
+            "echoRate": 0.046
+          },
+          {
+            "pairs": 196,
+            "echoRate": 0.031
+          }
+        ]
+      },
+      "truncated": {
+        "echoRate": 0.031,
+        "pairs": 1114
+      }
+    },
+    "AIAI-assist (UltraChat)": {
+      "full": {
+        "n": 300,
+        "pairs": 1566,
+        "echoRate": 0.343,
+        "uptakeRate": 0.614,
+        "bands": [
+          {
+            "pairs": 161,
+            "echoRate": 0.273
+          },
+          {
+            "pairs": 1045,
+            "echoRate": 0.308
+          }
+        ]
+      },
+      "truncated": {
+        "echoRate": 0.208,
+        "pairs": 1566
+      }
+    },
+    "AIAI-task (CAMEL)": {
+      "full": {
+        "n": 433,
+        "pairs": 1299,
+        "echoRate": 0.481,
+        "uptakeRate": 0.428,
+        "bands": [
+          {
+            "pairs": 349,
+            "echoRate": 0.352
+          },
+          {
+            "pairs": 616,
+            "echoRate": 0.469
+          }
+        ]
+      },
+      "truncated": {
+        "echoRate": 0.276,
+        "pairs": 1299
+      }
+    }
+  },
+  "predictions": {
+    "p1": true,
+    "p2": true
+  }
+}

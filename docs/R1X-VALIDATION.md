@@ -135,3 +135,39 @@ The lexical-coupling ladder also survives length control: within the 3–15 band
 ## Status after run 3
 
 The flagship finding is hardened: the run-2 threat-to-validity ("turn length differs enormously across populations") is now retired for the echo axis and the coupling ladder. Remaining open fronts: AI–AI *peer* dialogue (UltraChat's user-side is a roleplaying LLM, not a peer), register confounds, and R2-structural.
+
+---
+
+# Run 4 — Participant vs Register: the 2×2 Completed
+
+*Same date. Every machine–machine sample so far was in the assistant register, so "machines echo" and "assistants echo" were not yet separable. Two new populations complete the decomposition: MultiWOZ (human–human Wizard-of-Oz task dialogues — a HUMAN plays the assistant; assistant register, zero machines) and CAMEL ai_society (two LLM agents collaborating on tasks — machines, different register, different generation pipeline than UltraChat). Predictions stated first; reproduce with `node validation/r1x4-register-control.js`; numbers in `validation/results-run4.json`.*
+
+## Results
+
+| Population | Echo | Echo (trunc-30) | Band 3–15 | Band 15–40 |
+|---|---|---|---|---|
+| HH-task (MultiWOZ, human assistant) | **0.4%** | 0.4% | 0.6% [n=1769] | 0.0% [n=292] |
+| HH-casual (DailyDialog) | 2.3% | 2.2% | 2.4% | 0.9% |
+| HAI (hh-rlhf) | 4.0% | 3.1% | 4.6% | 3.1% |
+| AIAI-assist (UltraChat) | 34.3% | 20.8% | 27.3% | 30.8% |
+| AIAI-task (CAMEL) | **48.1%** | 27.6% | 35.2% [n=349] | 46.9% [n=616] |
+
+**P1 held, inverted for emphasis:** the human in the assistant role is not machine-like — human task dialogue is the *least* echoic population measured, five times below casual human conversation. Whatever the assistant register does to a human, it is the opposite of what generation does to a machine. **P2 held:** CAMEL, from an entirely different pipeline, shows the machine signature at full strength — stronger than UltraChat, in every control condition.
+
+## The finding, in its final form
+
+Echo rate now orders five external populations **perfectly by machine presence, across two registers, two machine pipelines, all length bands, and truncation**:
+
+> human–human task 0.4% < human–human casual 2.3% < human–AI 4.0% ≪ machine–machine 34–48%
+
+The signature is participant-driven, replicated, and robust to every confound the program has been able to construct against it. As a bonus, CAMEL also replicates run 3's compounding effect: machine–machine echo *rises* with turn length (35.2% → 46.9% across bands) while human echo falls (2.4% → 0.9%; MultiWOZ 0.6% → 0.0%).
+
+## Threats to validity (run 4)
+
+- MultiWOZ operators compose responses under a Wizard-of-Oz protocol with time to type — a *deliberate* register, which may suppress echo below natural human assistance. This strengthens P1's rejection of the register hypothesis but means 0.4% should not be quoted as "natural human assistant" behavior.
+- CAMEL conversations carry heavy task-prompt boilerplate ("Instruction: … Output: …") that may inflate machine echo; the matched-band and truncation controls limit but do not eliminate this.
+- Both machine corpora are 2023-era GPT-3.5-family generations. Whether current-generation models still carry the signature is an open, answerable question — the instrument is sitting here, deterministic, waiting for transcripts.
+
+## Status after run 4
+
+The echo discriminator graduates to the program's first **replicated, multiply-controlled empirical law**: *at fixed turn length, in any register tested, the fraction of near-verbatim reflection in a dialogue rises by roughly an order of magnitude when both participants are machines, and falls to near zero when both are humans working a task.* Remaining fronts: R2-structural (the paraphrase gap), model-generation drift of the echo signature, multi-party (R3).
