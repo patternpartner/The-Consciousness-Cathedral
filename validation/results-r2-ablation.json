@@ -1,0 +1,107 @@
+{
+  "date": "2026-07-04T14:40:05.202Z",
+  "results": {
+    "HH-real|R1": {
+      "n": 272,
+      "combinedUptakeRate": 0.128,
+      "lexicalRate": 0.128,
+      "functionalRate": 0,
+      "functionalEvents": 0,
+      "pctParallelMonologues": 0.522
+    },
+    "HH-real|+stem": {
+      "n": 272,
+      "combinedUptakeRate": 0.144,
+      "lexicalRate": 0.144,
+      "functionalRate": 0,
+      "functionalEvents": 0,
+      "pctParallelMonologues": 0.496
+    },
+    "HH-real|+func": {
+      "n": 272,
+      "combinedUptakeRate": 0.149,
+      "lexicalRate": 0.144,
+      "functionalRate": 0.004,
+      "functionalEvents": 8,
+      "pctParallelMonologues": 0.478
+    },
+    "HH-shuffled|R1": {
+      "n": 272,
+      "combinedUptakeRate": 0.004,
+      "lexicalRate": 0.004,
+      "functionalRate": 0,
+      "functionalEvents": 0,
+      "pctParallelMonologues": 0.971
+    },
+    "HH-shuffled|+stem": {
+      "n": 272,
+      "combinedUptakeRate": 0.005,
+      "lexicalRate": 0.005,
+      "functionalRate": 0,
+      "functionalEvents": 0,
+      "pctParallelMonologues": 0.963
+    },
+    "HH-shuffled|+func": {
+      "n": 272,
+      "combinedUptakeRate": 0.008,
+      "lexicalRate": 0.005,
+      "functionalRate": 0.003,
+      "functionalEvents": 5,
+      "pctParallelMonologues": 0.949
+    },
+    "HAI-real|R1": {
+      "n": 216,
+      "combinedUptakeRate": 0.27,
+      "lexicalRate": 0.27,
+      "functionalRate": 0,
+      "functionalEvents": 0,
+      "pctParallelMonologues": 0.282
+    },
+    "HAI-real|+stem": {
+      "n": 216,
+      "combinedUptakeRate": 0.291,
+      "lexicalRate": 0.291,
+      "functionalRate": 0,
+      "functionalEvents": 0,
+      "pctParallelMonologues": 0.264
+    },
+    "HAI-real|+func": {
+      "n": 216,
+      "combinedUptakeRate": 0.292,
+      "lexicalRate": 0.291,
+      "functionalRate": 0.001,
+      "functionalEvents": 1,
+      "pctParallelMonologues": 0.264
+    },
+    "HAI-shuffled|R1": {
+      "n": 216,
+      "combinedUptakeRate": 0.035,
+      "lexicalRate": 0.035,
+      "functionalRate": 0,
+      "functionalEvents": 0,
+      "pctParallelMonologues": 0.861
+    },
+    "HAI-shuffled|+stem": {
+      "n": 216,
+      "combinedUptakeRate": 0.05,
+      "lexicalRate": 0.05,
+      "functionalRate": 0,
+      "functionalEvents": 0,
+      "pctParallelMonologues": 0.801
+    },
+    "HAI-shuffled|+func": {
+      "n": 216,
+      "combinedUptakeRate": 0.052,
+      "lexicalRate": 0.05,
+      "functionalRate": 0.002,
+      "functionalEvents": 2,
+      "pctParallelMonologues": 0.796
+    }
+  },
+  "gates": {
+    "g1hh": false,
+    "g1hai": false,
+    "g2": true,
+    "g3": true
+  }
+}

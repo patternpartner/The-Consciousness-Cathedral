@@ -88,6 +88,41 @@ A: Then the canary metrics land in the next sprint.
 `
   },
   {
+    name: 'R2 functional (opt-in) — proposal accepted across zero lexical overlap',
+    opts: { functionalUptake: true },
+    expectOneOf: ['COLLABORATIVE UPTAKE', 'GENERATIVE EXCHANGE'],
+    also: r => r.uptake.some(e => e.type === 'FUNCTIONAL' && e.pair === 'PROPOSAL→ACCEPTANCE'),
+    transcript: `
+A: How about going for a few beers after dinner tonight?
+B: Sounds great, though we promised to watch our fitness this month.
+A: One beer will not wreck our fitness, and we can still watch the budget.
+B: Fair enough — one beer, then home.
+`
+  },
+  {
+    name: 'R2 functional (opt-in) — request declined via distinctive idiom, no overlap',
+    opts: { functionalUptake: true },
+    expectOneOf: ['COLLABORATIVE UPTAKE', 'GENERATIVE EXCHANGE', 'ASYMMETRIC UPTAKE'],
+    also: r => r.uptake.some(e => e.type === 'FUNCTIONAL' && e.pair === 'REQUEST→REJECTION'),
+    transcript: `
+A: Could you take the review pass on the parser change tonight?
+B: I'm afraid my whole evening is spoken for — the school run swallows it.
+A: Tomorrow works; the parser change can sit until then.
+B: Tomorrow it is, first thing.
+`
+  },
+  {
+    name: 'R2 stemming — inflected forms anchor-match across turns',
+    expectOneOf: ['COLLABORATIVE UPTAKE', 'GENERATIVE EXCHANGE', 'ASYMMETRIC UPTAKE'],
+    also: r => r.uptake.filter(e => e.type === 'TRANSFORMATIVE').length >= 2,
+    transcript: `
+A: The deployments keep failing on the edge nodes.
+B: A deployment fails there when the rollout script skips the health check.
+A: Then the health check gets added to every rollout before anything ships.
+B: And the edge nodes finally stop failing once that lands.
+`
+  },
+  {
     name: 'Repair sequence — clarification initiated and resolved',
     expectOneOf: ['GENERATIVE EXCHANGE', 'COLLABORATIVE UPTAKE'],
     also: r => r.repairs.length >= 1 && r.repairs[0].resolved,
@@ -108,7 +143,7 @@ console.log('RELATIONAL CATHEDRAL — TIER R1 TEST SUITE');
 console.log('═'.repeat(63));
 
 for (const c of CASES) {
-  const result = analyzeExchange(c.transcript.trim());
+  const result = analyzeExchange(c.transcript.trim(), c.opts || {});
   const status = result.verdict.status;
   const statusOk = c.expectOneOf ? c.expectOneOf.includes(status) : status === c.expect;
   const alsoOk = c.also ? c.also(result) : true;

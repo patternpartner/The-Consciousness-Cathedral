@@ -76,10 +76,12 @@ Nine boundary-probing cases pass (`node run-relational-tests.js`), including two
 
 **Run 2 has also completed** — the same-topic chimera control answered the topical objection (real dialogue separates ~3× from even maximum-vocabulary-overlap chimeras; the signal is relational, not topical), and the three-way comparison found human–human, human–AI, and AI–AI populations separable on three axes, with echo rate (2–4% human vs 33% machine–machine) as a near-categorical human/machine discriminator. See run 2 in [R1X-VALIDATION.md](R1X-VALIDATION.md).
 
+**The first R2 attempt has run and partially failed, as published.** Stemming shipped (default-on: ~12% relative recall gain on real human dialogue, separation intact). Adjacency-pair functional uptake failed its pre-stated precision gate twice — generic response patterns fire at base rate on shuffled controls, and the distinctive idioms that survive calibration are too rare to matter — and ships default-OFF (opt-in). The negative result rules out surface-pattern matching as the route to semantic uptake: **[R2-SEMANTIC-UPTAKE.md](R2-SEMANTIC-UPTAKE.md)**.
+
 ## Roadmap
 
-- **R1.x (continued)** — length-controlled population comparison; AI–AI *peer* dialogue (agents negotiating, not user-roleplay); threshold calibration from data
-- **R2** — semantic uptake via deterministic distributional similarity (no LLM calls if achievable); quantified from both directions now (lexical anchoring under-counts humans, over-counts machines)
+- **R1.x (continued)** — length-controlled population comparison; AI–AI *peer* dialogue (agents negotiating, not user-roleplay)
+- **R2-proper** — semantic uptake via deterministic distributional similarity (PPMI co-occurrence vectors over a fixed reference corpus, shipped as data — a lookup, not a model call); the pattern-lexicon shortcut is now ruled out by data
 - **R3** — multi-party exchanges; timing, if transcript formats carry it
 
 Graduation rule, same as everywhere in this project: state the claim, probe the boundary, let the tests say the rest.

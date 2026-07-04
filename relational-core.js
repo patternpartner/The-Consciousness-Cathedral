@@ -55,6 +55,22 @@ const TurnParser = {
   }
 };
 
+// Conservative suffix-stripping so "deployments"/"deploying"/"deployed"
+// anchor-match. Deliberately approximate and documented as such — a wrong
+// merge costs one noisy anchor; a missed merge costs one missed anchor.
+function stem(word) {
+  let w = word;
+  if (w.length > 4 && w.endsWith('ies')) return w.slice(0, -3) + 'y';
+  if (w.length > 5 && w.endsWith('ing')) w = w.slice(0, -3);
+  else if (w.length > 4 && w.endsWith('ed')) w = w.slice(0, -2);
+  else if (w.length > 3 && w.endsWith('s') &&
+           !w.endsWith('ss') && !w.endsWith('us') && !w.endsWith('is')) {
+    w = w.slice(0, -1);
+  }
+  if (w.length > 3 && w[w.length - 1] === w[w.length - 2]) w = w.slice(0, -1);
+  return w;
+}
+
 function tokenize(text) {
   return String(text)
     .toLowerCase()
@@ -91,10 +107,20 @@ function longestCommonRun(a, b) {
 }
 
 const AnchorExtractor = {
-  annotate: function (turns) {
-    return turns.map((t, index) => {
+  // opts.stemming (default true) merges inflected forms into one anchor;
+  // `display` maps each stem back to the first surface form encountered,
+  // so reports stay readable.
+  annotate: function (turns, opts = {}) {
+    const useStems = opts.stemming !== false;
+    const display = new Map();
+    const annotated = turns.map((t, index) => {
       const tokens = tokenize(t.text);
-      const content = contentWords(tokens);
+      const surface = contentWords(tokens);
+      const content = surface.map(w => {
+        const s = useStems ? stem(w) : w;
+        if (!display.has(s)) display.set(s, w);
+        return s;
+      });
       return {
         index,
         speaker: t.speaker,
@@ -105,6 +131,45 @@ const AnchorExtractor = {
         isQuestion: /\?/.test(t.text)
       };
     });
+    return { annotated, display };
+  }
+};
+
+// Functional uptake: adjacency pairs (Schegloff & Sacks). A reply can take
+// up the prior turn by performing its typed second half — accepting a
+// proposal, declining a request — with zero lexical overlap.
+//
+// Calibrated from data, not intuition (validation/r2-ablation.js): the
+// first version also matched generic response openers (bare yes/no/sure)
+// and a YESNO→POLARITY pair. The shuffle controls showed those fire at
+// base rate on Frankenstein dialogue — PROPOSAL→generic-acceptance ran
+// 14:15 real-to-shuffled, i.e. pure noise — so they were cut. What
+// remains are the distinctive idioms, which run ~5:1 or better. Bare
+// unanchored answers ("Yes.") are a known, accepted miss: anchored
+// answers to questions are already caught by the lexical path.
+const AdjacencyPairs = {
+  firstPart: [
+    { type: 'PROPOSAL', re: /\b(how about|what about|shall we|let'?s |would you like to|do you want to|why don'?t (we|you)|fancy going|care to join)\b/i },
+    { type: 'OFFER', re: /\b(would you like|can i (get|bring|offer|help)|do you need|shall i)\b/i },
+    { type: 'REQUEST', re: /\b(can you|could you|would you mind|will you)\b/i }
+  ],
+  // Rejection is tested first: "I'd love to, but…" must not match the
+  // acceptance idiom it starts with.
+  secondPart: [
+    { type: 'REJECTION', re: /^\s*\W*(sorry|i can'?t\b|i cannot|i'?m afraid|unfortunately|i'?d rather not|thanks,? but|i wish i could)|(\btempting\b[^.!?]*\bbut\b)|(\bi'?d love to\b[^.!?]*\bbut\b)|(\bwish i could\b)/i },
+    { type: 'ACCEPTANCE', re: /^\s*\W*(sounds? (good|great|perfect|fun|wonderful|tempting)|good idea|great idea|i'?d love to|all right|alright|no problem|why not|gladly|with pleasure|deal\b|count me in|i'?m in\b|let'?s do it|happy to)\b/i }
+  ],
+
+  detect: function (prevText, curText) {
+    for (const fpp of this.firstPart) {
+      if (!fpp.re.test(prevText)) continue;
+      for (const spp of this.secondPart) {
+        if (spp.re.test(curText)) {
+          return { pair: `${fpp.type}→${spp.type}` };
+        }
+      }
+    }
+    return null;
   }
 };
 
@@ -116,7 +181,16 @@ const UptakeBinder = {
   ECHO_NOVELTY: 0.3,  //   ...with under 30% novel material, is echo too
   TRANSFORM_NOVELTY: 0.35,
 
-  analyze: function (annotated) {
+  // opts.functionalUptake is OFF by default: the ablation
+  // (validation/r2-ablation.js) showed surface-pattern adjacency pairs
+  // cannot clear the precision gate on external corpora — generic
+  // response openers fire at base rate on shuffled controls, and the
+  // distinctive idioms that survive calibration are too rare to matter.
+  // The feature is retained opt-in for future work; the honest path to
+  // semantic uptake is distributional, not lexical. See
+  // docs/R2-SEMANTIC-UPTAKE.md.
+  analyze: function (annotated, opts = {}) {
+    const useFunctional = opts.functionalUptake === true;
     const events = [];
     const seenBefore = new Set(); // all content words in turns 0..i-1
     const noveltyOf = [];
@@ -134,15 +208,23 @@ const UptakeBinder = {
           const run = longestCommonRun(prev.tokens, cur.tokens);
 
           let type = 'NONE';
+          let pair = null;
           if (run >= this.ECHO_RUN ||
               (coverage >= this.ECHO_COVERAGE && noveltyOf[i] < this.ECHO_NOVELTY)) {
             type = 'ECHO';
           } else if (reused.length >= 2 ||
                      (reused.length >= 1 && prev.isQuestion)) {
             type = noveltyOf[i] >= this.TRANSFORM_NOVELTY ? 'TRANSFORMATIVE' : 'WEAK';
+          } else if (useFunctional) {
+            const match = AdjacencyPairs.detect(prev.text, cur.text);
+            if (match) {
+              type = 'FUNCTIONAL';
+              pair = match.pair;
+            }
           }
 
           events.push({
+            pair,
             from: prev.index,
             to: cur.index,
             direction: `${prev.speaker}→${cur.speaker}`,
@@ -186,7 +268,7 @@ const CoConstructionDetector = {
       const returned = uses.find(u => u.speaker === origin.speaker && u.index > adopted.index);
       if (returned) {
         roundTrips.push({
-          term: word,
+          term: (this._display && this._display.get(word)) || word,
           introducedBy: origin.speaker,
           atTurn: origin.index,
           adoptedBy: adopted.speaker,
@@ -262,7 +344,7 @@ const AsymmetryAnalyzer = {
     for (const s of speakers) {
       perSpeaker[s] = {
         turns: annotated.filter(t => t.speaker === s).length,
-        uptakesPerformed: uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'WEAK')).length,
+        uptakesPerformed: uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'WEAK' || e.type === 'FUNCTIONAL')).length,
         echoesPerformed: uptakeEvents.filter(e => e.responder === s && e.type === 'ECHO').length,
         productiveIntroductions: coConstruction.roundTrips.filter(r => r.introducedBy === s).length
       };
@@ -344,7 +426,7 @@ function synthesizeRelationalVerdict(analysis) {
   const anyUptakeBy = {};
   for (const s of speakers) {
     transformativeBy[s] = uptakeEvents.filter(e => e.responder === s && e.type === 'TRANSFORMATIVE').length;
-    anyUptakeBy[s] = uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'WEAK')).length;
+    anyUptakeBy[s] = uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'WEAK' || e.type === 'FUNCTIONAL')).length;
   }
   const bothTransform = speakers.every(s => transformativeBy[s] >= 1);
   const bothUptake = speakers.every(s => anyUptakeBy[s] >= 1);
@@ -396,13 +478,23 @@ function synthesizeRelationalVerdict(analysis) {
   };
 }
 
-function analyzeExchange(input) {
+// opts:
+//   stemming (default ON)          — merge inflected forms into one anchor;
+//                                    survived ablation (pure recall gain,
+//                                    separation intact)
+//   functionalUptake (default OFF) — adjacency-pair detection; failed its
+//                                    precision gate on external corpora and
+//                                    is retained opt-in only. See
+//                                    docs/R2-SEMANTIC-UPTAKE.md.
+function analyzeExchange(input, opts = {}) {
   const turns = TurnParser.parse(input);
-  const annotated = AnchorExtractor.annotate(turns);
+  const { annotated, display } = AnchorExtractor.annotate(turns, opts);
   const speakers = [...new Set(annotated.map(t => t.speaker))];
 
-  const uptakeEvents = UptakeBinder.analyze(annotated);
+  const uptakeEvents = UptakeBinder.analyze(annotated, opts);
+  CoConstructionDetector._display = display;
   const coConstruction = CoConstructionDetector.analyze(annotated);
+  CoConstructionDetector._display = null;
   const convergence = ConvergenceTracker.analyze(annotated, speakers);
   const asymmetry = AsymmetryAnalyzer.analyze(annotated, uptakeEvents, coConstruction, speakers);
   const repairs = RepairDetector.analyze(annotated);
@@ -426,6 +518,7 @@ module.exports = {
   analyzeExchange,
   TurnParser,
   AnchorExtractor,
+  AdjacencyPairs,
   UptakeBinder,
   CoConstructionDetector,
   ConvergenceTracker,
