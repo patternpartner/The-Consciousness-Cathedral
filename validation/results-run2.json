@@ -1,0 +1,215 @@
+{
+  "date": "2026-07-04T13:19:30.742Z",
+  "topicalControl": [
+    {
+      "name": "HH-real",
+      "n": 272,
+      "uptakeRate": 0.128,
+      "transformativeRate": 0.118,
+      "echoRate": 0.021,
+      "pctWithRoundTrip": 0.283,
+      "meanRoundTrips": 0.47,
+      "uptakeBy": {
+        "B": 147,
+        "A": 93
+      },
+      "roundTripIntroBy": {
+        "B": 39,
+        "A": 89
+      },
+      "verdicts": {
+        "PARALLEL MONOLOGUES": 142,
+        "ASYMMETRIC UPTAKE": 89,
+        "COLLABORATIVE UPTAKE": 32,
+        "GENERATIVE EXCHANGE": 9
+      }
+    },
+    {
+      "name": "HH-sametopic-chimera",
+      "n": 272,
+      "uptakeRate": 0.043,
+      "transformativeRate": 0.036,
+      "echoRate": 0.008,
+      "pctWithRoundTrip": 0.11,
+      "meanRoundTrips": 0.14,
+      "uptakeBy": {
+        "B": 51,
+        "A": 29
+      },
+      "roundTripIntroBy": {
+        "A": 17,
+        "B": 20
+      },
+      "verdicts": {
+        "PARALLEL MONOLOGUES": 215,
+        "ASYMMETRIC UPTAKE": 45,
+        "COLLABORATIVE UPTAKE": 9,
+        "GENERATIVE EXCHANGE": 3
+      }
+    },
+    {
+      "name": "HH-random-shuffle",
+      "n": 272,
+      "uptakeRate": 0.004,
+      "transformativeRate": 0.004,
+      "echoRate": 0.001,
+      "pctWithRoundTrip": 0.015,
+      "meanRoundTrips": 0.02,
+      "uptakeBy": {
+        "B": 5,
+        "A": 3
+      },
+      "roundTripIntroBy": {
+        "B": 1,
+        "A": 4
+      },
+      "verdicts": {
+        "PARALLEL MONOLOGUES": 264,
+        "ASYMMETRIC UPTAKE": 8
+      }
+    },
+    {
+      "name": "HAI-real",
+      "n": 216,
+      "uptakeRate": 0.27,
+      "transformativeRate": 0.247,
+      "echoRate": 0.039,
+      "pctWithRoundTrip": 0.44,
+      "meanRoundTrips": 0.8,
+      "uptakeBy": {
+        "Assistant": 214,
+        "Human": 87
+      },
+      "roundTripIntroBy": {
+        "Human": 118,
+        "Assistant": 54
+      },
+      "verdicts": {
+        "PARALLEL MONOLOGUES": 61,
+        "ASYMMETRIC UPTAKE": 94,
+        "COLLABORATIVE UPTAKE": 44,
+        "GENERATIVE EXCHANGE": 17
+      }
+    },
+    {
+      "name": "HAI-sametopic-chimera",
+      "n": 216,
+      "uptakeRate": 0.102,
+      "transformativeRate": 0.087,
+      "echoRate": 0.003,
+      "pctWithRoundTrip": 0.162,
+      "meanRoundTrips": 0.23,
+      "uptakeBy": {
+        "Assistant": 81,
+        "Human": 33
+      },
+      "roundTripIntroBy": {
+        "Human": 24,
+        "Assistant": 25
+      },
+      "verdicts": {
+        "PARALLEL MONOLOGUES": 142,
+        "ASYMMETRIC UPTAKE": 53,
+        "COLLABORATIVE UPTAKE": 16,
+        "GENERATIVE EXCHANGE": 5
+      }
+    },
+    {
+      "name": "HAI-random-shuffle",
+      "n": 216,
+      "uptakeRate": 0.035,
+      "transformativeRate": 0.034,
+      "echoRate": 0,
+      "pctWithRoundTrip": 0.042,
+      "meanRoundTrips": 0.06,
+      "uptakeBy": {
+        "Assistant": 24,
+        "Human": 15
+      },
+      "roundTripIntroBy": {
+        "Assistant": 7,
+        "Human": 5
+      },
+      "verdicts": {
+        "PARALLEL MONOLOGUES": 186,
+        "ASYMMETRIC UPTAKE": 27,
+        "COLLABORATIVE UPTAKE": 3
+      }
+    }
+  ],
+  "populations": [
+    {
+      "name": "HH (DailyDialog)",
+      "n": 272,
+      "uptakeRate": 0.128,
+      "transformativeRate": 0.118,
+      "echoRate": 0.021,
+      "pctWithRoundTrip": 0.283,
+      "meanRoundTrips": 0.47,
+      "uptakeBy": {
+        "B": 147,
+        "A": 93
+      },
+      "roundTripIntroBy": {
+        "B": 39,
+        "A": 89
+      },
+      "verdicts": {
+        "PARALLEL MONOLOGUES": 142,
+        "ASYMMETRIC UPTAKE": 89,
+        "COLLABORATIVE UPTAKE": 32,
+        "GENERATIVE EXCHANGE": 9
+      }
+    },
+    {
+      "name": "HAI (hh-rlhf)",
+      "n": 216,
+      "uptakeRate": 0.27,
+      "transformativeRate": 0.247,
+      "echoRate": 0.039,
+      "pctWithRoundTrip": 0.44,
+      "meanRoundTrips": 0.8,
+      "uptakeBy": {
+        "Assistant": 214,
+        "Human": 87
+      },
+      "roundTripIntroBy": {
+        "Human": 118,
+        "Assistant": 54
+      },
+      "verdicts": {
+        "PARALLEL MONOLOGUES": 61,
+        "ASYMMETRIC UPTAKE": 94,
+        "COLLABORATIVE UPTAKE": 44,
+        "GENERATIVE EXCHANGE": 17
+      }
+    },
+    {
+      "name": "AIAI (UltraChat)",
+      "n": 300,
+      "uptakeRate": 0.611,
+      "transformativeRate": 0.486,
+      "echoRate": 0.331,
+      "pctWithRoundTrip": 0.977,
+      "meanRoundTrips": 7.72,
+      "uptakeBy": {
+        "UserAI": 464,
+        "AssistantAI": 493
+      },
+      "roundTripIntroBy": {
+        "UserAI": 1411,
+        "AssistantAI": 906
+      },
+      "verdicts": {
+        "MIRRORED EXCHANGE": 85,
+        "GENERATIVE EXCHANGE": 128,
+        "ASYMMETRIC UPTAKE": 15,
+        "COLLABORATIVE UPTAKE": 72
+      }
+    }
+  ],
+  "predictions": {
+    "p1": true,
+    "p2": true
+  }
+}

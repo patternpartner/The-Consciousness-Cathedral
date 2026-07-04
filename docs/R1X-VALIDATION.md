@@ -54,6 +54,55 @@ Echo rates: 2–4% in real populations, ~0% in shuffled. Real interlocutors — 
 - The shuffled control destroys *all* cross-turn structure (topical and relational at once). A stricter control — same-topic turns shuffled across dialogues — would isolate relational from topical coherence, and is the right next control to build.
 - One author-family of instruments and corpora choices; independent replication welcome — the run is two commands.
 
-## Status
+## Status after run 1
 
-R1 graduates from "validates intended behavior on curated cases" to "separates real from structurally-destroyed dialogue on external corpora, with quantified blind spots." Next per roadmap: the same-topic shuffle control, an AI–AI population, and R2 semantic uptake under the determinism constraint.
+R1 graduates from "validates intended behavior on curated cases" to "separates real from structurally-destroyed dialogue on external corpora, with quantified blind spots."
+
+---
+
+# Run 2 — Same-Topic Control and the Three-Way Comparison
+
+*Same date. Two questions run 1 left open. Reproduce: `node validation/r1x2-controls.js`; numbers in `validation/results-run2.json`. Predictions P1/P2 were committed to code before the numbers existed.*
+
+## Q1: Is the signal relational, or just topical coherence?
+
+The run-1 shuffle destroyed topic and response structure together. Run 2 adds a **same-topic chimera**: each dialogue is paired with its most lexically similar *other* dialogue (nearest neighbor by vocabulary Jaccard — a deliberately harsh pairing that maximizes shared vocabulary), then one speaker's turns are swapped for the partner's. Same subject, maximal word overlap, zero response structure.
+
+| Population | Uptake | Round-trip dialogues |
+|---|---|---|
+| HH-real | **0.128** | **28.3%** |
+| HH same-topic chimera | 0.043 | 11.0% |
+| HH random shuffle | 0.004 | 1.5% |
+| HAI-real | **0.270** | **44.0%** |
+| HAI same-topic chimera | 0.102 | 16.2% |
+| HAI random shuffle | 0.035 | 4.2% |
+
+**P1 held. P2 held.** The clean three-step gradient is the result: topic overlap alone buys roughly a 3× lift over random (P2 — the control is doing its job), and real response structure buys a further ~2.6–3× over even maximum-vocabulary-overlap chimeras (P1). The measures are substantially relational, not just topical. The topical objection is answered with data.
+
+## Q2: Are human–human, human–AI, and AI–AI exchanges separable?
+
+Third population: UltraChat — an LLM roleplaying a user in conversation with an LLM assistant; both sides machine-generated (n=300, ≥4 turns).
+
+| Population | Uptake | Echo | Round-trip dialogues | Mean round trips |
+|---|---|---|---|---|
+| HH (DailyDialog) | 0.128 | 0.021 | 28.3% | 0.47 |
+| HAI (hh-rlhf) | 0.270 | 0.039 | 44.0% | 0.80 |
+| AIAI (UltraChat) | 0.611 | **0.331** | 97.7% | 7.72 |
+
+Separable at a glance, on three near-orthogonal axes:
+
+1. **Lexical coupling ladder.** HH < HAI < AIAI on every uptake measure. Partly a turn-length confound (longer turns give lexical anchoring more surface — noted below), but the size of the AIAI jump exceeds what length alone plausibly buys.
+2. **The echo axis — the sharpest discriminator found so far.** A third of AI–AI cross-turn responses are near-verbatim echoes, against 2–4% for any population containing a human. 85/300 AIAI dialogues verdict `MIRRORED EXCHANGE`; approximately zero human dialogues do. The ECHO machinery was designed as an adversarial defense against gaming; in the wild it turns out to be a live natural signature of machine-to-machine dialogue. Run 1's conclusion ("echo is rare in the wild") holds only for humans — and that restriction *is* the finding: **humans move meaning across paraphrase; these models move tokens.** Human uptake is lexically loose and semantically tight; LLM uptake is lexically sticky.
+3. **The symmetry axis.** HH mildly asymmetric (positional), HAI strongly asymmetric (assistant does 71% of uptake — the mirror-plus-source signature), AIAI nearly perfectly symmetric in uptake (464 vs 493) while the simulated user still drives introduction (1411 vs 906 round-trip terms) — task structure surviving even when both parties are the same kind of machine.
+
+The AIAI verdict split is itself diagnostic: 128 `GENERATIVE EXCHANGE` alongside 85 `MIRRORED EXCHANGE`. Machine dialogue is lexically hyper-coupled, and R1 splits that coupling into circulation (transformed reuse) and reflection (verbatim reuse) — precisely the distinction it was built to make.
+
+## Additional threats to validity (run 2)
+
+- **Turn length** differs enormously across populations (UltraChat turns are essay-length). The echo *ratio* is less length-sensitive than raw uptake, but long turns do raise the chance of ≥6-token verbatim runs; a length-controlled comparison is the right follow-up.
+- **Register confound**: casual chat vs. assistance vs. instruction-following aren't the same speech genre. Population differences bundle genre with participant type.
+- UltraChat's "user" is an LLM *prompted to act like a user* — a genuine AI–AI exchange, but not a symmetric free dialogue between peers. AI–AI peer conversation (e.g., two agents negotiating) remains unmeasured.
+
+## Status after run 2
+
+Both pre-stated predictions held; the three-way separability question is answered **yes**, with the echo axis as an unexpected, near-categorical human/machine discriminator. Next: length-controlled comparison, AI–AI peer dialogue, and R2 semantic uptake — whose absence is now quantified from both directions (it under-counts humans, and its lexical proxy over-counts machines).

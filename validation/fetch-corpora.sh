@@ -14,4 +14,9 @@ for off in 0 100 200; do
   curl -sS "https://datasets-server.huggingface.co/rows?dataset=Anthropic%2Fhh-rlhf&config=default&split=train&offset=$off&length=100" -o hh_$off.json
 done
 
+# AI–AI: UltraChat (LLM-simulated user <-> LLM assistant)
+for off in 0 100 200; do
+  curl -sS "https://datasets-server.huggingface.co/rows?dataset=HuggingFaceH4%2Fultrachat_200k&config=default&split=train_sft&offset=$off&length=100" -o ua_$off.json
+done
+
 echo "Corpora fetched into $(pwd)"
