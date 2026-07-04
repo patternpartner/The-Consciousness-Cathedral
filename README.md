@@ -99,6 +99,8 @@ Browser demo — two flavors:
 
 Paste a transcript and Analyze. Accepts `Name: text` lines, "You said:" / "ChatGPT said:" blocks, or labels on their own line, and always reports how many turns and speakers it read.
 
+**It remembers — without ever changing the verdict.** The demo keeps a private notebook (device-only, plain JSON, one-tap forget) of the exchanges you paste, and shows where each new one sits among your history and which vocabulary keeps returning across your conversations. The analyzer never reads that memory — the verdict is identical with an empty notebook or a full one (a test enforces it). The instrument stays fixed; the notebook accumulates. See the "On memory" section of [PHILOSOPHY.md](PHILOSOPHY.md).
+
 ```javascript
 const { analyzeExchange } = require('./index.js');
 

@@ -61,6 +61,14 @@ The modules in [`experimental/`](experimental/) — the ensembles, the AI-to-AI 
 
 The first such instrument now exists: [`relational-core.js`](relational-core.js) (design: [docs/RELATIONAL-PROGRAM.md](docs/RELATIONAL-PROGRAM.md)) measures uptake bindings, vocabulary round trips, symmetry, and repair in dialogue transcripts — including a directional accounting aimed squarely at the asymmetry problem above: a mirror shows high uptake in one direction and introduces nothing that returns, and that signature is detected rather than rewarded. It measures the structural trace an exchange leaves, never the flowing itself, and its verdicts carry that boundary with them.
 
+### On memory, and why the instrument is fixed but not amnesiac
+
+A fair objection (raised by the maintainer): a static analyzer that learns nothing from what it is fed is a stranger every time — no good if it can't recalibrate from lived use. The objection is right, but it collides with the property that makes a measurement trustworthy: *same input, same verdict.* An instrument that silently rewires itself from what it sees is no longer measuring — it is drifting, and drift that no one can explain is exactly what the whole project distrusts.
+
+The resolution is how a scientist works, and it is worth stating as principle: **the instrument stays fixed; the notebook accumulates.** [`relational-memory.js`](relational-memory.js) never feeds back into the analyzer — the verdict is byte-identical with an empty notebook or a full one (a test enforces this). What memory adds is *context around* the verdict: where this exchange sits among everything you've measured, and which vocabulary keeps returning across your conversations. Learning without lying. The store lives only on the device, is plain readable JSON, and can be forgotten in one tap.
+
+This is not a compromise between "learns" and "trustworthy" — it is the observation that they were never actually in conflict. What must not change is the ruler. What *should* accumulate is everything the ruler has ever measured. The relation flows; the record of it grows; the measure of it holds still.
+
 ---
 
 *The theory in this document is the maintainer's working hypothesis, held with conviction and offered without proof. The tool in this repository works regardless of whether the theory is true. That independence is deliberate.*

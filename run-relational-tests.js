@@ -240,8 +240,73 @@ for (const c of CASES) {
   ok ? passed++ : failed++;
 }
 
+// ── Memory layer: the notebook must observe without influencing ──────────
+const { ExchangeMemory } = require('./relational-memory.js');
+const MEM_TESTS = [
+  {
+    name: 'Memory — verdicts are identical with and without history',
+    check: () => {
+      const t = CASES[0].transcript.trim();
+      const before = JSON.stringify(analyzeExchange(t).verdict);
+      const mem = new ExchangeMemory();
+      for (let i = 0; i < 5; i++) mem.record(analyzeExchange(t));
+      const after = JSON.stringify(analyzeExchange(t).verdict);
+      return before === after;
+    }
+  },
+  {
+    name: 'Memory — refusal verdicts are not recorded',
+    check: () => {
+      const mem = new ExchangeMemory();
+      mem.record(analyzeExchange('A: only two turns here about nothing.\nB: indeed, nothing much.'));
+      return mem.size() === 0;
+    }
+  },
+  {
+    name: 'Memory — percentiles and recurring lexicon are deterministic',
+    check: () => {
+      const build = () => {
+        const mem = new ExchangeMemory();
+        for (const c of CASES.slice(0, 5)) mem.record(analyzeExchange(c.transcript.trim()));
+        return JSON.stringify(mem.context(analyzeExchange(CASES[0].transcript.trim())));
+      };
+      const a = build(), b = build();
+      // strip timestamps before comparing
+      const strip = s => s.replace(/"date":"[^"]*"/g, '');
+      return strip(a) === strip(b) && a.includes('"n":');
+    }
+  },
+  {
+    name: 'Memory — recurring terms surface across exchanges',
+    check: () => {
+      const mem = new ExchangeMemory();
+      mem.record(analyzeExchange(CASES[0].transcript.trim())); // lease/stamp round trips
+      mem.record(analyzeExchange(CASES[0].transcript.trim()));
+      const ctx = mem.context(analyzeExchange(CASES[0].transcript.trim()));
+      return ctx.recurringLexicon.length >= 1 && ctx.returningNow.length >= 1;
+    }
+  },
+  {
+    name: 'Memory — clear() forgets everything',
+    check: () => {
+      const mem = new ExchangeMemory();
+      mem.record(analyzeExchange(CASES[0].transcript.trim()));
+      mem.clear();
+      return mem.size() === 0;
+    }
+  }
+];
+
+for (const t of MEM_TESTS) {
+  let ok = false, err = null;
+  try { ok = t.check(); } catch (e) { err = e.message; }
+  console.log(`\n${ok ? '✓' : '✗'} ${t.name}${err ? ' — threw: ' + err : ''}`);
+  ok ? passed++ : failed++;
+}
+
+const TOTAL = CASES.length + MEM_TESTS.length;
 console.log('\n' + '═'.repeat(63));
-console.log(`SUMMARY: ${passed} passed, ${failed} failed of ${CASES.length}`);
+console.log(`SUMMARY: ${passed} passed, ${failed} failed of ${TOTAL}`);
 console.log('═'.repeat(63));
 
 process.exit(failed === 0 ? 0 : 1);

@@ -117,6 +117,15 @@
         <table id="asym"></table>
         <div id="extra" style="margin-top:8px;font-size:13.5px;"></div>
       </div>
+
+      <div class="card" id="historyCard" hidden>
+        <h2>Your history <span style="text-transform:none;letter-spacing:0">(stored only on this device)</span></h2>
+        <div id="history" style="font-size:13.5px;"></div>
+        <div id="lexicon" style="margin-top:8px;"></div>
+        <div class="row" style="margin-top:10px;">
+          <button id="forget" style="background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:400;">Forget history</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -130,6 +139,7 @@
 </div>
 
 <script src="relational-core.js"></script>
+<script src="relational-memory.js"></script>
 <script>
 const SAMPLES = {
   generative:
@@ -258,7 +268,47 @@ function run() {
   } else {
     notice('Read ' + turns.length + ' turns from ' + speakers.length + ' speakers: ' + speakers.join(', ') + '.', false);
   }
+
+  renderHistory(result, raw);
 }
+
+// The notebook: the instrument stays fixed, history accumulates around it.
+// Verdicts never depend on memory — memory only adds context. Built-in
+// samples are not recorded; only conversations you paste become history.
+function renderHistory(result, raw) {
+  if (typeof ExchangeMemory === 'undefined') return;
+  const mem = new ExchangeMemory(ExchangeMemory.localStorageStore('cathedral-exchange-memory'));
+  const isSample = Object.values(SAMPLES).some(s => s.trim() === raw.trim());
+  const ctx = mem.context(result); // strictly against the past
+  if (!isSample) mem.record(result);
+
+  const card = $('historyCard');
+  if (mem.size() === 0 && ctx.n === 0) { card.hidden = true; return; }
+  card.hidden = false;
+
+  let h = 'This page has seen <b>' + mem.size() + '</b> of your exchanges.';
+  if (isSample) h += ' (Built-in samples aren\'t recorded.)';
+  if (ctx.percentiles) {
+    h += '<br>This one has more uptake than <b>' + ctx.percentiles.uptakeRate + '%</b>, ' +
+         'more echo than <b>' + ctx.percentiles.echoRate + '%</b>, and more round trips than <b>' +
+         ctx.percentiles.roundTrips + '%</b> of your history.';
+  } else if (ctx.n > 0) {
+    h += '<br>Comparisons start after 3 recorded exchanges.';
+  }
+  if (ctx.returningNow.length) {
+    h += '<br>Returning from earlier conversations: <b>' + ctx.returningNow.map(esc).join(', ') + '</b>.';
+  }
+  $('history').innerHTML = h;
+
+  $('lexicon').innerHTML = ctx.recurringLexicon.length
+    ? ctx.recurringLexicon.map(x => '<span class="chip"><b>' + esc(x.term) + '</b> · ' + x.exchanges + ' exchanges</span>').join('')
+    : '<span class="anchors">No recurring vocabulary across your exchanges yet.</span>';
+}
+
+document.getElementById('forget').addEventListener('click', () => {
+  new ExchangeMemory(ExchangeMemory.localStorageStore('cathedral-exchange-memory')).clear();
+  $('historyCard').hidden = true;
+});
 
 $('analyze').addEventListener('click', run);
 $('sample').addEventListener('change', e => { $('transcript').value = SAMPLES[e.target.value]; run(); });

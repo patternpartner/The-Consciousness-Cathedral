@@ -11,31 +11,34 @@ const path = require('path');
 
 const dir = __dirname;
 
-function build(demoFile, coreFile, outFile) {
-  const html = fs.readFileSync(path.join(dir, demoFile), 'utf8');
-  const core = fs.readFileSync(path.join(dir, coreFile), 'utf8');
+function build(demoFile, coreFiles, outFile) {
+  let html = fs.readFileSync(path.join(dir, demoFile), 'utf8');
 
-  if (core.includes('</script>')) {
-    console.error(coreFile + ' contains "</script>" — inlining would break the page.');
-    process.exit(1);
+  for (const coreFile of coreFiles) {
+    const core = fs.readFileSync(path.join(dir, coreFile), 'utf8');
+    if (core.includes('</script>')) {
+      console.error(coreFile + ' contains "</script>" — inlining would break the page.');
+      process.exit(1);
+    }
+    const tag = '<script src="' + coreFile + '"></script>';
+    if (!html.includes(tag)) {
+      console.error(demoFile + ' no longer contains the expected script tag: ' + tag);
+      process.exit(1);
+    }
+    // Replacer is a function so '$&' etc. inside the module source are
+    // inserted literally — String.replace treats them as magic otherwise,
+    // which corrupted the first build of the core standalone.
+    html = html.replace(tag, () =>
+      '<script>\n/* === inlined ' + coreFile + ' (generated) === */\n' + core + '\n</script>');
   }
-  const tag = '<script src="' + coreFile + '"></script>';
-  if (!html.includes(tag)) {
-    console.error(demoFile + ' no longer contains the expected script tag: ' + tag);
-    process.exit(1);
-  }
+
   const banner = '<!--\n  GENERATED FILE — do not edit.\n' +
-    '  Built from ' + demoFile + ' + ' + coreFile + ' by build-demo.js.\n' +
+    '  Built from ' + demoFile + ' + ' + coreFiles.join(' + ') + ' by build-demo.js.\n' +
     '  Regenerate with: npm run build:demo\n-->\n';
-  // Replacer is a function so '$&' etc. inside the module source are
-  // inserted literally — String.replace treats them as magic otherwise,
-  // which corrupted the first build of the core standalone.
-  const out = banner + html.replace(tag, () =>
-    '<script>\n/* === inlined ' + coreFile + ' (generated) === */\n' + core + '\n</script>');
   const outPath = path.join(dir, outFile);
-  fs.writeFileSync(outPath, out);
+  fs.writeFileSync(outPath, banner + html);
   console.log('wrote ' + outPath + ' (' + (fs.statSync(outPath).size / 1024).toFixed(0) + ' KB)');
 }
 
-build('relational-demo.html', 'relational-core.js', 'relational-demo-standalone.html');
-build('cathedral-demo.html', 'cathedral-core.js', 'cathedral-demo-standalone.html');
+build('relational-demo.html', ['relational-core.js', 'relational-memory.js'], 'relational-demo-standalone.html');
+build('cathedral-demo.html', ['cathedral-core.js'], 'cathedral-demo-standalone.html');
