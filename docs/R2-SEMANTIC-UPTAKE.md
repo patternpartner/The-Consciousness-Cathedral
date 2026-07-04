@@ -62,6 +62,21 @@ The conclusion generalizes past this implementation, and it is the finding of th
 
 **Disposition:** the semantic channel ships **default-OFF** (`semanticUptake: true` opts in; the injected-lexicon hook keeps tests data-independent). It shows honest signal on short-turn casual dialogue and users analyzing that register may enable it with the stated caveat. The lexicon and builder stay in-repo: the negative result is only reproducible if its artifacts are.
 
+## R2-structural, slice 1: typed slots — the first channel to clear every gate
+
+The "structure problem" diagnosis suggested where to dig: bindings where the prior turn opens a **typed slot** and the reply fills it. Wh-questions do exactly that, deterministically: *when* demands a time expression, *how many* a quantity, *who* a person. Time/quantity/person expressions are detectable by rule and — crucially, unlike acceptance markers — **rare as turn content**, so the conditional lift has room to clear the precision bar.
+
+Results (`node validation/r2c-typed.js`):
+
+| | Typed rate (events) | vs shuffle | vs chimera |
+|---|---|---|---|
+| HH-real | 0.0086 (16) | **16×** ✓ | **2.3×** ✓ |
+| HAI-real | 0.0018 (2) | ✓ (floor) | ✓ |
+
+**G1, G4, and G3 all held — the first channel since stemming to pass, and the first *new* channel ever to beat the chimera acid test.** Honest caveats: the HAI counts (2 vs 0) are Poisson-fragile and the HH result carries the decision; the channel is high-precision, low-recall by design (16 events across 272 dialogues closes a sliver of the paraphrase gap, not the gap). Per the pre-stated disposition rule it ships **default-on** (`typedAnswers: false` ablates).
+
+The deeper point: the two failed channels keyed on the *reply's* surface form (acceptance markers, neighbor words), and both fired at base rate because reply-shaped surface is everywhere. The typed channel keys on a **relation between the turns** — question type × answer type — and that conditional structure is exactly what shuffling destroys. The lesson generalizes to any future channel: *detect properties of the pair, never properties of the reply.*
+
 ## Scoreboard for the R2 campaign
 
 | Candidate | Gate outcome | Disposition |
@@ -69,5 +84,6 @@ The conclusion generalizes past this implementation, and it is the finding of th
 | Stemming | G2, G3 held | **shipped, default-on** |
 | Adjacency-pair functional uptake | G1 failed twice | opt-in, documented |
 | Distributional semantic uptake | G1 split, G4 failed | opt-in, documented |
+| Typed question–answer slots | **G1, G4, G3 all held** | **shipped, default-on** |
 
-The instrument's rules rejected its maker's designs three times in one campaign, each time saying *why* precisely enough to aim the next attempt. The paraphrase gap survives R2 with its price tag now legible: it is not a lexicon problem and not a topic-vector problem; it is a structure problem. That is the program working.
+The instrument's rules rejected its maker's designs three times and then passed the fourth, each verdict saying *why* precisely enough to aim the next attempt. The paraphrase gap survives R2 mostly intact but with its price tag legible — it is a structure problem — and the typed-slot result proves the deterministic structural route exists: pair-level relations clear gates that reply-level surface never will. That is the program working.

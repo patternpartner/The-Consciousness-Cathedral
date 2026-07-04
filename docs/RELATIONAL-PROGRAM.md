@@ -94,7 +94,7 @@ With 3+ speakers the dyadic refusal is replaced by group analysis. Design:
 
 - **R3.x** — external multi-party validation, blocked on a servable corpus (MELD, AMI, or meeting transcripts); the harness is ready
 - **R1.x (continued)** — AI–AI *peer* dialogue (agents negotiating, not user-roleplay); frontier-model transcripts for the echo-drift question
-- **R2-structural** — the surviving route to the paraphrase gap: structure-aware alignment (predicate–argument, discourse relations) under the determinism constraint; expensive, and now known to be the *only* deterministic route
+- **R2-structural** — first slice shipped (3.5.0): typed question–answer slot binding cleared all gates including the chimera acid test and ships default-on; the route is proven — *detect properties of the pair, never properties of the reply*. Next slices: more slot types (where→place is the hard one), and predicate–argument alignment for declarative turns
 - **R4?** — timing, if transcript formats ever carry it
 
 Graduation rule, same as everywhere in this project: state the claim, probe the boundary, let the tests say the rest.

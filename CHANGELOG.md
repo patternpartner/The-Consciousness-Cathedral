@@ -27,3 +27,6 @@
 - R3: multi-party exchanges (3+ speakers) replace the dyadic refusal. Windowed uptake (nearest prior turn per other speaker, window 3), directed uptake graph (performed/received, pair coverage, hub share), group verdicts diagnosed shape-first: MIRRORED, PARTIAL ENGAGEMENT, HUB-AND-SPOKES, GROUP GENERATIVE, GROUP UPTAKE, PARALLEL MONOLOGUES.
 - Dyadic behavior preserved exactly: 488 run-1 dialogues re-analyzed under pre-R3 and post-R3 code, zero differences. Archived validation runs remain exact records.
 - Evidence tier: curated tests (17/17); external multi-party validation pending a servable corpus (MELD/AMI mirrors currently unservable — probes documented).
+
+## 3.5.0 — 2026-07-04
+- R2-structural, first slice: typed question–answer slot binding (when→time, how many→quantity, who→person). A reply filling the prior question's typed slot is structural uptake with zero lexical overlap. First channel since stemming to clear all three gates including the same-topic chimera acid test (16:1 over shuffle, 2.3:1 over chimera on human dialogue) — ships default-on (`typedAnswers: false` ablates). HAI counts are Poisson-fragile (2 vs 0); the HH result carries the decision. `validation/r2c-typed.js` reproduces.

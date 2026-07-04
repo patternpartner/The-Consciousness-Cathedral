@@ -210,6 +210,51 @@ const SemanticLexicon = {
   }
 };
 
+// Typed question-answer slots (R2-structural, first slice): a wh-question
+// opens a TYPED slot — "when" demands a time, "how many" a quantity,
+// "who" a person — and a reply filling the right type is structural
+// uptake with zero lexical overlap ("When does the train leave?" →
+// "Half past six."). Unlike acceptance markers (killed at base rate) and
+// distributional neighbors (killed by the topic chimera), typed
+// expressions are rare as turn content, so the conditional lift has a
+// chance to clear the precision gate. The gate decides, as always.
+const TypedAnswers = {
+  questionTypes: [
+    { type: 'WHEN', re: /\b(when|what time|how soon)\b[^.!?]*\?/i },
+    { type: 'HOWMANY', re: /\bhow (many|much)\b[^.!?]*\?/i },
+    { type: 'WHO', re: /\bwho(m|se)?\b[^.!?]*\?/i }
+  ],
+
+  TIME_RE: /\b(\d{1,2}[:.]\d{2}|\d{1,2}\s*(a\.?m\.?|p\.?m\.?|o'?clock)|(half|quarter) (past|to)\s+\w+|(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+o'?clock|monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|june|july|august|september|october|november|december|tomorrow|tonight|yesterday|noon|midnight|weekend|next (week|month|year)|in (a|an|\d+) (minute|hour|day|week|month|year)s?|\d+\s*(minutes?|hours?|days?|weeks?|months?|years?))\b/i,
+  QTY_RE: /\b(\d+([.,]\d+)?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty|hundred|thousand|dozen|a couple|a few|several|half|none)\b/i,
+  KIN_RE: /\b(my|your|his|her|our|their) (brother|sister|mother|father|mom|dad|parents|friend|boss|wife|husband|son|daughter|colleague|neighbor|cousin|uncle|aunt|teacher|manager)\b/i,
+
+  hasPersonExpression: function (text) {
+    if (this.KIN_RE.test(text)) return true;
+    // A capitalized word that is not sentence-initial and not "I" reads
+    // as a name, approximately.
+    const parts = text.split(/[.!?]\s+/);
+    for (const sentence of parts) {
+      const words = sentence.trim().split(/\s+/);
+      for (let i = 1; i < words.length; i++) {
+        if (/^[A-Z][a-z]{2,}$/.test(words[i].replace(/[^\w]/g, ''))) return true;
+      }
+    }
+    return false;
+  },
+
+  detect: function (prevText, curText) {
+    if (!/\?/.test(prevText)) return null;
+    for (const q of this.questionTypes) {
+      if (!q.re.test(prevText)) continue;
+      if (q.type === 'WHEN' && this.TIME_RE.test(curText)) return { pair: 'WHEN→TIME' };
+      if (q.type === 'HOWMANY' && this.QTY_RE.test(curText)) return { pair: 'HOWMANY→QUANTITY' };
+      if (q.type === 'WHO' && this.hasPersonExpression(curText)) return { pair: 'WHO→PERSON' };
+    }
+    return null;
+  }
+};
+
 // Uptake: does a turn take up anchors from the *other speaker's* prior turn,
 // and does it transform them (embed them in novel material) or merely echo?
 const UptakeBinder = {
@@ -292,6 +337,17 @@ const UptakeBinder = {
               if (semanticPairs.length >= 1 &&
                   (combined >= 2 || prev.isQuestion)) {
                 type = 'SEMANTIC';
+              }
+            }
+            // Default-on: cleared all three gates including the chimera
+            // acid test (validation/r2c-typed.js) — 16:1 over shuffle,
+            // 2.3:1 over chimera on human dialogue. opts.typedAnswers:
+            // false ablates.
+            if (type === 'NONE' && opts.typedAnswers !== false) {
+              const match = TypedAnswers.detect(prev.text, cur.text);
+              if (match) {
+                type = 'TYPED';
+                pair = match.pair;
               }
             }
             if (type === 'NONE' && useFunctional) {
@@ -426,7 +482,7 @@ const AsymmetryAnalyzer = {
     for (const s of speakers) {
       perSpeaker[s] = {
         turns: annotated.filter(t => t.speaker === s).length,
-        uptakesPerformed: uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'WEAK' || e.type === 'SEMANTIC' || e.type === 'FUNCTIONAL')).length,
+        uptakesPerformed: uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'WEAK' || e.type === 'SEMANTIC' || e.type === 'FUNCTIONAL' || e.type === 'TYPED')).length,
         echoesPerformed: uptakeEvents.filter(e => e.responder === s && e.type === 'ECHO').length,
         productiveIntroductions: coConstruction.roundTrips.filter(r => r.introducedBy === s).length
       };
@@ -447,7 +503,7 @@ const AsymmetryAnalyzer = {
 // pair coverage (which speaker pairs ever touch), and hub share (how much
 // of the graph routes through its busiest node).
 const GroupStructureAnalyzer = {
-  UPTAKE_TYPES: new Set(['TRANSFORMATIVE', 'WEAK', 'SEMANTIC', 'FUNCTIONAL']),
+  UPTAKE_TYPES: new Set(['TRANSFORMATIVE', 'WEAK', 'SEMANTIC', 'FUNCTIONAL', 'TYPED']),
 
   analyze: function (annotated, uptakeEvents, speakers) {
     const bySpeaker = {};
@@ -550,7 +606,7 @@ function synthesizeRelationalVerdict(analysis) {
     // SEMANTIC counts as transformative: engaging an anchor through a
     // neighbor is transformation by definition — nothing was copied.
     transformativeBy[s] = uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'SEMANTIC')).length;
-    anyUptakeBy[s] = uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'WEAK' || e.type === 'SEMANTIC' || e.type === 'FUNCTIONAL')).length;
+    anyUptakeBy[s] = uptakeEvents.filter(e => e.responder === s && (e.type === 'TRANSFORMATIVE' || e.type === 'WEAK' || e.type === 'SEMANTIC' || e.type === 'FUNCTIONAL' || e.type === 'TYPED')).length;
   }
   const bothTransform = speakers.every(s => transformativeBy[s] >= 1);
   const bothUptake = speakers.every(s => anyUptakeBy[s] >= 1);
@@ -722,6 +778,7 @@ const RelationalCathedral = {
   TurnParser,
   AnchorExtractor,
   AdjacencyPairs,
+  TypedAnswers,
   SemanticLexicon,
   UptakeBinder,
   CoConstructionDetector,

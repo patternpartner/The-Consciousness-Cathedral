@@ -1,0 +1,67 @@
+{
+  "date": "2026-07-04T15:26:54.661Z",
+  "results": {
+    "HH-real": {
+      "n": 272,
+      "typedRate": 0.0086,
+      "typedEvents": 16,
+      "combinedRate": 0.153,
+      "byPair": {
+        "WHEN→TIME": 6,
+        "WHO→PERSON": 7,
+        "HOWMANY→QUANTITY": 3
+      }
+    },
+    "HH-chimera": {
+      "n": 272,
+      "typedRate": 0.0037,
+      "typedEvents": 7,
+      "combinedRate": 0.049,
+      "byPair": {
+        "WHEN→TIME": 3,
+        "WHO→PERSON": 3,
+        "HOWMANY→QUANTITY": 1
+      }
+    },
+    "HH-shuffled": {
+      "n": 272,
+      "typedRate": 0.0005,
+      "typedEvents": 1,
+      "combinedRate": 0.006,
+      "byPair": {
+        "WHO→PERSON": 1
+      }
+    },
+    "HAI-real": {
+      "n": 216,
+      "typedRate": 0.0018,
+      "typedEvents": 2,
+      "combinedRate": 0.293,
+      "byPair": {
+        "HOWMANY→QUANTITY": 1,
+        "WHO→PERSON": 1
+      }
+    },
+    "HAI-chimera": {
+      "n": 216,
+      "typedRate": 0.0009,
+      "typedEvents": 1,
+      "combinedRate": 0.113,
+      "byPair": {
+        "HOWMANY→QUANTITY": 1
+      }
+    },
+    "HAI-shuffled": {
+      "n": 216,
+      "typedRate": 0,
+      "typedEvents": 0,
+      "combinedRate": 0.05,
+      "byPair": {}
+    }
+  },
+  "gates": {
+    "g1": true,
+    "g4": true,
+    "g3": true
+  }
+}

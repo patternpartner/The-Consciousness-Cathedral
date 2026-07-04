@@ -191,6 +191,18 @@ B: The window holds if nothing else slips.
 `
   },
   {
+    name: 'R2-structural (opt-in) — typed slots filled across zero overlap',
+    opts: { typedAnswers: true },
+    expectOneOf: ['COLLABORATIVE UPTAKE', 'GENERATIVE EXCHANGE', 'ASYMMETRIC UPTAKE'],
+    also: r => r.uptake.filter(e => e.type === 'TYPED').length >= 2,
+    transcript: `
+A: When does the train to Cambridge leave?
+B: Half past six, from the far platform.
+A: And how much is a return these days?
+B: Twelve fifty if you book ahead.
+`
+  },
+  {
     name: 'Repair sequence — clarification initiated and resolved',
     expectOneOf: ['GENERATIVE EXCHANGE', 'COLLABORATIVE UPTAKE'],
     also: r => r.repairs.length >= 1 && r.repairs[0].resolved,
