@@ -33,3 +33,6 @@
 
 ## 3.5.1 — 2026-07-04
 - Slice 2 of the typed channel: WHERE→PLACE and WHY→REASON attempted under a new pre-stated **per-pair gate** (pooled ≥5 real events, >3× shuffle, > chimera). Both rejected by their own numbers — WHY at exactly 3.0× ("because" is base-rate furniture), WHERE at 3:2:2 (place expressions sit at base rate) — and their noise diluted the channel aggregate into failing G1, vindicating per-pair gating. Reverted from active detection, kept in the source as documented rejections. Channel restored to the proven three pairs; all gates hold again. HOWMANY→QUANTITY flagged evidence-thin (4 pooled events).
+
+## 3.5.2 — 2026-07-04
+- Demo fixed for real-world use (user-reported: downloaded the HTML alone from GitHub, Analyze did nothing). Three fixes: (1) `relational-demo-standalone.html`, a self-contained build artifact generated from the module by `npm run build:demo` — single-file download now works; (2) the linked demo fails loudly with instructions when `relational-core.js` is missing instead of dying silently; (3) tolerant transcript parsing ("You said:"/"ChatGPT said:" blocks, labels on their own line) plus an always-visible "Read N turns from M speakers" notice so parse failures are never invisible. Verified in Chromium across all four scenarios.

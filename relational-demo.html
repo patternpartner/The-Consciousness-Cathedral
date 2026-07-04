@@ -63,6 +63,12 @@
   th { color: var(--muted); font-weight: 600; }
   .foot { color: var(--muted); font-size: 12.5px; margin-top: 26px; }
   .foot a { color: var(--accent); }
+  .notice { margin-top: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px;
+            background: color-mix(in srgb, var(--weak) 16%, var(--panel));
+            border: 1px solid var(--weak); }
+  .notice.err { background: color-mix(in srgb, var(--echo) 16%, var(--panel));
+                border-color: var(--echo); }
+  .parsed { color: var(--muted); font-size: 12.5px; margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -85,6 +91,7 @@
           <option value="repair">Sample: repair sequence</option>
         </select>
       </div>
+      <div id="notice" class="notice" hidden></div>
     </div>
 
     <div class="col" id="results" hidden>
@@ -114,7 +121,8 @@
 
   <div class="foot">
     The analyzer running on this page is <code>relational-core.js</code> itself — the same module
-    the test suite and validation runs use. Format: one turn per line, <code>Name: text</code>.
+    the test suite and validation runs use. Paste a transcript one turn per line —
+    <code>Name: text</code>, or "You said:" / "ChatGPT said:" blocks, or labels on their own line.
     Design &amp; validation: <a href="docs/RELATIONAL-PROGRAM.md">RELATIONAL-PROGRAM.md</a>,
     <a href="docs/R1X-VALIDATION.md">R1X-VALIDATION.md</a>.
   </div>
@@ -187,15 +195,74 @@ function render(r) {
   $('extra').innerHTML = conv + rep;
 }
 
-$('analyze').addEventListener('click', () => {
-  render(RelationalCathedral.analyzeExchange($('transcript').value));
-});
-$('sample').addEventListener('change', e => {
-  $('transcript').value = SAMPLES[e.target.value];
-  render(RelationalCathedral.analyzeExchange($('transcript').value));
-});
+function notice(msg, isErr) {
+  const n = $('notice');
+  n.hidden = false;
+  n.className = 'notice' + (isErr ? ' err' : '');
+  n.textContent = msg;
+}
+function clearNotice() { $('notice').hidden = true; }
+
+// Tolerant parsing for real pasted transcripts. Accepts the canonical
+// "Name: text" but also label-on-its-own-line, "You said:" / "ChatGPT said:"
+// blocks, and blank-line separation. A line only starts a new turn if its
+// label is a known speaker word or recurs — so a mid-sentence colon
+// ("the plan is: ...") doesn't get mistaken for a speaker.
+const KNOWN_SPEAKER = /^(you|me|i|assistant|chatgpt|gpt|claude|copilot|gemini|bot|user|human|ai|system|q|a|b|c|d|interviewer|operator|customer|agent|speaker ?\d*)$/i;
+function labelOf(line) {
+  const m = line.match(/^\s*([A-Za-z][\w .'\-]{0,23}?)\s*:\s*(.*)$/);
+  if (!m) return null;
+  return { label: m[1].trim().replace(/\s+said$/i, '').trim(), rest: m[2] };
+}
+function normalizeToTurns(raw) {
+  const lines = raw.split('\n').filter(l => l.trim() !== '');
+  const freq = {};
+  for (const l of lines) { const e = labelOf(l); if (e) { const k = e.label.toLowerCase(); freq[k] = (freq[k] || 0) + 1; } }
+  const accept = k => KNOWN_SPEAKER.test(k) || (freq[k] || 0) >= 2;
+  const turns = [];
+  let cur = null;
+  for (const l of lines) {
+    const e = labelOf(l);
+    if (e && accept(e.label.toLowerCase())) {
+      cur = { speaker: e.label, text: e.rest.trim() };
+      turns.push(cur);
+    } else if (cur) {
+      cur.text += (cur.text ? ' ' : '') + l.trim();
+    }
+  }
+  return turns.filter(t => t.text.length);
+}
+
+function run() {
+  if (typeof RelationalCathedral === 'undefined') {
+    notice("relational-core.js didn't load. Keep relational-demo.html in the same folder as relational-core.js and open the file directly (not through a preview).", true);
+    return;
+  }
+  const raw = $('transcript').value;
+  let turns;
+  try {
+    turns = normalizeToTurns(raw);
+  } catch (e) { notice('Could not parse the transcript: ' + e.message, true); return; }
+
+  const speakers = [...new Set(turns.map(t => t.speaker))];
+  let result;
+  try {
+    result = RelationalCathedral.analyzeExchange(turns.length ? turns : raw);
+  } catch (e) { notice('Analysis error: ' + e.message, true); return; }
+
+  render(result);
+  if (speakers.length < 2) {
+    notice('Read ' + turns.length + ' turn(s) and ' + speakers.length + ' speaker(s). ' +
+      'Put one turn per line as "Name: message" — it also accepts "You said:" / "ChatGPT said:" blocks and "Me:" / "AI:" labels on their own line.', false);
+  } else {
+    notice('Read ' + turns.length + ' turns from ' + speakers.length + ' speakers: ' + speakers.join(', ') + '.', false);
+  }
+}
+
+$('analyze').addEventListener('click', run);
+$('sample').addEventListener('change', e => { $('transcript').value = SAMPLES[e.target.value]; run(); });
 $('transcript').value = SAMPLES.generative;
-render(RelationalCathedral.analyzeExchange($('transcript').value));
+run();
 </script>
 </body>
 </html>

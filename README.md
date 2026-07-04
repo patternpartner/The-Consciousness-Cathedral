@@ -93,7 +93,11 @@ Details in **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 
 The same discipline, one level up. Where the core measures binding *inside one text*, `relational-core.js` measures binding *between participants in a dialogue*: does a reply actually take up what the other speaker introduced, or merely sound like a reply?
 
-Browser demo: open **[`relational-demo.html`](relational-demo.html)** — paste a transcript (`Name: text`, one turn per line) and see the verdict, the turn-by-turn uptake bindings, and the round trips. The analyzer on the page is `relational-core.js` itself, loaded directly; there is no forked copy.
+Browser demo — two flavors:
+- **Downloading just one file?** Grab **[`relational-demo-standalone.html`](relational-demo-standalone.html)** — fully self-contained, works anywhere. (It's a build artifact generated from the module by `npm run build:demo`; never edited by hand, so it can't drift.)
+- Working in the repo? Open **[`relational-demo.html`](relational-demo.html)**, which loads `relational-core.js` directly — the exact module the tests and validation runs use.
+
+Paste a transcript and Analyze. Accepts `Name: text` lines, "You said:" / "ChatGPT said:" blocks, or labels on their own line, and always reports how many turns and speakers it read.
 
 ```javascript
 const { analyzeExchange } = require('./index.js');
