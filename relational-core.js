@@ -772,6 +772,13 @@ function analyzeExchange(input, opts = {}) {
   const speakers = [...new Set(annotated.map(t => t.speaker))];
 
   const uptakeEvents = UptakeBinder.analyze(annotated, opts);
+  // Anchors are matched on stems internally; readers should see the words
+  // as first written ("consciousness", not "consciousnes").
+  for (const e of uptakeEvents) {
+    if (Array.isArray(e.reused)) {
+      e.reusedDisplay = e.reused.map(w => display.get(w) || w);
+    }
+  }
   CoConstructionDetector._display = display;
   const coConstruction = CoConstructionDetector.analyze(annotated);
   CoConstructionDetector._display = null;

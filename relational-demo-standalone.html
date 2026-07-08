@@ -936,6 +936,13 @@ function analyzeExchange(input, opts = {}) {
   const speakers = [...new Set(annotated.map(t => t.speaker))];
 
   const uptakeEvents = UptakeBinder.analyze(annotated, opts);
+  // Anchors are matched on stems internally; readers should see the words
+  // as first written ("consciousness", not "consciousnes").
+  for (const e of uptakeEvents) {
+    if (Array.isArray(e.reused)) {
+      e.reusedDisplay = e.reused.map(w => display.get(w) || w);
+    }
+  }
   CoConstructionDetector._display = display;
   const coConstruction = CoConstructionDetector.analyze(annotated);
   CoConstructionDetector._display = null;
@@ -1368,10 +1375,10 @@ function render(r) {
       ? `verbatim run of ${e.longestRun} tokens`
       : e.type === 'NONE'
         ? (e.reused.length
-            ? `only ${e.reused.length} shared anchor (${esc(e.reused.join(', '))}) — needs 2 to count as uptake`
+            ? `only ${e.reused.length} shared anchor (${esc((e.reusedDisplay || e.reused).join(', '))}) — needs 2 to count as uptake`
             : 'nothing crosses')
         : e.reused.length
-          ? `anchors: ${esc(e.reused.join(', '))} · novelty ${e.novelty}`
+          ? `anchors: ${esc((e.reusedDisplay || e.reused).join(', '))} · novelty ${e.novelty}`
           : (e.semanticPairs && e.semanticPairs.length)
             ? `semantic: ${esc(e.semanticPairs.map(p => p.join('→')).join(', '))}`
             : e.pair ? `typed pair ${esc(e.pair)}` : 'nothing crosses';

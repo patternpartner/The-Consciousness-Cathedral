@@ -200,10 +200,10 @@ function render(r) {
       ? `verbatim run of ${e.longestRun} tokens`
       : e.type === 'NONE'
         ? (e.reused.length
-            ? `only ${e.reused.length} shared anchor (${esc(e.reused.join(', '))}) — needs 2 to count as uptake`
+            ? `only ${e.reused.length} shared anchor (${esc((e.reusedDisplay || e.reused).join(', '))}) — needs 2 to count as uptake`
             : 'nothing crosses')
         : e.reused.length
-          ? `anchors: ${esc(e.reused.join(', '))} · novelty ${e.novelty}`
+          ? `anchors: ${esc((e.reusedDisplay || e.reused).join(', '))} · novelty ${e.novelty}`
           : (e.semanticPairs && e.semanticPairs.length)
             ? `semantic: ${esc(e.semanticPairs.map(p => p.join('→')).join(', '))}`
             : e.pair ? `typed pair ${esc(e.pair)}` : 'nothing crosses';
