@@ -198,11 +198,15 @@ function render(r) {
   $('pairs').innerHTML = r.uptake.length ? r.uptake.map(e => {
     const detail = e.type === 'ECHO'
       ? `verbatim run of ${e.longestRun} tokens`
-      : e.reused.length
-        ? `anchors: ${esc(e.reused.join(', '))} · novelty ${e.novelty}`
-        : (e.semanticPairs && e.semanticPairs.length)
-          ? `semantic: ${esc(e.semanticPairs.map(p => p.join('→')).join(', '))}`
-          : e.pair ? `adjacency pair ${esc(e.pair)}` : 'nothing crosses';
+      : e.type === 'NONE'
+        ? (e.reused.length
+            ? `only ${e.reused.length} shared anchor (${esc(e.reused.join(', '))}) — needs 2 to count as uptake`
+            : 'nothing crosses')
+        : e.reused.length
+          ? `anchors: ${esc(e.reused.join(', '))} · novelty ${e.novelty}`
+          : (e.semanticPairs && e.semanticPairs.length)
+            ? `semantic: ${esc(e.semanticPairs.map(p => p.join('→')).join(', '))}`
+            : e.pair ? `typed pair ${esc(e.pair)}` : 'nothing crosses';
     return `<div class="pair"><span class="badge b-${e.type}">${e.type}</span>
       <span>turn ${e.from} → ${e.to} <span class="anchors">(${esc(e.direction)})</span><br>
       <span class="anchors">${detail}</span></span></div>`;
