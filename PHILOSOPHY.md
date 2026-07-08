@@ -69,6 +69,14 @@ The resolution is how a scientist works, and it is worth stating as principle: *
 
 This is not a compromise between "learns" and "trustworthy" — it is the observation that they were never actually in conflict. What must not change is the ruler. What *should* accumulate is everything the ruler has ever measured. The relation flows; the record of it grows; the measure of it holds still.
 
+### The maintainer's counter, conceded: the ruler may change if it explains itself
+
+The maintainer pushed one step further: *the analyzer could say "previously X was the case, now it's Y, and here's why."* That argument wins, and the paragraph above was corrected by it. "Fixed forever" was never the real requirement — **silent** was the real enemy. A laboratory instrument is recalibrated all the time, against a standard, with a certificate saying what changed, when, and why; that certificate is what makes the recalibrated instrument *more* trustworthy than an unchecked one, not less. The line is not fixed-versus-learning. It is **silent change corrupts; ledgered change calibrates.**
+
+So the instrument now carries a calibration ledger ([`relational-calibration.js`](relational-calibration.js)) with a strict contract: the notebook may *propose* a recalibration when the accumulated evidence shows a default threshold has stopped discriminating on your data — stating the evidence in plain words — but only a person applies it; every applied change is an append-only ledger entry ("previously 0.35, now 0.67, because…"); every verdict is stamped with the calibration that produced it, so no number ever floats free of its ruler; and the way back to defaults is one tap, itself recorded. Reproducibility survives intact, one level up: *same input + same ledger → same verdict.*
+
+Why must a person stay in the loop? The chimera lesson: data can be constructed. An instrument that auto-applies its own proposals can be steered by whoever controls what it is fed. Proposal is the instrument's job; consent is the relation's.
+
 ---
 
 *The theory in this document is the maintainer's working hypothesis, held with conviction and offered without proof. The tool in this repository works regardless of whether the theory is true. That independence is deliberate.*

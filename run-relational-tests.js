@@ -304,7 +304,84 @@ for (const t of MEM_TESTS) {
   ok ? passed++ : failed++;
 }
 
-const TOTAL = CASES.length + MEM_TESTS.length;
+// ── Calibration ledger: change must be explicit, explained, replayable ───
+const { CalibrationLedger } = require('./relational-calibration.js');
+
+function syntheticMemory(noveltyLevel, exchanges) {
+  return { exchanges: Array.from({ length: exchanges }, () => ({
+    uptakeNovelties: [noveltyLevel, noveltyLevel + 0.05, noveltyLevel + 0.1, noveltyLevel - 0.05]
+  })) };
+}
+
+const CAL_TESTS = [
+  {
+    name: 'Calibration — overrides change classification, and the verdict is stamped',
+    check: () => {
+      const t = CASES[0].transcript.trim();
+      const def = analyzeExchange(t);
+      const strict = analyzeExchange(t, { calibration: { TRANSFORM_NOVELTY: 0.99 }, calibrationLabel: 'test v1' });
+      const defTransform = def.uptake.filter(e => e.type === 'TRANSFORMATIVE').length;
+      const strictTransform = strict.uptake.filter(e => e.type === 'TRANSFORMATIVE').length;
+      return defTransform > 0 && strictTransform === 0 &&
+             def.calibration.source === 'defaults' &&
+             strict.calibration.source === 'test v1';
+    }
+  },
+  {
+    name: 'Calibration — proposal fires only when the bar has stopped discriminating',
+    check: () => {
+      const ledger = new CalibrationLedger();
+      const hot = ledger.propose(syntheticMemory(0.7, 10));   // everything clears 0.35
+      const cold = ledger.propose(syntheticMemory(0.2, 10));  // bar still separates
+      const thin = ledger.propose(syntheticMemory(0.7, 3));   // not enough evidence
+      return hot !== null && hot.param === 'TRANSFORM_NOVELTY' && hot.to > hot.from &&
+             cold === null && thin === null;
+    }
+  },
+  {
+    name: 'Calibration — the ledger explains itself: previously X, now Y, because…',
+    check: () => {
+      const ledger = new CalibrationLedger();
+      const p = ledger.propose(syntheticMemory(0.7, 10));
+      ledger.accept(p);
+      const text = ledger.explain().join('\n');
+      const o = ledger.overrides();
+      return o && o.TRANSFORM_NOVELTY === p.to &&
+             text.includes('previously 0.35') && text.includes('now ' + p.to) &&
+             text.includes('no longer distinguishes');
+    }
+  },
+  {
+    name: 'Calibration — reset returns to defaults and the ledger records it',
+    check: () => {
+      const ledger = new CalibrationLedger();
+      ledger.accept(ledger.propose(syntheticMemory(0.7, 10)));
+      ledger.reset('testing the way back');
+      return ledger.overrides() === null && ledger.explain().join(' ').includes('Reset to defaults');
+    }
+  },
+  {
+    name: 'Calibration — same ledger, same verdicts (replay determinism)',
+    check: () => {
+      const t = CASES[0].transcript.trim();
+      const mk = () => {
+        const l = new CalibrationLedger();
+        l.accept(l.propose(syntheticMemory(0.7, 10)));
+        return analyzeExchange(t, { calibration: l.overrides(), calibrationLabel: l.label() });
+      };
+      return JSON.stringify(mk().verdict) === JSON.stringify(mk().verdict);
+    }
+  }
+];
+
+for (const t of CAL_TESTS) {
+  let ok = false, err = null;
+  try { ok = t.check(); } catch (e) { err = e.message; }
+  console.log(`\n${ok ? '✓' : '✗'} ${t.name}${err ? ' — threw: ' + err : ''}`);
+  ok ? passed++ : failed++;
+}
+
+const TOTAL = CASES.length + MEM_TESTS.length + CAL_TESTS.length;
 console.log('\n' + '═'.repeat(63));
 console.log(`SUMMARY: ${passed} passed, ${failed} failed of ${TOTAL}`);
 console.log('═'.repeat(63));

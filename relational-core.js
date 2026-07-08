@@ -293,6 +293,17 @@ const UptakeBinder = {
   MULTIPARTY_WINDOW: 3,
 
   analyze: function (annotated, opts = {}) {
+    // Calibratable thresholds. Defaults are the globally validated values;
+    // opts.calibration may override them — but only ever explicitly, and
+    // callers are expected to stamp results with where the calibration
+    // came from (see analyzeExchange). Silent change corrupts; ledgered
+    // change calibrates.
+    const cal = Object.assign({
+      ECHO_RUN: this.ECHO_RUN,
+      ECHO_COVERAGE: this.ECHO_COVERAGE,
+      ECHO_NOVELTY: this.ECHO_NOVELTY,
+      TRANSFORM_NOVELTY: this.TRANSFORM_NOVELTY
+    }, opts.calibration || {});
     const useFunctional = opts.functionalUptake === true;
     const useSemantic = opts.semanticUptake === true;
     const lexicon = useSemantic
@@ -330,12 +341,12 @@ const UptakeBinder = {
           let type = 'NONE';
           let pair = null;
           let semanticPairs = [];
-          if (run >= this.ECHO_RUN ||
-              (coverage >= this.ECHO_COVERAGE && noveltyOf[i] < this.ECHO_NOVELTY)) {
+          if (run >= cal.ECHO_RUN ||
+              (coverage >= cal.ECHO_COVERAGE && noveltyOf[i] < cal.ECHO_NOVELTY)) {
             type = 'ECHO';
           } else if (reused.length >= 2 ||
                      (reused.length >= 1 && prev.isQuestion)) {
-            type = noveltyOf[i] >= this.TRANSFORM_NOVELTY ? 'TRANSFORMATIVE' : 'WEAK';
+            type = noveltyOf[i] >= cal.TRANSFORM_NOVELTY ? 'TRANSFORMATIVE' : 'WEAK';
           } else {
             if (lexicon) {
               // Semantic reuse: an anchor from the prior turn engaged
@@ -783,7 +794,13 @@ function analyzeExchange(input, opts = {}) {
     asymmetry,
     repairs,
     group,
-    verdict
+    verdict,
+    // Every result declares which ruler measured it. 'defaults' means the
+    // globally validated thresholds; anything else must come from an
+    // explicit, ledgered calibration (see relational-calibration.js).
+    calibration: opts.calibration
+      ? { source: opts.calibrationLabel || 'custom overrides', values: { ...opts.calibration } }
+      : { source: 'defaults' }
   };
 }
 

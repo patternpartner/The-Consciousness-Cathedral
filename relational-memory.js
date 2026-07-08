@@ -37,6 +37,14 @@ function summarize(result) {
     if (Array.isArray(e.reused)) for (const w of e.reused) terms.add(w);
   }
 
+  // Novelty values of uptake events — the raw evidence the calibration
+  // ledger needs to argue "the transformative bar no longer discriminates
+  // on YOUR data" (see relational-calibration.js). Capped per entry.
+  const uptakeNovelties = result.uptake
+    .filter(e => e.type === 'TRANSFORMATIVE' || e.type === 'WEAK')
+    .map(e => e.novelty)
+    .slice(0, 40);
+
   return {
     date: new Date().toISOString(),
     speakers: result.speakers.length,
@@ -45,7 +53,9 @@ function summarize(result) {
     echoRate: opp > 0 ? +(echo / opp).toFixed(3) : 0,
     uptakeRate: opp > 0 ? +(uptake / opp).toFixed(3) : 0,
     roundTrips: result.coConstruction.roundTrips.length,
-    terms: [...terms].slice(0, 25)
+    terms: [...terms].slice(0, 25),
+    uptakeNovelties,
+    calibration: result.calibration ? result.calibration.source : 'defaults'
   };
 }
 

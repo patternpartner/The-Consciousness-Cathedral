@@ -40,5 +40,5 @@ function build(demoFile, coreFiles, outFile) {
   console.log('wrote ' + outPath + ' (' + (fs.statSync(outPath).size / 1024).toFixed(0) + ' KB)');
 }
 
-build('relational-demo.html', ['relational-core.js', 'relational-memory.js'], 'relational-demo-standalone.html');
+build('relational-demo.html', ['relational-core.js', 'relational-memory.js', 'relational-calibration.js'], 'relational-demo-standalone.html');
 build('cathedral-demo.html', ['cathedral-core.js'], 'cathedral-demo-standalone.html');

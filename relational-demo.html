@@ -126,6 +126,23 @@
           <button id="forget" style="background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:400;">Forget history</button>
         </div>
       </div>
+
+      <div class="card" id="proposalCard" hidden>
+        <h2>The notebook suggests a recalibration</h2>
+        <div id="proposalText" style="font-size:13.5px;"></div>
+        <div class="row" style="margin-top:10px;">
+          <button id="applyCal">Apply — and record it in the ledger</button>
+          <button id="dismissCal" style="background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:400;">Not now</button>
+        </div>
+      </div>
+
+      <div class="card" id="ledgerCard" hidden>
+        <h2>Calibration ledger</h2>
+        <div id="ledgerText" style="font-size:13px;"></div>
+        <div class="row" style="margin-top:10px;">
+          <button id="resetCal" style="background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:400;">Reset to defaults</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -140,6 +157,7 @@
 
 <script src="relational-core.js"></script>
 <script src="relational-memory.js"></script>
+<script src="relational-calibration.js"></script>
 <script>
 const SAMPLES = {
   generative:
@@ -172,7 +190,10 @@ function render(r) {
   $('status').textContent = r.verdict.status;
   $('conf').textContent = Math.round(r.verdict.confidence * 100) + '%';
   $('reason').textContent = r.verdict.reason || '';
-  $('boundary').textContent = r.verdict.boundary ? r.verdict.boundary.nonClaim : '';
+  const cal = r.calibration && r.calibration.source !== 'defaults'
+    ? ' · Measured with ' + r.calibration.source + ' (see ledger below).'
+    : '';
+  $('boundary').textContent = (r.verdict.boundary ? r.verdict.boundary.nonClaim : '') + cal;
 
   $('pairs').innerHTML = r.uptake.length ? r.uptake.map(e => {
     const detail = e.type === 'ECHO'
@@ -258,7 +279,10 @@ function run() {
   const speakers = [...new Set(turns.map(t => t.speaker))];
   let result;
   try {
-    result = RelationalCathedral.analyzeExchange(turns.length ? turns : raw);
+    const ledger = getLedger();
+    const overrides = ledger ? ledger.overrides() : null;
+    result = RelationalCathedral.analyzeExchange(turns.length ? turns : raw,
+      overrides ? { calibration: overrides, calibrationLabel: ledger.label() } : {});
   } catch (e) { notice('Analysis error: ' + e.message, true); return; }
 
   render(result);
@@ -270,6 +294,7 @@ function run() {
   }
 
   renderHistory(result, raw);
+  renderCalibration();
 }
 
 // The notebook: the instrument stays fixed, history accumulates around it.
@@ -308,6 +333,52 @@ function renderHistory(result, raw) {
 document.getElementById('forget').addEventListener('click', () => {
   new ExchangeMemory(ExchangeMemory.localStorageStore('cathedral-exchange-memory')).clear();
   $('historyCard').hidden = true;
+});
+
+// ── Calibration: the notebook proposes, you decide, the ledger remembers ──
+function getLedger() {
+  if (typeof CalibrationLedger === 'undefined') return null;
+  return new CalibrationLedger(CalibrationLedger.localStorageStore('cathedral-calibration-ledger'));
+}
+
+let pendingProposal = null;
+function renderCalibration() {
+  const ledger = getLedger();
+  if (!ledger) return;
+  const mem = new ExchangeMemory(ExchangeMemory.localStorageStore('cathedral-exchange-memory'));
+
+  pendingProposal = ledger.propose(mem.data);
+  const dismissed = sessionStorage.getItem('cal-dismissed') === '1';
+  $('proposalCard').hidden = !(pendingProposal && !dismissed);
+  if (pendingProposal) {
+    $('proposalText').innerHTML =
+      '<b>' + esc(pendingProposal.param) + '</b>: previously <b>' + pendingProposal.from +
+      '</b>, proposed <b>' + pendingProposal.to + '</b>.<br>' + esc(pendingProposal.why) +
+      '<br><span class="anchors">Nothing changes unless you apply it. Applied changes are recorded and reversible.</span>';
+  }
+
+  const hasLedger = ledger.size() > 0;
+  $('ledgerCard').hidden = !hasLedger;
+  if (hasLedger) {
+    $('ledgerText').innerHTML = ledger.explain().map(esc).join('<br><br>');
+  }
+}
+
+document.getElementById('applyCal').addEventListener('click', () => {
+  const ledger = getLedger();
+  if (ledger && pendingProposal) {
+    ledger.accept(pendingProposal);
+    pendingProposal = null;
+    run(); // re-analyze under the new, ledgered calibration
+  }
+});
+document.getElementById('dismissCal').addEventListener('click', () => {
+  sessionStorage.setItem('cal-dismissed', '1');
+  $('proposalCard').hidden = true;
+});
+document.getElementById('resetCal').addEventListener('click', () => {
+  const ledger = getLedger();
+  if (ledger) { ledger.reset('Reset from the demo.'); run(); }
 });
 
 $('analyze').addEventListener('click', run);
