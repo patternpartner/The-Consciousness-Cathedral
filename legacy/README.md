@@ -13,3 +13,7 @@ The current, tested phone-friendly page for the core evaluator is `../cathedral-
 ## extract-core.js
 
 The script that extracted `cathedral-core.js` from the HTML. The direction of truth has been reversed — the module is now the source and demo pages are generated *from* it (`npm run build:demo`) — so this script's job no longer exists.
+
+## Post-retirement finding (2026-07-09)
+
+Examination prompted by the maintainer re-uploading their phone copy (byte-identical to this file): the January build contains `PatternMemory.getCalibration()` — accumulated win-rate statistics in localStorage silently reweight Parliament votes by up to ±20%. It is the un-ledgered implementation of the maintainer's "analyzers must learn" conviction: verdicts depend on hidden device state, are not reproducible, and drift between copies. The tested line rebuilt the same ambition with the contract attached (see `../relational-memory.js`, `../relational-calibration.js`, and the "On memory" sections of `../PHILOSOPHY.md`). Salvage assessment of its novel components: `../docs/JANUARY-SALVAGE.md`.
