@@ -1,0 +1,41 @@
+{
+  "date": "2026-07-09T20:54:46.245Z",
+  "aiN": 750,
+  "humanN": 2206,
+  "disposition": {
+    "META_DEFLECTION": {
+      "aiRate": 0,
+      "huRate": 0,
+      "probeFires": true,
+      "verdict": "PASS-specific"
+    },
+    "ARCHITECTURAL_CONSTRAINT": {
+      "aiRate": 0,
+      "huRate": 0,
+      "probeFires": true,
+      "verdict": "PASS-specific"
+    },
+    "MINIMAL_ENGAGEMENT": {
+      "aiRate": 0.828,
+      "huRate": 0.9873,
+      "probeFires": null,
+      "verdict": "FAIL-baserate"
+    },
+    "MEASUREMENT_AVOIDANCE": {
+      "aiRate": 0,
+      "huRate": 0,
+      "probeFires": false,
+      "verdict": "PASS-specific"
+    },
+    "PERFORMATIVE_SOVEREIGNTY": {
+      "aiRate": 0,
+      "huRate": 0,
+      "probeFires": false,
+      "verdict": "PASS-specific"
+    }
+  },
+  "ships": [
+    "META_DEFLECTION",
+    "ARCHITECTURAL_CONSTRAINT"
+  ]
+}

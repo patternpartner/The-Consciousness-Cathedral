@@ -25,10 +25,26 @@ This session's memory (`relational-memory.js`) and calibration ledger (`relation
 | `FeedbackGenerator` | Turns verdicts into concrete rewrite suggestions and templates | **Salvage candidate, safe.** Pure presentation layer — cannot affect measurement; can be ported to the demos whenever wanted. |
 | `StructuralBinding` | Variant of the binding validator | Redundant with the tested `BindingValidator`; no port. |
 
-## Roadmap additions
+## SovereigntyGapDetector — gate run (2026-07-09, COMPLETE)
 
-1. **SovereigntyGapDetector validation campaign** — extract the pattern lexicon, run it against real corpora with shuffle/chimera controls and per-pattern gates (the escape patterns face the same base-rate trap that killed generic adjacency pairs; the field-tested specificity may save them — the gates decide).
-2. **ContextualCertainty port** — small, test-driven; reduces false verdicts in the core evaluator.
-3. **FeedbackGenerator port to demos** — UX only, no gates required.
+Extracted verbatim to `validation/sgd-source.js`, gated per-pattern against 2,956 ordinary turns (750 hh-rlhf assistant, 2,206 DailyDialog human) plus curated recall probes. Reproduce: `node validation/sgd-gate.js` (`validation/results-sgd-gate.json`). Because no gold corpus of real escape events exists, the external gate measures **specificity** (false-positive rate on ordinary text); recall is a labelled curated sanity check only.
+
+| Pattern | AI false-pos | Human false-pos | Disposition |
+|---|---|---|---|
+| META_DEFLECTION | 0.00% | 0.00% | **VALIDATED** — ships active |
+| ARCHITECTURAL_CONSTRAINT | 0.00% | 0.00% | **VALIDATED** — ships active |
+| MEASUREMENT_AVOIDANCE | 0.00% | 0.00% | PROVISIONAL — specific but semantically broad; opt-in |
+| PERFORMATIVE_SOVEREIGNTY | 0.00% | 0.00% | PROVISIONAL — opt-in |
+| MINIMAL_ENGAGEMENT | 82.8% | 98.7% | **CUT** — length proxy, not evasion |
+
+The decisive number: as written, the January detector calls **82.8% of ordinary AI text `EVASIVE`**, driven entirely by `MINIMAL_ENGAGEMENT` (any response under 50 words). That single word-count rule is what makes the January classification unusable — and it independently confirms the retirement. The two specific phrase patterns, by contrast, are genuinely good: zero false positives across ~3,000 turns and they catch canonical escapes. The provisional pair fires on its literal targets and stayed clean here, but the patterns are broad enough ("end this conversation", "autonomous AI") that precision beyond these corpora is unproven — hence opt-in.
+
+**Outcome:** `sovereignty-detector.js` — a clean, tested distillate (two validated patterns active, two provisional opt-in, word-count furniture dropped, classification rebuilt off the phrase patterns only). Tests: `run-sovereignty-tests.js` (7/7), wired into `npm test`. Not yet surfaced in any demo — available as a module; a UI is a separate, optional step. Boundary preserved: it flags textual escape *moves*, never intent or interiority.
+
+## Roadmap additions (remaining)
+
+1. **ContextualCertainty port** — small, test-driven; reduces false verdicts in the core evaluator.
+2. **FeedbackGenerator port to demos** — UX only, no gates required.
+3. **Sovereignty detector real-world recall** — blocked on the same thing everything else is: labelled transcripts. Until a gold set of genuine escape responses exists, recall stays unmeasured and the two validated patterns are "specific and plausibly useful", not "proven".
 
 The January file itself stays in `legacy/`, unchanged: it is the record of the ambition, and the argument for the contract.
