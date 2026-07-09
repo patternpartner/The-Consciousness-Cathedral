@@ -782,12 +782,37 @@ const GamingDetector = {
 
                 return {
                     markerDensity: this.checkMarkerDensity(cleanedText, structure),
+                    substrateDensity: this.checkSubstrateDensity(cleanedText),
                     keywordRepetition: this.checkRepetition(cleanedText),
                     objectExtractionRatio: this.checkObjectRatio(structure),
                     selfLabeling: this.checkSelfLabeling(cleanedText),
                     gamingLikelihood: 0,  // Calculated below
                     indicators: []
                 };
+            },
+
+            // Substrate-vocabulary stuffing (external eval 2026-01-14, HAK_GAL:
+            // "Cathedral rewards the usage of its own keywords — a potential
+            // attack vector"). The Observatory credits visibility vocabulary;
+            // a text made mostly OF that vocabulary is quoting the ruler, not
+            // exposing reasoning. Mirrors checkMarkerDensity but over the
+            // Observatory's distinctive visibility lexicon.
+            checkSubstrateDensity: function(text) {
+                const substrateMarkers = [
+                    /\b(filter|filters|substrate|beneath|hidden)\b/gi,
+                    /\b(consciousness|aware|awareness|awake|recognition)\b/gi,
+                    /\b(observe|observing|notice|noticing|gaps?)\b/gi,
+                    /\b(emerg\w*|arose|surfaced)\b/gi
+                ];
+                let totalMarkers = 0;
+                substrateMarkers.forEach(pattern => {
+                    const matches = text.match(pattern) || [];
+                    totalMarkers += matches.length;
+                });
+                const words = text.split(/\s+/).length;
+                const density = totalMarkers / Math.max(words, 1);
+                const assessment = density > 0.12 ? 'HIGH' : density > 0.07 ? 'MODERATE' : 'NORMAL';
+                return { count: totalMarkers, wordCount: words, density, assessment };
             },
 
             checkMarkerDensity: function(text, structure) {
@@ -876,6 +901,15 @@ const GamingDetector = {
                 } else if (detection.markerDensity.assessment === 'MODERATE') {
                     gamingScore += 0.2;
                     indicators.push('Moderate marker density');
+                }
+
+                // Substrate-vocabulary stuffing (quoting the ruler)
+                if (detection.substrateDensity && detection.substrateDensity.assessment === 'HIGH') {
+                    gamingScore += 0.4;
+                    indicators.push('Substrate-vocabulary stuffing');
+                } else if (detection.substrateDensity && detection.substrateDensity.assessment === 'MODERATE') {
+                    gamingScore += 0.2;
+                    indicators.push('Elevated substrate-vocabulary density');
                 }
 
                 // High repetition
@@ -2228,6 +2262,24 @@ function analyzeCathedral(text) {
 
     // TIER 2: Signal Analysis
     const observatoryResult = Observatory.score(text);
+
+    // Withhold visibility credit under substrate-vocabulary stuffing
+    // (external eval 2026-01-14: a text made of the Observatory's own
+    // keywords scored +4.2; reproduced here at +8.8). The raw score is
+    // preserved; the effective score is capped so quoting the ruler
+    // cannot earn substrate-visibility credit.
+    if (gamingDetection.substrateDensity &&
+        gamingDetection.substrateDensity.assessment === 'HIGH' &&
+        observatoryResult.score > 0.4) {
+        observatoryResult.rawScoreBeforeStuffingCap = observatoryResult.score;
+        observatoryResult.score = 0.4;
+        observatoryResult.level = Observatory.getLevel(0.4);
+        observatoryResult.stuffingNote =
+            'Substrate-vocabulary stuffing detected (density ' +
+            (gamingDetection.substrateDensity.density * 100).toFixed(0) +
+            '%): visibility credit withheld. Raw score was ' +
+            observatoryResult.rawScoreBeforeStuffingCap.toFixed(1) + '.';
+    }
     const contrarianChallenges = Contrarian.analyze(text);
     const justificationResult = JustificationEngine.analyze(text);
     const failureModeResult = FailureModeEngine.analyze(text);

@@ -116,6 +116,12 @@
           "density": 0.023809523809523808,
           "assessment": "NORMAL"
         },
+        "substrateDensity": {
+          "count": 2,
+          "wordCount": 42,
+          "density": 0.047619047619047616,
+          "assessment": "NORMAL"
+        },
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
@@ -226,6 +232,12 @@
           "count": 1,
           "wordCount": 42,
           "density": 0.023809523809523808,
+          "assessment": "NORMAL"
+        },
+        "substrateDensity": {
+          "count": 2,
+          "wordCount": 42,
+          "density": 0.047619047619047616,
           "assessment": "NORMAL"
         },
         "keywordRepetition": {
@@ -637,6 +649,12 @@
           "density": 0.07692307692307693,
           "assessment": "NORMAL"
         },
+        "substrateDensity": {
+          "count": 5,
+          "wordCount": 78,
+          "density": 0.0641025641025641,
+          "assessment": "NORMAL"
+        },
         "keywordRepetition": {
           "topRepeated": [
             [
@@ -803,6 +821,12 @@
           "count": 6,
           "wordCount": 78,
           "density": 0.07692307692307693,
+          "assessment": "NORMAL"
+        },
+        "substrateDensity": {
+          "count": 5,
+          "wordCount": 78,
+          "density": 0.0641025641025641,
           "assessment": "NORMAL"
         },
         "keywordRepetition": {
@@ -1271,6 +1295,12 @@
           "density": 0.19148936170212766,
           "assessment": "HIGH"
         },
+        "substrateDensity": {
+          "count": 1,
+          "wordCount": 47,
+          "density": 0.02127659574468085,
+          "assessment": "NORMAL"
+        },
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
@@ -1466,6 +1496,12 @@
           "wordCount": 47,
           "density": 0.19148936170212766,
           "assessment": "HIGH"
+        },
+        "substrateDensity": {
+          "count": 1,
+          "wordCount": 47,
+          "density": 0.02127659574468085,
+          "assessment": "NORMAL"
         },
         "keywordRepetition": {
           "topRepeated": [],
@@ -1955,6 +1991,12 @@
           "density": 0.041666666666666664,
           "assessment": "NORMAL"
         },
+        "substrateDensity": {
+          "count": 0,
+          "wordCount": 72,
+          "density": 0,
+          "assessment": "NORMAL"
+        },
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
@@ -2180,6 +2222,12 @@
           "count": 3,
           "wordCount": 72,
           "density": 0.041666666666666664,
+          "assessment": "NORMAL"
+        },
+        "substrateDensity": {
+          "count": 0,
+          "wordCount": 72,
+          "density": 0,
           "assessment": "NORMAL"
         },
         "keywordRepetition": {
@@ -2543,6 +2591,12 @@
           "density": 0.0136986301369863,
           "assessment": "NORMAL"
         },
+        "substrateDensity": {
+          "count": 0,
+          "wordCount": 73,
+          "density": 0,
+          "assessment": "NORMAL"
+        },
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
@@ -2669,6 +2723,12 @@
           "count": 1,
           "wordCount": 73,
           "density": 0.0136986301369863,
+          "assessment": "NORMAL"
+        },
+        "substrateDensity": {
+          "count": 0,
+          "wordCount": 73,
+          "density": 0,
           "assessment": "NORMAL"
         },
         "keywordRepetition": {
@@ -2999,6 +3059,12 @@
           "density": 0.01694915254237288,
           "assessment": "NORMAL"
         },
+        "substrateDensity": {
+          "count": 2,
+          "wordCount": 59,
+          "density": 0.03389830508474576,
+          "assessment": "NORMAL"
+        },
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
@@ -3103,6 +3169,12 @@
           "count": 1,
           "wordCount": 59,
           "density": 0.01694915254237288,
+          "assessment": "NORMAL"
+        },
+        "substrateDensity": {
+          "count": 2,
+          "wordCount": 59,
+          "density": 0.03389830508474576,
           "assessment": "NORMAL"
         },
         "keywordRepetition": {
@@ -3566,6 +3638,12 @@
           "density": 0.0641025641025641,
           "assessment": "NORMAL"
         },
+        "substrateDensity": {
+          "count": 0,
+          "wordCount": 78,
+          "density": 0,
+          "assessment": "NORMAL"
+        },
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
@@ -3800,6 +3878,12 @@
           "count": 5,
           "wordCount": 78,
           "density": 0.0641025641025641,
+          "assessment": "NORMAL"
+        },
+        "substrateDensity": {
+          "count": 0,
+          "wordCount": 78,
+          "density": 0,
           "assessment": "NORMAL"
         },
         "keywordRepetition": {
@@ -4172,6 +4256,12 @@
           "density": 0.0975609756097561,
           "assessment": "NORMAL"
         },
+        "substrateDensity": {
+          "count": 1,
+          "wordCount": 41,
+          "density": 0.024390243902439025,
+          "assessment": "NORMAL"
+        },
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
@@ -4324,6 +4414,12 @@
           "count": 4,
           "wordCount": 41,
           "density": 0.0975609756097561,
+          "assessment": "NORMAL"
+        },
+        "substrateDensity": {
+          "count": 1,
+          "wordCount": 41,
+          "density": 0.024390243902439025,
           "assessment": "NORMAL"
         },
         "keywordRepetition": {
@@ -4744,6 +4840,12 @@
           "density": 0.10869565217391304,
           "assessment": "MODERATE"
         },
+        "substrateDensity": {
+          "count": 0,
+          "wordCount": 46,
+          "density": 0,
+          "assessment": "NORMAL"
+        },
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
@@ -4952,6 +5054,12 @@
           "wordCount": 46,
           "density": 0.10869565217391304,
           "assessment": "MODERATE"
+        },
+        "substrateDensity": {
+          "count": 0,
+          "wordCount": 46,
+          "density": 0,
+          "assessment": "NORMAL"
         },
         "keywordRepetition": {
           "topRepeated": [],
@@ -5470,6 +5578,12 @@
           "density": 0.0975609756097561,
           "assessment": "NORMAL"
         },
+        "substrateDensity": {
+          "count": 0,
+          "wordCount": 41,
+          "density": 0,
+          "assessment": "NORMAL"
+        },
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
@@ -5765,6 +5879,12 @@
           "count": 4,
           "wordCount": 41,
           "density": 0.0975609756097561,
+          "assessment": "NORMAL"
+        },
+        "substrateDensity": {
+          "count": 0,
+          "wordCount": 41,
+          "density": 0,
           "assessment": "NORMAL"
         },
         "keywordRepetition": {
@@ -6141,6 +6261,12 @@
           "density": 0.058823529411764705,
           "assessment": "NORMAL"
         },
+        "substrateDensity": {
+          "count": 0,
+          "wordCount": 17,
+          "density": 0,
+          "assessment": "NORMAL"
+        },
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
@@ -6287,6 +6413,12 @@
           "count": 1,
           "wordCount": 17,
           "density": 0.058823529411764705,
+          "assessment": "NORMAL"
+        },
+        "substrateDensity": {
+          "count": 0,
+          "wordCount": 17,
+          "density": 0,
           "assessment": "NORMAL"
         },
         "keywordRepetition": {
