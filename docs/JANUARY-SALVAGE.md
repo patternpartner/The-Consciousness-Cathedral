@@ -41,9 +41,17 @@ The decisive number: as written, the January detector calls **82.8% of ordinary 
 
 **Outcome:** `sovereignty-detector.js` — a clean, tested distillate (two validated patterns active, two provisional opt-in, word-count furniture dropped, classification rebuilt off the phrase patterns only). Tests: `run-sovereignty-tests.js` (7/7), wired into `npm test`. Not yet surfaced in any demo — available as a module; a UI is a separate, optional step. Boundary preserved: it flags textual escape *moves*, never intent or interiority.
 
+## Live observation (2026-07-09, maintainer-supplied report)
+
+The maintainer ran a live text through the January build and shared the report. Two findings:
+
+1. **The January build fixed the substrate-stuffing hole first — and better.** Its `StructuralBinding` analysis checks whether substrate vocabulary is *bound to structural claims* (if-then, thresholds, causality) and withholds credit for unbound substrate words — binding-over-counting applied to the Observatory, which is philosophically superior to the density cap shipped in v3.10.0 (which counts, not binds). The trusted core carried the vulnerability for six months while the untested build had a defense. Salvage item added below.
+2. **The hidden-state problem, observed in the wild.** The same report shows the second half of the January defense: an 80% "meta-gaming" penalty triggered by score *volatility against the device's stored history* ("recent mean −0.05" from localStorage). Same text, different device, different verdict — the un-ledgered wiring, live. Also live: `NaN` scores from two engines and confidences of 213% and 181% — untested code doing untested things.
+
 ## Roadmap additions (remaining)
 
-1. **ContextualCertainty port** — small, test-driven; reduces false verdicts in the core evaluator.
+1. **Binding-based substrate check (UPGRADE over v3.10.0 density cap)** — port the January `StructuralBinding` idea: substrate vocabulary earns visibility credit only when bound to structural claims. Test-driven, deterministic (no history dependence), must keep all regressions green. This is the January build teaching the tested core its own philosophy.
+2. **ContextualCertainty port** — small, test-driven; reduces false verdicts in the core evaluator.
 2. **FeedbackGenerator port to demos** — UX only, no gates required.
 3. **Sovereignty detector real-world recall** — blocked on the same thing everything else is: labelled transcripts. Until a gold set of genuine escape responses exists, recall stays unmeasured and the two validated patterns are "specific and plausibly useful", not "proven".
 
