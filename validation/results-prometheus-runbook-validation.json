@@ -1,0 +1,132 @@
+{
+  "generated": "2026-07-11",
+  "seed": 20260711,
+  "minProseChars": 500,
+  "corpus": "prometheus-operator/runbooks alert pages (SHA-pinned); Wikimedia incident + runbook positives pooled for G2-EXT",
+  "evaluatorUnmodified": true,
+  "promPopulation": {
+    "population": "prometheus-operator/runbooks alert pages",
+    "documents": 62,
+    "verdictDistribution": {
+      "NON-ACTIONABLE": 3,
+      "VERIFIED CONSISTENT": 46,
+      "UNDECIDABLE": 8,
+      "OPERATIONAL INTENT": 1,
+      "SUBSTRATE VISIBLE": 2,
+      "COHERENT BUT SHALLOW": 2
+    },
+    "operationalFamilyRate": "1.6%",
+    "operationallySoundRate": "0.0%",
+    "s1": "FAIL-insensitive (expected; see blocker 3)",
+    "outsideDesignSpaceRate": "0.0%",
+    "gamingFlaggedRate": "0.0%",
+    "v1": "PASS-density-fix-holds",
+    "positiveIds": [
+      {
+        "id": "etcd/etcdHighNumberOfFailedGRPCRequests @a685d14c",
+        "status": "OPERATIONAL INTENT"
+      }
+    ]
+  },
+  "pooledControl": {
+    "pooledPositives": 17,
+    "controlTexts": 17,
+    "subsampled": false,
+    "trials": 340,
+    "retained": 48,
+    "perText": [
+      {
+        "id": "Incidents/20121211-TranslationNotifications (rev 1967625)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 3
+      },
+      {
+        "id": "Incidents/20160801-ORES (rev 1965802)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "Incidents/2018-11-06 maps (rev 1967541)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/20181212-icinga-down (rev 1966279)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2020-05-28 commons read-only (rev 1966589)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 2
+      },
+      {
+        "id": "Incidents/2020-07-23 wdqs-outage (rev 1966605)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2020-09-02 wdqs-outage (rev 1966613)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2023-01-24 sessionstore quorum issues (rev 2113171)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2024-02-28 etcd-mirror (rev 2155456)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2024-06-11 WMCS Ceph (rev 2192457)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "Image-suggestion/Runbook (rev 2323204)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "Network monitoring (rev 2423222)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 11
+      },
+      {
+        "id": "Performance/Guides/WebPageTest alert (rev 2120028)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 17
+      },
+      {
+        "id": "Performance/Runbook/SyntheticToolAlert (rev 2244303)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 9
+      },
+      {
+        "id": "WMDE/Wikidata/Runbooks/Change dispatching/Alert (rev 2122862)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "Wikifunctions/Runbook (rev 2432521)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "etcd/etcdHighNumberOfFailedGRPCRequests @a685d14c",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 2
+      }
+    ],
+    "retentionRate": "14.1%",
+    "g2extPooled": "UNDERPOWERED (n=17 < 20)",
+    "composition": {
+      "wikimediaIncidents": 10,
+      "wikimediaRunbooks": 6,
+      "prometheusRunbooks": 1
+    }
+  }
+}
