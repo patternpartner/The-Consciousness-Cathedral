@@ -1,0 +1,146 @@
+{
+  "generated": "2026-07-11",
+  "seed": 20260711,
+  "minProseChars": 500,
+  "corpus": "Wikimedia SRE runbooks (Category:Runbooks ∪ intitle:Runbook); incident positives pooled for G2-EXT",
+  "evaluatorUnmodified": true,
+  "runbookPopulation": {
+    "population": "Wikimedia SRE runbooks (real on-call docs)",
+    "documents": 174,
+    "verdictDistribution": {
+      "SUBSTRATE VISIBLE": 12,
+      "UNDECIDABLE": 33,
+      "VERIFIED CONSISTENT": 104,
+      "OPERATIONAL INTENT": 6,
+      "COHERENT BUT SHALLOW": 5,
+      "NON-ACTIONABLE": 14
+    },
+    "operationalFamilyRate": "3.4%",
+    "operationallySoundRate": "0.0%",
+    "s1": "FAIL-insensitive (expected; see blocker 3)",
+    "outsideDesignSpaceRate": "0.0%",
+    "gamingFlaggedRate": "4.0%",
+    "v1": "PASS-density-fix-holds",
+    "positiveIds": [
+      {
+        "id": "Image-suggestion/Runbook (rev 2323204)",
+        "status": "OPERATIONAL INTENT"
+      },
+      {
+        "id": "Network monitoring (rev 2423222)",
+        "status": "OPERATIONAL INTENT"
+      },
+      {
+        "id": "Performance/Guides/WebPageTest alert (rev 2120028)",
+        "status": "OPERATIONAL INTENT"
+      },
+      {
+        "id": "Performance/Runbook/SyntheticToolAlert (rev 2244303)",
+        "status": "OPERATIONAL INTENT"
+      },
+      {
+        "id": "WMDE/Wikidata/Runbooks/Change dispatching/Alert (rev 2122862)",
+        "status": "OPERATIONAL INTENT"
+      },
+      {
+        "id": "Wikifunctions/Runbook (rev 2432521)",
+        "status": "OPERATIONAL INTENT"
+      }
+    ]
+  },
+  "pooledControl": {
+    "pooledPositives": 16,
+    "controlTexts": 16,
+    "subsampled": false,
+    "trials": 320,
+    "retained": 46,
+    "perText": [
+      {
+        "id": "Incidents/20121211-TranslationNotifications (rev 1967625)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 3
+      },
+      {
+        "id": "Incidents/20160801-ORES (rev 1965802)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "Incidents/2018-11-06 maps (rev 1967541)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/20181212-icinga-down (rev 1966279)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2020-05-28 commons read-only (rev 1966589)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 2
+      },
+      {
+        "id": "Incidents/2020-07-23 wdqs-outage (rev 1966605)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2020-09-02 wdqs-outage (rev 1966613)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2023-01-24 sessionstore quorum issues (rev 2113171)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2024-02-28 etcd-mirror (rev 2155456)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2024-06-11 WMCS Ceph (rev 2192457)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "Image-suggestion/Runbook (rev 2323204)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "Network monitoring (rev 2423222)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 11
+      },
+      {
+        "id": "Performance/Guides/WebPageTest alert (rev 2120028)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 17
+      },
+      {
+        "id": "Performance/Runbook/SyntheticToolAlert (rev 2244303)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 9
+      },
+      {
+        "id": "WMDE/Wikidata/Runbooks/Change dispatching/Alert (rev 2122862)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "Wikifunctions/Runbook (rev 2432521)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      }
+    ],
+    "retentionRate": "14.4%",
+    "g2extPooled": "UNDERPOWERED (n=16 < 20)",
+    "composition": {
+      "incidentPositives": 10,
+      "runbookPositives": 6
+    }
+  }
+}
