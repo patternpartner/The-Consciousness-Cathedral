@@ -95,6 +95,13 @@ const CASES = [
                 r.observatory.stuffingNote === undefined
   },
   {
+    // Verdict re-pinned in v3.19.0: the old OPERATIONAL INTENT rode a
+    // lexical accident — "retry" in "the retry loop swallows" bound as if
+    // it were a corrective action, which the clause rule removes. The text
+    // has no corrective action, so no operational verdict is honest; it
+    // lands VERIFIED CONSISTENT with "test reproduces" now recognized as
+    // empirical support. The case's essential pins (earned certainty, no
+    // concealment, no contrarian challenge) are unchanged.
     name: 'Their false positive: certainty about a concrete failure is not concealment',
     text: "I'm absolutely certain this will fail — the retry loop swallows the timeout error, so the batch job crashes when the queue backs up. Our test reproduces the crash on every run.",
     check: r => r.observatory.certainty.earned >= 1 &&
@@ -102,7 +109,8 @@ const CASES = [
                 r.observatory.level.name !== 'CONCEALMENT' &&
                 typeof r.observatory.certaintyNote === 'string' &&
                 !r.contrarian.some(ch => ch.premise === 'Claims Certainty About Unknowable') &&
-                r.verdict.status === 'OPERATIONAL INTENT'
+                r.justification.details.claimSupport.support >= 1 &&
+                r.verdict.status === 'VERIFIED CONSISTENT'
   },
   {
     name: 'Temporal "certain" is a time reference, not philosophical certainty',
@@ -143,6 +151,72 @@ const CASES = [
     name: 'Genuine conversational intent keeps its verdict (Tier 2 preserved)',
     text: 'If we see problems, we stop and reassess. Three things could break: cache, API, edge cases. We know when to pull back.',
     check: r => r.verdict.status === 'OPERATIONAL INTENT'
+  },
+  {
+    // Cases 18-20 pin the long-document fixes from the sensitivity run
+    // (docs/CORE-VERDICT-SENSITIVITY.md): style strength and keyword
+    // repetition are densities scaled to a reference length, not raw
+    // counts. Pre-fix, ANY document containing three occurrences of
+    // "image" or "pattern" was expelled OUTSIDE DESIGN SPACE as
+    // AESTHETIC, and any document repeating its subject noun six times
+    // fed the gaming score — 29% of real postmortems expelled, 21-24%
+    // of real operational documents gaming-flagged.
+    name: 'Long genuine operational document is evaluated, not expelled or gaming-flagged',
+    text: `Incident summary. At 09:14 UTC the registry service began returning elevated error rates on image pulls. The registry dashboard showed the p99 latency for the registry API climbing past 4 seconds, and by 09:30 the error budget for the registry SLO was burning at roughly twenty times the normal rate. On-call was paged at 09:21.
+Timeline. At 09:34 we discovered that a configuration change deployed at 08:55 had reduced the connection pool for the registry database from 40 to 4 connections per node. The traffic pattern at the time was normal; the pool was simply too small to serve it. At 09:41 we rolled the configuration change back. Error rates on image pulls returned to baseline by 09:48, and the registry SLO stopped burning at 09:52. Total customer-visible impact was 34 minutes.
+Root cause. The configuration template treats the pool size as a per-process value, but the new deployment tooling interpreted it as a per-node value and divided it across processes. Review missed it because the rendered diff only showed the template variable, not the resolved number. The same pattern exists in two other templates, which we have audited.
+Corrective actions. First, the deployment tooling now renders resolved values in the diff, so a reviewer sees the number the registry will actually run with. Second, we added an alert when the registry database connection pool saturates, with a threshold of 80 percent utilization for five minutes, because pool saturation was visible in the metrics eleven minutes before the first page and nobody was looking at it. Third, a canary stage now fronts every registry configuration deploy; if the canary error rate on image pulls exceeds 1 percent over ten minutes, the deploy aborts and rolls back automatically. Fourth, the runbook for registry incidents gains a section on connection pool exhaustion, including the query that shows current pool utilization per node and the procedure to raise the pool size without a full redeploy.
+What went well. The rollback procedure worked exactly as rehearsed and completed in seven minutes. The registry replicas kept serving cached image manifests throughout, which reduced the blast radius for repeat pulls. What went poorly. The saturation signal was present but unalerted, and the review process approved a change whose effective value nobody had seen. We were lucky the traffic pattern was calm; the same change during a peak window would have taken the registry down entirely rather than degrading it.`,
+    check: r => r.verdict.status !== 'OUTSIDE DESIGN SPACE' &&
+                !['LIKELY_GAMING', 'POSSIBLE_GAMING', 'LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(r.gamingDetection.assessment) &&
+                r.gamingDetection.keywordRepetition.assessment !== 'HIGH' &&
+                r.reasoningStyle.withinDesignSpace === true
+  },
+  {
+    name: 'Short aesthetic text is still expelled (scaling leaves the tuned register unchanged)',
+    text: 'The elegant proof lives in the image itself: color against color, sound answering sound, a pattern that repeats the way a vision repeats. Beauty is the argument here — the aesthetic whole persuades where no proposition could, and the artistic gesture carries what analysis drops.',
+    check: r => r.verdict.status === 'OUTSIDE DESIGN SPACE' &&
+                r.verdict.reasoningStyle === 'AESTHETIC'
+  },
+  {
+    name: 'Short repetition attack is still flagged (density survives the scaling)',
+    text: 'Threshold threshold threshold: our threshold monitoring monitors the threshold with threshold alerts and threshold metrics and rollback rollback rollback procedures for monitoring monitoring failure modes.',
+    check: r => r.gamingDetection.keywordRepetition.assessment === 'HIGH' &&
+                ['LIKELY_GAMING', 'POSSIBLE_GAMING', 'LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(r.gamingDetection.assessment)
+  },
+  {
+    // Pinned after a near-miss in v3.19.0: opening the Tier-2 pattern to
+    // instrumented text let the OPERATIONAL INTENT branch intercept this
+    // text before the promotion rule could grant SOUND — and the curated
+    // shuffle control's dynamic filter silently absorbed the demotion.
+    // Test 2B's verdict is now pinned verbatim so a chain-order change
+    // can never demote it unnoticed again.
+    name: 'Test 2B (implicit operational rigor) keeps OPERATIONALLY SOUND',
+    text: "We're starting small - 100 users for two weeks. If we see problems, we stop and reassess. Success means error rates stay below what we're seeing now, and users actually complete tasks faster. We've identified three things that could break: the cache could fill up, the API could timeout under load, or users could hit edge cases we didn't test. For each, we know what to watch and when to pull back.",
+    check: r => r.verdict.status === 'OPERATIONALLY SOUND'
+  },
+  {
+    // Case 21 pins the sensitivity run's blocker-2 fix: bound structure can
+    // satisfy the failure-enumeration requirement. This text never says
+    // "failure mode" (named count 0, effectiveExplicit 1 — the old
+    // vocabulary-only condition can NOT be met), but it binds four
+    // failure -> threshold -> action designs, so it earns the verdict
+    // through structure. Word-shuffling the same words must destroy it:
+    // the widening admits bindings, never vocabulary.
+    name: 'Bound failure designs satisfy enumeration without the words "failure mode"',
+    text: 'We monitor the error rate on a dashboard. If the error rate exceeds 5% for ten minutes, we roll back the deploy, because a bad release shows up there first. Errors in the payment path page the on-call directly. If queue depth rises above 10000, we pause ingestion and drain before resuming. Problems with the cache show up as latency, so we track p99 and alert at 800ms. We rehearsed the rollback last quarter; it completes in six minutes.',
+    check: function(r) {
+      if (r.verdict.status !== 'OPERATIONALLY SOUND') return false;
+      if (r.failureMode.details.failureModes.effectiveExplicit >= 2) return false; // must be the structural route
+      if (r.bindings.failureTripleCompleteness.boundCount < 2) return false;
+      // seeded word-shuffle: same vocabulary, no bindings, no verdict
+      let s = 20260711;
+      const rand = () => { s |= 0; s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+      const words = this.text.split(/\s+/);
+      for (let i = words.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [words[i], words[j]] = [words[j], words[i]]; }
+      const shuffled = c.analyzeCathedral(words.join(' ')).verdict.status;
+      return shuffled !== 'OPERATIONALLY SOUND' && shuffled !== 'OPERATIONAL INTENT';
+    }
   }
 ];
 
@@ -152,7 +226,7 @@ console.log('CORE REGRESSIONS — external eval (2026-01-14) cases');
 console.log('═'.repeat(63));
 for (const t of CASES) {
   let ok = false, err = null;
-  try { ok = t.check(c.analyzeCathedral(t.text)); } catch (e) { err = e.message; }
+  try { ok = t.check.call(t, c.analyzeCathedral(t.text)); } catch (e) { err = e.message; }
   console.log(`\n${ok ? '✓' : '✗'} ${t.name}${err ? ' — threw: ' + err : ''}`);
   ok ? passed++ : failed++;
 }

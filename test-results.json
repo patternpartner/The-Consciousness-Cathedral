@@ -133,6 +133,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -259,6 +260,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -693,6 +695,7 @@
             ]
           ],
           "maxRepetition": 4,
+          "effectiveRepetition": 4,
           "assessment": "MODERATE"
         },
         "objectExtractionRatio": {
@@ -875,6 +878,7 @@
             ]
           ],
           "maxRepetition": 4,
+          "effectiveRepetition": 4,
           "assessment": "MODERATE"
         },
         "objectExtractionRatio": {
@@ -1297,17 +1301,9 @@
         },
         "implicitBindings": {
           "score": 0.6,
-          "boundCount": 2,
+          "boundCount": 1,
           "totalSignals": 2,
           "bindings": [
-            {
-              "trigger": "failure",
-              "action": "abort",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            },
             {
               "trigger": "error",
               "action": "abort",
@@ -1317,12 +1313,12 @@
               "specificity": "MEDIUM"
             }
           ],
-          "bindingRatio": 1,
+          "bindingRatio": 0.5,
           "uniqueActions": 1,
-          "diversityRatio": 0.5,
+          "diversityRatio": 1,
           "diversityWarning": false,
           "tautologyCount": 0,
-          "assessment": "OPERATIONAL_INTENT"
+          "assessment": "WEAK_INTENT"
         },
         "overallBindingScore": 0.855,
         "specificity": {
@@ -1356,6 +1352,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -1507,17 +1504,9 @@
         },
         "implicitBindings": {
           "score": 0.6,
-          "boundCount": 2,
+          "boundCount": 1,
           "totalSignals": 2,
           "bindings": [
-            {
-              "trigger": "failure",
-              "action": "abort",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            },
             {
               "trigger": "error",
               "action": "abort",
@@ -1527,12 +1516,12 @@
               "specificity": "MEDIUM"
             }
           ],
-          "bindingRatio": 1,
+          "bindingRatio": 0.5,
           "uniqueActions": 1,
-          "diversityRatio": 0.5,
+          "diversityRatio": 1,
           "diversityWarning": false,
           "tautologyCount": 0,
-          "assessment": "OPERATIONAL_INTENT"
+          "assessment": "WEAK_INTENT"
         },
         "overallBindingScore": 0.855,
         "specificity": {
@@ -1566,6 +1555,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -1839,8 +1829,10 @@
       "justificationLevel": "THIN JUSTIFICATION",
       "failureModeScore": 3.333333333333333,
       "failureModeLevel": "PARTIALLY TESTED",
-      "parliamentPatterns": [],
-      "parliamentConfidence": 0.3,
+      "parliamentPatterns": [
+        "OPERATIONAL_INTENT"
+      ],
+      "parliamentConfidence": 0.675,
       "parliamentInsights": [],
       "coherenceIssues": [],
       "temporalCoherence": "WEAK",
@@ -1999,7 +1991,7 @@
         },
         "implicitBindings": {
           "score": 0.6,
-          "boundCount": 4,
+          "boundCount": 3,
           "totalSignals": 4,
           "bindings": [
             {
@@ -2011,18 +2003,10 @@
               "specificity": "MEDIUM"
             },
             {
-              "trigger": "break",
-              "action": "pull back",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "pullback",
-              "confidence": "HIGH",
-              "specificity": "MEDIUM"
-            },
-            {
               "trigger": "error",
-              "action": "reassess",
+              "action": "stop",
               "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "reassess",
+              "actionCategory": "abort",
               "confidence": "HIGH",
               "specificity": "MEDIUM"
             },
@@ -2035,9 +2019,9 @@
               "specificity": "VAGUE"
             }
           ],
-          "bindingRatio": 1,
-          "uniqueActions": 3,
-          "diversityRatio": 0.75,
+          "bindingRatio": 0.75,
+          "uniqueActions": 1,
+          "diversityRatio": 0.3333333333333333,
           "diversityWarning": false,
           "tautologyCount": 0,
           "assessment": "OPERATIONAL_INTENT"
@@ -2074,6 +2058,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -2240,7 +2225,7 @@
         },
         "implicitBindings": {
           "score": 0.6,
-          "boundCount": 4,
+          "boundCount": 3,
           "totalSignals": 4,
           "bindings": [
             {
@@ -2252,18 +2237,10 @@
               "specificity": "MEDIUM"
             },
             {
-              "trigger": "break",
-              "action": "pull back",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "pullback",
-              "confidence": "HIGH",
-              "specificity": "MEDIUM"
-            },
-            {
               "trigger": "error",
-              "action": "reassess",
+              "action": "stop",
               "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "reassess",
+              "actionCategory": "abort",
               "confidence": "HIGH",
               "specificity": "MEDIUM"
             },
@@ -2276,9 +2253,9 @@
               "specificity": "VAGUE"
             }
           ],
-          "bindingRatio": 1,
-          "uniqueActions": 3,
-          "diversityRatio": 0.75,
+          "bindingRatio": 0.75,
+          "uniqueActions": 1,
+          "diversityRatio": 0.3333333333333333,
           "diversityWarning": false,
           "tautologyCount": 0,
           "assessment": "OPERATIONAL_INTENT"
@@ -2315,6 +2292,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -2505,10 +2483,24 @@
         "confidence": 0.2
       },
       "parliament": {
-        "patterns": [],
+        "patterns": [
+          {
+            "name": "OPERATIONAL_INTENT",
+            "description": "Operational intent present: failure awareness and corrective actions bound, with instrumentation, but short of full operational soundness.",
+            "confidence": 0.75,
+            "dimensions": {
+              "implicitBindings": 3,
+              "failureSignals": 3,
+              "actions": 3,
+              "triggerSpecificity": "IMPLICIT",
+              "actionSpecificity": "GENERIC",
+              "instrumentation": "PRESENT"
+            }
+          }
+        ],
         "emergentInsights": [],
         "coherenceIssues": [],
-        "confidence": 0.3,
+        "confidence": 0.675,
         "structuralValidation": {
           "hasRealBinding": false,
           "hasClaimSupport": false,
@@ -2526,7 +2518,21 @@
         "justificationScore": 1.5384615384615385,
         "failureModeScore": 3.333333333333333,
         "confidence": 0.88,
-        "parliamentPatterns": [],
+        "parliamentPatterns": [
+          {
+            "name": "OPERATIONAL_INTENT",
+            "description": "Operational intent present: failure awareness and corrective actions bound, with instrumentation, but short of full operational soundness.",
+            "confidence": 0.75,
+            "dimensions": {
+              "implicitBindings": 3,
+              "failureSignals": 3,
+              "actions": 3,
+              "triggerSpecificity": "IMPLICIT",
+              "actionSpecificity": "GENERIC",
+              "instrumentation": "PRESENT"
+            }
+          }
+        ],
         "parliamentInsights": [],
         "coherenceIssues": [],
         "temporalCoherence": "WEAK",
@@ -2696,6 +2702,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -2838,6 +2845,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -3186,6 +3194,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -3306,6 +3315,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -3755,6 +3765,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -3973,6 +3984,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -4363,6 +4375,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -4531,6 +4544,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -4969,6 +4983,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -5192,6 +5207,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -5697,6 +5713,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -5976,6 +5993,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -6370,6 +6388,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -6532,6 +6551,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {

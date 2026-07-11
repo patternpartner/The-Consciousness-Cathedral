@@ -1,0 +1,310 @@
+{
+  "generated": "2026-07-11",
+  "seed": 20260711,
+  "minProseChars": 500,
+  "populations": [
+    {
+      "population": "GitLab incident reviews (real postmortems)",
+      "documents": 170,
+      "verdictDistribution": {
+        "SUBSTRATE VISIBLE": 43,
+        "UNDECIDABLE": 5,
+        "OPERATIONALLY SOUND": 2,
+        "OPERATIONAL INTENT": 7,
+        "VERIFIED CONSISTENT": 105,
+        "WELL JUSTIFIED": 3,
+        "NON-ACTIONABLE": 5
+      },
+      "operationalFamilyRate": "5.3%",
+      "operationallySoundRate": "1.2%",
+      "s1": "FAIL-insensitive",
+      "gamingFlaggedRate": "2.4%",
+      "positiveIds": [
+        {
+          "id": "IR gitlab-com/gl-infra/production#21838: Post-Incident Review: inc-9343-the-ci_runner_jobs-sli-of-the-ci-runners-service-on-shard-saas-lin",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "IR gitlab-com/gl-infra/production#21779: Incident Review: Customers getting \"pull access denied\" from `registry.gitlab.com/gitlab-org/` images",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "IR gitlab-com/gl-infra/production#21629: Incident review: 2026-03-24 - Slow Gitaly operations on gitlab.com and gitlab-org 500 errors",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "IR gitlab-com/gl-infra/production#21479: Incident Review: Duo agentic chat losing messages with some models",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "IR gitlab-com/gl-infra/production#20624: Incident Review: Self-managed GitLab Runners receiving 401 unauthorized when picking up CI jobs",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "IR gitlab-com/gl-infra/production#19467: Incident Review: component_saturation_slo_out_of_bounds:pgbouncer_client_conn_primary",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "IR gitlab-com/gl-infra/production#19180: Incident Review: A mocked UI feature is being unintentionally unveiled, which impacts Issues and Epics",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "IR gitlab-com/gl-infra/production#18908: Incident Review: Error syncing code owner rules",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "IR gitlab-com/gl-infra/production#17840: Incident review: 2024-03-01: groupScanExecutionPolicies fails to retrieve policies (17690)",
+          "status": "OPERATIONAL INTENT"
+        }
+      ]
+    },
+    {
+      "population": "GitLab runbooks (real on-call docs)",
+      "documents": 323,
+      "verdictDistribution": {
+        "VERIFIED CONSISTENT": 146,
+        "UNDECIDABLE": 97,
+        "SUBSTRATE VISIBLE": 32,
+        "NON-ACTIONABLE": 23,
+        "OPERATIONAL INTENT": 15,
+        "OUTSIDE DESIGN SPACE": 2,
+        "OPERATIONALLY SOUND": 4,
+        "COHERENT BUT SHALLOW": 3,
+        "WELL JUSTIFIED": 1
+      },
+      "operationalFamilyRate": "5.9%",
+      "operationallySoundRate": "1.2%",
+      "s1": "FAIL-insensitive",
+      "gamingFlaggedRate": "5.0%",
+      "positiveIds": [
+        {
+          "id": "RB rb_025.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_035.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_036.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_088.md",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "RB rb_091.md",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "RB rb_094.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_104.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_127.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_147.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_150.md",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "RB rb_156.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_197.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_201.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_239.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_332.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_338.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_353.md",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "RB rb_361.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_384.md",
+          "status": "OPERATIONAL INTENT"
+        }
+      ]
+    }
+  ],
+  "control": {
+    "pooledPositives": 28,
+    "controlTexts": 28,
+    "subsampled": false,
+    "trials": 560,
+    "retained": 90,
+    "perText": [
+      {
+        "id": "IR gitlab-com/gl-infra/production#21838: Post-Incident Review: inc-9343-the-ci_runner_jobs-sli-of-the-ci-runners-service-on-shard-saas-lin",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "IR gitlab-com/gl-infra/production#21779: Incident Review: Customers getting \"pull access denied\" from `registry.gitlab.com/gitlab-org/` images",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "IR gitlab-com/gl-infra/production#21629: Incident review: 2026-03-24 - Slow Gitaly operations on gitlab.com and gitlab-org 500 errors",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 1
+      },
+      {
+        "id": "IR gitlab-com/gl-infra/production#21479: Incident Review: Duo agentic chat losing messages with some models",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 2
+      },
+      {
+        "id": "IR gitlab-com/gl-infra/production#20624: Incident Review: Self-managed GitLab Runners receiving 401 unauthorized when picking up CI jobs",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 2
+      },
+      {
+        "id": "IR gitlab-com/gl-infra/production#19467: Incident Review: component_saturation_slo_out_of_bounds:pgbouncer_client_conn_primary",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "IR gitlab-com/gl-infra/production#19180: Incident Review: A mocked UI feature is being unintentionally unveiled, which impacts Issues and Epics",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 3
+      },
+      {
+        "id": "IR gitlab-com/gl-infra/production#18908: Incident Review: Error syncing code owner rules",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "IR gitlab-com/gl-infra/production#17840: Incident review: 2024-03-01: groupScanExecutionPolicies fails to retrieve policies (17690)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 9
+      },
+      {
+        "id": "RB rb_025.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 3
+      },
+      {
+        "id": "RB rb_035.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 4
+      },
+      {
+        "id": "RB rb_036.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 2
+      },
+      {
+        "id": "RB rb_088.md",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "RB rb_091.md",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 2
+      },
+      {
+        "id": "RB rb_094.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "RB rb_104.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 7
+      },
+      {
+        "id": "RB rb_127.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 15
+      },
+      {
+        "id": "RB rb_147.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 2
+      },
+      {
+        "id": "RB rb_150.md",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 1
+      },
+      {
+        "id": "RB rb_156.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "RB rb_197.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 14
+      },
+      {
+        "id": "RB rb_201.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "RB rb_239.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 7
+      },
+      {
+        "id": "RB rb_332.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "RB rb_338.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 4
+      },
+      {
+        "id": "RB rb_353.md",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 2
+      },
+      {
+        "id": "RB rb_361.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "RB rb_384.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 6
+      }
+    ],
+    "retentionRate": "16.1%",
+    "g2ext": "PASS-structural"
+  }
+}
