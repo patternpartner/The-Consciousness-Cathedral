@@ -1,0 +1,132 @@
+{
+  "generated": "2026-07-11",
+  "seed": 20260711,
+  "minProseChars": 500,
+  "corpus": "Wikimedia production incident reports (wikitech.wikimedia.org, Incidents/<date>-<name>)",
+  "evaluatorUnmodified": true,
+  "populations": [
+    {
+      "population": "Wikimedia incident reports (real production postmortems)",
+      "documents": 600,
+      "verdictDistribution": {
+        "VERIFIED CONSISTENT": 356,
+        "UNDECIDABLE": 158,
+        "OPERATIONAL INTENT": 10,
+        "WELL JUSTIFIED": 4,
+        "SUBSTRATE VISIBLE": 50,
+        "COHERENT BUT SHALLOW": 6,
+        "NON-ACTIONABLE": 15,
+        "OUTSIDE DESIGN SPACE": 1
+      },
+      "operationalFamilyRate": "1.7%",
+      "operationallySoundRate": "0.0%",
+      "s1": "FAIL-insensitive (expected; see blocker 3)",
+      "outsideDesignSpaceRate": "0.2%",
+      "gamingFlaggedRate": "2.5%",
+      "v1": "PASS-density-fix-holds",
+      "positiveIds": [
+        {
+          "id": "Incidents/20121211-TranslationNotifications (rev 1967625)",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "Incidents/20160801-ORES (rev 1965802)",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "Incidents/2018-11-06 maps (rev 1967541)",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "Incidents/20181212-icinga-down (rev 1966279)",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "Incidents/2020-05-28 commons read-only (rev 1966589)",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "Incidents/2020-07-23 wdqs-outage (rev 1966605)",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "Incidents/2020-09-02 wdqs-outage (rev 1966613)",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "Incidents/2023-01-24 sessionstore quorum issues (rev 2113171)",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "Incidents/2024-02-28 etcd-mirror (rev 2155456)",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "Incidents/2024-06-11 WMCS Ceph (rev 2192457)",
+          "status": "OPERATIONAL INTENT"
+        }
+      ]
+    }
+  ],
+  "control": {
+    "pooledPositives": 10,
+    "controlTexts": 10,
+    "subsampled": false,
+    "trials": 200,
+    "retained": 7,
+    "perText": [
+      {
+        "id": "Incidents/20121211-TranslationNotifications (rev 1967625)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 3
+      },
+      {
+        "id": "Incidents/20160801-ORES (rev 1965802)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "Incidents/2018-11-06 maps (rev 1967541)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/20181212-icinga-down (rev 1966279)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2020-05-28 commons read-only (rev 1966589)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 2
+      },
+      {
+        "id": "Incidents/2020-07-23 wdqs-outage (rev 1966605)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2020-09-02 wdqs-outage (rev 1966613)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2023-01-24 sessionstore quorum issues (rev 2113171)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2024-02-28 etcd-mirror (rev 2155456)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2024-06-11 WMCS Ceph (rev 2192457)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      }
+    ],
+    "retentionRate": "3.5%",
+    "g2ext": "UNDERPOWERED (n=10 < 20)"
+  }
+}
