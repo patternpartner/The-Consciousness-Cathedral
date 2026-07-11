@@ -1,0 +1,82 @@
+{
+  "generated": "2026-07-11",
+  "seed": 20260711,
+  "minProseChars": 500,
+  "populations": [
+    {
+      "population": "GitLab incident reviews (real postmortems)",
+      "documents": 170,
+      "verdictDistribution": {
+        "OUTSIDE DESIGN SPACE": 49,
+        "NON-ACTIONABLE": 12,
+        "SUBSTRATE VISIBLE": 24,
+        "VERIFIED CONSISTENT": 82,
+        "WELL JUSTIFIED": 1,
+        "UNDECIDABLE": 2
+      },
+      "operationalFamilyRate": "0.0%",
+      "operationallySoundRate": "0.0%",
+      "s1": "FAIL-insensitive",
+      "gamingFlaggedRate": "24.1%",
+      "positiveIds": []
+    },
+    {
+      "population": "GitLab runbooks (real on-call docs)",
+      "documents": 323,
+      "verdictDistribution": {
+        "VERIFIED CONSISTENT": 128,
+        "UNDECIDABLE": 80,
+        "SUBSTRATE VISIBLE": 16,
+        "NON-ACTIONABLE": 47,
+        "OPERATIONAL INTENT": 2,
+        "OUTSIDE DESIGN SPACE": 46,
+        "OPERATIONALLY SOUND": 1,
+        "COHERENT BUT SHALLOW": 3
+      },
+      "operationalFamilyRate": "0.9%",
+      "operationallySoundRate": "0.3%",
+      "s1": "FAIL-insensitive",
+      "gamingFlaggedRate": "21.1%",
+      "positiveIds": [
+        {
+          "id": "RB rb_025.md",
+          "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_088.md",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "RB rb_332.md",
+          "status": "OPERATIONAL INTENT"
+        }
+      ]
+    }
+  ],
+  "control": {
+    "pooledPositives": 3,
+    "controlTexts": 3,
+    "subsampled": false,
+    "trials": 60,
+    "retained": 16,
+    "perText": [
+      {
+        "id": "RB rb_025.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 12
+      },
+      {
+        "id": "RB rb_088.md",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "RB rb_332.md",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 4
+      }
+    ],
+    "retentionRate": "26.7%",
+    "g2ext": "UNDERPOWERED (n=3 < 20)"
+  }
+}
