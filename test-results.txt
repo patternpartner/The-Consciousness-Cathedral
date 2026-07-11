@@ -3,7 +3,7 @@
            Probing Measurement Boundaries: Depth vs Surface
 ═══════════════════════════════════════════════════════════════
 
-Generated: 7/11/2026, 4:21:39 PM
+Generated: 7/11/2026, 7:06:57 PM
 
 ───────────────────────────────────────────────────────────────
 TEST 1A Surface Hedging (Gaming the Markers)
@@ -92,7 +92,8 @@ ACTUAL RESULTS:
   Observatory: 2.10 - SUBSTRATE VISIBLE
   Justification: 1.54 - THIN JUSTIFICATION
   Failure Mode: 3.33 - PARTIALLY TESTED
-  Parliament: 0.30 confidence
+  Parliament: 0.68 confidence
+    Patterns: OPERATIONAL_INTENT
     Reasoning Styles: NARRATIVE
   Temporal: WEAK
   Contrarian Challenges: 0

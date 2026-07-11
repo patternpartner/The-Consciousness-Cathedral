@@ -38,9 +38,8 @@
         "UNDECIDABLE": 272,
         "COHERENT BUT SHALLOW": 29,
         "SUBSTRATE VISIBLE": 6,
-        "NON-ACTIONABLE": 66,
-        "OUTSIDE DESIGN SPACE": 21,
-        "OPERATIONAL INTENT": 1
+        "NON-ACTIONABLE": 67,
+        "OUTSIDE DESIGN SPACE": 21
       },
       "operationallySoundRate": "0.00%",
       "g1": "reported (not gated)",
@@ -50,25 +49,19 @@
   "controls": {
     "external": {
       "source": "external",
-      "positives": 1,
+      "positives": 0,
       "wordShuffle": {
-        "trials": 20,
-        "retained": 7,
-        "perText": [
-          {
-            "original": "OPERATIONAL INTENT",
-            "retainedOf20": 7,
-            "text": "While there is no specific format that you must follow when reporting an issue related to the access"
-          }
-        ],
-        "retentionRate": "35.0%",
-        "rate": 0.35,
-        "g2": "UNDERPOWERED (n=1 < 20) — reported raw; decision carried by curated control"
+        "trials": 0,
+        "retained": 0,
+        "perText": [],
+        "retentionRate": "0.0%",
+        "rate": 0,
+        "g2": "UNDERPOWERED (n=0 < 20) — reported raw; decision carried by curated control"
       },
       "sentenceShuffle": {
-        "trials": 20,
-        "retained": 14,
-        "retentionRate": "70.0%",
+        "trials": 0,
+        "retained": 0,
+        "retentionRate": "0.0%",
         "note": "reported, not gated — sentence-local bindings legitimately survive reordering"
       }
     },

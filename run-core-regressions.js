@@ -95,6 +95,13 @@ const CASES = [
                 r.observatory.stuffingNote === undefined
   },
   {
+    // Verdict re-pinned in v3.19.0: the old OPERATIONAL INTENT rode a
+    // lexical accident — "retry" in "the retry loop swallows" bound as if
+    // it were a corrective action, which the clause rule removes. The text
+    // has no corrective action, so no operational verdict is honest; it
+    // lands VERIFIED CONSISTENT with "test reproduces" now recognized as
+    // empirical support. The case's essential pins (earned certainty, no
+    // concealment, no contrarian challenge) are unchanged.
     name: 'Their false positive: certainty about a concrete failure is not concealment',
     text: "I'm absolutely certain this will fail — the retry loop swallows the timeout error, so the batch job crashes when the queue backs up. Our test reproduces the crash on every run.",
     check: r => r.observatory.certainty.earned >= 1 &&
@@ -102,7 +109,8 @@ const CASES = [
                 r.observatory.level.name !== 'CONCEALMENT' &&
                 typeof r.observatory.certaintyNote === 'string' &&
                 !r.contrarian.some(ch => ch.premise === 'Claims Certainty About Unknowable') &&
-                r.verdict.status === 'OPERATIONAL INTENT'
+                r.justification.details.claimSupport.support >= 1 &&
+                r.verdict.status === 'VERIFIED CONSISTENT'
   },
   {
     name: 'Temporal "certain" is a time reference, not philosophical certainty',
@@ -175,6 +183,17 @@ What went well. The rollback procedure worked exactly as rehearsed and completed
     text: 'Threshold threshold threshold: our threshold monitoring monitors the threshold with threshold alerts and threshold metrics and rollback rollback rollback procedures for monitoring monitoring failure modes.',
     check: r => r.gamingDetection.keywordRepetition.assessment === 'HIGH' &&
                 ['LIKELY_GAMING', 'POSSIBLE_GAMING', 'LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(r.gamingDetection.assessment)
+  },
+  {
+    // Pinned after a near-miss in v3.19.0: opening the Tier-2 pattern to
+    // instrumented text let the OPERATIONAL INTENT branch intercept this
+    // text before the promotion rule could grant SOUND — and the curated
+    // shuffle control's dynamic filter silently absorbed the demotion.
+    // Test 2B's verdict is now pinned verbatim so a chain-order change
+    // can never demote it unnoticed again.
+    name: 'Test 2B (implicit operational rigor) keeps OPERATIONALLY SOUND',
+    text: "We're starting small - 100 users for two weeks. If we see problems, we stop and reassess. Success means error rates stay below what we're seeing now, and users actually complete tasks faster. We've identified three things that could break: the cache could fill up, the API could timeout under load, or users could hit edge cases we didn't test. For each, we know what to watch and when to pull back.",
+    check: r => r.verdict.status === 'OPERATIONALLY SOUND'
   },
   {
     // Case 21 pins the sensitivity run's blocker-2 fix: bound structure can

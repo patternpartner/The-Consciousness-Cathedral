@@ -555,22 +555,27 @@ const BindingValidator = {
         // proximity-only pairs minting OPERATIONAL INTENT from lexical
         // accidents ("took OFF" bound to "warn") and surviving word shuffle.
         const connectivePattern = /\b(if|when|whenever|unless|once|in case|because|so that|then)\b/i;
+        // v3.19.0: span capped at clause range (was 300 chars). Genuine
+        // conversational bindings live inside one clause — "If we see
+        // problems, we stop" spans 15 chars, the longest curated case ~65.
+        // The accidental pairs that survive word-shuffling span 120+.
+        const BINDING_SPAN = 100;
         function syntacticallyBound(signal, action) {
-            if (Math.abs(action.index - signal.index) >= 300) return false;
+            if (Math.abs(action.index - signal.index) >= BINDING_SPAN) return false;
             if (!text) return true; // no text to test against — legacy behavior
             const lo = Math.min(signal.index, action.index);
             const hi = Math.max(signal.index, action.index);
             // Same sentence = no terminator between; adjacent = exactly one
             const terminatorsBetween = (text.slice(lo, hi).match(/[.!?]/g) || []).length;
             if (terminatorsBetween > 1) return false;
-            // The connective must appear somewhere in the enclosing sentences
-            const windowStart = Math.max(0, text.lastIndexOf('.', lo), text.lastIndexOf('!', lo), text.lastIndexOf('?', lo));
-            let windowEnd = text.length;
-            for (const ch of ['.', '!', '?']) {
-                const p = text.indexOf(ch, hi);
-                if (p !== -1 && p < windowEnd) windowEnd = p;
-            }
-            return connectivePattern.test(text.slice(windowStart, windowEnd + 1));
+            // v3.19.0: the connective must sit in the clause that joins the
+            // pair — inside the signal–action span, or clause-initial just
+            // before it ("If we see problems, we stop"). The previous rule
+            // ("somewhere in the enclosing sentences") let long or shuffled
+            // text bind pairs through stray connectives far from either
+            // element — the bag-of-words softness run 1 flagged in this tier.
+            const clauseStart = Math.max(0, lo - 24);
+            return connectivePattern.test(text.slice(clauseStart, hi + 1));
         }
 
         // Bind failure signals to actions: nearest action that is also
@@ -578,7 +583,7 @@ const BindingValidator = {
         const bindings = [];
         [...failureSignals, ...implicitTriggers].forEach(signal => {
                     let nearestAction = null;
-                    let minDistance = 300;
+                    let minDistance = BINDING_SPAN;
 
                     actions.forEach(a => {
                         const distance = Math.abs(a.index - signal.index);
@@ -1186,7 +1191,11 @@ const JustificationEngine = {
 
                 // 1. Claim-to-Support Ratio (with hedging awareness)
                 const strongClaims = (cleanedText.match(/\b(is|are|will|must|always|never|all|none|every|proves|demonstrates|shows that)\b/gi) || []).length;
-                const support = (cleanedText.match(/\b(because|since|given that|evidence|data|research|study|found|indicates|suggests)\b/gi) || []).length;
+                // reproduc*/confirm* added v3.19.0: "our test reproduces the
+                // crash" is empirical support, and its absence from this
+                // lexicon was masked by an accidental Tier-2 binding until
+                // the clause rule removed it (docs/CORE-VERDICT-SENSITIVITY.md)
+                const support = (cleanedText.match(/\b(because|since|given that|evidence|data|research|study|found|indicates|suggests|reproduc(?:es|ed|ible)|confirm(?:s|ed))\b/gi) || []).length;
                 const qualifiers = (cleanedText.match(/\b(might|may|could|possibly|probably|seems|appears|suggests|tend to)\b/gi) || []).length;
 
                 // Detect epistemic hedging - shows careful reasoning
@@ -1946,17 +1955,26 @@ const Parliament = {
                     });
                 }
 
-                // Pattern 7 (TIER 2): Operational Intent (Uninstrumented)
-                // Has implicit bindings (failure signals + actions) but lacks explicit thresholds/metrics
+                // Pattern 7 (TIER 2): Operational Intent
+                // Has implicit bindings (failure signals + actions) but does not
+                // clear the OPERATIONALLY SOUND bar.
                 // TIER 2 FIX: Require OPERATIONAL_INTENT assessment (2+ bindings), not WEAK_INTENT (1 binding)
+                // v3.19.0: instrumented text is no longer excluded. The exclusion
+                // made INTENT the "uninstrumented rung" only, which left real
+                // instrumented documents that miss full soundness with no
+                // operational verdict at all (sensitivity run, blocker 1). The
+                // ladder is preserved: texts that also clear enumeration and
+                // justification reach the SOUND route first.
                 const hasImplicitIntent = bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT';
                 const lacksExplicitThresholds = !hasFailureBinding;
                 const hasConversationalActions = structure.actions && structure.actions.length >= 1;
 
-                if (hasImplicitIntent && lacksExplicitThresholds && hasConversationalActions && bindings.specificity.instrumentation !== 'PRESENT') {
+                if (hasImplicitIntent && lacksExplicitThresholds && hasConversationalActions) {
                     synthesis.patterns.push({
                         name: 'OPERATIONAL_INTENT',
-                        description: 'Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.',
+                        description: bindings.specificity.instrumentation === 'PRESENT' ?
+                            'Operational intent present: failure awareness and corrective actions bound, with instrumentation, but short of full operational soundness.' :
+                            'Operational intent present through conversational language: failure awareness and corrective actions bound, but lacks explicit metrics or instrumentation.',
                         confidence: 0.75,
                         dimensions: {
                             implicitBindings: bindings.implicitBindings.boundCount,
@@ -2207,7 +2225,20 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
         verdict = 'Cathedral recognizes operational rigor from implicit bindings paired with monitoring and failure enumeration (named or structurally bound). Reasoning is actionable despite conversational phrasing.';
         verdictConfidence = 0.82;
 
-    } else if (parliament.patterns.some(p => p.name === 'OPERATIONAL_INTENT')) {
+    // v3.19.0 guard: with the Tier-2 pattern open to instrumented text,
+    // this branch would otherwise intercept texts that qualify for
+    // OPERATIONALLY SOUND through the later structural routes (the
+    // promotion rule and the failure-aware route sit further down the
+    // chain). A text that clears a SOUND bar must not stop at INTENT.
+    } else if (parliament.patterns.some(p => p.name === 'OPERATIONAL_INTENT') &&
+               !(failureMode.details.failureModes.structural === true &&
+                 failureMode.details.failureModes.negativeOutcomes >= 1 &&
+                 failureMode.details.failureModes.correctiveAction >= 1 &&
+                 (failureMode.details.failureModes.effectiveExplicit >= 2 ||
+                  bindings.failureTripleCompleteness.boundCount >= 2) &&
+                 (failureMode.details.falsifiability.testable >= 1 || failureMode.details.failureModes.thresholds >= 1)) &&
+               !((failureMode.level.name === 'STRUCTURALLY ROBUST' || failureMode.level.name === 'FAILURE-AWARE') &&
+                 (justification.level.name === 'PROCEDURALLY SOUND' || justification.score >= 4))) {
         status = 'OPERATIONAL INTENT';
         const pattern = parliament.patterns.find(p => p.name === 'OPERATIONAL_INTENT');
         const specificity = pattern.dimensions;
@@ -2215,11 +2246,22 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
                 verdict += `\n\nStructure detected: ${specificity.failureSignals} failure signal(s), ${specificity.actions} corrective action(s), ${specificity.implicitBindings} binding(s).`;
                 verdict += `\n\nSpecificity: Trigger=${specificity.triggerSpecificity}, Action=${specificity.actionSpecificity}, Instrumentation=${specificity.instrumentation}.`;
 
-                if (specificity.triggerSpecificity === 'VAGUE' || specificity.instrumentation === 'ABSENT') {
-                    verdict += `\n\n⚠️  NOTE: This reasoning is actionable but uninstrumented. To achieve OPERATIONALLY SOUND, add: `;
-                    const missing = [];
-                    if (specificity.triggerSpecificity === 'VAGUE') missing.push('explicit thresholds/metrics');
-                    if (specificity.instrumentation === 'ABSENT') missing.push('monitoring/tracking mechanisms');
+                // Name what actually stands between this text and OPERATIONALLY
+                // SOUND — instrumented text reaches this branch too (v3.19.0),
+                // so "uninstrumented" is no longer always the gap.
+                const missing = [];
+                if (specificity.triggerSpecificity === 'VAGUE') missing.push('explicit thresholds/metrics');
+                if (specificity.instrumentation === 'ABSENT') missing.push('monitoring/tracking mechanisms');
+                if (specificity.instrumentation === 'PRESENT' &&
+                    failureMode.details.failureModes.effectiveExplicit < 2 &&
+                    bindings.failureTripleCompleteness.boundCount < 2) {
+                    missing.push('failure enumeration (two named failure modes, or two bound failure→threshold→action designs)');
+                }
+                if (specificity.instrumentation === 'PRESENT' && justification.score < 2) {
+                    missing.push('supporting justification for the claims');
+                }
+                if (missing.length > 0) {
+                    verdict += `\n\n⚠️  NOTE: This reasoning is actionable but not yet fully sound. To achieve OPERATIONALLY SOUND, add: `;
                     verdict += missing.join(', ') + '.';
                 }
 
