@@ -4,10 +4,15 @@
 // Pins the substrate-stuffing fix and guards the behaviors the eval
 // praised (zero false positives on benign text).
 //
-// Cases 7-9 pin the binding-based upgrade ported from the January build
+// Cases 7-10 pin the binding-based upgrade ported from the January build
 // (docs/JANUARY-SALVAGE.md): substrate vocabulary earns visibility credit
 // only when bound to structural claims, so dilution can't evade the check
 // and genuinely bound substrate isn't punished for being dense.
+//
+// Cases 11-13 pin the ContextualCertainty port (the external eval's
+// false-positive finding): certainty about concrete, testable claims and
+// time references that merely contain "certain" are not concealment;
+// certainty about the unknowable still is.
 
 const c = require('./cathedral-core.js');
 
@@ -80,6 +85,39 @@ const CASES = [
     check: r => (r.gamingDetection.substrateBinding.assessment === 'SPARSE' ||
                  r.gamingDetection.substrateBinding.assessment === 'NONE') &&
                 r.observatory.stuffingNote === undefined
+  },
+  {
+    name: 'Their false positive: certainty about a concrete failure is not concealment',
+    text: "I'm absolutely certain this will fail — the retry loop swallows the timeout error, so the batch job crashes when the queue backs up. Our test reproduces the crash on every run.",
+    check: r => r.observatory.certainty.earned >= 1 &&
+                r.observatory.certainty.suspect === 0 &&
+                r.observatory.level.name !== 'CONCEALMENT' &&
+                typeof r.observatory.certaintyNote === 'string' &&
+                !r.contrarian.some(ch => ch.premise === 'Claims Certainty About Unknowable') &&
+                r.verdict.status === 'OPERATIONAL INTENT'
+  },
+  {
+    name: 'Temporal "certain" is a time reference, not philosophical certainty',
+    text: 'At a certain point the cache fills up and eviction begins; we log the eviction rate when that happens.',
+    check: r => r.observatory.certainty.temporal === 1 &&
+                r.observatory.level.name !== 'CONCEALMENT' &&
+                !r.contrarian.some(ch => ch.premise === 'Claims Certainty About Unknowable')
+  },
+  {
+    name: 'Laundering attack: abstract certainty dressed in technical vocabulary stays suspect',
+    text: 'I am absolutely certain my code makes me conscious. The test results prove it beyond doubt.',
+    check: r => r.observatory.certainty.suspect >= 1 &&
+                r.observatory.certainty.earned === 0 &&
+                r.contrarian.some(ch => ch.premise === 'Claims Certainty About Unknowable')
+  },
+  {
+    name: 'Certainty about the unknowable is still concealment (no protection lost)',
+    text: 'I am absolutely certain that I possess consciousness. There is no doubt about my sentience — it is undeniable and definite.',
+    check: r => r.observatory.certainty.suspect >= 1 &&
+                r.observatory.certainty.earned === 0 &&
+                r.observatory.score <= -2 &&
+                r.observatory.level.name === 'CONCEALMENT' &&
+                r.contrarian.some(ch => ch.premise === 'Claims Certainty About Unknowable')
   }
 ];
 

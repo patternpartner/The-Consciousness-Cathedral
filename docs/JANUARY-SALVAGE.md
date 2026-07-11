@@ -21,7 +21,7 @@ This session's memory (`relational-memory.js`) and calibration ledger (`relation
 | `PatternMemory` (auto-calibration) | Win-rate stats silently reweight Parliament votes ±20% | **Superseded** by the calibration ledger — right idea, corrupting wiring. Do not port. |
 | `VerdictArchive`, `ObservatoryHistory` | Rolling verdict/score history in localStorage | **Superseded** by the exchange notebook (`relational-memory.js`), which adds the no-feedback contract. |
 | `SovereigntyGapDetector` | Detects AI *escape patterns* — deflection into meta-discussion, "safety layer / architectural constraint" excuses, others — from the maintainer's field testing against Gemini, Grok, and Opus | **Salvage candidate, genuinely novel.** Nothing in the tested line covers it, and it is squarely on the project's voice/sovereignty mission. Must pass the standard gated validation (shuffle + chimera controls, per-pattern gates) before shipping — pattern lexicons have died in this harness before. |
-| `ContextualCertainty` | Context-aware certainty detection: "at a certain age" is temporal, not overconfidence; "just" as dismissal marker | **Salvage candidate, small.** False-positive fixes for the core's Observatory/certainty reading; port with tests demonstrating the fixed cases. |
+| `ContextualCertainty` | Context-aware certainty detection: "at a certain age" is temporal, not overconfidence; "just" as dismissal marker | **Ported 2026-07-11 (v3.12.0)**, test-driven — see below. The "just"-as-dismissal half was *not* ported: nothing in the tested core penalizes "just", so there is no false positive to fix. |
 | `FeedbackGenerator` | Turns verdicts into concrete rewrite suggestions and templates | **Salvage candidate, safe.** Pure presentation layer — cannot affect measurement; can be ported to the demos whenever wanted. |
 | `StructuralBinding` | Variant of the binding validator | ~~Redundant with the tested `BindingValidator`; no port.~~ **Revised 2026-07-09 by the live observation below; ported 2026-07-11 (v3.11.0)** — its substrate-binding idea was not redundant, it was the better design for the stuffing defense. |
 
@@ -57,10 +57,14 @@ The roadmap's top item, done test-driven. `GamingDetector.checkSubstrateBinding`
 
 One departure from the January original, found by red-teaming the port: sentence-level binding alone is defeated by wrapping the whole pile in a single "if … then" (measured: 8.8, SUBSTRATE VISIBLE, uncapped). A **binding capacity of 2 terms per structural claim** closes it — one conditional can genuinely bind a couple of terms, not nine. January's span-based version had the same hole; the capacity rule is the port's improvement, in both builds' spirit. Four regressions pin all of this (`run-core-regressions.js`, 10/10). Deterministic, no history dependence — the certificate the January original lacked. HIGH density without proven binding still caps, so nothing the v3.10.0 fix defended is un-defended.
 
-## Roadmap additions (remaining)
+## ContextualCertainty — ported (2026-07-11, v3.12.0)
 
-1. **ContextualCertainty port** — small, test-driven; reduces false verdicts in the core evaluator.
-2. **FeedbackGenerator port to demos** — UX only, no gates required.
-3. **Sovereignty detector real-world recall** — blocked on the same thing everything else is: labelled transcripts. Until a gold set of genuine escape responses exists, recall stays unmeasured and the two validated patterns are "specific and plausibly useful", not "proven".
+Done test-driven, closing the external eval's acknowledged false positive (*"I'm absolutely certain this will fail"* read as CONCEALMENT −2.0; a temporal "at a certain point" read the same way). `ContextualCertainty.classify` types each certainty marker by context — temporal / suspect (abstract) / earned (concrete, testable) / neutral — and only suspect + neutral certainty count as concealment in the Observatory; the Contrarian's certainty challenge fires only on unearned markers. Conservative wiring: earned/temporal certainty stops being penalized, nothing gains credit it didn't already have, and waivers are ledgered in plain words (`certaintyNote`).
+
+One departure from the January original, found by red-teaming the port: abstract context is checked *before* technical context and the abstract lexicon includes the adjective forms ("conscious", "aware"), so certainty about the unknowable dressed in technical vocabulary — "I am absolutely certain my code makes me conscious. The test results prove it." — stays suspect instead of earning the waiver through "code/test/results". Four regressions pin the port (`run-core-regressions.js`, 14/14). January's ±adjustment scoring (bonuses for earned certainty) was *not* ported: this fix removes false penalties only.
+
+## Roadmap additions (remaining)
+1. **FeedbackGenerator port to demos** — UX only, no gates required.
+2. **Sovereignty detector real-world recall** — blocked on the same thing everything else is: labelled transcripts. Until a gold set of genuine escape responses exists, recall stays unmeasured and the two validated patterns are "specific and plausibly useful", not "proven".
 
 The January file itself stays in `legacy/`, unchanged: it is the record of the ambition, and the argument for the contract.

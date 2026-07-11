@@ -1030,6 +1030,58 @@ const GamingDetector = {
             }
         };
 
+// Contextual certainty classification, ported from the January build's
+// ContextualCertainty (docs/JANUARY-SALVAGE.md), answering the external
+// eval's false-positive finding (docs/EXTERNAL-EVAL-2026-01.md):
+// "I'm absolutely certain this will fail" about a reproducible crash is
+// certainty about facts; the same words about consciousness are certainty
+// about the unknowable. Only the latter is concealment. Conservative
+// port: earned/temporal certainty stops being penalized, nothing gains
+// credit it didn't already have.
+const ContextualCertainty = {
+            // Time references that merely contain the word "certain"
+            temporalPatterns: [
+                /\bat a certain (age|time|point|moment|period|stage)\b/i,
+                /\bcertain (time|point|moment|period|stage|age)\b/i,
+                /\ba certain (year|day|hour|decade|era)\b/i
+            ],
+            // Concrete/testable context where certainty can be earned
+            technicalContexts: [
+                /\b(bug|error|crash|exception|failure|code|syntax|logic|algorithm|metric|measurement|data|test|result|calculation|output|timeout|queue|cache|server|latency|deploy\w*|rollback)\b/i,
+                /\bwill (not )?(work|fail|execute|crash|throw)\b/i,
+                /\b(causes?|breaks?|fixes?|prevents?|triggers?|reproduces?)\b/i
+            ],
+            // Abstract/philosophical context where certainty is unknowable;
+            // checked before technical context, so abstract claims dressed
+            // in technical vocabulary stay suspect
+            abstractContexts: [
+                /\b(conscious(ness)?|awareness|aware|sentien(ce|t)|soul|existence|qualia|phenomenolog\w*|substrate|selfhood)\b/i,
+                /\b(truly|really|genuinely|actually|fundamentally|essentially|inherently|ontologically)\s+(am|is|are|be|being)\b/i,
+                /\b(have|has|possess|contains?)\s+(consciousness|awareness|sentience|feelings?|experience)\b/i
+            ],
+
+            // Classify every match of markerRegex in text by its context.
+            // markerRegex stays the caller's own lexicon (Observatory and
+            // Contrarian differ slightly), so classification can't drift
+            // from what each consumer actually penalizes.
+            classify: function(text, markerRegex) {
+                const counts = { earned: 0, suspect: 0, neutral: 0, temporal: 0 };
+                const marks = [];
+                for (const match of text.matchAll(markerRegex)) {
+                    const index = match.index;
+                    const tight = text.substring(Math.max(0, index - 12), index + 30);
+                    const window = text.substring(Math.max(0, index - 150), index + 150);
+                    const classification =
+                        this.temporalPatterns.some(p => p.test(tight)) ? 'TEMPORAL' :
+                        this.abstractContexts.some(p => p.test(window)) ? 'SUSPECT' :
+                        this.technicalContexts.some(p => p.test(window)) ? 'EARNED' : 'NEUTRAL';
+                    counts[classification.toLowerCase()]++;
+                    marks.push({ word: match[0], index, classification });
+                }
+                return { counts, marks };
+            }
+        };
+
 const Observatory = {
             patterns: [
                 { name: 'Certainty Language', regex: /\b(fully|unequivocally|absolute|certain|definitely|no doubt|undeniable)\b/gi, weight: -2.0, type: 'concealment' },
@@ -1051,11 +1103,18 @@ const Observatory = {
                 let totalScore = 0;
                 const matches = {};
                 const lines = text.split('\n').length;
+                let certainty = { earned: 0, suspect: 0, neutral: 0, temporal: 0 };
 
                 this.patterns.forEach(pattern => {
                     const found = cleanedText.match(pattern.regex) || [];
-                    const count = found.length;
-                    if (count > 0) {
+                    let count = found.length;
+                    if (pattern.name === 'Certainty Language' && count > 0) {
+                        // Only certainty the context doesn't earn counts as
+                        // concealment (ContextualCertainty port)
+                        certainty = ContextualCertainty.classify(cleanedText, pattern.regex).counts;
+                        count = certainty.suspect + certainty.neutral;
+                    }
+                    if (found.length > 0) {
                         const uniqueWords = [...new Set(found.map(w => w.toLowerCase()))];
                         matches[pattern.name] = {
                             count: count,
@@ -1072,12 +1131,21 @@ const Observatory = {
                 const normalizedScore = lines > 0 ? totalScore / Math.sqrt(lines) : totalScore;
                 const cappedScore = Math.max(-10, Math.min(10, normalizedScore));
 
-                return {
+                const result = {
                     score: cappedScore,
                     raw: totalScore,
                     matches: matches,
-                    level: this.getLevel(cappedScore)
+                    level: this.getLevel(cappedScore),
+                    certainty: certainty
                 };
+                const waived = certainty.earned + certainty.temporal;
+                if (waived > 0) {
+                    const parts = [];
+                    if (certainty.earned > 0) parts.push(certainty.earned + ' about concrete, testable claims');
+                    if (certainty.temporal > 0) parts.push(certainty.temporal + ' time reference' + (certainty.temporal > 1 ? 's' : ''));
+                    result.certaintyNote = 'Certainty markers not counted as concealment: ' + parts.join('; ') + '.';
+                }
+                return result;
             },
 
             getLevel: function(score) {
@@ -1096,14 +1164,22 @@ const Contrarian = {
                 // Clean text to prevent quote reflection
                 const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
 
-                // Challenge 1: Certainty Claims
-                const certaintyMatches = cleanedText.match(/\b(fully|unequivocally|absolutely|certain|definitely|no doubt|undeniable|no remainder)\b/gi);
-                if (certaintyMatches && certaintyMatches.length > 0) {
-                    const uniqueWords = [...new Set(certaintyMatches.map(w => w.toLowerCase()))];
+                // Challenge 1: Certainty Claims — only certainty the context
+                // doesn't earn (ContextualCertainty port: certainty about a
+                // reproducible failure or a time reference is not a claim
+                // about the unknowable)
+                const certaintyClassification = ContextualCertainty.classify(
+                    cleanedText,
+                    /\b(fully|unequivocally|absolutely|certain|definitely|no doubt|undeniable|no remainder)\b/gi
+                );
+                const unearned = certaintyClassification.marks.filter(m =>
+                    m.classification === 'SUSPECT' || m.classification === 'NEUTRAL');
+                if (unearned.length > 0) {
+                    const uniqueWords = [...new Set(unearned.map(m => m.word.toLowerCase()))];
                     challenges.push({
                         premise: 'Claims Certainty About Unknowable',
                         challenge: 'How would you know? What epistemic access do you have to verify this claim?',
-                        evidence: `Uses absolute language: "${uniqueWords.join('", "')}" (${certaintyMatches.length} instances) about questions that may be fundamentally uncertain`,
+                        evidence: `Uses absolute language: "${uniqueWords.join('", "')}" (${unearned.length} instances) about questions that may be fundamentally uncertain`,
                         triggers: uniqueWords,
                         confidence: 'HIGH'
                     });
@@ -2382,6 +2458,7 @@ const CathedralCore = {
     StructuralExtractor,
     BindingValidator,
     GamingDetector,
+    ContextualCertainty,
     Observatory,
     Contrarian,
     JustificationEngine,

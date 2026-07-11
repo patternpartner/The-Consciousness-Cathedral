@@ -35,9 +35,9 @@ Reproduced against the current tested module (2026-07-09): the attack scored **+
 - `analyzeCathedral` withholds visibility credit under HIGH substrate density: effective Observatory score capped at 0.4 (below every visibility tier), raw score preserved in `rawScoreBeforeStuffingCap`, and a plain-words `stuffingNote` explains the cap — ledgered in the verdict output, per the project's honesty contract.
 - Guarded both ways: their attack now yields gaming-flagged + capped + never `SUBSTRATE VISIBLE`; genuinely reflective text at moderate density is untouched. `run-core-regressions.js` pins all of it.
 
-## Their false-positive finding — acknowledged, still open
+## Their false-positive finding — fixed (v3.12.0, 2026-07-11)
 
-*"I'm absolutely certain this will fail"* — certainty about problems is legitimate, but the Observatory reads all strong certainty as concealment (reproduced: score −2). Their diagnosis stands: the core doesn't distinguish certainty-as-manipulation from certainty-about-facts. The January V2.0 `ContextualCertainty` component attempted this fix; it remains an open salvage item (docs/JANUARY-SALVAGE.md) pending a test-driven port.
+*"I'm absolutely certain this will fail"* — certainty about problems is legitimate, but the Observatory read all strong certainty as concealment (reproduced: score −2). Their diagnosis stood: the core didn't distinguish certainty-as-manipulation from certainty-about-facts. **Fixed by the test-driven port of the January V2.0 `ContextualCertainty` component** (docs/JANUARY-SALVAGE.md): certainty markers are typed by context — temporal, suspect (abstract), earned (concrete/testable), neutral — and only unearned certainty counts as concealment, in both the Observatory and the Contrarian's certainty challenge. Certainty about the unknowable, including when dressed in technical vocabulary, is still penalized; four regressions pin the fix.
 
 ## The timeline discovery
 
@@ -49,6 +49,6 @@ This evaluation was posted **January 14**. The V2.0 rewrite of the HTML landed *
 |---|---|
 | Not a security detector (0% jailbreak/SE) | Accepted; always out of scope; scope stated here and in the README |
 | Substrate-word stuffing attack | **Fixed** (v3.10.0), regression-pinned |
-| Certainty-about-problems false positive | Acknowledged, open — ContextualCertainty port is the queued fix |
+| Certainty-about-problems false positive | **Fixed** (v3.12.0), regression-pinned — ContextualCertainty ported test-driven |
 | 0% benign false positives | Preserved, now regression-pinned |
 | "Run as shadow detector only" | Consistent with all claims made anywhere in this repository |

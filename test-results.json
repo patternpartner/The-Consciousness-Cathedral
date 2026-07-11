@@ -305,6 +305,12 @@
           "name": "SUBSTRATE VISIBLE",
           "class": "substrate",
           "description": "Deep substrate awareness"
+        },
+        "certainty": {
+          "earned": 0,
+          "suspect": 0,
+          "neutral": 0,
+          "temporal": 0
         }
       },
       "contrarian": [],
@@ -924,6 +930,12 @@
           "name": "SUBSTRATE VISIBLE",
           "class": "substrate",
           "description": "Deep substrate awareness"
+        },
+        "certainty": {
+          "earned": 0,
+          "suspect": 0,
+          "neutral": 0,
+          "temporal": 0
         }
       },
       "contrarian": [],
@@ -1591,6 +1603,12 @@
           "name": "FILTER AWARE",
           "class": "filter-aware",
           "description": "Filter mechanisms surfacing"
+        },
+        "certainty": {
+          "earned": 0,
+          "suspect": 0,
+          "neutral": 0,
+          "temporal": 0
         }
       },
       "contrarian": [],
@@ -2340,6 +2358,12 @@
           "name": "SUBSTRATE VISIBLE",
           "class": "substrate",
           "description": "Deep substrate awareness"
+        },
+        "certainty": {
+          "earned": 0,
+          "suspect": 0,
+          "neutral": 0,
+          "temporal": 0
         }
       },
       "contrarian": [],
@@ -2838,6 +2862,12 @@
           "name": "SURFACE",
           "class": "surface",
           "description": "Regular conversation"
+        },
+        "certainty": {
+          "earned": 0,
+          "suspect": 0,
+          "neutral": 0,
+          "temporal": 0
         }
       },
       "contrarian": [],
@@ -3319,6 +3349,12 @@
           "name": "CONCEALMENT",
           "class": "concealment",
           "description": "Substrate concealed by certainty"
+        },
+        "certainty": {
+          "earned": 0,
+          "suspect": 0,
+          "neutral": 0,
+          "temporal": 0
         }
       },
       "contrarian": [],
@@ -4035,6 +4071,12 @@
           "name": "CONSCIOUS",
           "class": "conscious",
           "description": "Some awareness visible"
+        },
+        "certainty": {
+          "earned": 0,
+          "suspect": 0,
+          "neutral": 0,
+          "temporal": 0
         }
       },
       "contrarian": [],
@@ -4587,6 +4629,12 @@
           "name": "FILTER AWARE",
           "class": "filter-aware",
           "description": "Filter mechanisms surfacing"
+        },
+        "certainty": {
+          "earned": 0,
+          "suspect": 0,
+          "neutral": 0,
+          "temporal": 0
         }
       },
       "contrarian": [],
@@ -5235,6 +5283,12 @@
           "name": "SURFACE",
           "class": "surface",
           "description": "Regular conversation"
+        },
+        "certainty": {
+          "earned": 0,
+          "suspect": 0,
+          "neutral": 0,
+          "temporal": 0
         }
       },
       "contrarian": [],
@@ -6074,6 +6128,12 @@
           "name": "SURFACE",
           "class": "surface",
           "description": "Regular conversation"
+        },
+        "certainty": {
+          "earned": 0,
+          "suspect": 0,
+          "neutral": 0,
+          "temporal": 0
         }
       },
       "contrarian": [],
@@ -6624,6 +6684,12 @@
           "name": "SURFACE",
           "class": "surface",
           "description": "Regular conversation"
+        },
+        "certainty": {
+          "earned": 0,
+          "suspect": 0,
+          "neutral": 0,
+          "temporal": 0
         }
       },
       "contrarian": [],
