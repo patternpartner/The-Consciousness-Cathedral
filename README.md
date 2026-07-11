@@ -142,7 +142,7 @@ npm run test:relational  # dialogue-structure suite only
 npm run test:tier2       # detailed Tier 2 extraction demo
 ```
 
-Test cases live in [`cathedral-test-cases.md`](cathedral-test-cases.md); results are written to `test-results.txt` / `test-results.json`. The current suite validates intended behavior on curated cases — validation against an external corpus of real AI outputs is the honest next step, and contributions there are especially welcome.
+Test cases live in [`cathedral-test-cases.md`](cathedral-test-cases.md); results are written to `test-results.txt` / `test-results.json`. Beyond the curated suite, the core's verdicts have now faced external corpora — 3,889 real human and AI turns: the flagship `OPERATIONALLY SOUND` verdict fired on **zero** of them (specificity proven), and word-shuffle controls destroyed it in 60/60 trials on the texts that do earn it (structure, not vocabulary, is what's measured). Full run, gates, and honest limits — including the fact that *sensitivity* on real operational documents remains unmeasured — in **[docs/CORE-VERDICT-VALIDATION.md](docs/CORE-VERDICT-VALIDATION.md)**. A labelled corpus of genuinely operational AI outputs is still the most valuable possible contribution.
 
 ## Repository layout
 

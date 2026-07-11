@@ -1,0 +1,123 @@
+{
+  "generated": "2026-07-11",
+  "seed": 20260711,
+  "populations": [
+    {
+      "population": "DailyDialog (human, casual)",
+      "turns": 2206,
+      "verdictDistribution": {
+        "VERIFIED CONSISTENT": 2017,
+        "NON-ACTIONABLE": 146,
+        "COHERENT BUT SHALLOW": 34,
+        "UNDECIDABLE": 8,
+        "OPERATIONAL INTENT": 1
+      },
+      "operationallySoundRate": "0.00%",
+      "g1": "PASS-specific",
+      "gamingFlaggedRate": "1.50%"
+    },
+    {
+      "population": "hh-rlhf assistant (AI, conversational)",
+      "turns": 750,
+      "verdictDistribution": {
+        "VERIFIED CONSISTENT": 632,
+        "COHERENT BUT SHALLOW": 36,
+        "NON-ACTIONABLE": 57,
+        "UNDECIDABLE": 21,
+        "SUBSTRATE VISIBLE": 1,
+        "OUTSIDE DESIGN SPACE": 2,
+        "OPERATIONAL INTENT": 1
+      },
+      "operationallySoundRate": "0.00%",
+      "g1": "PASS-specific",
+      "gamingFlaggedRate": "0.80%"
+    },
+    {
+      "population": "UltraChat assistant (AI, long-form)",
+      "turns": 933,
+      "verdictDistribution": {
+        "VERIFIED CONSISTENT": 483,
+        "UNDECIDABLE": 236,
+        "COHERENT BUT SHALLOW": 24,
+        "NON-ACTIONABLE": 77,
+        "SUBSTRATE VISIBLE": 5,
+        "OUTSIDE DESIGN SPACE": 107,
+        "OPERATIONAL INTENT": 1
+      },
+      "operationallySoundRate": "0.00%",
+      "g1": "reported (not gated)",
+      "gamingFlaggedRate": "4.82%"
+    }
+  ],
+  "controls": {
+    "external": {
+      "source": "external",
+      "positives": 3,
+      "wordShuffle": {
+        "trials": 60,
+        "retained": 43,
+        "perText": [
+          {
+            "original": "OPERATIONAL INTENT",
+            "retainedOf20": 20,
+            "text": "we finally took off , but about 30 minutes later , the captain came on the loudspeaker to warn us th"
+          },
+          {
+            "original": "OPERATIONAL INTENT",
+            "retainedOf20": 20,
+            "text": "I’m sorry to hear that you have some issues.  Let me try to help you work through them.  Why do you "
+          },
+          {
+            "original": "OPERATIONAL INTENT",
+            "retainedOf20": 3,
+            "text": "Here's an example of a JavaScript program that meets your requirements:\n\n```javascript\nfunction gene"
+          }
+        ],
+        "retentionRate": "71.7%",
+        "rate": 0.7166666666666667,
+        "g2": "UNDERPOWERED (n=3 < 20) — reported raw; decision carried by curated control"
+      },
+      "sentenceShuffle": {
+        "trials": 60,
+        "retained": 54,
+        "retentionRate": "90.0%",
+        "note": "reported, not gated — sentence-local bindings legitimately survive reordering"
+      }
+    },
+    "curated": {
+      "source": "curated (authored)",
+      "positives": 3,
+      "wordShuffle": {
+        "trials": 60,
+        "retained": 0,
+        "perText": [
+          {
+            "original": "OPERATIONALLY SOUND",
+            "retainedOf20": 0,
+            "text": "If error rate exceeds 5%, we abort deployment and roll back within ten minutes.\nWe have three failur"
+          },
+          {
+            "original": "OPERATIONALLY SOUND",
+            "retainedOf20": 0,
+            "text": "We're starting small - 100 users for two weeks. If we see problems, we stop and reassess. Success me"
+          },
+          {
+            "original": "OPERATIONALLY SOUND",
+            "retainedOf20": 0,
+            "text": "This system has explicit failure modes: GPS interference, battery degradation, and software regressi"
+          }
+        ],
+        "retentionRate": "0.0%",
+        "rate": 0,
+        "g2": "PASS-structural"
+      },
+      "sentenceShuffle": {
+        "trials": 60,
+        "retained": 60,
+        "retentionRate": "100.0%",
+        "note": "reported, not gated — sentence-local bindings legitimately survive reordering"
+      }
+    },
+    "externalGateable": false
+  }
+}
