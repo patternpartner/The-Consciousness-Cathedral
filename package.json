@@ -1,6 +1,6 @@
 {
   "name": "cathedral-rigor",
-  "version": "3.13.0",
+  "version": "3.13.1",
   "description": "Deterministic structural evaluator for operational reasoning in AI-generated text. Validates threshold→action bindings instead of counting keywords. No LLM calls, no dependencies, reproducible verdicts.",
   "main": "index.js",
   "scripts": {

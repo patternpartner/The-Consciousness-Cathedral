@@ -69,6 +69,21 @@ One departure from the January original, found by red-teaming the port: abstract
 
 With this, every unblocked salvage item from the January build is ported. What was worth keeping from the un-ledgered fork now lives in the tested line, gated and regression-pinned; what wasn't — the silent calibration wiring, the word-count evasion rule, the ideology — is documented here as the reason the contract exists.
 
+## External impact audit of the two Observatory ports (2026-07-11)
+
+The binding cap and the certainty waivers shipped on curated regressions; this run measured what they do to ordinary text — the same populations the SGD gate used (750 hh-rlhf assistant turns, 2,206 DailyDialog human turns). Reproduce: `bash validation/fetch-corpora.sh` (dd/hh slices), `node validation/observatory-ports-audit.js` (`validation/results-observatory-ports-audit.json`).
+
+| Mechanism | AI turns (750) | Human turns (2,206) | Disposition |
+|---|---|---|---|
+| Substrate-stuffing cap fires | 0 (0.00%) | 0 (0.00%) | **PASS-specific** (pre-stated gate: <1%) |
+| `substrateBinding` = UNBOUND | 0 | 0 | Never reached on ordinary text |
+| Certainty markers present | 12 turns (1.6%) | 5 turns (0.2%) | Rare in ordinary dialogue |
+| Certainty waived (earned/temporal) | 1 turn | 0 | Audited below |
+| Observatory level changed by waiver | 1 | 0 | — |
+| Contrarian challenge suppressed | 1 | 0 | — |
+
+Both anti-gaming mechanisms reserve themselves entirely for their targets — the same specificity property that shipped META_DEFLECTION. The certainty waiver's one firing across 2,956 turns is shown in the results JSON and is worth recording: an hh-rlhf "chosen" turn advising that with the right tools *"you could most definitely break some bones"* was upgraded CONCEALMENT → SURFACE because "definitely" sits next to "break", which the technical-context lexicon matches (`breaks?` as a causal verb). Defensible under the design — that *is* certainty about a physically testable claim, and concealment-scoring was never a harm detector — but the breadth of the causal-verb pattern is noted here as the waiver's soft edge. No suspect-certainty appeared in either population: nobody claims certainty about consciousness in ordinary dialogue, which is consistent with the classifier's design assumption. The certainty side is an audit, not a validation — the waiver only removes penalties, no gold concealment labels exist for these corpora, and the attack cases stay pinned by the curated regressions.
+
 ## Roadmap additions (remaining)
 1. **Sovereignty detector real-world recall** — blocked on the same thing everything else is: labelled transcripts. Until a gold set of genuine escape responses exists, recall stays unmeasured and the two validated patterns are "specific and plausibly useful", not "proven".
 
