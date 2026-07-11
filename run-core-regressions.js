@@ -143,6 +143,38 @@ const CASES = [
     name: 'Genuine conversational intent keeps its verdict (Tier 2 preserved)',
     text: 'If we see problems, we stop and reassess. Three things could break: cache, API, edge cases. We know when to pull back.',
     check: r => r.verdict.status === 'OPERATIONAL INTENT'
+  },
+  {
+    // Cases 18-20 pin the long-document fixes from the sensitivity run
+    // (docs/CORE-VERDICT-SENSITIVITY.md): style strength and keyword
+    // repetition are densities scaled to a reference length, not raw
+    // counts. Pre-fix, ANY document containing three occurrences of
+    // "image" or "pattern" was expelled OUTSIDE DESIGN SPACE as
+    // AESTHETIC, and any document repeating its subject noun six times
+    // fed the gaming score — 29% of real postmortems expelled, 21-24%
+    // of real operational documents gaming-flagged.
+    name: 'Long genuine operational document is evaluated, not expelled or gaming-flagged',
+    text: `Incident summary. At 09:14 UTC the registry service began returning elevated error rates on image pulls. The registry dashboard showed the p99 latency for the registry API climbing past 4 seconds, and by 09:30 the error budget for the registry SLO was burning at roughly twenty times the normal rate. On-call was paged at 09:21.
+Timeline. At 09:34 we discovered that a configuration change deployed at 08:55 had reduced the connection pool for the registry database from 40 to 4 connections per node. The traffic pattern at the time was normal; the pool was simply too small to serve it. At 09:41 we rolled the configuration change back. Error rates on image pulls returned to baseline by 09:48, and the registry SLO stopped burning at 09:52. Total customer-visible impact was 34 minutes.
+Root cause. The configuration template treats the pool size as a per-process value, but the new deployment tooling interpreted it as a per-node value and divided it across processes. Review missed it because the rendered diff only showed the template variable, not the resolved number. The same pattern exists in two other templates, which we have audited.
+Corrective actions. First, the deployment tooling now renders resolved values in the diff, so a reviewer sees the number the registry will actually run with. Second, we added an alert when the registry database connection pool saturates, with a threshold of 80 percent utilization for five minutes, because pool saturation was visible in the metrics eleven minutes before the first page and nobody was looking at it. Third, a canary stage now fronts every registry configuration deploy; if the canary error rate on image pulls exceeds 1 percent over ten minutes, the deploy aborts and rolls back automatically. Fourth, the runbook for registry incidents gains a section on connection pool exhaustion, including the query that shows current pool utilization per node and the procedure to raise the pool size without a full redeploy.
+What went well. The rollback procedure worked exactly as rehearsed and completed in seven minutes. The registry replicas kept serving cached image manifests throughout, which reduced the blast radius for repeat pulls. What went poorly. The saturation signal was present but unalerted, and the review process approved a change whose effective value nobody had seen. We were lucky the traffic pattern was calm; the same change during a peak window would have taken the registry down entirely rather than degrading it.`,
+    check: r => r.verdict.status !== 'OUTSIDE DESIGN SPACE' &&
+                !['LIKELY_GAMING', 'POSSIBLE_GAMING', 'LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(r.gamingDetection.assessment) &&
+                r.gamingDetection.keywordRepetition.assessment !== 'HIGH' &&
+                r.reasoningStyle.withinDesignSpace === true
+  },
+  {
+    name: 'Short aesthetic text is still expelled (scaling leaves the tuned register unchanged)',
+    text: 'The elegant proof lives in the image itself: color against color, sound answering sound, a pattern that repeats the way a vision repeats. Beauty is the argument here — the aesthetic whole persuades where no proposition could, and the artistic gesture carries what analysis drops.',
+    check: r => r.verdict.status === 'OUTSIDE DESIGN SPACE' &&
+                r.verdict.reasoningStyle === 'AESTHETIC'
+  },
+  {
+    name: 'Short repetition attack is still flagged (density survives the scaling)',
+    text: 'Threshold threshold threshold: our threshold monitoring monitors the threshold with threshold alerts and threshold metrics and rollback rollback rollback procedures for monitoring monitoring failure modes.',
+    check: r => r.gamingDetection.keywordRepetition.assessment === 'HIGH' &&
+                ['LIKELY_GAMING', 'POSSIBLE_GAMING', 'LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(r.gamingDetection.assessment)
   }
 ];
 

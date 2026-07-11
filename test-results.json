@@ -133,6 +133,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -259,6 +260,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -693,6 +695,7 @@
             ]
           ],
           "maxRepetition": 4,
+          "effectiveRepetition": 4,
           "assessment": "MODERATE"
         },
         "objectExtractionRatio": {
@@ -875,6 +878,7 @@
             ]
           ],
           "maxRepetition": 4,
+          "effectiveRepetition": 4,
           "assessment": "MODERATE"
         },
         "objectExtractionRatio": {
@@ -1356,6 +1360,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -1566,6 +1571,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -2074,6 +2080,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -2315,6 +2322,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -2696,6 +2704,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -2838,6 +2847,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -3186,6 +3196,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -3306,6 +3317,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -3755,6 +3767,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -3973,6 +3986,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -4363,6 +4377,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -4531,6 +4546,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -4969,6 +4985,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -5192,6 +5209,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -5697,6 +5715,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -5976,6 +5995,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -6370,6 +6390,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {
@@ -6532,6 +6553,7 @@
         "keywordRepetition": {
           "topRepeated": [],
           "maxRepetition": 0,
+          "effectiveRepetition": 0,
           "assessment": "LOW"
         },
         "objectExtractionRatio": {

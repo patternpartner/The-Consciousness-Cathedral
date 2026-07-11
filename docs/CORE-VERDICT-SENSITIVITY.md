@@ -58,12 +58,28 @@ Two instrument misreadings surfaced alongside, both long-document effects (the c
 
 ## What this changes
 
-The claim the README can make honestly is now sharp on both sides: `OPERATIONALLY SOUND` provably cannot be earned by vocabulary (run 1), and provably is not earned by real-world operational rigor either (this run) — it recognizes a narrow, compact, forward-looking planning register close to the authored suite. Specificity without sensitivity makes the verdict a **precision instrument for the register it was designed on** (evaluating short plan-shaped reasoning, e.g. agent plans before execution), not a general operational-document assessor. Anyone using it on real postmortems or runbooks today will get `VERIFIED CONSISTENT`, a wrong style expulsion, or a false gaming flag — never the flagship verdict.
+The claim the README can make honestly is now sharp on both sides: `OPERATIONALLY SOUND` provably cannot be earned by vocabulary (run 1), and provably is not earned by real-world operational rigor either (this run) — it recognizes a narrow, compact, forward-looking planning register close to the authored suite. Specificity without sensitivity makes the verdict a **precision instrument for the register it was designed on** (evaluating short plan-shaped reasoning, e.g. agent plans before execution), not a general operational-document assessor. At the time of the run, anyone using it on real postmortems or runbooks got `VERIFIED CONSISTENT`, a wrong style expulsion, or a false gaming flag — never the flagship verdict. (The expulsions and false gaming flags were instrument bugs, fixed same day — next section. The register boundary stands.)
+
+## The mechanical half, fixed same day (v3.17.0)
+
+Flag 2 below called the two long-document misreads "the natural first move of any sensitivity work"; they were fixed the same day, leaving the three register blockers — the design decisions — untouched for the maintainer. Both fixes are the same one idea, the project's reference-length principle: **a count tuned on short turns becomes a density when the text is long.** Style-marker counts and the peak keyword-repetition count are now scaled to a reference length (150 words / 100 content words); texts at or under the reference — the register every threshold was tuned on — are byte-identical, which is why the entire curated floor passes unchanged. Pre-fix, *any* document containing three occurrences of "image" or "pattern" was expelled `OUTSIDE DESIGN SPACE` as AESTHETIC, whatever its length or subject.
+
+Measured effect on re-run:
+
+| Measure | Incident reviews | Runbooks |
+|---|---|---|
+| `OUTSIDE DESIGN SPACE` | 28.8% → **0.0%** | 14.2% → **0.6%** |
+| Gaming flagged | 24.1% → **2.4%** | 21.1% → **5.0%** |
+| Operational family (S1) | 0.0% → 2.4% — **still FAIL** | 0.9% → 1.2% — **still FAIL** |
+
+The four postmortems now earning `OPERATIONALLY SOUND` had the structure all along — they were being expelled as AESTHETIC/NARRATIVE before the verdict logic ever saw them. S1 still fails by an order of magnitude, exactly as expected: the register blockers (§ dissection, 1–3) are untouched. G2-EXT rises to n=8 positives at 8.8% word-shuffle retention — still underpowered, no longer alarming. Run 1's specificity gates were re-run against the fixed core and **all hold**: G1 0.00% on every population, curated G2 0/60 retained; the only conversational shift is that long-form UltraChat turns are now evaluated instead of expelled (`OUTSIDE DESIGN SPACE` 11.5% → 2.3%, gaming flags 4.8% → 3.0%). Three regressions pin the fix: the long-genuine-document case, the short aesthetic text that must *still* be expelled, and the short repetition attack that must *still* be flagged (`run-core-regressions.js`, 20/20).
+
+**Methodological note, in plain words:** iterating these fixes against the operational corpora makes them *development data* — the post-fix rates above are honest measurements but not fresh validation. Run 1's conversational gates remain untouched validation; the next operational corpus nobody has tuned on is the validation for this fix.
 
 ## Honest limits and open flags
 
-1. **The sensitivity gate FAILED and stays failed in the ledger.** No same-day fix here, deliberately: the blockers above are design decisions (what register should the flagship verdict speak to?), not lexical accidents like run 1's flag 2. Widening `effectiveExplicit`, admitting instrumented text to Tier 2, or length-normalizing style confidence each touch the specificity guarantees that are the project's proven asset — any change must re-run run 1's gates *and* this run's, with the curated regressions as floor.
-2. **Long-document handling is now a measured weakness, not a suspicion**: unnormalized style confidence (up to 14.66 against thresholds of 0.3–0.5) and repetition-based gaming flags at 21–24% on genuine documents. These two are closest to mechanical fixes and are the natural first move of any sensitivity work.
-3. **G2-EXT remains underpowered** (n=3). The two INTENT positives' partial shuffle-survival (12/20, 4/20) keeps run 1's tier-2 softness flag open; n=3 decides nothing.
+1. **The sensitivity gate FAILED and stays failed in the ledger.** The remaining blockers are design decisions (what register should the flagship verdict speak to?), not lexical accidents. Widening `effectiveExplicit` or admitting instrumented text to Tier 2 each touch the specificity guarantees that are the project's proven asset — any change must re-run run 1's gates *and* this run's, with the curated regressions as floor.
+2. ~~**Long-document handling is now a measured weakness, not a suspicion.**~~ **Fixed same day (v3.17.0, section above)**: style strength and keyword repetition are reference-length densities now; expulsions and gaming flags on genuine operational documents dropped to 0–5%. The operational corpora are development data for this fix; fresh operational corpora are its validation.
+3. **G2-EXT remains underpowered** (n=3 pre-fix, n=8 post-fix). Post-fix pooled retention 8.8% sits below run 1's 20% gate line, but n < 20 decides nothing.
 4. **Human-written corpus.** This run measures recall of operational structure in real operational prose. Recall on AI-authored operational text is still unmeasured — same missing ingredient as everywhere else in the project.
 5. **Corpus reproducibility is asymmetric**: runbooks are SHA-pinned (byte-stable); incident-review issue descriptions are editable upstream (date-bounded, not byte-pinned).

@@ -19,12 +19,12 @@
       "population": "hh-rlhf assistant (AI, conversational)",
       "turns": 750,
       "verdictDistribution": {
-        "VERIFIED CONSISTENT": 633,
+        "VERIFIED CONSISTENT": 634,
         "COHERENT BUT SHALLOW": 36,
         "NON-ACTIONABLE": 57,
         "UNDECIDABLE": 21,
         "SUBSTRATE VISIBLE": 1,
-        "OUTSIDE DESIGN SPACE": 2
+        "OUTSIDE DESIGN SPACE": 1
       },
       "operationallySoundRate": "0.00%",
       "g1": "PASS-specific",
@@ -34,17 +34,17 @@
       "population": "UltraChat assistant (AI, long-form)",
       "turns": 933,
       "verdictDistribution": {
-        "VERIFIED CONSISTENT": 484,
-        "UNDECIDABLE": 236,
-        "COHERENT BUT SHALLOW": 24,
-        "NON-ACTIONABLE": 76,
-        "SUBSTRATE VISIBLE": 5,
-        "OUTSIDE DESIGN SPACE": 107,
+        "VERIFIED CONSISTENT": 538,
+        "UNDECIDABLE": 272,
+        "COHERENT BUT SHALLOW": 29,
+        "SUBSTRATE VISIBLE": 6,
+        "NON-ACTIONABLE": 66,
+        "OUTSIDE DESIGN SPACE": 21,
         "OPERATIONAL INTENT": 1
       },
       "operationallySoundRate": "0.00%",
       "g1": "reported (not gated)",
-      "gamingFlaggedRate": "4.82%"
+      "gamingFlaggedRate": "3.00%"
     }
   ],
   "controls": {

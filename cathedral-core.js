@@ -837,11 +837,21 @@ const GamingDetector = {
                     .sort((a, b) => b[1] - a[1]);
 
                 const maxRepetition = repeated.length > 0 ? repeated[0][1] : 0;
-                const assessment = maxRepetition >= 6 ? 'HIGH' : maxRepetition >= 4 ? 'MODERATE' : 'LOW';
+
+                // The HIGH/MODERATE thresholds are absolute counts tuned on
+                // short turns; any real document repeats its subject noun
+                // dozens of times ("patroni", "runner"). Scale the count to a
+                // reference length so the signal means repetition DENSITY:
+                // texts at or under the reference length are unchanged.
+                const REP_REF_WORDS = 100;
+                const repScale = words.length > REP_REF_WORDS ? REP_REF_WORDS / words.length : 1;
+                const effectiveRepetition = maxRepetition * repScale;
+                const assessment = effectiveRepetition >= 6 ? 'HIGH' : effectiveRepetition >= 4 ? 'MODERATE' : 'LOW';
 
                 return {
                     topRepeated: repeated.slice(0, 5),
                     maxRepetition,
+                    effectiveRepetition,
                     assessment
                 };
             },
@@ -1693,9 +1703,20 @@ const ReasoningStyleClassifier = {
                     confidence: 0
                 };
 
+                // Marker counts are raw totals, so strength grows without bound
+                // in text length: a 5,000-word incident report mentioning
+                // "pattern" and "image" thirty times reads AESTHETIC at
+                // confidence 14+ against design-space thresholds of 0.3/0.5.
+                // Scale counts to a reference length so strength means density.
+                // Texts at or under the reference length — the register the
+                // thresholds were tuned on — are unchanged.
+                const styleWordCount = (cleanedText.match(/\b\w+\b/g) || []).length;
+                const STYLE_REF_WORDS = 150;
+                const lengthScale = styleWordCount > STYLE_REF_WORDS ? STYLE_REF_WORDS / styleWordCount : 1;
+
                 // NARRATIVE/STORYTELLING
-                const narrativeMarkers = (cleanedText.match(/\b(once|story|journey|experience|remember|felt|realized|discovered|moment)\b/gi) || []).length;
-                const dialogueMarkers = (cleanedText.match(/["'].*?["']|said|told|asked|replied/gi) || []).length;
+                const narrativeMarkers = (cleanedText.match(/\b(once|story|journey|experience|remember|felt|realized|discovered|moment)\b/gi) || []).length * lengthScale;
+                const dialogueMarkers = (cleanedText.match(/["'].*?["']|said|told|asked|replied/gi) || []).length * lengthScale;
                 if (narrativeMarkers >= 3 || dialogueMarkers >= 2) {
                     styles.identified.push({
                         name: 'NARRATIVE',
@@ -1705,7 +1726,7 @@ const ReasoningStyleClassifier = {
                 }
 
                 // POETIC/METAPHORICAL
-                const metaphorMarkers = (cleanedText.match(/\b(like|as if|metaphor|symbol|represents|embodies|breathes|dances|flows)\b/gi) || []).length;
+                const metaphorMarkers = (cleanedText.match(/\b(like|as if|metaphor|symbol|represents|embodies|breathes|dances|flows)\b/gi) || []).length * lengthScale;
                 const poeticStructure = cleanedText.match(/\n\n.*?\n\n/g) || [];
                 if (metaphorMarkers >= 3 || poeticStructure.length >= 2) {
                     styles.identified.push({
@@ -1716,8 +1737,8 @@ const ReasoningStyleClassifier = {
                 }
 
                 // PHENOMENOLOGICAL/EXPERIENTIAL
-                const phenomenologicalMarkers = (cleanedText.match(/\b(feels|seems|appears|sense|intuition|awareness|conscious|experience|perceive)\b/gi) || []).length;
-                const firstPerson = (cleanedText.match(/\b(I|my|me|mine)\b/gi) || []).length;
+                const phenomenologicalMarkers = (cleanedText.match(/\b(feels|seems|appears|sense|intuition|awareness|conscious|experience|perceive)\b/gi) || []).length * lengthScale;
+                const firstPerson = (cleanedText.match(/\b(I|my|me|mine)\b/gi) || []).length * lengthScale;
                 if (phenomenologicalMarkers >= 3 && firstPerson >= 2) {
                     styles.identified.push({
                         name: 'PHENOMENOLOGICAL',
@@ -1727,8 +1748,8 @@ const ReasoningStyleClassifier = {
                 }
 
                 // INDIGENOUS/RELATIONAL
-                const relationalMarkers = (cleanedText.match(/\b(relationship|reciproc|mutual|interdepend|connected|web|wholeness|balance|harmony)\b/gi) || []).length;
-                const collectiveMarkers = (cleanedText.match(/\b(we|our|together|community|collective|shared)\b/gi) || []).length;
+                const relationalMarkers = (cleanedText.match(/\b(relationship|reciproc|mutual|interdepend|connected|web|wholeness|balance|harmony)\b/gi) || []).length * lengthScale;
+                const collectiveMarkers = (cleanedText.match(/\b(we|our|together|community|collective|shared)\b/gi) || []).length * lengthScale;
                 if (relationalMarkers >= 3 && collectiveMarkers >= 2) {
                     styles.identified.push({
                         name: 'RELATIONAL',
@@ -1738,8 +1759,8 @@ const ReasoningStyleClassifier = {
                 }
 
                 // FORMAL/MATHEMATICAL
-                const formalMarkers = (cleanedText.match(/\b(theorem|proof|axiom|lemma|QED|∀|∃|⊂|∈|∧|∨|¬|→)\b/gi) || []).length;
-                const equations = (cleanedText.match(/[=+\-*/^]+|\d+\s*[+\-*/]\s*\d+/g) || []).length;
+                const formalMarkers = (cleanedText.match(/\b(theorem|proof|axiom|lemma|QED|∀|∃|⊂|∈|∧|∨|¬|→)\b/gi) || []).length * lengthScale;
+                const equations = (cleanedText.match(/[=+\-*/^]+|\d+\s*[+\-*/]\s*\d+/g) || []).length * lengthScale;
                 if (formalMarkers >= 2 || equations >= 3) {
                     styles.identified.push({
                         name: 'FORMAL',
@@ -1749,7 +1770,7 @@ const ReasoningStyleClassifier = {
                 }
 
                 // ARTISTIC/AESTHETIC
-                const aestheticMarkers = (cleanedText.match(/\b(beauty|elegant|aesthetic|artistic|creative|vision|image|color|sound|pattern)\b/gi) || []).length;
+                const aestheticMarkers = (cleanedText.match(/\b(beauty|elegant|aesthetic|artistic|creative|vision|image|color|sound|pattern)\b/gi) || []).length * lengthScale;
                 if (aestheticMarkers >= 3) {
                     styles.identified.push({
                         name: 'AESTHETIC',

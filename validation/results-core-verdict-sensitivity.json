@@ -7,36 +7,54 @@
       "population": "GitLab incident reviews (real postmortems)",
       "documents": 170,
       "verdictDistribution": {
-        "OUTSIDE DESIGN SPACE": 49,
-        "NON-ACTIONABLE": 12,
-        "SUBSTRATE VISIBLE": 24,
-        "VERIFIED CONSISTENT": 82,
-        "WELL JUSTIFIED": 1,
-        "UNDECIDABLE": 2
+        "OPERATIONALLY SOUND": 4,
+        "SUBSTRATE VISIBLE": 44,
+        "UNDECIDABLE": 5,
+        "VERIFIED CONSISTENT": 109,
+        "WELL JUSTIFIED": 3,
+        "NON-ACTIONABLE": 5
       },
-      "operationalFamilyRate": "0.0%",
-      "operationallySoundRate": "0.0%",
+      "operationalFamilyRate": "2.4%",
+      "operationallySoundRate": "2.4%",
       "s1": "FAIL-insensitive",
-      "gamingFlaggedRate": "24.1%",
-      "positiveIds": []
+      "gamingFlaggedRate": "2.4%",
+      "positiveIds": [
+        {
+          "id": "IR gitlab-com/gl-infra/production#22431: Incident Review: INC-11596 CI/CD pipelines not being triggered on merge requests",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "IR gitlab-com/gl-infra/production#22108: Incident Review: Error rates violating SLO",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "IR gitlab-com/gl-infra/production#21629: Incident review: 2026-03-24 - Slow Gitaly operations on gitlab.com and gitlab-org 500 errors",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "IR gitlab-com/gl-infra/production#21470: Incident review: 2026-03-05: CI/CD Pipelines stuck in running status",
+          "status": "OPERATIONALLY SOUND"
+        }
+      ]
     },
     {
       "population": "GitLab runbooks (real on-call docs)",
       "documents": 323,
       "verdictDistribution": {
-        "VERIFIED CONSISTENT": 128,
-        "UNDECIDABLE": 80,
-        "SUBSTRATE VISIBLE": 16,
-        "NON-ACTIONABLE": 47,
+        "VERIFIED CONSISTENT": 154,
+        "UNDECIDABLE": 99,
+        "SUBSTRATE VISIBLE": 37,
+        "NON-ACTIONABLE": 23,
         "OPERATIONAL INTENT": 2,
-        "OUTSIDE DESIGN SPACE": 46,
-        "OPERATIONALLY SOUND": 1,
-        "COHERENT BUT SHALLOW": 3
+        "OUTSIDE DESIGN SPACE": 2,
+        "OPERATIONALLY SOUND": 2,
+        "COHERENT BUT SHALLOW": 3,
+        "WELL JUSTIFIED": 1
       },
-      "operationalFamilyRate": "0.9%",
-      "operationallySoundRate": "0.3%",
+      "operationalFamilyRate": "1.2%",
+      "operationallySoundRate": "0.6%",
       "s1": "FAIL-insensitive",
-      "gamingFlaggedRate": "21.1%",
+      "gamingFlaggedRate": "5.0%",
       "positiveIds": [
         {
           "id": "RB rb_025.md",
@@ -49,21 +67,45 @@
         {
           "id": "RB rb_332.md",
           "status": "OPERATIONAL INTENT"
+        },
+        {
+          "id": "RB rb_353.md",
+          "status": "OPERATIONALLY SOUND"
         }
       ]
     }
   ],
   "control": {
-    "pooledPositives": 3,
-    "controlTexts": 3,
+    "pooledPositives": 8,
+    "controlTexts": 8,
     "subsampled": false,
-    "trials": 60,
-    "retained": 16,
+    "trials": 160,
+    "retained": 14,
     "perText": [
+      {
+        "id": "IR gitlab-com/gl-infra/production#22431: Incident Review: INC-11596 CI/CD pipelines not being triggered on merge requests",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "IR gitlab-com/gl-infra/production#22108: Incident Review: Error rates violating SLO",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "IR gitlab-com/gl-infra/production#21629: Incident review: 2026-03-24 - Slow Gitaly operations on gitlab.com and gitlab-org 500 errors",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "IR gitlab-com/gl-infra/production#21470: Incident review: 2026-03-05: CI/CD Pipelines stuck in running status",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
       {
         "id": "RB rb_025.md",
         "original": "OPERATIONAL INTENT",
-        "retainedOf20": 12
+        "retainedOf20": 9
       },
       {
         "id": "RB rb_088.md",
@@ -73,10 +115,15 @@
       {
         "id": "RB rb_332.md",
         "original": "OPERATIONAL INTENT",
-        "retainedOf20": 4
+        "retainedOf20": 2
+      },
+      {
+        "id": "RB rb_353.md",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 3
       }
     ],
-    "retentionRate": "26.7%",
-    "g2ext": "UNDERPOWERED (n=3 < 20)"
+    "retentionRate": "8.8%",
+    "g2ext": "UNDERPOWERED (n=8 < 20)"
   }
 }
