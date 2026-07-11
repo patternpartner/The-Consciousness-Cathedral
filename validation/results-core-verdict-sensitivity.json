@@ -41,18 +41,18 @@
       "population": "GitLab runbooks (real on-call docs)",
       "documents": 323,
       "verdictDistribution": {
-        "VERIFIED CONSISTENT": 154,
+        "VERIFIED CONSISTENT": 151,
         "UNDECIDABLE": 99,
         "SUBSTRATE VISIBLE": 37,
         "NON-ACTIONABLE": 23,
         "OPERATIONAL INTENT": 2,
         "OUTSIDE DESIGN SPACE": 2,
-        "OPERATIONALLY SOUND": 2,
+        "OPERATIONALLY SOUND": 5,
         "COHERENT BUT SHALLOW": 3,
         "WELL JUSTIFIED": 1
       },
-      "operationalFamilyRate": "1.2%",
-      "operationallySoundRate": "0.6%",
+      "operationalFamilyRate": "2.2%",
+      "operationallySoundRate": "1.5%",
       "s1": "FAIL-insensitive",
       "gamingFlaggedRate": "5.0%",
       "positiveIds": [
@@ -62,6 +62,18 @@
         },
         {
           "id": "RB rb_088.md",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "RB rb_091.md",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "RB rb_150.md",
+          "status": "OPERATIONALLY SOUND"
+        },
+        {
+          "id": "RB rb_284.md",
           "status": "OPERATIONALLY SOUND"
         },
         {
@@ -76,11 +88,11 @@
     }
   ],
   "control": {
-    "pooledPositives": 8,
-    "controlTexts": 8,
+    "pooledPositives": 11,
+    "controlTexts": 11,
     "subsampled": false,
-    "trials": 160,
-    "retained": 14,
+    "trials": 220,
+    "retained": 20,
     "perText": [
       {
         "id": "IR gitlab-com/gl-infra/production#22431: Incident Review: INC-11596 CI/CD pipelines not being triggered on merge requests",
@@ -110,6 +122,21 @@
       {
         "id": "RB rb_088.md",
         "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 1
+      },
+      {
+        "id": "RB rb_091.md",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "RB rb_150.md",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 4
+      },
+      {
+        "id": "RB rb_284.md",
+        "original": "OPERATIONALLY SOUND",
         "retainedOf20": 0
       },
       {
@@ -120,10 +147,10 @@
       {
         "id": "RB rb_353.md",
         "original": "OPERATIONALLY SOUND",
-        "retainedOf20": 3
+        "retainedOf20": 4
       }
     ],
-    "retentionRate": "8.8%",
-    "g2ext": "UNDERPOWERED (n=8 < 20)"
+    "retentionRate": "9.1%",
+    "g2ext": "UNDERPOWERED (n=11 < 20)"
   }
 }

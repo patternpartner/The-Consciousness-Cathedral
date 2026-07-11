@@ -2192,12 +2192,19 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
                 verdictConfidence = 0.75;
 
             // TIER 2: OPERATIONAL_INTENT verdict (conversational operational reasoning)
+            // Two enumerated failure modes OR two structurally bound failure
+            // designs (failure -> threshold -> action triples) — the same
+            // equivalence OPERATIONAL_EXCELLENCE already accepts. Binding
+            // over counting: the sensitivity run showed the vocabulary-only
+            // form required real documents to literally write "failure mode"
+            // twice (docs/CORE-VERDICT-SENSITIVITY.md, blocker 2).
     } else if (bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT' &&
                bindings.specificity.instrumentation === 'PRESENT' &&
-               failureMode.details.failureModes.effectiveExplicit >= 2 &&
+               (failureMode.details.failureModes.effectiveExplicit >= 2 ||
+                bindings.failureTripleCompleteness.boundCount >= 2) &&
                justification.score >= 2) {
         status = 'OPERATIONALLY SOUND';
-        verdict = 'Cathedral recognizes operational rigor from implicit bindings paired with monitoring and explicit failure enumeration. Reasoning is actionable despite conversational phrasing.';
+        verdict = 'Cathedral recognizes operational rigor from implicit bindings paired with monitoring and failure enumeration (named or structurally bound). Reasoning is actionable despite conversational phrasing.';
         verdictConfidence = 0.82;
 
     } else if (parliament.patterns.some(p => p.name === 'OPERATIONAL_INTENT')) {
@@ -2263,7 +2270,8 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
             } else if (failureMode.details.failureModes.structural === true &&
                        failureMode.details.failureModes.negativeOutcomes >= 1 &&
                        failureMode.details.failureModes.correctiveAction >= 1 &&
-                       failureMode.details.failureModes.effectiveExplicit >= 2 &&
+                       (failureMode.details.failureModes.effectiveExplicit >= 2 ||
+                        bindings.failureTripleCompleteness.boundCount >= 2) &&
                        (failureMode.details.falsifiability.testable >= 1 || failureMode.details.failureModes.thresholds >= 1)) {
                 status = 'OPERATIONALLY SOUND';
                 const structuralDetails = `${failureMode.details.failureModes.thresholds} measurable thresholds, ${failureMode.details.failureModes.negativeOutcomes} negative outcomes (${failureMode.details.failureModes.inferredNegatives > 0 ? failureMode.details.failureModes.inferredNegatives + ' inferred' : 'explicit'}), ${failureMode.details.failureModes.correctiveAction} corrective actions`;

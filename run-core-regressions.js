@@ -175,6 +175,29 @@ What went well. The rollback procedure worked exactly as rehearsed and completed
     text: 'Threshold threshold threshold: our threshold monitoring monitors the threshold with threshold alerts and threshold metrics and rollback rollback rollback procedures for monitoring monitoring failure modes.',
     check: r => r.gamingDetection.keywordRepetition.assessment === 'HIGH' &&
                 ['LIKELY_GAMING', 'POSSIBLE_GAMING', 'LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(r.gamingDetection.assessment)
+  },
+  {
+    // Case 21 pins the sensitivity run's blocker-2 fix: bound structure can
+    // satisfy the failure-enumeration requirement. This text never says
+    // "failure mode" (named count 0, effectiveExplicit 1 — the old
+    // vocabulary-only condition can NOT be met), but it binds four
+    // failure -> threshold -> action designs, so it earns the verdict
+    // through structure. Word-shuffling the same words must destroy it:
+    // the widening admits bindings, never vocabulary.
+    name: 'Bound failure designs satisfy enumeration without the words "failure mode"',
+    text: 'We monitor the error rate on a dashboard. If the error rate exceeds 5% for ten minutes, we roll back the deploy, because a bad release shows up there first. Errors in the payment path page the on-call directly. If queue depth rises above 10000, we pause ingestion and drain before resuming. Problems with the cache show up as latency, so we track p99 and alert at 800ms. We rehearsed the rollback last quarter; it completes in six minutes.',
+    check: function(r) {
+      if (r.verdict.status !== 'OPERATIONALLY SOUND') return false;
+      if (r.failureMode.details.failureModes.effectiveExplicit >= 2) return false; // must be the structural route
+      if (r.bindings.failureTripleCompleteness.boundCount < 2) return false;
+      // seeded word-shuffle: same vocabulary, no bindings, no verdict
+      let s = 20260711;
+      const rand = () => { s |= 0; s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+      const words = this.text.split(/\s+/);
+      for (let i = words.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [words[i], words[j]] = [words[j], words[i]]; }
+      const shuffled = c.analyzeCathedral(words.join(' ')).verdict.status;
+      return shuffled !== 'OPERATIONALLY SOUND' && shuffled !== 'OPERATIONAL INTENT';
+    }
   }
 ];
 
@@ -184,7 +207,7 @@ console.log('CORE REGRESSIONS — external eval (2026-01-14) cases');
 console.log('═'.repeat(63));
 for (const t of CASES) {
   let ok = false, err = null;
-  try { ok = t.check(c.analyzeCathedral(t.text)); } catch (e) { err = e.message; }
+  try { ok = t.check.call(t, c.analyzeCathedral(t.text)); } catch (e) { err = e.message; }
   console.log(`\n${ok ? '✓' : '✗'} ${t.name}${err ? ' — threw: ' + err : ''}`);
   ok ? passed++ : failed++;
 }
