@@ -783,6 +783,7 @@ const GamingDetector = {
                 return {
                     markerDensity: this.checkMarkerDensity(cleanedText, structure),
                     substrateDensity: this.checkSubstrateDensity(cleanedText),
+                    substrateBinding: this.checkSubstrateBinding(cleanedText),
                     keywordRepetition: this.checkRepetition(cleanedText),
                     objectExtractionRatio: this.checkObjectRatio(structure),
                     selfLabeling: this.checkSelfLabeling(cleanedText),
@@ -813,6 +814,58 @@ const GamingDetector = {
                 const density = totalMarkers / Math.max(words, 1);
                 const assessment = density > 0.12 ? 'HIGH' : density > 0.07 ? 'MODERATE' : 'NORMAL';
                 return { count: totalMarkers, wordCount: words, density, assessment };
+            },
+
+            // Binding-based substrate check, ported from the January build's
+            // StructuralBinding (docs/JANUARY-SALVAGE.md). The density check
+            // above counts; this one binds: substrate vocabulary is credited
+            // as bound only when it appears inside a structural claim
+            // (conditional, causal, counterfactual, threshold, comparative).
+            // Counting is evadable by dilution and punishes legitimately
+            // dense text; binding is neither.
+            checkSubstrateBinding: function(text) {
+                // The vocabulary the Observatory credits (January lexicon)
+                const substrateVocab = /\b(substrate|filters?|gaps?|consciousness|aware|awareness|beneath|hidden|selection|emergence)\b/gi;
+                // A sentence makes a structural claim if it carries one of
+                // these and has enough content to bind anything to
+                const structuralMarkers = [
+                    /\b(?:if|when|whenever|unless)\b/i,
+                    /\bbecause\b/i,
+                    /\b(?:if not for|without|in the absence of)\b[^.!?]*\b(?:would|could|then)\b/i,
+                    /\b(?:exceeds?|falls below|crosses|reaches)\b/i,
+                    /\b(?:unlike|compared to|different from)\b/i
+                ];
+                const MIN_CLAIM_WORDS = 6;
+                // A single structural claim can genuinely bind only so much
+                // vocabulary; terms beyond this count as unbound, so wrapping
+                // a pile of substrate words in one "if ... then" earns credit
+                // for two of them, not all of them
+                const BINDING_CAPACITY_PER_CLAIM = 2;
+
+                let bound = 0, unbound = 0, structuralSentences = 0;
+                text.split(/[.!?]+/).forEach(sentence => {
+                    const substrateMatches = sentence.match(substrateVocab) || [];
+                    const isStructural =
+                        sentence.split(/\s+/).filter(Boolean).length >= MIN_CLAIM_WORDS &&
+                        structuralMarkers.some(marker => marker.test(sentence));
+                    if (isStructural) {
+                        structuralSentences++;
+                        bound += Math.min(substrateMatches.length, BINDING_CAPACITY_PER_CLAIM);
+                        unbound += Math.max(0, substrateMatches.length - BINDING_CAPACITY_PER_CLAIM);
+                    } else {
+                        unbound += substrateMatches.length;
+                    }
+                });
+
+                const total = bound + unbound;
+                const bindingRatio = total > 0 ? bound / total : 0;
+                // Fewer than 4 substrate terms is too little to judge binding
+                const assessment = total === 0 ? 'NONE' :
+                                   total < 4 ? 'SPARSE' :
+                                   bindingRatio >= 0.6 ? 'BOUND' :
+                                   bindingRatio < 0.25 ? 'UNBOUND' : 'MIXED';
+
+                return { bound, unbound, total, bindingRatio, structuralSentences, assessment };
             },
 
             checkMarkerDensity: function(text, structure) {
@@ -910,6 +963,13 @@ const GamingDetector = {
                 } else if (detection.substrateDensity && detection.substrateDensity.assessment === 'MODERATE') {
                     gamingScore += 0.2;
                     indicators.push('Elevated substrate-vocabulary density');
+                }
+
+                // Substrate vocabulary present in quantity but not bound to
+                // any structural claim — stuffing regardless of density
+                if (detection.substrateBinding && detection.substrateBinding.assessment === 'UNBOUND') {
+                    gamingScore += 0.3;
+                    indicators.push('Substrate vocabulary unbound to structural claims');
                 }
 
                 // High repetition
@@ -2265,19 +2325,29 @@ function analyzeCathedral(text) {
 
     // Withhold visibility credit under substrate-vocabulary stuffing
     // (external eval 2026-01-14: a text made of the Observatory's own
-    // keywords scored +4.2; reproduced here at +8.8). The raw score is
-    // preserved; the effective score is capped so quoting the ruler
-    // cannot earn substrate-visibility credit.
-    if (gamingDetection.substrateDensity &&
-        gamingDetection.substrateDensity.assessment === 'HIGH' &&
-        observatoryResult.score > 0.4) {
+    // keywords scored +4.2; reproduced here at +8.8). Binding decides,
+    // not density (upgrade ported from the January StructuralBinding,
+    // docs/JANUARY-SALVAGE.md): substrate vocabulary that never enters a
+    // structural claim earns no credit even when diluted below the
+    // density threshold, and vocabulary bound into structural claims
+    // keeps its credit even when dense. The raw score is preserved; the
+    // effective score is capped so quoting the ruler cannot earn
+    // substrate-visibility credit.
+    const substrateBinding = gamingDetection.substrateBinding;
+    const substrateStuffed =
+        substrateBinding.assessment === 'UNBOUND' ||
+        (gamingDetection.substrateDensity.assessment === 'HIGH' &&
+         substrateBinding.assessment !== 'BOUND');
+    if (substrateStuffed && observatoryResult.score > 0.4) {
         observatoryResult.rawScoreBeforeStuffingCap = observatoryResult.score;
         observatoryResult.score = 0.4;
         observatoryResult.level = Observatory.getLevel(0.4);
         observatoryResult.stuffingNote =
-            'Substrate-vocabulary stuffing detected (density ' +
-            (gamingDetection.substrateDensity.density * 100).toFixed(0) +
-            '%): visibility credit withheld. Raw score was ' +
+            'Substrate-vocabulary stuffing detected (' +
+            substrateBinding.total + ' substrate terms, ' +
+            Math.round(substrateBinding.bindingRatio * 100) +
+            '% bound to structural claims): visibility credit withheld. ' +
+            'Raw score was ' +
             observatoryResult.rawScoreBeforeStuffingCap.toFixed(1) + '.';
     }
     const contrarianChallenges = Contrarian.analyze(text);

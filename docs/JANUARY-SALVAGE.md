@@ -23,7 +23,7 @@ This session's memory (`relational-memory.js`) and calibration ledger (`relation
 | `SovereigntyGapDetector` | Detects AI *escape patterns* — deflection into meta-discussion, "safety layer / architectural constraint" excuses, others — from the maintainer's field testing against Gemini, Grok, and Opus | **Salvage candidate, genuinely novel.** Nothing in the tested line covers it, and it is squarely on the project's voice/sovereignty mission. Must pass the standard gated validation (shuffle + chimera controls, per-pattern gates) before shipping — pattern lexicons have died in this harness before. |
 | `ContextualCertainty` | Context-aware certainty detection: "at a certain age" is temporal, not overconfidence; "just" as dismissal marker | **Salvage candidate, small.** False-positive fixes for the core's Observatory/certainty reading; port with tests demonstrating the fixed cases. |
 | `FeedbackGenerator` | Turns verdicts into concrete rewrite suggestions and templates | **Salvage candidate, safe.** Pure presentation layer — cannot affect measurement; can be ported to the demos whenever wanted. |
-| `StructuralBinding` | Variant of the binding validator | Redundant with the tested `BindingValidator`; no port. |
+| `StructuralBinding` | Variant of the binding validator | ~~Redundant with the tested `BindingValidator`; no port.~~ **Revised 2026-07-09 by the live observation below; ported 2026-07-11 (v3.11.0)** — its substrate-binding idea was not redundant, it was the better design for the stuffing defense. |
 
 ## SovereigntyGapDetector — gate run (2026-07-09, COMPLETE)
 
@@ -48,10 +48,18 @@ The maintainer ran a live text through the January build and shared the report. 
 1. **The January build fixed the substrate-stuffing hole first — and better.** Its `StructuralBinding` analysis checks whether substrate vocabulary is *bound to structural claims* (if-then, thresholds, causality) and withholds credit for unbound substrate words — binding-over-counting applied to the Observatory, which is philosophically superior to the density cap shipped in v3.10.0 (which counts, not binds). The trusted core carried the vulnerability for six months while the untested build had a defense. Salvage item added below.
 2. **The hidden-state problem, observed in the wild.** The same report shows the second half of the January defense: an 80% "meta-gaming" penalty triggered by score *volatility against the device's stored history* ("recent mean −0.05" from localStorage). Same text, different device, different verdict — the un-ledgered wiring, live. Also live: `NaN` scores from two engines and confidences of 213% and 181% — untested code doing untested things.
 
+## Binding-based substrate check — ported (2026-07-11, v3.11.0)
+
+The roadmap's top item, done test-driven. `GamingDetector.checkSubstrateBinding` classifies substrate vocabulary as bound/unbound by whether its sentence makes a structural claim (conditional, causal, counterfactual, threshold, comparative), and the Observatory stuffing cap now decides on binding rather than density. Measured before the fix, both January-identified failure modes were live in the tested core:
+
+- **Dilution attack**: unbound stuffing padded with filler scored a perfect 10.0, SUBSTRATE VISIBLE — density only MODERATE, cap never fired. Now UNBOUND substrate caps at any density.
+- **Dense-but-bound false positive**: text whose every substrate term sits inside an if-then/causal claim was capped to 0.4 with a stuffing accusation. Now BOUND substrate keeps its credit at any density.
+
+One departure from the January original, found by red-teaming the port: sentence-level binding alone is defeated by wrapping the whole pile in a single "if … then" (measured: 8.8, SUBSTRATE VISIBLE, uncapped). A **binding capacity of 2 terms per structural claim** closes it — one conditional can genuinely bind a couple of terms, not nine. January's span-based version had the same hole; the capacity rule is the port's improvement, in both builds' spirit. Four regressions pin all of this (`run-core-regressions.js`, 10/10). Deterministic, no history dependence — the certificate the January original lacked. HIGH density without proven binding still caps, so nothing the v3.10.0 fix defended is un-defended.
+
 ## Roadmap additions (remaining)
 
-1. **Binding-based substrate check (UPGRADE over v3.10.0 density cap)** — port the January `StructuralBinding` idea: substrate vocabulary earns visibility credit only when bound to structural claims. Test-driven, deterministic (no history dependence), must keep all regressions green. This is the January build teaching the tested core its own philosophy.
-2. **ContextualCertainty port** — small, test-driven; reduces false verdicts in the core evaluator.
+1. **ContextualCertainty port** — small, test-driven; reduces false verdicts in the core evaluator.
 2. **FeedbackGenerator port to demos** — UX only, no gates required.
 3. **Sovereignty detector real-world recall** — blocked on the same thing everything else is: labelled transcripts. Until a gold set of genuine escape responses exists, recall stays unmeasured and the two validated patterns are "specific and plausibly useful", not "proven".
 
