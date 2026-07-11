@@ -436,7 +436,8 @@ const BindingValidator = {
             failureTripleCompleteness: this.validateFailureTriples(structure.failureTriples),
             causalChainClosure: this.validateCausalChains(structure.causalChains),
             // TIER 2: Implicit binding validation
-            implicitBindings: this.validateImplicitBindings(structure),
+            implicitBindings: this.validateImplicitBindings(structure,
+                rawText ? TextCleaner.removeQuotes(rawText).cleaned : ''),
             overallBindingScore: 0,
             specificity: {
                 trigger: 'NONE',
@@ -531,7 +532,7 @@ const BindingValidator = {
             },
 
             // TIER 2: Validate implicit bindings (FailureSignal + Action)
-    validateImplicitBindings: function(structure) {
+    validateImplicitBindings: function(structure, cleanedText) {
         if (!structure.failureSignals || !structure.actions) {
             return { score: 0, boundCount: 0, assessment: 'NO_IMPLICIT_SIGNALS' };
         }
@@ -545,18 +546,43 @@ const BindingValidator = {
                 }
 
         const tautologyCount = structure.tautologies ? structure.tautologies.count : 0;
+        const text = cleanedText || '';
 
-        // Bind failure signals to actions within proximity (300 chars)
-        // TIER 2 FIX: Bind to NEAREST action, not first action (improves diversity)
+        // A signal binds to an action only under syntactic co-arrangement:
+        // same or adjacent sentence, with a conditional/causal connective in
+        // the span. Character proximity alone is not binding — the core
+        // verdict validation run (docs/CORE-VERDICT-VALIDATION.md) showed
+        // proximity-only pairs minting OPERATIONAL INTENT from lexical
+        // accidents ("took OFF" bound to "warn") and surviving word shuffle.
+        const connectivePattern = /\b(if|when|whenever|unless|once|in case|because|so that|then)\b/i;
+        function syntacticallyBound(signal, action) {
+            if (Math.abs(action.index - signal.index) >= 300) return false;
+            if (!text) return true; // no text to test against — legacy behavior
+            const lo = Math.min(signal.index, action.index);
+            const hi = Math.max(signal.index, action.index);
+            // Same sentence = no terminator between; adjacent = exactly one
+            const terminatorsBetween = (text.slice(lo, hi).match(/[.!?]/g) || []).length;
+            if (terminatorsBetween > 1) return false;
+            // The connective must appear somewhere in the enclosing sentences
+            const windowStart = Math.max(0, text.lastIndexOf('.', lo), text.lastIndexOf('!', lo), text.lastIndexOf('?', lo));
+            let windowEnd = text.length;
+            for (const ch of ['.', '!', '?']) {
+                const p = text.indexOf(ch, hi);
+                if (p !== -1 && p < windowEnd) windowEnd = p;
+            }
+            return connectivePattern.test(text.slice(windowStart, windowEnd + 1));
+        }
+
+        // Bind failure signals to actions: nearest action that is also
+        // syntactically co-arranged (TIER 2 FIX kept: nearest, not first)
         const bindings = [];
         [...failureSignals, ...implicitTriggers].forEach(signal => {
-                    // Find nearest action within 300 chars
                     let nearestAction = null;
                     let minDistance = 300;
 
                     actions.forEach(a => {
                         const distance = Math.abs(a.index - signal.index);
-                        if (distance < minDistance) {
+                        if (distance < minDistance && syntacticallyBound(signal, a)) {
                             minDistance = distance;
                             nearestAction = a;
                         }

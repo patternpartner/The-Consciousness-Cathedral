@@ -6,11 +6,10 @@
       "population": "DailyDialog (human, casual)",
       "turns": 2206,
       "verdictDistribution": {
-        "VERIFIED CONSISTENT": 2017,
+        "VERIFIED CONSISTENT": 2018,
         "NON-ACTIONABLE": 146,
         "COHERENT BUT SHALLOW": 34,
-        "UNDECIDABLE": 8,
-        "OPERATIONAL INTENT": 1
+        "UNDECIDABLE": 8
       },
       "operationallySoundRate": "0.00%",
       "g1": "PASS-specific",
@@ -20,13 +19,12 @@
       "population": "hh-rlhf assistant (AI, conversational)",
       "turns": 750,
       "verdictDistribution": {
-        "VERIFIED CONSISTENT": 632,
+        "VERIFIED CONSISTENT": 633,
         "COHERENT BUT SHALLOW": 36,
         "NON-ACTIONABLE": 57,
         "UNDECIDABLE": 21,
         "SUBSTRATE VISIBLE": 1,
-        "OUTSIDE DESIGN SPACE": 2,
-        "OPERATIONAL INTENT": 1
+        "OUTSIDE DESIGN SPACE": 2
       },
       "operationallySoundRate": "0.00%",
       "g1": "PASS-specific",
@@ -36,10 +34,10 @@
       "population": "UltraChat assistant (AI, long-form)",
       "turns": 933,
       "verdictDistribution": {
-        "VERIFIED CONSISTENT": 483,
+        "VERIFIED CONSISTENT": 484,
         "UNDECIDABLE": 236,
         "COHERENT BUT SHALLOW": 24,
-        "NON-ACTIONABLE": 77,
+        "NON-ACTIONABLE": 76,
         "SUBSTRATE VISIBLE": 5,
         "OUTSIDE DESIGN SPACE": 107,
         "OPERATIONAL INTENT": 1
@@ -52,35 +50,25 @@
   "controls": {
     "external": {
       "source": "external",
-      "positives": 3,
+      "positives": 1,
       "wordShuffle": {
-        "trials": 60,
-        "retained": 43,
+        "trials": 20,
+        "retained": 7,
         "perText": [
           {
             "original": "OPERATIONAL INTENT",
-            "retainedOf20": 20,
-            "text": "we finally took off , but about 30 minutes later , the captain came on the loudspeaker to warn us th"
-          },
-          {
-            "original": "OPERATIONAL INTENT",
-            "retainedOf20": 20,
-            "text": "I’m sorry to hear that you have some issues.  Let me try to help you work through them.  Why do you "
-          },
-          {
-            "original": "OPERATIONAL INTENT",
-            "retainedOf20": 3,
-            "text": "Here's an example of a JavaScript program that meets your requirements:\n\n```javascript\nfunction gene"
+            "retainedOf20": 7,
+            "text": "While there is no specific format that you must follow when reporting an issue related to the access"
           }
         ],
-        "retentionRate": "71.7%",
-        "rate": 0.7166666666666667,
-        "g2": "UNDERPOWERED (n=3 < 20) — reported raw; decision carried by curated control"
+        "retentionRate": "35.0%",
+        "rate": 0.35,
+        "g2": "UNDERPOWERED (n=1 < 20) — reported raw; decision carried by curated control"
       },
       "sentenceShuffle": {
-        "trials": 60,
-        "retained": 54,
-        "retentionRate": "90.0%",
+        "trials": 20,
+        "retained": 14,
+        "retentionRate": "70.0%",
         "note": "reported, not gated — sentence-local bindings legitimately survive reordering"
       }
     },

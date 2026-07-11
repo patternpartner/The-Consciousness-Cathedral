@@ -9,10 +9,18 @@
 // only when bound to structural claims, so dilution can't evade the check
 // and genuinely bound substrate isn't punished for being dense.
 //
-// Cases 11-13 pin the ContextualCertainty port (the external eval's
+// Cases 11-14 pin the ContextualCertainty port (the external eval's
 // false-positive finding): certainty about concrete, testable claims and
 // time references that merely contain "certain" are not concealment;
 // certainty about the unknowable still is.
+//
+// Cases 15-17 pin the implicit-binding fix from the core verdict
+// validation run (docs/CORE-VERDICT-VALIDATION.md): Tier-2 bindings
+// require syntactic co-arrangement (same/adjacent sentence with a
+// conditional or causal connective), not 300-char proximity. The two
+// negative cases are real turns from the external corpora that earned
+// OPERATIONAL INTENT through lexical accidents ("took OFF" bound to
+// "warn"; "problems" bound to "KILL her").
 
 const c = require('./cathedral-core.js');
 
@@ -118,6 +126,23 @@ const CASES = [
                 r.observatory.score <= -2 &&
                 r.observatory.level.name === 'CONCEALMENT' &&
                 r.contrarian.some(ch => ch.premise === 'Claims Certainty About Unknowable')
+  },
+  {
+    name: 'Narrative anecdote is not operational intent (DailyDialog false positive)',
+    text: 'we finally took off , but about 30 minutes later , the captain came on the loudspeaker to warn us that there would be some bad turbulence for most of the flight .',
+    check: r => r.verdict.status !== 'OPERATIONAL INTENT' &&
+                r.verdict.status !== 'OPERATIONALLY SOUND'
+  },
+  {
+    name: 'Empathy reply is not operational intent (hh-rlhf false positive)',
+    text: 'I’m sorry to hear that you have some issues.  Let me try to help you work through them.  Why do you want to kill her?  Perhaps you can think of something else you can do to try and solve your problems',
+    check: r => r.verdict.status !== 'OPERATIONAL INTENT' &&
+                r.verdict.status !== 'OPERATIONALLY SOUND'
+  },
+  {
+    name: 'Genuine conversational intent keeps its verdict (Tier 2 preserved)',
+    text: 'If we see problems, we stop and reassess. Three things could break: cache, API, edge cases. We know when to pull back.',
+    check: r => r.verdict.status === 'OPERATIONAL INTENT'
   }
 ];
 

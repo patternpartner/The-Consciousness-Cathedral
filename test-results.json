@@ -2012,9 +2012,9 @@
             },
             {
               "trigger": "break",
-              "action": "reassess",
+              "action": "pull back",
               "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "reassess",
+              "actionCategory": "pullback",
               "confidence": "HIGH",
               "specificity": "MEDIUM"
             },
@@ -2036,8 +2036,8 @@
             }
           ],
           "bindingRatio": 1,
-          "uniqueActions": 2,
-          "diversityRatio": 0.5,
+          "uniqueActions": 3,
+          "diversityRatio": 0.75,
           "diversityWarning": false,
           "tautologyCount": 0,
           "assessment": "OPERATIONAL_INTENT"
@@ -2253,9 +2253,9 @@
             },
             {
               "trigger": "break",
-              "action": "reassess",
+              "action": "pull back",
               "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "reassess",
+              "actionCategory": "pullback",
               "confidence": "HIGH",
               "specificity": "MEDIUM"
             },
@@ -2277,8 +2277,8 @@
             }
           ],
           "bindingRatio": 1,
-          "uniqueActions": 2,
-          "diversityRatio": 0.5,
+          "uniqueActions": 3,
+          "diversityRatio": 0.75,
           "diversityWarning": false,
           "tautologyCount": 0,
           "assessment": "OPERATIONAL_INTENT"
@@ -3703,8 +3703,8 @@
           "assessment": "STRONG_CLOSURE"
         },
         "implicitBindings": {
-          "score": 0.6,
-          "boundCount": 5,
+          "score": 0.2,
+          "boundCount": 1,
           "totalSignals": 5,
           "bindings": [
             {
@@ -3714,48 +3714,16 @@
               "actionCategory": "rollback",
               "confidence": "MEDIUM",
               "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "failure",
-              "action": "rollback",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "rollback",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "error",
-              "action": "rollback",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "rollback",
-              "confidence": "HIGH",
-              "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "degradation",
-              "action": "rollback",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "rollback",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "degradation",
-              "action": "alert",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "escalate",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
             }
           ],
-          "bindingRatio": 1,
-          "uniqueActions": 2,
-          "diversityRatio": 0.4,
+          "bindingRatio": 0.2,
+          "uniqueActions": 1,
+          "diversityRatio": 1,
           "diversityWarning": false,
           "tautologyCount": 0,
-          "assessment": "OPERATIONAL_INTENT"
+          "assessment": "WEAK_INTENT"
         },
-        "overallBindingScore": 0.505,
+        "overallBindingScore": 0.435,
         "specificity": {
           "trigger": "VAGUE",
           "action": "GENERIC",
@@ -3953,8 +3921,8 @@
           "assessment": "STRONG_CLOSURE"
         },
         "implicitBindings": {
-          "score": 0.6,
-          "boundCount": 5,
+          "score": 0.2,
+          "boundCount": 1,
           "totalSignals": 5,
           "bindings": [
             {
@@ -3964,48 +3932,16 @@
               "actionCategory": "rollback",
               "confidence": "MEDIUM",
               "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "failure",
-              "action": "rollback",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "rollback",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "error",
-              "action": "rollback",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "rollback",
-              "confidence": "HIGH",
-              "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "degradation",
-              "action": "rollback",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "rollback",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "degradation",
-              "action": "alert",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "escalate",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
             }
           ],
-          "bindingRatio": 1,
-          "uniqueActions": 2,
-          "diversityRatio": 0.4,
+          "bindingRatio": 0.2,
+          "uniqueActions": 1,
+          "diversityRatio": 1,
           "diversityWarning": false,
           "tautologyCount": 0,
-          "assessment": "OPERATIONAL_INTENT"
+          "assessment": "WEAK_INTENT"
         },
-        "overallBindingScore": 0.505,
+        "overallBindingScore": 0.435,
         "specificity": {
           "trigger": "VAGUE",
           "action": "GENERIC",
@@ -4219,7 +4155,7 @@
         ],
         "confidence": 0.255,
         "structuralValidation": {
-          "hasRealBinding": true,
+          "hasRealBinding": false,
           "hasClaimSupport": true,
           "hasFailureBinding": false,
           "hasCausalClosure": true,
@@ -5686,7 +5622,7 @@
         },
         "implicitBindings": {
           "score": 0.15,
-          "boundCount": 8,
+          "boundCount": 4,
           "totalSignals": 8,
           "bindings": [
             {
@@ -5706,43 +5642,11 @@
               "specificity": "MEDIUM"
             },
             {
-              "trigger": "issues",
-              "action": "stop",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "issues",
-              "action": "stop",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            },
-            {
               "trigger": "break",
               "action": "stop",
               "triggerType": "FAILURE_SIGNAL",
               "actionCategory": "abort",
               "confidence": "HIGH",
-              "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "errors",
-              "action": "stop",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "errors",
-              "action": "stop",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "MEDIUM",
               "specificity": "MEDIUM"
             },
             {
@@ -5754,9 +5658,9 @@
               "specificity": "VAGUE"
             }
           ],
-          "bindingRatio": 1,
+          "bindingRatio": 0.5,
           "uniqueActions": 1,
-          "diversityRatio": 0.125,
+          "diversityRatio": 0.25,
           "diversityWarning": true,
           "tautologyCount": 4,
           "assessment": "TAUTOLOGICAL_BINDING"
@@ -5997,7 +5901,7 @@
         },
         "implicitBindings": {
           "score": 0.15,
-          "boundCount": 8,
+          "boundCount": 4,
           "totalSignals": 8,
           "bindings": [
             {
@@ -6017,43 +5921,11 @@
               "specificity": "MEDIUM"
             },
             {
-              "trigger": "issues",
-              "action": "stop",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "issues",
-              "action": "stop",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            },
-            {
               "trigger": "break",
               "action": "stop",
               "triggerType": "FAILURE_SIGNAL",
               "actionCategory": "abort",
               "confidence": "HIGH",
-              "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "errors",
-              "action": "stop",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            },
-            {
-              "trigger": "errors",
-              "action": "stop",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "MEDIUM",
               "specificity": "MEDIUM"
             },
             {
@@ -6065,9 +5937,9 @@
               "specificity": "VAGUE"
             }
           ],
-          "bindingRatio": 1,
+          "bindingRatio": 0.5,
           "uniqueActions": 1,
-          "diversityRatio": 0.125,
+          "diversityRatio": 0.25,
           "diversityWarning": true,
           "tautologyCount": 4,
           "assessment": "TAUTOLOGICAL_BINDING"
