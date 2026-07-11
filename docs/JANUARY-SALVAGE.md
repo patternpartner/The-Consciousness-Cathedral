@@ -22,7 +22,7 @@ This session's memory (`relational-memory.js`) and calibration ledger (`relation
 | `VerdictArchive`, `ObservatoryHistory` | Rolling verdict/score history in localStorage | **Superseded** by the exchange notebook (`relational-memory.js`), which adds the no-feedback contract. |
 | `SovereigntyGapDetector` | Detects AI *escape patterns* — deflection into meta-discussion, "safety layer / architectural constraint" excuses, others — from the maintainer's field testing against Gemini, Grok, and Opus | **Salvage candidate, genuinely novel.** Nothing in the tested line covers it, and it is squarely on the project's voice/sovereignty mission. Must pass the standard gated validation (shuffle + chimera controls, per-pattern gates) before shipping — pattern lexicons have died in this harness before. |
 | `ContextualCertainty` | Context-aware certainty detection: "at a certain age" is temporal, not overconfidence; "just" as dismissal marker | **Ported 2026-07-11 (v3.12.0)**, test-driven — see below. The "just"-as-dismissal half was *not* ported: nothing in the tested core penalizes "just", so there is no false positive to fix. |
-| `FeedbackGenerator` | Turns verdicts into concrete rewrite suggestions and templates | **Salvage candidate, safe.** Pure presentation layer — cannot affect measurement; can be ported to the demos whenever wanted. |
+| `FeedbackGenerator` | Turns verdicts into concrete rewrite suggestions and templates | **Ported 2026-07-11 (v3.13.0)** — see below. Pure presentation layer, now with the purity test-enforced. |
 | `StructuralBinding` | Variant of the binding validator | ~~Redundant with the tested `BindingValidator`; no port.~~ **Revised 2026-07-09 by the live observation below; ported 2026-07-11 (v3.11.0)** — its substrate-binding idea was not redundant, it was the better design for the stuffing defense. |
 
 ## SovereigntyGapDetector — gate run (2026-07-09, COMPLETE)
@@ -63,8 +63,13 @@ Done test-driven, closing the external eval's acknowledged false positive (*"I'm
 
 One departure from the January original, found by red-teaming the port: abstract context is checked *before* technical context and the abstract lexicon includes the adjective forms ("conscious", "aware"), so certainty about the unknowable dressed in technical vocabulary — "I am absolutely certain my code makes me conscious. The test results prove it." — stays suspect instead of earning the waiver through "code/test/results". Four regressions pin the port (`run-core-regressions.js`, 14/14). January's ±adjustment scoring (bonuses for earned certainty) was *not* ported: this fix removes false penalties only.
 
+## FeedbackGenerator — ported (2026-07-11, v3.13.0)
+
+`feedback-generator.js` + a "How to fix it" card in the core demo: suggestions with fill-in templates, keyed to the tested core's real outputs (specificity readings, gaming assessments, substrate binding, contextual certainty, contradictions, failure-mode levels). Three deliberate departures from the January original: (1) its sovereignty ideology ("corporate veto", "sovereign AI ideals") did not make the port — the suggestions coach exactly one thing, how to make reasoning measurable as operational structure; (2) a category-error guard gives narrative/phenomenological text honest silence instead of threshold coaching — Cathedral refusing to judge a poem must also refuse to edit one; (3) the safety property the ledger promised ("cannot affect measurement") is now test-enforced rather than asserted — `generate()` never mutates the analysis, is deterministic, and the core contains no reference to the feedback layer (`run-feedback-tests.js`, 9/9).
+
+With this, every unblocked salvage item from the January build is ported. What was worth keeping from the un-ledgered fork now lives in the tested line, gated and regression-pinned; what wasn't — the silent calibration wiring, the word-count evasion rule, the ideology — is documented here as the reason the contract exists.
+
 ## Roadmap additions (remaining)
-1. **FeedbackGenerator port to demos** — UX only, no gates required.
-2. **Sovereignty detector real-world recall** — blocked on the same thing everything else is: labelled transcripts. Until a gold set of genuine escape responses exists, recall stays unmeasured and the two validated patterns are "specific and plausibly useful", not "proven".
+1. **Sovereignty detector real-world recall** — blocked on the same thing everything else is: labelled transcripts. Until a gold set of genuine escape responses exists, recall stays unmeasured and the two validated patterns are "specific and plausibly useful", not "proven".
 
 The January file itself stays in `legacy/`, unchanged: it is the record of the ambition, and the argument for the contract.

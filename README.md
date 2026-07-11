@@ -151,6 +151,7 @@ cathedral-core.js         The evaluator (Node.js module — the thing this READM
 relational-core.js        Tier R1: structural analysis of dialogue transcripts
 relational-demo.html      Browser demo for the relational tier (loads relational-core.js directly)
 cathedral-demo.html       Browser demo of the core evaluator (loads cathedral-core.js directly)
+feedback-generator.js     Turns verdicts into concrete rewrite suggestions (presentation only; never feeds back into measurement)
 cathedral-demo-standalone.html  Single-file version for downloading (generated; phone-friendly)
 index.js                  Entry point: core API + lazy `experimental` namespace
 run-tests.js              Test suite

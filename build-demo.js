@@ -41,4 +41,4 @@ function build(demoFile, coreFiles, outFile) {
 }
 
 build('relational-demo.html', ['relational-core.js', 'relational-memory.js', 'relational-calibration.js'], 'relational-demo-standalone.html');
-build('cathedral-demo.html', ['cathedral-core.js'], 'cathedral-demo-standalone.html');
+build('cathedral-demo.html', ['cathedral-core.js', 'feedback-generator.js'], 'cathedral-demo-standalone.html');
