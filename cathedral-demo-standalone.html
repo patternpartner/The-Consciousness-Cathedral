@@ -671,9 +671,15 @@ const BindingValidator = {
             if (!text) return true; // no text to test against — legacy behavior
             const lo = Math.min(signal.index, action.index);
             const hi = Math.max(signal.index, action.index);
-            // Same sentence = no terminator between; adjacent = exactly one
+            // v3.23.0: same sentence only — no terminator between signal and
+            // action. v3.19.0 allowed one intervening terminator (adjacent
+            // sentence); the Wikimedia/prometheus runbook validation
+            // (docs/PROMETHEUS-RUNBOOK-VALIDATION.md) showed that residual
+            // looseness let cross-sentence proximity and shuffled pseudo-
+            // sentences mint bindings. A genuine conditional/causal binding
+            // ("if X, we do Y") lives inside one sentence.
             const terminatorsBetween = (text.slice(lo, hi).match(/[.!?]/g) || []).length;
-            if (terminatorsBetween > 1) return false;
+            if (terminatorsBetween > 0) return false;
             // v3.19.0: the connective must sit in the clause that joins the
             // pair — inside the signal–action span, or clause-initial just
             // before it ("If we see problems, we stop"). The previous rule
@@ -719,6 +725,19 @@ const BindingValidator = {
                 const diversityRatio = bindings.length > 0 ? uniqueActions / bindings.length : 0;
                 const diversityWarning = uniqueActions === 1 && bindings.length > 3;
 
+                // v3.23.0: signal-side diversity, the mirror of the action
+                // guard above. OPERATIONAL_INTENT means ≥2 DISTINCT operational
+                // concerns each bound to a response — the implicit-binding
+                // analogue of the ≥2-failure-mode requirement. The prometheus/
+                // Wikimedia runbook validation
+                // (docs/PROMETHEUS-RUNBOOK-VALIDATION.md) surfaced short alert
+                // runbooks that bound the SAME signal word repeatedly
+                // ("regression → alert, regression → revert"): one concern
+                // monitored several ways, not two enumerated concerns. Those
+                // are the cases whose verdict survived word-shuffling. A single
+                // repeated signal is not enumeration, so it cannot mint INTENT.
+                const uniqueSignals = new Set(bindings.map(b => (b.trigger || '').toLowerCase())).size;
+
         // Base score from binding ratio
         let score = bindingRatio >= 0.5 ? 0.6 : bindingRatio >= 0.3 ? 0.4 : bindingRatio > 0 ? 0.2 : 0;
 
@@ -735,6 +754,12 @@ const BindingValidator = {
             assessment = 'SINGLE_ACTION_BINDING';
         }
 
+        // v3.23.0: downgrade if every binding shares one signal concern —
+        // enumeration requires ≥2 distinct signals, not one signal repeated.
+        if (uniqueSignals < 2 && assessment === 'OPERATIONAL_INTENT') {
+            assessment = 'SINGLE_SIGNAL_BINDING';
+        }
+
         // Downgrade if bindings are tautological
         if (tautologyCount > 0 && bindings.length > 0) {
             score *= 0.5;
@@ -748,6 +773,7 @@ const BindingValidator = {
             bindings,
             bindingRatio,
             uniqueActions,
+            uniqueSignals,
             diversityRatio,
             diversityWarning,
             tautologyCount,

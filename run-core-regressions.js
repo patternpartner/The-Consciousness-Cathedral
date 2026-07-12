@@ -217,6 +217,51 @@ What went well. The rollback procedure worked exactly as rehearsed and completed
       const shuffled = c.analyzeCathedral(words.join(' ')).verdict.status;
       return shuffled !== 'OPERATIONALLY SOUND' && shuffled !== 'OPERATIONAL INTENT';
     }
+  },
+  {
+    // Cases 22-24 pin the tier-2 tightening from the prometheus/Wikimedia
+    // runbook validation (docs/PROMETHEUS-RUNBOOK-VALIDATION.md,
+    // docs/TIER2-DIVERSITY-TIGHTENING.md). The fresh corpora surfaced short
+    // alert runbooks whose OPERATIONAL INTENT survived word-shuffling because
+    // they bound the SAME signal word repeatedly — one concern monitored
+    // several ways, not two enumerated concerns.
+    //
+    // Case 22 (signal diversity): one repeated signal bound to TWO DISTINCT
+    // actions is still not enumeration — it is the signal, not the action,
+    // that must vary. Pre-v3.23.0 this earned OPERATIONAL_INTENT.
+    name: 'A single repeated signal is not enumeration (even with distinct actions)',
+    text: 'If an error appears we alert the team, and if an error persists we roll back the deploy.',
+    check: r => r.bindings.implicitBindings.boundCount >= 2 &&
+                r.bindings.implicitBindings.uniqueSignals === 1 &&
+                r.bindings.implicitBindings.assessment === 'SINGLE_SIGNAL_BINDING' &&
+                r.verdict.status !== 'OPERATIONAL INTENT' &&
+                r.verdict.status !== 'OPERATIONALLY SOUND'
+  },
+  {
+    // Case 23 (the guard does not over-fire): two DISTINCT signals each bound
+    // still reach the OPERATIONAL_INTENT assessment — the tightening removes
+    // single-signal accidents, not genuine two-concern enumeration.
+    name: 'Two distinct signals still earn the OPERATIONAL_INTENT assessment',
+    text: 'If an error appears we alert, and when a regression lands we revert.',
+    check: r => r.bindings.implicitBindings.uniqueSignals >= 2 &&
+                r.bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT'
+  },
+  {
+    // Case 24 (same-sentence binding): a conditional/causal binding lives
+    // inside one sentence. The two texts share the same words; the second
+    // splits each signal from its action with a sentence terminator, which
+    // now breaks the binding (v3.19.0 allowed one intervening terminator —
+    // the residual looseness that let cross-sentence proximity bind).
+    name: 'A binding lives in one sentence (terminator between signal and action breaks it)',
+    check: function() {
+      const joined = c.analyzeCathedral('When an error appears we roll back the deploy and when a regression lands we revert the change');
+      const split  = c.analyzeCathedral('When an error appears. We roll back the deploy. When a regression lands. We revert the change.');
+      return joined.bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT' &&
+             joined.bindings.implicitBindings.boundCount >= 2 &&
+             split.bindings.implicitBindings.boundCount === 0 &&
+             split.verdict.status !== 'OPERATIONAL INTENT';
+    },
+    text: '(constructed pair — see check)'
   }
 ];
 

@@ -653,6 +653,7 @@
           "bindings": [],
           "bindingRatio": 0,
           "uniqueActions": 0,
+          "uniqueSignals": 0,
           "diversityRatio": 0,
           "diversityWarning": false,
           "tautologyCount": 0,
@@ -836,6 +837,7 @@
           "bindings": [],
           "bindingRatio": 0,
           "uniqueActions": 0,
+          "uniqueSignals": 0,
           "diversityRatio": 0,
           "diversityWarning": false,
           "tautologyCount": 0,
@@ -1315,6 +1317,7 @@
           ],
           "bindingRatio": 0.5,
           "uniqueActions": 1,
+          "uniqueSignals": 1,
           "diversityRatio": 1,
           "diversityWarning": false,
           "tautologyCount": 0,
@@ -1518,6 +1521,7 @@
           ],
           "bindingRatio": 0.5,
           "uniqueActions": 1,
+          "uniqueSignals": 1,
           "diversityRatio": 1,
           "diversityWarning": false,
           "tautologyCount": 0,
@@ -1991,7 +1995,7 @@
         },
         "implicitBindings": {
           "score": 0.6,
-          "boundCount": 3,
+          "boundCount": 2,
           "totalSignals": 4,
           "bindings": [
             {
@@ -2003,14 +2007,6 @@
               "specificity": "MEDIUM"
             },
             {
-              "trigger": "error",
-              "action": "stop",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "HIGH",
-              "specificity": "MEDIUM"
-            },
-            {
               "trigger": "If we see problem",
               "action": "stop",
               "triggerType": "IMPLICIT_THRESHOLD",
@@ -2019,9 +2015,10 @@
               "specificity": "VAGUE"
             }
           ],
-          "bindingRatio": 0.75,
+          "bindingRatio": 0.5,
           "uniqueActions": 1,
-          "diversityRatio": 0.3333333333333333,
+          "uniqueSignals": 2,
+          "diversityRatio": 0.5,
           "diversityWarning": false,
           "tautologyCount": 0,
           "assessment": "OPERATIONAL_INTENT"
@@ -2225,7 +2222,7 @@
         },
         "implicitBindings": {
           "score": 0.6,
-          "boundCount": 3,
+          "boundCount": 2,
           "totalSignals": 4,
           "bindings": [
             {
@@ -2237,14 +2234,6 @@
               "specificity": "MEDIUM"
             },
             {
-              "trigger": "error",
-              "action": "stop",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "HIGH",
-              "specificity": "MEDIUM"
-            },
-            {
               "trigger": "If we see problem",
               "action": "stop",
               "triggerType": "IMPLICIT_THRESHOLD",
@@ -2253,9 +2242,10 @@
               "specificity": "VAGUE"
             }
           ],
-          "bindingRatio": 0.75,
+          "bindingRatio": 0.5,
           "uniqueActions": 1,
-          "diversityRatio": 0.3333333333333333,
+          "uniqueSignals": 2,
+          "diversityRatio": 0.5,
           "diversityWarning": false,
           "tautologyCount": 0,
           "assessment": "OPERATIONAL_INTENT"
@@ -2489,7 +2479,7 @@
             "description": "Operational intent present: failure awareness and corrective actions bound, with instrumentation, but short of full operational soundness.",
             "confidence": 0.75,
             "dimensions": {
-              "implicitBindings": 3,
+              "implicitBindings": 2,
               "failureSignals": 3,
               "actions": 3,
               "triggerSpecificity": "IMPLICIT",
@@ -2524,7 +2514,7 @@
             "description": "Operational intent present: failure awareness and corrective actions bound, with instrumentation, but short of full operational soundness.",
             "confidence": 0.75,
             "dimensions": {
-              "implicitBindings": 3,
+              "implicitBindings": 2,
               "failureSignals": 3,
               "actions": 3,
               "triggerSpecificity": "IMPLICIT",
@@ -3728,6 +3718,7 @@
           ],
           "bindingRatio": 0.2,
           "uniqueActions": 1,
+          "uniqueSignals": 1,
           "diversityRatio": 1,
           "diversityWarning": false,
           "tautologyCount": 0,
@@ -3947,6 +3938,7 @@
           ],
           "bindingRatio": 0.2,
           "uniqueActions": 1,
+          "uniqueSignals": 1,
           "diversityRatio": 1,
           "diversityWarning": false,
           "tautologyCount": 0,
@@ -4338,6 +4330,7 @@
           "bindings": [],
           "bindingRatio": 0,
           "uniqueActions": 0,
+          "uniqueSignals": 0,
           "diversityRatio": 0,
           "diversityWarning": false,
           "tautologyCount": 0,
@@ -4507,6 +4500,7 @@
           "bindings": [],
           "bindingRatio": 0,
           "uniqueActions": 0,
+          "uniqueSignals": 0,
           "diversityRatio": 0,
           "diversityWarning": false,
           "tautologyCount": 0,
@@ -4931,27 +4925,19 @@
           "assessment": "NO_CAUSAL_CHAINS"
         },
         "implicitBindings": {
-          "score": 0.6,
-          "boundCount": 1,
+          "score": 0,
+          "boundCount": 0,
           "totalSignals": 1,
-          "bindings": [
-            {
-              "trigger": "Problems",
-              "action": "abort",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            }
-          ],
-          "bindingRatio": 1,
-          "uniqueActions": 1,
-          "diversityRatio": 1,
+          "bindings": [],
+          "bindingRatio": 0,
+          "uniqueActions": 0,
+          "uniqueSignals": 0,
+          "diversityRatio": 0,
           "diversityWarning": false,
           "tautologyCount": 0,
-          "assessment": "WEAK_INTENT"
+          "assessment": "NO_INTENT"
         },
-        "overallBindingScore": 0.105,
+        "overallBindingScore": 0,
         "specificity": {
           "trigger": "VAGUE",
           "action": "CONCRETE",
@@ -5155,27 +5141,19 @@
           "assessment": "NO_CAUSAL_CHAINS"
         },
         "implicitBindings": {
-          "score": 0.6,
-          "boundCount": 1,
+          "score": 0,
+          "boundCount": 0,
           "totalSignals": 1,
-          "bindings": [
-            {
-              "trigger": "Problems",
-              "action": "abort",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "MEDIUM",
-              "specificity": "MEDIUM"
-            }
-          ],
-          "bindingRatio": 1,
-          "uniqueActions": 1,
-          "diversityRatio": 1,
+          "bindings": [],
+          "bindingRatio": 0,
+          "uniqueActions": 0,
+          "uniqueSignals": 0,
+          "diversityRatio": 0,
           "diversityWarning": false,
           "tautologyCount": 0,
-          "assessment": "WEAK_INTENT"
+          "assessment": "NO_INTENT"
         },
-        "overallBindingScore": 0.105,
+        "overallBindingScore": 0,
         "specificity": {
           "trigger": "VAGUE",
           "action": "CONCRETE",
@@ -5637,8 +5615,8 @@
           "assessment": "MODERATE_CLOSURE"
         },
         "implicitBindings": {
-          "score": 0.15,
-          "boundCount": 4,
+          "score": 0.2,
+          "boundCount": 3,
           "totalSignals": 8,
           "bindings": [
             {
@@ -5658,14 +5636,6 @@
               "specificity": "MEDIUM"
             },
             {
-              "trigger": "break",
-              "action": "stop",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "HIGH",
-              "specificity": "MEDIUM"
-            },
-            {
               "trigger": "If we see problem",
               "action": "stop",
               "triggerType": "IMPLICIT_THRESHOLD",
@@ -5674,14 +5644,15 @@
               "specificity": "VAGUE"
             }
           ],
-          "bindingRatio": 0.5,
+          "bindingRatio": 0.375,
           "uniqueActions": 1,
-          "diversityRatio": 0.25,
-          "diversityWarning": true,
+          "uniqueSignals": 2,
+          "diversityRatio": 0.3333333333333333,
+          "diversityWarning": false,
           "tautologyCount": 4,
           "assessment": "TAUTOLOGICAL_BINDING"
         },
-        "overallBindingScore": 0.42625,
+        "overallBindingScore": 0.435,
         "specificity": {
           "trigger": "IMPLICIT",
           "action": "VAGUE",
@@ -5917,8 +5888,8 @@
           "assessment": "MODERATE_CLOSURE"
         },
         "implicitBindings": {
-          "score": 0.15,
-          "boundCount": 4,
+          "score": 0.2,
+          "boundCount": 3,
           "totalSignals": 8,
           "bindings": [
             {
@@ -5938,14 +5909,6 @@
               "specificity": "MEDIUM"
             },
             {
-              "trigger": "break",
-              "action": "stop",
-              "triggerType": "FAILURE_SIGNAL",
-              "actionCategory": "abort",
-              "confidence": "HIGH",
-              "specificity": "MEDIUM"
-            },
-            {
               "trigger": "If we see problem",
               "action": "stop",
               "triggerType": "IMPLICIT_THRESHOLD",
@@ -5954,14 +5917,15 @@
               "specificity": "VAGUE"
             }
           ],
-          "bindingRatio": 0.5,
+          "bindingRatio": 0.375,
           "uniqueActions": 1,
-          "diversityRatio": 0.25,
-          "diversityWarning": true,
+          "uniqueSignals": 2,
+          "diversityRatio": 0.3333333333333333,
+          "diversityWarning": false,
           "tautologyCount": 4,
           "assessment": "TAUTOLOGICAL_BINDING"
         },
-        "overallBindingScore": 0.42625,
+        "overallBindingScore": 0.435,
         "specificity": {
           "trigger": "IMPLICIT",
           "action": "VAGUE",
@@ -6351,6 +6315,7 @@
           ],
           "bindingRatio": 1,
           "uniqueActions": 1,
+          "uniqueSignals": 2,
           "diversityRatio": 0.5,
           "diversityWarning": false,
           "tautologyCount": 0,
@@ -6514,6 +6479,7 @@
           ],
           "bindingRatio": 1,
           "uniqueActions": 1,
+          "uniqueSignals": 2,
           "diversityRatio": 0.5,
           "diversityWarning": false,
           "tautologyCount": 0,
