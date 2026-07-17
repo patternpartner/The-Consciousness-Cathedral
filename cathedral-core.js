@@ -314,10 +314,37 @@ const StructuralExtractor = {
 
                 const uniqueObjects = new Set(contentWords);
 
+                // v3.27.0: a whole-document type/token ratio DECLINES with
+                // length by construction (vocabulary saturation), so past the
+                // tuned register the LOW threshold measures document length,
+                // not padding — the KEP validation measured the median falling
+                // 0.52 → 0.21 across length bands with 100% of 10k+-word
+                // documents below 0.3 (docs/KEP-VALIDATION.md, failure 1).
+                // The reference-length principle, applied to a RATIO: compute
+                // the mean type/token ratio over consecutive reference-length
+                // windows (the standard length-stable form of the statistic).
+                // Texts at or under one window — the register the thresholds
+                // were tuned on — are unchanged. Mechanical repetition stays
+                // LOW in every window; long diverse prose does not.
+                const OBJ_WINDOW = 100;
+                let ratio;
+                if (contentWords.length <= OBJ_WINDOW) {
+                    ratio = contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0;
+                } else {
+                    const windows = Math.floor(contentWords.length / OBJ_WINDOW);
+                    let sum = 0;
+                    for (let w = 0; w < windows; w++) {
+                        const seg = contentWords.slice(w * OBJ_WINDOW, (w + 1) * OBJ_WINDOW);
+                        sum += new Set(seg).size / OBJ_WINDOW;
+                    }
+                    ratio = sum / windows;
+                }
+
                 return {
                     total: contentWords.length,
                     unique: uniqueObjects.size,
-                    ratio: contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0
+                    ratio,
+                    windowed: contentWords.length > OBJ_WINDOW
                 };
             },
 

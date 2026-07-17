@@ -319,6 +319,35 @@ What went well. The rollback procedure worked exactly as rehearsed and completed
                 r.bindings.implicitBindings.bindScale === 1 &&
                 r.bindings.implicitBindings.effectiveBoundCount === r.bindings.implicitBindings.boundCount &&
                 r.bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT'
+  },
+  {
+    // Case 28 (windowed object ratio, v3.27.0): a whole-document type/token
+    // ratio declines with length by construction, so past the tuned register
+    // the LOW threshold measured document length, not padding (the KEP run's
+    // V1 failure: 100% of 10k+-word documents below 0.3). The ratio is now
+    // the mean over 100-content-word windows: mechanical repetition stays LOW
+    // in every window; long diverse prose does not. Both texts here exceed
+    // one window; only the repetitive one may be flagged.
+    name: 'Windowed object ratio: long repetition stays LOW, long diverse prose does not',
+    check: function() {
+      const repetitive = c.analyzeCathedral(
+        ('The substrate filters observe hidden gaps beneath every intention and output today. ').repeat(40));
+      const diverse = c.analyzeCathedral(
+        'The migration plan moves customer records from the legacy warehouse into the partitioned store over six weekends. ' +
+        'Engineers rehearse each batch against a staging replica, comparing checksums before promoting results. ' +
+        'Meanwhile the billing service gains idempotent retries, and its queue depth feeds a dashboard the operators watch during business hours. ' +
+        'Separately, the mobile team rewrites session handling so expired tokens refresh silently instead of logging people out mid-purchase. ' +
+        'Documentation moves alongside: runbooks describe recovery steps, capacity forecasts justify hardware orders, and quarterly reviews trace incidents back to their root causes. ' +
+        'Legal reviews the retention schedule while procurement negotiates renewal pricing with three vendors. ' +
+        'Training sessions introduce support staff to the refreshed console, its audit trail, and the escalation matrix. ' +
+        'Finally, marketing coordinates launch messaging with regional partners, translating announcements and scheduling webinars across four time zones.');
+      const rep = repetitive.structure.objects, div = diverse.structure.objects;
+      return rep.windowed === true && div.windowed === true &&
+             rep.ratio < 0.3 && div.ratio >= 0.5 &&
+             repetitive.gamingDetection.objectExtractionRatio.assessment === 'LOW' &&
+             diverse.gamingDetection.objectExtractionRatio.assessment !== 'LOW';
+    },
+    text: '(constructed pair — see check)'
   }
 ];
 
