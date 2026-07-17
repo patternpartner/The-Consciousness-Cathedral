@@ -262,6 +262,63 @@ What went well. The rollback procedure worked exactly as rehearsed and completed
              split.verdict.status !== 'OPERATIONAL INTENT';
     },
     text: '(constructed pair — see check)'
+  },
+  {
+    // Case 25 (binding density, downgrade side): two bindings in a document
+    // with 20+ distinct signals is chance-level co-occurrence, not a plan —
+    // the v3.17.0 reference-length principle applied to the binding path
+    // (v3.25.0). The text below carries two genuine same-sentence bindings
+    // but buries them under dozens of unbound failure signals, mirroring the
+    // long incident/runbook documents whose ratio-0.05 verdicts sat within
+    // noise of their own shuffled baselines.
+    name: 'Chance-level bindings in a signal-dense document do not mint the verdict',
+    text: 'If an error appears we alert the team, and when a regression lands we revert the change. ' +
+          'The quarterly retrospective listed problems in ingest, problems in billing, and further issues in replication. ' +
+          'Old issues resurfaced beside new concerns, and those concerns compounded the existing trouble. ' +
+          'The cache breaks were catalogued, and the failover breaks were noted next to them. ' +
+          'A failure in March, another failure in April, and repeated fails in May went into the ledger. ' +
+          'The log showed one error after another error, with bugs filed for each and a fault traced to the switch. ' +
+          'Defects in the firmware were documented. Something felt wrong in the dashboards, ' +
+          'the numbers looked bad, and several readings were incorrect. ' +
+          'The degradation continued, the regression lingered, and the trend grew worse. ' +
+          'Unexpected values kept arriving, some strange, some merely weird.',
+    check: r => r.bindings.implicitBindings.boundCount >= 2 &&
+                r.bindings.implicitBindings.totalSignals > 20 &&
+                r.bindings.implicitBindings.effectiveBoundCount < 2 &&
+                r.bindings.implicitBindings.assessment === 'SPARSE_BINDING' &&
+                r.verdict.status !== 'OPERATIONAL INTENT' &&
+                r.verdict.status !== 'OPERATIONALLY SOUND'
+  },
+  {
+    // Case 26 (binding density, preserve side): the guard scales, it does not
+    // cap — a signal-dense document whose bindings keep pace with its signal
+    // count still earns the assessment. Same signal-dense furniture as case
+    // 25, but with four bound conditionals instead of two: effective count
+    // stays at or above the tuned threshold.
+    name: 'Proportionally bound signal-dense document still earns OPERATIONAL_INTENT',
+    text: 'If an error appears we alert the team, and when a regression lands we revert the change. ' +
+          'If problems recur we page the on-call, and when the cache breaks we roll back the release. ' +
+          'The quarterly retrospective listed further issues in replication, and old issues resurfaced beside new concerns. ' +
+          'Those concerns compounded the existing trouble. ' +
+          'A failure in March, another failure in April, and repeated fails in May went into the ledger. ' +
+          'The log showed one error after another, with bugs filed for each and a fault traced to the switch. ' +
+          'Defects in the firmware were documented, the numbers looked bad, and several readings were incorrect. ' +
+          'The degradation continued and the trend grew worse. Unexpected values kept arriving, some strange, some merely weird.',
+    check: r => r.bindings.implicitBindings.boundCount >= 4 &&
+                r.bindings.implicitBindings.totalSignals > 20 &&
+                r.bindings.implicitBindings.effectiveBoundCount >= 2 &&
+                r.bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT'
+  },
+  {
+    // Case 27 (reference register untouched): at or under 20 signals the
+    // scale is 1 and nothing changes — the curated conversational register
+    // the ≥2 threshold was tuned on is byte-identical by construction.
+    name: 'At or under the reference signal count the density guard is inert',
+    text: 'If an error appears we alert the team, and when a regression lands we revert the change.',
+    check: r => r.bindings.implicitBindings.totalSignals <= 20 &&
+                r.bindings.implicitBindings.bindScale === 1 &&
+                r.bindings.implicitBindings.effectiveBoundCount === r.bindings.implicitBindings.boundCount &&
+                r.bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT'
   }
 ];
 

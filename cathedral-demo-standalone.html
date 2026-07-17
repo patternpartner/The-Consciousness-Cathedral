@@ -738,6 +738,23 @@ const BindingValidator = {
                 // repeated signal is not enumeration, so it cannot mint INTENT.
                 const uniqueSignals = new Set(bindings.map(b => (b.trigger || '').toLowerCase())).size;
 
+                // v3.25.0: binding DENSITY past the tuned register — the
+                // reference-length principle (v3.17.0) applied to the binding
+                // path, the frontier the diversity tightening recorded as open
+                // (docs/TIER2-DIVERSITY-TIGHTENING.md, honest residue). The
+                // ≥2-binding threshold was tuned on short conversational turns
+                // (~5 signals); in a signal-dense document (48 distinct
+                // signals, 76 actions) two same-sentence bindings form by
+                // chance — the openshift validation measured every genuine
+                // positive at ≤18 signals while the chance-level verdicts sat
+                // at 26–48 signals with binding ratios of 0.05–0.08, within
+                // noise of their own shuffled baselines. Scale the bound count
+                // to a reference signal count so the threshold means binding
+                // density: texts at or under the reference are unchanged.
+                const BIND_REF_SIGNALS = 20;
+                const bindScale = totalSignals > BIND_REF_SIGNALS ? BIND_REF_SIGNALS / totalSignals : 1;
+                const effectiveBoundCount = bindings.length * bindScale;
+
         // Base score from binding ratio
         let score = bindingRatio >= 0.5 ? 0.6 : bindingRatio >= 0.3 ? 0.4 : bindingRatio > 0 ? 0.2 : 0;
 
@@ -760,6 +777,13 @@ const BindingValidator = {
             assessment = 'SINGLE_SIGNAL_BINDING';
         }
 
+        // v3.25.0: downgrade if the bound count is chance-level for the
+        // document's signal density — two bindings among 40+ signals is
+        // co-occurrence, not a plan. Monotonic: only prevents the verdict.
+        if (effectiveBoundCount < 2 && assessment === 'OPERATIONAL_INTENT') {
+            assessment = 'SPARSE_BINDING';
+        }
+
         // Downgrade if bindings are tautological
         if (tautologyCount > 0 && bindings.length > 0) {
             score *= 0.5;
@@ -774,6 +798,8 @@ const BindingValidator = {
             bindingRatio,
             uniqueActions,
             uniqueSignals,
+            bindScale,
+            effectiveBoundCount,
             diversityRatio,
             diversityWarning,
             tautologyCount,
