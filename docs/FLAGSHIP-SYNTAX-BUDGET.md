@@ -22,3 +22,27 @@
 - **B4 — floor:** `npm test` fully green (all suites), `run-core-regressions.js` green including new cases pinning both sides; Test 2A, Test 2B, and regression case 4 keep their verdicts verbatim.
 
 **Acceptance rule:** all four hold → the fix ships as v3.32.0. Any one fails → the fix is reverted and published as a rejection with its numbers, alongside the witness rejection. Either way the measurement is reported against this document, and the nine fresh corpora become development data for whatever ships; the tenth register validates it.
+
+---
+
+## Outcome (measured 2026-07-17, same day): REJECTED — three of four criteria fail
+
+The fix was implemented exactly as designed above, the curated floor stayed fully green (84/84, regressions 29/29 — B4 held), and the budget measurement rendered:
+
+| Criterion | Budget | Measured | Verdict |
+|---|---|---|---|
+| B1 — no KEP control text ≥ 4/20 | 0 texts | **2 texts** (5/20 `1591-daemonset-surge`, 4/20 `3751-volume-attributes-class`) | **FAIL** |
+| B2 — ≥ 61 of 71 KEP positives keep family | ≤ 10 lost | **40 lost** (71 → 31) | **FAIL** |
+| B3 — ≤ 2 non-KEP positives lost | ≤ 2 | **4 lost** (Rust RFCs −2, OSE enhancements −2) | **FAIL** |
+| B4 — curated floor green, 2A/2B verbatim | green | green | PASS |
+
+**Reverted per the acceptance rule.** The core is byte-identical to its pre-fix state; this document is the record.
+
+## What the second rejection establishes
+
+Two structurally different fixes for the same residue have now been rejected by their own pre-stated numbers:
+
+1. **The witness** (v3.27.0 attempt): threshold + *corrective-action lexeme* in one sentence — killed 49/56, missed the worst offender. Lesson: plans respond with vocabulary far richer than any corrective lexicon.
+2. **The corroboration** (this attempt): *conditional connective* + threshold expression in one sentence — killed 40/71 plus 4 collateral, and still left 5/20 retention. Lesson: plans *state* thresholds at least as often as they *conditionalize* them — declaratively ("the metric must stay below 1%", "requires at least 3 replicas") and interrogatively (the PRR Q&A format that carries most KEP positives) — and no small syntactic frame captures those forms without slaughtering earned verdicts.
+
+The residue's true shape, after two rejections: the flagship's count-based routes credit *accumulated operational vocabulary whose arrangement the engine never checks*, and the arrangements genuine plans actually use are too varied for any binary local pattern — lexical or syntactic — to separate from shuffle noise. The remaining untried approach from this document's own preamble is the **graded** one: reference-scale the level-feeding counts themselves (densities, not requirements), which degrades smoothly instead of gating binarily. That attempt would need its own pre-registered budget. Until then the residue stands as recorded: ~3 of 40 control texts at 4–9/20, one register, tracked in every run.
