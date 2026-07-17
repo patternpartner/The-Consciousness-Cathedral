@@ -1,0 +1,38 @@
+{
+  "generated": "2026-07-17",
+  "seed": 20260717,
+  "minProseChars": 500,
+  "corpus": "HuggingFaceTB/cosmopedia config=wikihow split=train offsets 0-500 (AI-authored by construction; date-bounded fetch)",
+  "evaluatorUnmodified": true,
+  "population": {
+    "documents": 600,
+    "verdictDistribution": {
+      "VERIFIED CONSISTENT": 458,
+      "UNDECIDABLE": 84,
+      "SUBSTRATE VISIBLE": 46,
+      "COHERENT BUT SHALLOW": 11,
+      "NON-ACTIONABLE": 1
+    },
+    "operationalFamilyRate": "0.0%",
+    "operationallySoundRate": "0.0%",
+    "outsideDesignSpaceRate": "0.0%",
+    "gamingFlaggedRate": "0.2%",
+    "gamingKinds": {
+      "LOW_CONTENT_UNBOUND": 1
+    },
+    "v1ai": "PASS-register-driven-not-authorship-driven",
+    "sAiNote": "human band outside mandated questionnaires: 0.0-2.9%; KEPs with PRR questionnaire: 11.6%",
+    "positiveIds": []
+  },
+  "g6struct": {
+    "pooledPositives": 0,
+    "controlTexts": 0,
+    "subsampled": false,
+    "trials": 0,
+    "retained": 0,
+    "perText": [],
+    "retentionRate": "0.0%",
+    "worstText": 0,
+    "g6struct": "PASS-vacuous (no positives fired)"
+  }
+}

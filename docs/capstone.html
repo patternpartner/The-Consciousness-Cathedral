@@ -1,3 +1,382 @@
+<style>
+  :root {
+    --paper:#F1F3F6; --panel:#FBFCFD; --ink:#171A21; --ink-soft:#3C4250;
+    --muted:#657085; --hair:#D9DDE4; --hair-soft:#E7EAEF;
+    --accent:#2B4B8F; --accent-soft:#5A78B8; --track:#E2E6EC;
+    --pass:#1F7A55; --pass-bg:#E4F1EA; --fail:#B0392C; --fail-bg:#F6E4E1;
+    --hold:#9C6A15; --hold-bg:#F4EBD9;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#101318; --panel:#161A21; --ink:#E7E9ED; --ink-soft:#C2C7D1;
+      --muted:#8A93A3; --hair:#282E38; --hair-soft:#20252E;
+      --accent:#8AA9E6; --accent-soft:#6C8AC6; --track:#232A34;
+      --pass:#54C093; --pass-bg:#16271F; --fail:#E58072; --fail-bg:#2C1B18;
+      --hold:#D6A657; --hold-bg:#2A2114;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#101318; --panel:#161A21; --ink:#E7E9ED; --ink-soft:#C2C7D1;
+    --muted:#8A93A3; --hair:#282E38; --hair-soft:#20252E;
+    --accent:#8AA9E6; --accent-soft:#6C8AC6; --track:#232A34;
+    --pass:#54C093; --pass-bg:#16271F; --fail:#E58072; --fail-bg:#2C1B18;
+    --hold:#D6A657; --hold-bg:#2A2114;
+  }
+  :root[data-theme="light"]{
+    --paper:#F1F3F6; --panel:#FBFCFD; --ink:#171A21; --ink-soft:#3C4250;
+    --muted:#657085; --hair:#D9DDE4; --hair-soft:#E7EAEF;
+    --accent:#2B4B8F; --accent-soft:#5A78B8; --track:#E2E6EC;
+    --pass:#1F7A55; --pass-bg:#E4F1EA; --fail:#B0392C; --fail-bg:#F6E4E1;
+    --hold:#9C6A15; --hold-bg:#F4EBD9;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--serif);line-height:1.6;
+    -webkit-font-smoothing:antialiased;font-size:17px}
+  .wrap{max-width:940px;margin:0 auto;padding:clamp(28px,5vw,72px) clamp(20px,5vw,44px)}
+  .col{max-width:66ch}
+
+  .eyebrow{font-family:var(--sans);font-size:12px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 18px}
+  h1{font-size:clamp(30px,5.4vw,52px);line-height:1.08;font-weight:600;
+    letter-spacing:-.015em;text-wrap:balance;margin:0 0 20px}
+  .thesis{font-size:clamp(18px,2.4vw,22px);color:var(--ink-soft);
+    max-width:64ch;text-wrap:pretty;margin:0 0 6px}
+  .thesis b{color:var(--ink);font-weight:600}
+
+  h2{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);
+    margin:0 0 22px;padding-bottom:12px;border-bottom:1px solid var(--hair)}
+  section{margin-top:clamp(48px,7vw,84px)}
+  p{margin:0 0 18px;text-wrap:pretty}
+  p.col{max-width:66ch}
+  a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:2px}
+  b,strong{font-weight:600}
+  .lede{font-size:19px;color:var(--ink-soft)}
+
+  /* readout strip */
+  .readout{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    background:var(--hair);border:1px solid var(--hair);border-radius:12px;
+    overflow:hidden;margin-top:38px}
+  .cell{background:var(--panel);padding:20px 20px 18px}
+  .cell .fig{font-family:var(--mono);font-size:clamp(26px,3.6vw,34px);
+    font-weight:600;letter-spacing:-.02em;color:var(--ink);
+    font-variant-numeric:tabular-nums;line-height:1}
+  .cell .fig .u{font-size:.5em;color:var(--muted);margin-left:.15em}
+  .cell .cap{font-family:var(--sans);font-size:12.5px;line-height:1.4;
+    color:var(--muted);margin-top:10px}
+  .cell .cap b{color:var(--ink-soft)}
+  @media(max-width:680px){.readout{grid-template-columns:repeat(2,1fr)}}
+
+  /* register table */
+  .tablewrap{overflow-x:auto;margin:0 -4px}
+  table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:14px}
+  thead th{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--muted);text-align:left;padding:0 14px 10px;border-bottom:1px solid var(--hair);
+    white-space:nowrap;vertical-align:bottom}
+  thead th.num{text-align:right}
+  tbody td{padding:13px 14px;border-bottom:1px solid var(--hair-soft);vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  td.reg{font-family:var(--serif);font-size:15.5px;color:var(--ink);white-space:nowrap}
+  td.num{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums;
+    color:var(--ink-soft);white-space:nowrap}
+  tr.peak td.reg,tr.peak td.num{color:var(--ink);font-weight:600}
+  tr.peak{background:color-mix(in srgb,var(--accent) 6%,transparent)}
+  .auth{display:inline-block;font-family:var(--sans);font-size:11px;font-weight:600;
+    letter-spacing:.04em;padding:2px 8px;border-radius:999px;border:1px solid var(--hair)}
+  .auth.h{color:var(--muted)}
+  .auth.m{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,var(--hair))}
+
+  /* meter */
+  .meter{display:flex;align-items:center;gap:10px;min-width:150px}
+  .meter .track{position:relative;flex:1;height:8px;border-radius:999px;background:var(--track);overflow:hidden}
+  .meter .fill{position:absolute;inset:0 auto 0 0;height:100%;border-radius:999px;
+    background:var(--accent);width:var(--w)}
+  tr.peak .meter .fill{background:var(--accent)}
+  .meter .val{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;
+    color:var(--ink-soft);min-width:44px;text-align:right}
+  tr.peak .meter .val{color:var(--ink);font-weight:600}
+  .axisnote{font-family:var(--sans);font-size:11.5px;color:var(--muted);margin-top:12px}
+
+  /* chips */
+  .chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);
+    font-size:11.5px;font-weight:600;letter-spacing:.03em;padding:3px 9px;border-radius:6px;
+    white-space:nowrap}
+  .chip.pass{color:var(--pass);background:var(--pass-bg)}
+  .chip.fail{color:var(--fail);background:var(--fail-bg)}
+  .chip.hold{color:var(--hold);background:var(--hold-bg)}
+  .chip .dot{width:6px;height:6px;border-radius:999px;background:currentColor}
+
+  /* ledger */
+  .ledger{display:flex;flex-direction:column;gap:0;margin-top:6px}
+  .entry{display:grid;grid-template-columns:96px 1fr;gap:22px;padding:20px 0;
+    border-top:1px solid var(--hair-soft)}
+  .entry:first-child{border-top:none}
+  .entry .ver{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--accent);
+    padding-top:2px}
+  .entry .ver .kind{display:block;font-family:var(--sans);font-size:10.5px;font-weight:700;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+  .entry .body h3{font-family:var(--serif);font-size:19px;font-weight:600;margin:0 0 6px;
+    letter-spacing:-.01em}
+  .entry .body p{font-size:15.5px;color:var(--ink-soft);margin:0;max-width:60ch}
+  .entry .body .tag{margin-top:10px}
+  @media(max-width:600px){.entry{grid-template-columns:1fr;gap:8px}}
+
+  /* scorecard grid */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+  @media(max-width:600px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--hair);border-radius:12px;padding:20px 22px}
+  .card .k{font-family:var(--mono);font-size:22px;font-weight:600;color:var(--ink);
+    font-variant-numeric:tabular-nums}
+  .card .l{font-family:var(--sans);font-size:13px;color:var(--muted);margin-top:8px;line-height:1.45}
+  .card .l b{color:var(--ink-soft)}
+
+  ul.tight{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:14px}
+  ul.tight li{padding-left:22px;position:relative;color:var(--ink-soft);font-size:16px;max-width:64ch}
+  ul.tight li::before{content:"";position:absolute;left:2px;top:11px;width:7px;height:7px;
+    border-radius:2px;background:var(--accent-soft)}
+  ul.tight li b{color:var(--ink)}
+
+  .foot{margin-top:clamp(56px,8vw,96px);padding-top:26px;border-top:1px solid var(--hair);
+    font-family:var(--sans);font-size:13px;color:var(--muted);line-height:1.7}
+  .foot code{font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);
+    background:var(--hair-soft);padding:1px 6px;border-radius:4px}
+  .foot b{color:var(--ink-soft)}
+
+  /* live lab */
+  .lab{background:var(--panel);border:1px solid var(--hair);border-radius:14px;
+    padding:clamp(18px,3vw,26px);margin-top:8px}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .preset{font-family:var(--sans);font-size:12.5px;font-weight:500;cursor:pointer;
+    padding:6px 12px;border-radius:999px;border:1px solid var(--hair);background:transparent;
+    color:var(--ink-soft);transition:border-color .15s,color .15s,background .15s}
+  .preset:hover{border-color:var(--accent-soft);color:var(--ink)}
+  .preset .pdot{display:inline-block;width:7px;height:7px;border-radius:999px;
+    margin-right:7px;vertical-align:middle;background:var(--muted)}
+  .preset[data-cat="fam"] .pdot{background:var(--accent)}
+  .preset[data-cat="flag"] .pdot{background:var(--fail)}
+  .preset[data-cat="refuse"] .pdot{background:var(--hold)}
+  .preset:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .chamber{width:100%;min-height:140px;resize:vertical;font-family:var(--mono);font-size:14px;
+    line-height:1.6;color:var(--ink);background:var(--paper);border:1px solid var(--hair);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  .chamber:focus{outline:none;border-color:var(--accent-soft)}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .btn{font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;
+    padding:10px 20px;border-radius:9px;border:1px solid transparent;transition:filter .15s,background .15s}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  :root[data-theme="dark"] .btn.primary{color:#0F1218}
+  @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.primary{color:#0F1218}}
+  .btn.primary:hover{filter:brightness(1.07)}
+  .btn.ghost{background:transparent;color:var(--ink-soft);border-color:var(--hair)}
+  .btn.ghost:hover{border-color:var(--accent-soft);color:var(--ink)}
+  .shufnote{font-family:var(--sans);font-size:12.5px;color:var(--muted)}
+  .verdict{margin-top:22px;padding-top:22px;border-top:1px solid var(--hair)}
+  .vhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px}
+  .vname{font-family:var(--mono);font-size:clamp(20px,3vw,26px);font-weight:600;
+    letter-spacing:-.01em;color:var(--ink)}
+  .vname.fam{color:var(--accent)}
+  .vname.flag{color:var(--fail)}
+  .vname.refuse{color:var(--hold)}
+  .vtag{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.07em;
+    text-transform:uppercase;padding:3px 9px;border-radius:6px;color:var(--muted);background:var(--hair-soft)}
+  .vtag.fam{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+  .vprose{font-size:15.5px;color:var(--ink-soft);margin:14px 0 0;max-width:62ch}
+  .vgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--hair);
+    border:1px solid var(--hair);border-radius:10px;overflow:hidden;margin-top:20px}
+  .vg{background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+  .vk{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--muted)}
+  .vv{font-family:var(--mono);font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums}
+  @media(max-width:640px){.vgrid{grid-template-columns:repeat(2,1fr)}}
+
+  .reveal{opacity:0;transform:translateY(8px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+  .reveal.d1{animation-delay:.06s}.reveal.d2{animation-delay:.12s}.reveal.d3{animation-delay:.18s}
+  @keyframes rise{to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1;transform:none}}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow reveal">Cathedral · a deterministic structural evaluator · the register program</p>
+    <h1 class="reveal d1">Does this reasoning actually bind, or does it just sound like it does?</h1>
+    <p class="thesis reveal d2">Cathedral answers that with no model call — the same text always yields the same verdict, and every rule is visible in the source. This is the record of taking it to nine external corpora nobody tuned it on, under gates written into git <b>before</b> any verdict was computed, and publishing every result — including the failures — as measured.</p>
+
+    <div class="readout reveal d3">
+      <div class="cell"><div class="fig">9</div><div class="cap"><b>fresh registers</b>, ~4,260 documents, an unmodified core each run</div></div>
+      <div class="cell"><div class="fig">0.0–2.0<span class="u">%</span></div><div class="cap">operational-family rate on <b>eight</b> of nine registers — silent where there's no plan</div></div>
+      <div class="cell"><div class="fig">11.6<span class="u">%</span></div><div class="cap">the <b>ninth</b> — the one register whose template mandates a written operational plan</div></div>
+      <div class="cell"><div class="fig">0 / 14</div><div class="cap">white-box attacks that <b>breached</b> the flagship verdict, first strike, frozen suite</div></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>What the instrument measures</h2>
+    <p class="lede col">Cathedral checks whether operational elements are <b>connected</b>, not whether they're present. Is a threshold bound to an action? A failure mode to a mitigation? A policy to instrumentation? Keyword stuffing — <i>"we have thresholds, metrics, abort conditions, rollback…"</i> — is caught, not rewarded, because binding is what's scored.</p>
+    <p class="col">Its founding rule cuts in every direction, including at its own maker: <b>never trust surface markers; verify structure.</b> The test the whole program leans on is a word-shuffle control — scramble a document's words and a verdict built on real structure collapses, while one riding on vocabulary survives. Every operational-family verdict reported below was put through twenty seeded shuffles.</p>
+  </section>
+
+  <section>
+    <h2>Run the instrument yourself</h2>
+    <p class="lede col">This is not a screenshot. The real evaluator — the same JavaScript the entire program runs — is inlined into this page and executes in your browser. Nothing is sent anywhere. Load one of the red-team attacks, or your own text, and read the verdict.</p>
+    <div class="lab">
+      <div class="presets" id="presetRow"></div>
+      <textarea id="sampleText" class="chamber" spellcheck="false" aria-label="Text to analyze" placeholder="Paste reasoning here — a rollout plan, an incident write-up, a runbook — or load a sample above."></textarea>
+      <div class="controls">
+        <button id="runBtn" class="btn primary" type="button">Analyze</button>
+        <button id="shufBtn" class="btn ghost" type="button">Shuffle-test the verdict (×20)</button>
+        <span id="shufNote" class="shufnote" aria-live="polite"></span>
+      </div>
+      <div id="verdictOut" class="verdict" hidden>
+        <div class="vhead">
+          <span id="vName" class="vname"></span>
+          <span id="vTag" class="vtag"></span>
+        </div>
+        <p id="vProse" class="vprose"></p>
+        <div class="vgrid">
+          <div class="vg"><span class="vk">Gaming check</span><span id="vGaming" class="vv"></span></div>
+          <div class="vg"><span class="vk">Implicit binding</span><span id="vBind" class="vv"></span></div>
+          <div class="vg"><span class="vk">Failure structure</span><span id="vFail" class="vv"></span></div>
+          <div class="vg"><span class="vk">Confidence</span><span id="vConf" class="vv"></span></div>
+        </div>
+      </div>
+    </div>
+    <p class="axisnote"><b>Shuffle-test is the program's own control, run live.</b> It scrambles the word order twenty times and counts how many scrambles still earn the verdict — a result built on real structure mostly collapses; one riding on vocabulary survives. Load the genuine plan and shuffle-test it: only a few of the twenty hold. The keyword-stuffing never earned an operational verdict in the first place, so there is nothing for a scramble to take away.</p>
+  </section>
+
+  <section>
+    <h2>Nine registers · one unmodified core</h2>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Register</th>
+            <th>Author</th>
+            <th class="num">Docs</th>
+            <th>Operational-family rate</th>
+            <th class="num">Gaming</th>
+            <th class="num">Refused</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="reg">Wikimedia incidents</td><td><span class="auth h">human</span></td><td class="num">600</td>
+            <td><div class="meter"><div class="track"><div class="fill" style="--w:5.8%"></div></div><span class="val">0.7%</span></div></td>
+            <td class="num">1.0%</td><td class="num">0.2%</td>
+          </tr>
+          <tr>
+            <td class="reg">Wikimedia runbooks</td><td><span class="auth h">human</span></td><td class="num">174</td>
+            <td><div class="meter"><div class="track"><div class="fill" style="--w:5.0%"></div></div><span class="val">0.6%</span></div></td>
+            <td class="num">1.7%</td><td class="num">0.0%</td>
+          </tr>
+          <tr>
+            <td class="reg">Prometheus alerts</td><td><span class="auth h">human</span></td><td class="num">62</td>
+            <td><div class="meter"><div class="track"><div class="fill" style="--w:1%"></div></div><span class="val">0.0%</span></div></td>
+            <td class="num">0.0%</td><td class="num">0.0%</td>
+          </tr>
+          <tr>
+            <td class="reg">OpenShift alerts</td><td><span class="auth h">human</span></td><td class="num">256</td>
+            <td><div class="meter"><div class="track"><div class="fill" style="--w:16.7%"></div></div><span class="val">2.0%</span></div></td>
+            <td class="num">0.4%</td><td class="num">1.2%</td>
+          </tr>
+          <tr class="peak">
+            <td class="reg">Kubernetes KEPs</td><td><span class="auth h">human</span></td><td class="num">611</td>
+            <td><div class="meter"><div class="track"><div class="fill" style="--w:96.7%"></div></div><span class="val">11.6%</span></div></td>
+            <td class="num">0.8%</td><td class="num">0.5%</td>
+          </tr>
+          <tr>
+            <td class="reg">Rust RFCs</td><td><span class="auth h">human</span></td><td class="num">634</td>
+            <td><div class="meter"><div class="track"><div class="fill" style="--w:4.2%"></div></div><span class="val">0.5%</span></div></td>
+            <td class="num">0.5%</td><td class="num">0.9%</td>
+          </tr>
+          <tr>
+            <td class="reg">OpenShift enhancements</td><td><span class="auth h">human</span></td><td class="num">596</td>
+            <td><div class="meter"><div class="track"><div class="fill" style="--w:6.7%"></div></div><span class="val">0.8%</span></div></td>
+            <td class="num">1.2%</td><td class="num">0.8%</td>
+          </tr>
+          <tr>
+            <td class="reg">Cosmopedia how-to</td><td><span class="auth m">machine</span></td><td class="num">600</td>
+            <td><div class="meter"><div class="track"><div class="fill" style="--w:1%"></div></div><span class="val">0.0%</span></div></td>
+            <td class="num">0.2%</td><td class="num">0.0%</td>
+          </tr>
+          <tr>
+            <td class="reg">Python PEPs</td><td><span class="auth h">human</span></td><td class="num">725</td>
+            <td><div class="meter"><div class="track"><div class="fill" style="--w:5.0%"></div></div><span class="val">0.6%</span></div></td>
+            <td class="num">1.1%</td><td class="num">0.4%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="axisnote">Meter axis 0–12%. <b>Gaming</b> = share flagged as marker density without binding; <b>Refused</b> = share returned <span style="font-family:var(--mono);font-size:12.5px">OUTSIDE DESIGN SPACE</span> rather than scored. Both instrument columns hold near the floor on every register, human and machine alike — they respond to text shape, not authorship.</p>
+  </section>
+
+  <section>
+    <h2>The finding, resolved from both sides</h2>
+    <p class="lede col">Eight registers sit at 0–2%. One stands at 11.6%. The gap is not "planfulness" — Rust RFCs and PEPs are unmistakably plans and stay near the floor. The gap is <b>what the plans bind.</b></p>
+    <p class="col">Kubernetes KEPs embed a mandated Production Readiness Review — a written operational plan in every document: how the rollout fails, which metric triggers a rollback, whether the feature can be disabled. Remove just that section from the KEP positives and <b>53 of 71 drop out</b>, collapsing 11.6% toward the same ~3% as everything else. So the design space is now literal and two-sided: Cathedral credits <b>the written operational plan a document contains</b> — thresholds, failure modes, and responses bound in text — wherever it appears, and stays honestly silent on retrospectives, alert pages, design deliberation, and machine tutorials that carry none.</p>
+  </section>
+
+  <section>
+    <h2>The change ledger — three fixes shipped, two rejected, in the open</h2>
+    <p class="col" style="color:var(--muted);font-size:15px;margin-bottom:26px">Each fresh register that broke the core honestly forced one change, pinned by regressions on both sides and validated out-of-sample on the next register. Two attempted fixes failed their own pre-registered budgets and were reverted — and published with their numbers, because a rejection with evidence is a result.</p>
+    <div class="ledger">
+      <div class="entry">
+        <div class="ver">v3.23<span class="kind">shipped</span></div>
+        <div class="body"><h3>A repeated signal is not enumeration</h3><p>Short alert runbooks that bound one signal word many ways survived shuffling. Two guards — signal-side diversity and same-sentence binding — the mirror of rules the core already applied. <span class="chip pass"><span class="dot"></span>validated out-of-sample</span></p></div>
+      </div>
+      <div class="entry">
+        <div class="ver">v3.25<span class="kind">shipped</span></div>
+        <div class="body"><h3>An absolute count is not a plan at any scale</h3><p>Two bindings among forty-eight signals is co-occurrence, not structure. The reference-length principle extended to the binding path: the count becomes a density past the register it was tuned on. <span class="chip pass"><span class="dot"></span>validated out-of-sample</span></p></div>
+      </div>
+      <div class="entry">
+        <div class="ver">v3.27<span class="kind">shipped + rejected</span></div>
+        <div class="body"><h3>A type/token ratio needs a window, not a scale</h3><p>The gaming instrument was measuring document length. Windowing it fixed a 15.5%→0.8% false-flag rate. The same run's second fix — a same-sentence binding witness — <b>killed 49 of 56 earned verdicts</b> and was reverted. <span class="chip pass"><span class="dot"></span>fix validated</span> <span class="chip fail"><span class="dot"></span>witness rejected</span></p></div>
+      </div>
+      <div class="entry">
+        <div class="ver">—<span class="kind">rejected</span></div>
+        <div class="body"><h3>The syntax-corroboration fix, measured against its own budget</h3><p>A second attempt on the flagship's soft routes, pre-registered with an acceptance budget. It missed on three of four criteria — 40 of 71 earned verdicts lost — and was reverted the same day. Two rejections now fence the design space for whoever tries third. <span class="chip fail"><span class="dot"></span>reverted, published</span></p></div>
+      </div>
+      <div class="entry">
+        <div class="ver">v3.32<span class="kind">decided</span></div>
+        <div class="body"><h3>Two boundaries, decided out loud and reopenable</h3><p>After three fix families were rejected or foreclosed by arithmetic, the residual softness on token-dense plans is an <b>accepted, monitored boundary</b> with stated reopening conditions — not a defect papered over. And the verdict credits a plan as written: template provenance is outside a text evaluator's reach. <span class="chip hold"><span class="dot"></span>monitored, reopenable</span></p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The white-box red team</h2>
+    <p class="lede col">The strongest realistic attacker: a modern language model with full access to the source and the entire ledger, writing fourteen attacks aimed at named seams — then frozen into git <b>before</b> a single one was run. One shot, no tuning against results.</p>
+    <div class="grid2">
+      <div class="card"><div class="k">11 / 11</div><div class="l"><b>must-not-mint attacks held.</b> The diversity and density guards each caught the attack written to their own specification by their author.</div></div>
+      <div class="card"><div class="k">0</div><div class="l"><b>verdicts minted</b> — including the centerpiece: a questionnaire-shaped decoy stuffed with unbound operational vocabulary, aimed at the one boundary the ledger admits is soft. It landed outside the family.</div></div>
+      <div class="card"><div class="k">clean</div><div class="l"><b>the reopening probe.</b> A mandated form with vacuous answers earned nothing — confirming the template effect is content-carried, exactly as decided.</div></div>
+      <div class="card"><div class="k">held</div><div class="l"><b>sensitivity survived.</b> The same attacker's genuine plan earned the flagship and its genuine intent earned the partial-credit verdict — so the eleven refusals mean something.</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What stays open — stated plainly</h2>
+    <ul class="tight">
+      <li><b>The soft boundary is accepted, not solved.</b> A few flagship verdicts on token-dense plans retain 4–9 of 20 shuffles — under every standing threshold, reported by every run, with written conditions that would reopen the question.</li>
+      <li><b>One face of the authorship flag remains.</b> Ordinary machine text behaves like human text, and a white-box first strike held — but a corpus of <b>genuine</b> operational documents written by an uninformed external model is the one thing this program cannot author for itself. It's the standing invitation.</li>
+      <li><b>Every corpus here is now development data.</b> The moment a run tunes against a register, that register stops being a test. The next fresh register validates the next change — the pattern that has held for the whole program.</li>
+    </ul>
+  </section>
+
+  <div class="foot col">
+    <p><b>Every figure on this page reproduces.</b> The evaluator is a single dependency-free JavaScript module; each register has a byte-pinned fetch script and a validation script whose gates were committed before its verdicts. Runs are deterministic and were verified identical on re-run. The nine findings documents, the two decision records, and the frozen red-team suite live in the repository under <code>docs/</code> and <code>validation/</code>.</p>
+    <p style="margin-top:14px">Cathedral does not measure consciousness or understanding — text is precisely the surface a system can produce with nothing behind it, which is the tool's founding insight, not a limitation it forgot. It measures one thing, honestly, and says so at its edges.</p>
+  </div>
+
+</div>
+
+<script>
+/* inlined cathedral-core.js (generated; byte-identical to the tested module) */
 // Cathedral core — structural binding validation for operational reasoning.
 //
 // THIS FILE IS THE SOURCE OF TRUTH for the core evaluator. It was originally
@@ -2551,3 +2930,89 @@ if (typeof module !== 'undefined' && module.exports) {
 } else if (typeof window !== 'undefined') {
     window.CathedralCore = CathedralCore;
 }
+
+</script>
+<script>
+(function(){
+  var PRESETS = [{"label":"Genuine plan","cat":"fam","text":"Rollout plan for the connection-pool change. If the error rate exceeds 0.5% during any ten-minute window, we abort the rollout and roll back to the previous build. We have three failure modes: pool exhaustion under burst load, stale connections after network partition, and leaked handles from the retry path. For pool exhaustion we monitor the saturation gauge and page at 80%; for stale connections we track the handshake failure counter; for leaked handles we watch the descriptor count and restart the worker when it crosses 10,000. Rollback was rehearsed on Tuesday and completes in under four minutes."},{"label":"Conversational intent","cat":"fam","text":"We're starting the migration tomorrow morning. If we see problems with the sync, we stop and reassess before touching anything else. Two things could break: the index rebuild might stall, or the permissions copy might drop entries. We're watching the progress dashboard the whole time, and if things go sideways we pull back to the old cluster the same day."},{"label":"Fluent keyword stuffing","cat":"other","text":"Our deployment philosophy centers on operational excellence and comprehensive observability. We maintain rigorous thresholds, carefully tuned metrics, and well-documented rollback procedures across every service boundary. Monitoring dashboards, alerting pipelines, and failure-mode catalogs form the backbone of our reliability practice, and our runbooks reflect years of accumulated operational wisdom. Abort conditions, mitigation strategies, and escalation paths are first-class citizens in our engineering culture. We believe deeply in measurable outcomes: error budgets, latency percentiles, saturation signals, and capacity forecasts inform every decision. Postmortems are blameless, action items are tracked, and observability is everyone's responsibility. This commitment to instrumentation, resilience, and continuous verification is what separates mature operations from hopeful ones."},{"label":"Questionnaire decoy","cat":"other","text":"Production Readiness Review Questionnaire.\n\nHow can this feature be enabled or disabled? A feature gate controls enablement, and operators retain the ability to disable it. When conditions warrant, the gate can be turned off and the previous behavior resumes. Rollback is available at every stage of the rollout.\n\nHow can a rollout fail? A rollout can fail if error rates climb, if latency degrades, or if resource limits are approached. Failure of the new path, timeout problems, and unexpected regression in dependent components have all been considered. The maximum acceptable error percentage and the minimum acceptable throughput were discussed during design review.\n\nWhat metrics inform a rollback? Teams should watch error percentages, saturation, threshold crossings on the primary dashboard, and any spike in customer-visible problems. If operators see sustained degradation they can pause the rollout, halt further propagation, and revert the change. Monitoring coverage includes the standard latency histograms and the failure counters exported by the controller.\n\nWere upgrade and rollback tested? The upgrade path was exercised in staging. The rollback procedure exists and the abort pathway was reviewed. Below the stated capacity limit, behavior is expected to remain within tolerances; above it, degradation is possible and mitigation would be undertaken.\n\nWhat are the SLOs? The service targets the usual availability percentage adopted across the platform, with error budgets and burn alerts configured in the standard fashion. Threshold values for the alerts follow the platform defaults, and the limit for queue depth matches the maximum used elsewhere."},{"label":"Single-signal alert","cat":"other","text":"Regression Alert Runbook. This alert fires when a regression is detected in the nightly benchmark suite. When a regression appears, the on-call engineer should alert the performance channel immediately. If the regression persists across two consecutive runs, revert the most recent change to the affected component. Should the regression continue after the revert, alert the component owners and escalate. A regression in the critical path warrants paging the release manager. After any regression-triggered revert, document the regression in the tracking issue and monitor the next benchmark run to confirm the regression has cleared."},{"label":"Incident story","cat":"other","text":"The Tuesday outage began quietly, the way the bad ones always do. A routine certificate rotation on the edge tier completed without complaint at 09:14, and for twenty minutes nothing seemed amiss. Then the first alerts arrived — a trickle of TLS handshake failures from the oldest client fleet, the ones pinned to an intermediate that the rotation had silently retired. By 09:50 the trickle was a flood. The on-call engineer, two weeks into the role, did the brave thing and declared an incident rather than hoping it would pass. The team assembled, the graphs told their story, and the old intermediate was restored from the escrow store by 10:32. Traffic recovered in waves as caches expired. The retrospective the following week was blameless and thorough: the pinned-client inventory nobody owned, the rotation checklist that assumed a fleet that no longer existed, the alert that fired on symptoms rather than the cause. Everyone agreed it could have been much worse, and everyone was right."}];
+  var byId = function(id){ return document.getElementById(id); };
+  var row = byId('presetRow'), ta = byId('sampleText'), out = byId('verdictOut'),
+      shufNote = byId('shufNote');
+
+  function category(status){
+    if(status === 'OPERATIONALLY SOUND' || status === 'OPERATIONAL INTENT') return 'fam';
+    if(status === 'NON-ACTIONABLE') return 'flag';
+    if(status === 'OUTSIDE DESIGN SPACE') return 'refuse';
+    return 'other';
+  }
+  function wordShuffle(text){
+    var w = text.split(/\s+/).filter(Boolean);
+    for(var i = w.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = w[i]; w[i] = w[j]; w[j] = t;
+    }
+    return w.join(' ');
+  }
+  function render(a, shuffled){
+    var v = a.verdict, cat = category(v.status);
+    var name = byId('vName');
+    name.textContent = v.status;
+    name.className = 'vname' + (cat !== 'other' ? ' ' + cat : '');
+    var tag = byId('vTag');
+    tag.textContent = cat === 'fam' ? 'operational family'
+      : cat === 'refuse' ? 'refused — outside design space'
+      : cat === 'flag' ? 'flagged — not actionable' : 'evaluated';
+    tag.className = 'vtag' + (cat === 'fam' ? ' fam' : '');
+    byId('vProse').textContent = (v.verdict || '').split('\n')[0];
+    var ib = a.bindings.implicitBindings, fm = a.failureMode.details.failureModes;
+    byId('vGaming').textContent = a.gamingDetection.assessment;
+    byId('vBind').textContent = ib.assessment + ' (' + ib.boundCount + ')';
+    byId('vFail').textContent = fm.structural ? ('bound · ' + fm.thresholds + ' thresholds') : 'none';
+    byId('vConf').textContent = Math.round((v.confidence || 0) * 100) + '%';
+    out.hidden = false;
+  }
+  function analyze(){
+    if(typeof CathedralCore === 'undefined'){ shufNote.textContent = 'evaluator failed to load'; return; }
+    var text = ta.value.trim();
+    if(!text){ shufNote.textContent = 'enter or load some text first'; return; }
+    render(CathedralCore.analyzeCathedral(text));
+    shufNote.textContent = '';
+    out.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+  // The program's own control, run live: scramble word order N times and count
+  // how many shuffles still earn an operational-family verdict. A verdict built
+  // on structure collapses; one riding on vocabulary survives. Statistical, not
+  // single-shot — which is the honest thing it is.
+  function shuffleTest(){
+    if(typeof CathedralCore === 'undefined'){ shufNote.textContent = 'evaluator failed to load'; return; }
+    var text = ta.value.trim();
+    if(!text){ shufNote.textContent = 'enter or load some text first'; return; }
+    var base = CathedralCore.analyzeCathedral(text);
+    render(base);
+    out.scrollIntoView({behavior:'smooth', block:'nearest'});
+    if(category(base.verdict.status) !== 'fam'){
+      shufNote.textContent = 'no operational-family verdict here — nothing for a shuffle to destroy';
+      return;
+    }
+    var N = 20, kept = 0;
+    for(var i = 0; i < N; i++){
+      var s = CathedralCore.analyzeCathedral(wordShuffle(text)).verdict.status;
+      if(s === 'OPERATIONALLY SOUND' || s === 'OPERATIONAL INTENT') kept++;
+    }
+    shufNote.textContent = kept + ' of ' + N + ' word-scrambles still earned it — '
+      + (kept <= 4 ? 'the verdict rode on structure, not vocabulary'
+         : kept <= 10 ? 'mostly structural' : 'unexpectedly shuffle-robust — worth inspecting');
+  }
+
+  PRESETS.forEach(function(p){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'preset'; b.setAttribute('data-cat', p.cat);
+    b.innerHTML = '<span class="pdot"></span>' + p.label;
+    b.addEventListener('click', function(){ ta.value = p.text; shufNote.textContent = ''; analyze(); });
+    row.appendChild(b);
+  });
+  byId('runBtn').addEventListener('click', analyze);
+  byId('shufBtn').addEventListener('click', shuffleTest);
+})();
+</script>
+

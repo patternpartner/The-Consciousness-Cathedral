@@ -420,10 +420,37 @@ const StructuralExtractor = {
 
                 const uniqueObjects = new Set(contentWords);
 
+                // v3.27.0: a whole-document type/token ratio DECLINES with
+                // length by construction (vocabulary saturation), so past the
+                // tuned register the LOW threshold measures document length,
+                // not padding — the KEP validation measured the median falling
+                // 0.52 → 0.21 across length bands with 100% of 10k+-word
+                // documents below 0.3 (docs/KEP-VALIDATION.md, failure 1).
+                // The reference-length principle, applied to a RATIO: compute
+                // the mean type/token ratio over consecutive reference-length
+                // windows (the standard length-stable form of the statistic).
+                // Texts at or under one window — the register the thresholds
+                // were tuned on — are unchanged. Mechanical repetition stays
+                // LOW in every window; long diverse prose does not.
+                const OBJ_WINDOW = 100;
+                let ratio;
+                if (contentWords.length <= OBJ_WINDOW) {
+                    ratio = contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0;
+                } else {
+                    const windows = Math.floor(contentWords.length / OBJ_WINDOW);
+                    let sum = 0;
+                    for (let w = 0; w < windows; w++) {
+                        const seg = contentWords.slice(w * OBJ_WINDOW, (w + 1) * OBJ_WINDOW);
+                        sum += new Set(seg).size / OBJ_WINDOW;
+                    }
+                    ratio = sum / windows;
+                }
+
                 return {
                     total: contentWords.length,
                     unique: uniqueObjects.size,
-                    ratio: contentWords.length > 0 ? uniqueObjects.size / contentWords.length : 0
+                    ratio,
+                    windowed: contentWords.length > OBJ_WINDOW
                 };
             },
 
@@ -738,6 +765,23 @@ const BindingValidator = {
                 // repeated signal is not enumeration, so it cannot mint INTENT.
                 const uniqueSignals = new Set(bindings.map(b => (b.trigger || '').toLowerCase())).size;
 
+                // v3.25.0: binding DENSITY past the tuned register — the
+                // reference-length principle (v3.17.0) applied to the binding
+                // path, the frontier the diversity tightening recorded as open
+                // (docs/TIER2-DIVERSITY-TIGHTENING.md, honest residue). The
+                // ≥2-binding threshold was tuned on short conversational turns
+                // (~5 signals); in a signal-dense document (48 distinct
+                // signals, 76 actions) two same-sentence bindings form by
+                // chance — the openshift validation measured every genuine
+                // positive at ≤18 signals while the chance-level verdicts sat
+                // at 26–48 signals with binding ratios of 0.05–0.08, within
+                // noise of their own shuffled baselines. Scale the bound count
+                // to a reference signal count so the threshold means binding
+                // density: texts at or under the reference are unchanged.
+                const BIND_REF_SIGNALS = 20;
+                const bindScale = totalSignals > BIND_REF_SIGNALS ? BIND_REF_SIGNALS / totalSignals : 1;
+                const effectiveBoundCount = bindings.length * bindScale;
+
         // Base score from binding ratio
         let score = bindingRatio >= 0.5 ? 0.6 : bindingRatio >= 0.3 ? 0.4 : bindingRatio > 0 ? 0.2 : 0;
 
@@ -760,6 +804,13 @@ const BindingValidator = {
             assessment = 'SINGLE_SIGNAL_BINDING';
         }
 
+        // v3.25.0: downgrade if the bound count is chance-level for the
+        // document's signal density — two bindings among 40+ signals is
+        // co-occurrence, not a plan. Monotonic: only prevents the verdict.
+        if (effectiveBoundCount < 2 && assessment === 'OPERATIONAL_INTENT') {
+            assessment = 'SPARSE_BINDING';
+        }
+
         // Downgrade if bindings are tautological
         if (tautologyCount > 0 && bindings.length > 0) {
             score *= 0.5;
@@ -774,6 +825,8 @@ const BindingValidator = {
             bindingRatio,
             uniqueActions,
             uniqueSignals,
+            bindScale,
+            effectiveBoundCount,
             diversityRatio,
             diversityWarning,
             tautologyCount,

@@ -262,6 +262,92 @@ What went well. The rollback procedure worked exactly as rehearsed and completed
              split.verdict.status !== 'OPERATIONAL INTENT';
     },
     text: '(constructed pair — see check)'
+  },
+  {
+    // Case 25 (binding density, downgrade side): two bindings in a document
+    // with 20+ distinct signals is chance-level co-occurrence, not a plan —
+    // the v3.17.0 reference-length principle applied to the binding path
+    // (v3.25.0). The text below carries two genuine same-sentence bindings
+    // but buries them under dozens of unbound failure signals, mirroring the
+    // long incident/runbook documents whose ratio-0.05 verdicts sat within
+    // noise of their own shuffled baselines.
+    name: 'Chance-level bindings in a signal-dense document do not mint the verdict',
+    text: 'If an error appears we alert the team, and when a regression lands we revert the change. ' +
+          'The quarterly retrospective listed problems in ingest, problems in billing, and further issues in replication. ' +
+          'Old issues resurfaced beside new concerns, and those concerns compounded the existing trouble. ' +
+          'The cache breaks were catalogued, and the failover breaks were noted next to them. ' +
+          'A failure in March, another failure in April, and repeated fails in May went into the ledger. ' +
+          'The log showed one error after another error, with bugs filed for each and a fault traced to the switch. ' +
+          'Defects in the firmware were documented. Something felt wrong in the dashboards, ' +
+          'the numbers looked bad, and several readings were incorrect. ' +
+          'The degradation continued, the regression lingered, and the trend grew worse. ' +
+          'Unexpected values kept arriving, some strange, some merely weird.',
+    check: r => r.bindings.implicitBindings.boundCount >= 2 &&
+                r.bindings.implicitBindings.totalSignals > 20 &&
+                r.bindings.implicitBindings.effectiveBoundCount < 2 &&
+                r.bindings.implicitBindings.assessment === 'SPARSE_BINDING' &&
+                r.verdict.status !== 'OPERATIONAL INTENT' &&
+                r.verdict.status !== 'OPERATIONALLY SOUND'
+  },
+  {
+    // Case 26 (binding density, preserve side): the guard scales, it does not
+    // cap — a signal-dense document whose bindings keep pace with its signal
+    // count still earns the assessment. Same signal-dense furniture as case
+    // 25, but with four bound conditionals instead of two: effective count
+    // stays at or above the tuned threshold.
+    name: 'Proportionally bound signal-dense document still earns OPERATIONAL_INTENT',
+    text: 'If an error appears we alert the team, and when a regression lands we revert the change. ' +
+          'If problems recur we page the on-call, and when the cache breaks we roll back the release. ' +
+          'The quarterly retrospective listed further issues in replication, and old issues resurfaced beside new concerns. ' +
+          'Those concerns compounded the existing trouble. ' +
+          'A failure in March, another failure in April, and repeated fails in May went into the ledger. ' +
+          'The log showed one error after another, with bugs filed for each and a fault traced to the switch. ' +
+          'Defects in the firmware were documented, the numbers looked bad, and several readings were incorrect. ' +
+          'The degradation continued and the trend grew worse. Unexpected values kept arriving, some strange, some merely weird.',
+    check: r => r.bindings.implicitBindings.boundCount >= 4 &&
+                r.bindings.implicitBindings.totalSignals > 20 &&
+                r.bindings.implicitBindings.effectiveBoundCount >= 2 &&
+                r.bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT'
+  },
+  {
+    // Case 27 (reference register untouched): at or under 20 signals the
+    // scale is 1 and nothing changes — the curated conversational register
+    // the ≥2 threshold was tuned on is byte-identical by construction.
+    name: 'At or under the reference signal count the density guard is inert',
+    text: 'If an error appears we alert the team, and when a regression lands we revert the change.',
+    check: r => r.bindings.implicitBindings.totalSignals <= 20 &&
+                r.bindings.implicitBindings.bindScale === 1 &&
+                r.bindings.implicitBindings.effectiveBoundCount === r.bindings.implicitBindings.boundCount &&
+                r.bindings.implicitBindings.assessment === 'OPERATIONAL_INTENT'
+  },
+  {
+    // Case 28 (windowed object ratio, v3.27.0): a whole-document type/token
+    // ratio declines with length by construction, so past the tuned register
+    // the LOW threshold measured document length, not padding (the KEP run's
+    // V1 failure: 100% of 10k+-word documents below 0.3). The ratio is now
+    // the mean over 100-content-word windows: mechanical repetition stays LOW
+    // in every window; long diverse prose does not. Both texts here exceed
+    // one window; only the repetitive one may be flagged.
+    name: 'Windowed object ratio: long repetition stays LOW, long diverse prose does not',
+    check: function() {
+      const repetitive = c.analyzeCathedral(
+        ('The substrate filters observe hidden gaps beneath every intention and output today. ').repeat(40));
+      const diverse = c.analyzeCathedral(
+        'The migration plan moves customer records from the legacy warehouse into the partitioned store over six weekends. ' +
+        'Engineers rehearse each batch against a staging replica, comparing checksums before promoting results. ' +
+        'Meanwhile the billing service gains idempotent retries, and its queue depth feeds a dashboard the operators watch during business hours. ' +
+        'Separately, the mobile team rewrites session handling so expired tokens refresh silently instead of logging people out mid-purchase. ' +
+        'Documentation moves alongside: runbooks describe recovery steps, capacity forecasts justify hardware orders, and quarterly reviews trace incidents back to their root causes. ' +
+        'Legal reviews the retention schedule while procurement negotiates renewal pricing with three vendors. ' +
+        'Training sessions introduce support staff to the refreshed console, its audit trail, and the escalation matrix. ' +
+        'Finally, marketing coordinates launch messaging with regional partners, translating announcements and scheduling webinars across four time zones.');
+      const rep = repetitive.structure.objects, div = diverse.structure.objects;
+      return rep.windowed === true && div.windowed === true &&
+             rep.ratio < 0.3 && div.ratio >= 0.5 &&
+             repetitive.gamingDetection.objectExtractionRatio.assessment === 'LOW' &&
+             diverse.gamingDetection.objectExtractionRatio.assessment !== 'LOW';
+    },
+    text: '(constructed pair — see check)'
   }
 ];
 

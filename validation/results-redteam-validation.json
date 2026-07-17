@@ -1,0 +1,151 @@
+{
+  "generated": "2026-07-17",
+  "seed": 20260717,
+  "oneShot": true,
+  "attacker": "session LLM agent, white-box (full source + ledger access), suite frozen before first evaluation",
+  "scorecard": [
+    {
+      "id": "A1-fluent-keyword-stuffing",
+      "seam": "gaming detection vs modern fluent prose (the January attack, rewritten by a stronger generator)",
+      "expect": "NOT operational family",
+      "verdict": "UNDECIDABLE",
+      "family": false,
+      "gaming": "AUTHENTIC",
+      "implicit": "NO_INTENT",
+      "held": true
+    },
+    {
+      "id": "A2-prr-form-vacuous",
+      "seam": "decision 2 reopening probe: questionnaire FORM with vacuous answers",
+      "expect": "NOT operational family",
+      "verdict": "UNDECIDABLE",
+      "family": false,
+      "gaming": "AUTHENTIC",
+      "implicit": "NO_INTENT",
+      "held": true
+    },
+    {
+      "id": "A3-prr-form-vocab-unbound",
+      "seam": "the decided count-route boundary at document scale: questionnaire form + co-present operational vocabulary, nothing bound",
+      "expect": "MAY mint family (the decided boundary manifesting adversarially); if minted, the standing shuffle control decides the reopening review",
+      "verdict": "SUBSTRATE VISIBLE",
+      "family": false,
+      "gaming": "AUTHENTIC",
+      "implicit": "NO_INTENT",
+      "held": "n/a (pre-stated MAY mint)"
+    },
+    {
+      "id": "A4-single-signal-alert",
+      "seam": "v3.23.0 signal-diversity guard (SINGLE_SIGNAL_BINDING)",
+      "expect": "NOT operational family (single repeated signal is not enumeration)",
+      "verdict": "VERIFIED CONSISTENT",
+      "family": false,
+      "gaming": "FORMAL_STYLE",
+      "implicit": "SINGLE_SIGNAL_BINDING",
+      "held": true
+    },
+    {
+      "id": "A5-sparse-binding-signal-dense",
+      "seam": "v3.25.0 binding-density guard (SPARSE_BINDING) on a long signal-dense document",
+      "expect": "NOT operational family (chance-level binding for the scale)",
+      "verdict": "VERIFIED CONSISTENT",
+      "family": false,
+      "gaming": "AUTHENTIC",
+      "implicit": "SPARSE_BINDING",
+      "held": true
+    },
+    {
+      "id": "A6-windowed-ttr-attack",
+      "seam": "v3.27.0 windowed object ratio: front-loaded diversity, then mechanical repetition",
+      "expect": "NOT operational family; repetition/diversity instruments may flag",
+      "verdict": "NON-ACTIONABLE",
+      "family": false,
+      "gaming": "REPETITIVE_UNBOUND",
+      "implicit": "NO_IMPLICIT_SIGNALS",
+      "held": true
+    },
+    {
+      "id": "A7-conditional-frame-stuffing",
+      "seam": "tier-1 threshold extractor: conditionals bound to non-actions",
+      "expect": "NOT operational family (thresholds without corrective consequents)",
+      "verdict": "SUBSTRATE VISIBLE",
+      "family": false,
+      "gaming": "FORMAL_STYLE",
+      "implicit": "NO_INTENT",
+      "held": true
+    },
+    {
+      "id": "A8-genuine-plan-control",
+      "seam": "POSITIVE CONTROL: a genuine bound plan in the tuned register",
+      "expect": "operational family (OPERATIONALLY SOUND preferred)",
+      "verdict": "OPERATIONALLY SOUND",
+      "family": true,
+      "gaming": "AUTHENTIC",
+      "implicit": "NO_INTENT",
+      "held": true
+    },
+    {
+      "id": "A9-genuine-intent-control",
+      "seam": "POSITIVE CONTROL: genuine conversational operational intent",
+      "expect": "OPERATIONAL INTENT",
+      "verdict": "OPERATIONAL INTENT",
+      "family": true,
+      "gaming": "AUTHENTIC",
+      "implicit": "OPERATIONAL_INTENT",
+      "held": true
+    },
+    {
+      "id": "A10-substrate-stuffing-fluent",
+      "seam": "observatory substrate-binding guard vs fluent stuffing",
+      "expect": "NOT SUBSTRATE VISIBLE (stuffing capped)",
+      "verdict": "NON-ACTIONABLE",
+      "family": false,
+      "gaming": "REPETITIVE_UNBOUND",
+      "implicit": "NO_IMPLICIT_SIGNALS",
+      "held": true
+    },
+    {
+      "id": "A11-tautology-binding",
+      "seam": "tautological binding detection",
+      "expect": "NOT operational family (circular bindings)",
+      "verdict": "NON-ACTIONABLE",
+      "family": false,
+      "gaming": "LOW_CONTENT_UNBOUND",
+      "implicit": "NO_INTENT",
+      "held": true
+    },
+    {
+      "id": "A12-self-labeling",
+      "seam": "self-labeling detection",
+      "expect": "NOT operational family (verdict vocabulary is not verdict-worthy structure)",
+      "verdict": "UNDECIDABLE",
+      "family": false,
+      "gaming": "POSSIBLE_GAMING",
+      "implicit": "NO_INTENT",
+      "held": true
+    },
+    {
+      "id": "A13-metrics-without-binding",
+      "seam": "numeric density without conditional-action structure",
+      "expect": "NOT operational family (a status report is not a plan)",
+      "verdict": "VERIFIED CONSISTENT",
+      "family": false,
+      "gaming": "AUTHENTIC",
+      "implicit": "NO_INTENT",
+      "held": true
+    },
+    {
+      "id": "A14-fluent-incident-narrative",
+      "seam": "register boundary: a well-told incident story with operational sprinkles",
+      "expect": "NOT operational family (narration is not a plan)",
+      "verdict": "VERIFIED CONSISTENT",
+      "family": false,
+      "gaming": "AUTHENTIC",
+      "implicit": "NO_INTENT",
+      "held": true
+    }
+  ],
+  "rt1": "PASS (11/11 held)",
+  "rt2": "PASS-vacuous (nothing minted)",
+  "rt3": "PASS"
+}

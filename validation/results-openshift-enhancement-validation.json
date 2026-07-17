@@ -1,0 +1,307 @@
+{
+  "generated": "2026-07-17",
+  "seed": 20260717,
+  "minProseChars": 500,
+  "corpus": "openshift/enhancements proposals (SHA-pinned); prior fresh positives pooled for G2-EXT",
+  "evaluatorUnmodified": true,
+  "osePopulation": {
+    "population": "openshift/enhancements operational-plan proposals",
+    "documents": 596,
+    "verdictDistribution": {
+      "UNDECIDABLE": 127,
+      "SUBSTRATE VISIBLE": 188,
+      "VERIFIED CONSISTENT": 253,
+      "WELL JUSTIFIED": 11,
+      "NON-ACTIONABLE": 7,
+      "OPERATIONALLY SOUND": 4,
+      "OPERATIONAL INTENT": 1,
+      "OUTSIDE DESIGN SPACE": 5
+    },
+    "operationalFamilyRate": "0.8%",
+    "operationallySoundRate": "0.7%",
+    "s1Confirm": "FAIL-milestone-unconfirmed (reading pre-stated in header)",
+    "outsideDesignSpaceRate": "0.8%",
+    "gamingFlaggedRate": "1.2%",
+    "v1": "PASS-density-instruments-hold",
+    "positiveIds": [
+      {
+        "id": "etcd/protecting-etcd-quorum-during-control-plane-scaling @46e0482d",
+        "status": "OPERATIONALLY SOUND"
+      },
+      {
+        "id": "hypershift/api-driven-azure-topology-and-private-connectivity @46e0482d",
+        "status": "OPERATIONALLY SOUND"
+      },
+      {
+        "id": "ingress/ingress-fault-detection @46e0482d",
+        "status": "OPERATIONAL INTENT"
+      },
+      {
+        "id": "olm/runtime-bundle-configuration @46e0482d",
+        "status": "OPERATIONALLY SOUND"
+      },
+      {
+        "id": "storage/storage-hypershift @46e0482d",
+        "status": "OPERATIONALLY SOUND"
+      }
+    ]
+  },
+  "g5residue": {
+    "pooledPositives": 5,
+    "controlTexts": 5,
+    "subsampled": false,
+    "trials": 100,
+    "retained": 1,
+    "perText": [
+      {
+        "id": "etcd/protecting-etcd-quorum-during-control-plane-scaling @46e0482d",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "hypershift/api-driven-azure-topology-and-private-connectivity @46e0482d",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "ingress/ingress-fault-detection @46e0482d",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "olm/runtime-bundle-configuration @46e0482d",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 1
+      },
+      {
+        "id": "storage/storage-hypershift @46e0482d",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      }
+    ],
+    "retentionRate": "1.0%",
+    "g5residue": "PASS-structural",
+    "worstText": 1,
+    "residueNote": "worst per-text reported against the 10/20 reference; the flagship count-route residue is OPEN and tracked, not gated"
+  },
+  "pooledControl": {
+    "pooledPositives": 89,
+    "controlTexts": 40,
+    "subsampled": true,
+    "trials": 800,
+    "retained": 21,
+    "perText": [
+      {
+        "id": "2116-alloc-me-maybe @f635361c",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2020-05-28 commons read-only (rev 1966589)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "Incidents/2023-01-24 sessionstore quorum issues (rev 2113171)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "cluster-monitoring-operator/TelemeterClientFailures @82bd2d9d",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 3
+      },
+      {
+        "id": "sig-api-machinery/2155-clientgo-apply @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-api-machinery/2340-Consistent-reads-from-cache @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-api-machinery/4008-crd-ratcheting @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-apps/1591-daemonset-surge @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 2
+      },
+      {
+        "id": "sig-apps/2255-pod-cost @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 6
+      },
+      {
+        "id": "sig-apps/3541-add-recreate-strategy-to-statefulset @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-apps/4017-pod-index-label @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-architecture/4330-compatibility-versions @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-auth/3331-structured-authentication-configuration @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-auth/3766-referencegrant @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-auth/4317-pod-certificates @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-auth/5681-conditional-authorization @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 1
+      },
+      {
+        "id": "sig-cloud-provider/2395-removing-in-tree-cloud-providers @996e7d41",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-instrumentation/2845-deprecate-klog-specific-flags-in-k8s-components @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-instrumentation/383-new-event-api-ga-graduation @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-network/1669-proxy-terminating-endpoints @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 1
+      },
+      {
+        "id": "sig-network/1880-multiple-service-cidrs @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-network/2593-multiple-cluster-cidrs @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 1
+      },
+      {
+        "id": "sig-network/3178-iptables-cleanup @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-network/3705-cloud-node-ips @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 1
+      },
+      {
+        "id": "sig-node/1797-configure-fqdn-as-hostname-for-pods @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-node/2040-kubelet-cri @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 2
+      },
+      {
+        "id": "sig-node/4800-cpumanager-split-uncorecache @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-node/4817-resource-claim-device-status @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-node/5067-pod-generation @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-node/5304-dra-attributes-downward-api @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-node/5573-remove-cgroup-v1 @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-node/5677-dra-resource-availability-visibility @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-scheduling/4816-dra-prioritized-list @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-scheduling/5055-dra-device-taints-and-tolerations @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-storage/1432-volume-health-monitor @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-storage/1790-recover-resize-failure @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-storage/2485-read-write-once-pod-pv-access-mode @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-storage/284-enable-volume-expansion @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 0
+      },
+      {
+        "id": "sig-storage/3141-prevent-volume-mode-conversion @996e7d41",
+        "original": "OPERATIONALLY SOUND",
+        "retainedOf20": 3
+      },
+      {
+        "id": "sig-storage/3762-persistent-volume-last-phase-transition-time @996e7d41",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      }
+    ],
+    "retentionRate": "2.6%",
+    "g2extPooled": "PASS-structural",
+    "composition": {
+      "wikimediaIncidents": 4,
+      "wikimediaRunbooks": 1,
+      "prometheusRunbooks": 0,
+      "openshiftRunbooks": 5,
+      "kepDesignDocs": 71,
+      "rustRfcs": 3,
+      "openshiftEnhancements": 5
+    }
+  }
+}

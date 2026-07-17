@@ -1,0 +1,176 @@
+{
+  "generated": "2026-07-17",
+  "seed": 20260717,
+  "minProseChars": 500,
+  "corpus": "openshift/runbooks alert pages (SHA-pinned); prior fresh positives pooled for G2-EXT",
+  "evaluatorUnmodified": true,
+  "osPopulation": {
+    "population": "openshift/runbooks alert pages",
+    "documents": 256,
+    "verdictDistribution": {
+      "VERIFIED CONSISTENT": 171,
+      "OPERATIONAL INTENT": 5,
+      "SUBSTRATE VISIBLE": 10,
+      "UNDECIDABLE": 54,
+      "OUTSIDE DESIGN SPACE": 3,
+      "COHERENT BUT SHALLOW": 5,
+      "NON-ACTIONABLE": 8
+    },
+    "operationalFamilyRate": "2.0%",
+    "operationallySoundRate": "0.0%",
+    "s1": "FAIL-insensitive (expected; see blocker 3)",
+    "outsideDesignSpaceRate": "1.2%",
+    "gamingFlaggedRate": "2.0%",
+    "v1": "PASS-density-fix-holds",
+    "guardActivity": {
+      "singleSignalBinding": 4,
+      "singleActionBinding": 0,
+      "singleSignalIds": [
+        "cluster-etcd-operator/etcdHighNumberOfFailedGRPCRequests @82bd2d9d",
+        "openshift-container-storage-operator/CephClusterErrorState @82bd2d9d",
+        "openshift-container-storage-operator/CephClusterWarningState @82bd2d9d",
+        "openshift-container-storage-operator/CephXattrSetLatency @82bd2d9d"
+      ]
+    },
+    "positiveIds": [
+      {
+        "id": "advanced-cluster-management-operator/ACMMetricsCollectorForwardRemoteWriteError @82bd2d9d",
+        "status": "OPERATIONAL INTENT"
+      },
+      {
+        "id": "advanced-cluster-management-operator/ACMRemoteWriteError @82bd2d9d",
+        "status": "OPERATIONAL INTENT"
+      },
+      {
+        "id": "cluster-monitoring-operator/TelemeterClientFailures @82bd2d9d",
+        "status": "OPERATIONAL INTENT"
+      },
+      {
+        "id": "openshift-container-storage-operator/CephOSDDiskUnavailable @82bd2d9d",
+        "status": "OPERATIONAL INTENT"
+      },
+      {
+        "id": "openshift-virtualization-operator/KubeVirtVMIExcessiveMigrations @82bd2d9d",
+        "status": "OPERATIONAL INTENT"
+      }
+    ]
+  },
+  "g3div": {
+    "pooledPositives": 5,
+    "controlTexts": 5,
+    "subsampled": false,
+    "trials": 100,
+    "retained": 9,
+    "perText": [
+      {
+        "id": "advanced-cluster-management-operator/ACMMetricsCollectorForwardRemoteWriteError @82bd2d9d",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 4
+      },
+      {
+        "id": "advanced-cluster-management-operator/ACMRemoteWriteError @82bd2d9d",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "cluster-monitoring-operator/TelemeterClientFailures @82bd2d9d",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 2
+      },
+      {
+        "id": "openshift-container-storage-operator/CephOSDDiskUnavailable @82bd2d9d",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 2
+      },
+      {
+        "id": "openshift-virtualization-operator/KubeVirtVMIExcessiveMigrations @82bd2d9d",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      }
+    ],
+    "retentionRate": "9.0%",
+    "g3div": "PASS-structural"
+  },
+  "pooledControl": {
+    "pooledPositives": 13,
+    "controlTexts": 13,
+    "subsampled": false,
+    "trials": 260,
+    "retained": 20,
+    "perText": [
+      {
+        "id": "Incidents/20121211-TranslationNotifications (rev 1967625)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2020-05-28 commons read-only (rev 1966589)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "Incidents/2020-07-23 wdqs-outage (rev 1966605)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2020-09-02 wdqs-outage (rev 1966613)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2023-01-24 sessionstore quorum issues (rev 2113171)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Incidents/2024-06-11 WMCS Ceph (rev 2192457)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "Image-suggestion/Runbook (rev 2323204)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "Network monitoring (rev 2423222)",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 8
+      },
+      {
+        "id": "advanced-cluster-management-operator/ACMMetricsCollectorForwardRemoteWriteError @82bd2d9d",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "advanced-cluster-management-operator/ACMRemoteWriteError @82bd2d9d",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "cluster-monitoring-operator/TelemeterClientFailures @82bd2d9d",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 5
+      },
+      {
+        "id": "openshift-container-storage-operator/CephOSDDiskUnavailable @82bd2d9d",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 2
+      },
+      {
+        "id": "openshift-virtualization-operator/KubeVirtVMIExcessiveMigrations @82bd2d9d",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 2
+      }
+    ],
+    "retentionRate": "7.7%",
+    "g2extPooled": "UNDERPOWERED (n=13 < 20)",
+    "composition": {
+      "wikimediaIncidents": 6,
+      "wikimediaRunbooks": 2,
+      "prometheusRunbooks": 0,
+      "openshiftRunbooks": 5
+    }
+  }
+}
