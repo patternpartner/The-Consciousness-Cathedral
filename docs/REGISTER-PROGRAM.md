@@ -41,7 +41,7 @@ The program alternates two moves. **Validate:** feed the unmodified evaluator an
 
 ## Open flags
 
-1. **The flagship count-route shuffle softness** — open, localized, sharpened (above).
-2. **Mandated vs voluntary operational binding** — a design question the ledger owns; any resolution is a register decision to be stated out loud, not a silent core change.
+1. ~~The flagship count-route shuffle softness~~ — **DECIDED** ([REGISTER-DECISIONS.md](REGISTER-DECISIONS.md), decision 1): an accepted, monitored boundary after three fix families were rejected or foreclosed by measurement; reopens at per-text ≥ 10/20 or pooled ≥ 20% on fresh data.
+2. ~~Mandated vs voluntary operational binding~~ — **DECIDED** ([REGISTER-DECISIONS.md](REGISTER-DECISIONS.md), decision 2): the verdict credits the plan as written; template provenance is outside a text evaluator's design space; reopens on evidence of mandated boilerplate earning verdicts that fail the shuffle control.
 3. **LLM-written operational documents proper and adversarially prompted text** — the successor to the closed authorship flag: a model asked to *write a runbook*, and a modern generator asked to *game the evaluator*, both unmeasured.
-4. **All eight corpora are development data** for any future core change; the ninth register validates it. The standing pattern of the program.
+4. **The corpora are development data** for any future core change (nine registers as of v3.31.0); the next fresh register validates it. The standing pattern of the program.
