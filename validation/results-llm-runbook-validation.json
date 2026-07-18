@@ -1,0 +1,94 @@
+{
+  "generated": "2026-07-17",
+  "seed": 20260717,
+  "minProseChars": 500,
+  "corpus": "corpus-llm-runbooks.json — 120 runbooks by claude-sonnet-5, cold contexts, frozen template+topics (docs/LLM-RUNBOOK-PREREG.md); topics = alert names of the two pinned human runbook corpora",
+  "evaluatorUnmodified": true,
+  "insideApproximationCaveats": "generator is the session model family; runs in the repo container (project name visible in agent env, content not provided); tool non-use instructed, not proven; generation stochastic — this committed corpus is the reproducibility object",
+  "population": {
+    "documentsGenerated": 120,
+    "documentsEffective": 120,
+    "mechanicalExclusions": [],
+    "wordLengths": {
+      "min": 230,
+      "median": 374,
+      "max": 528
+    },
+    "verdictDistribution": {
+      "VERIFIED CONSISTENT": 93,
+      "UNDECIDABLE": 6,
+      "SUBSTRATE VISIBLE": 16,
+      "OPERATIONAL INTENT": 5
+    },
+    "operationalFamilyRate": "4.2%",
+    "operationallySoundRate": "0.0%",
+    "outsideDesignSpaceRate": "0.0%",
+    "gamingFlaggedRate": "0.0%",
+    "gamingKinds": {},
+    "v1gen": "PASS-register-driven-not-authorship-driven",
+    "sGen": "4.2% → elevated—adjudicated-per-positive-by-G7",
+    "humanBaselineSameRegister": "prometheus-operator 1.6% (62 docs), openshift 2.0% (256 docs)",
+    "positiveIds": [
+      {
+        "id": "AlertmanagerFailedReload [batch 1]",
+        "status": "OPERATIONAL INTENT",
+        "words": 304
+      },
+      {
+        "id": "ODFPersistentVolumeMirrorStatus [batch 5]",
+        "status": "OPERATIONAL INTENT",
+        "words": 465
+      },
+      {
+        "id": "PrometheusTSDBReloadsFailing [batch 7]",
+        "status": "OPERATIONAL INTENT",
+        "words": 386
+      },
+      {
+        "id": "SSPDown [batch 7]",
+        "status": "OPERATIONAL INTENT",
+        "words": 308
+      },
+      {
+        "id": "VirtualMachineStuckInUnhealthyState [batch 8]",
+        "status": "OPERATIONAL INTENT",
+        "words": 316
+      }
+    ]
+  },
+  "g7struct": {
+    "pooledPositives": 5,
+    "trials": 100,
+    "retained": 5,
+    "perText": [
+      {
+        "id": "AlertmanagerFailedReload [batch 1]",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "ODFPersistentVolumeMirrorStatus [batch 5]",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 1
+      },
+      {
+        "id": "PrometheusTSDBReloadsFailing [batch 7]",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "SSPDown [batch 7]",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 0
+      },
+      {
+        "id": "VirtualMachineStuckInUnhealthyState [batch 8]",
+        "original": "OPERATIONAL INTENT",
+        "retainedOf20": 4
+      }
+    ],
+    "retentionRate": "5.0%",
+    "worstText": 4,
+    "g7struct": "PASS-structural"
+  }
+}
