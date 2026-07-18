@@ -62,10 +62,12 @@
 
 <header>
   <h1>◆ CATHEDRAL <span class="v2">UNIFIED 2.0</span></h1>
-  <div class="sub">Both analyzers, verdict history with instrument-drift detection, the device-only notebooks,
-  the calibration ledger, escape-pattern scanning, and full report export — one file, working offline.</div>
-  <div class="stamp" id="stamp">generated from the tested modules · deterministic: identical input → identical verdict ·
-  memory is never consulted by any analyzer (test-enforced) · calibration only changes through the ledger, never silently</div>
+  <div class="sub">Both analyzers, verdict history with drift detection, the device-only notebooks, escape-pattern
+  scanning, report export — and a system that remembers its own progression and acts on it: pattern win-rates
+  recalibrate the Parliament automatically, with every self-change ledgered, stamped on verdicts, and reversible.</div>
+  <div class="stamp" id="stamp">generated from the tested modules · reproducible: verdict + calibration stamp is the pair
+  (same text + same ledger state → same verdict) · self-changes are ledgered with their evidence, never silent ·
+  the exchange notebook and verdict archive are never consulted by any analyzer (test-enforced)</div>
 </header>
 
 <nav id="nav">
@@ -92,6 +94,7 @@ Because rollback was rehearsed last quarter, we know the procedure completes in 
   <div class="card" id="op-out" hidden>
     <div><span class="verdict" id="op-status"></span><span class="conf" id="op-conf"></span></div>
     <div class="muted" id="op-reason" style="margin-top:6px;"></div>
+    <div id="op-selfcal" style="margin-top:8px;font-size:13px;color:var(--warn);" hidden></div>
     <div id="op-history" style="margin-top:8px;font-size:13px;"></div>
     <div id="op-gaming" style="margin-top:10px;"></div>
     <table id="op-engines" style="margin-top:12px;"></table>
@@ -100,8 +103,8 @@ Because rollback was rehearsed last quarter, we know the procedure completes in 
     <div id="op-feedback"></div>
     <div class="boundary" id="op-boundary"></div>
     <button class="btn ghost" id="op-report" style="margin-top:12px;">Copy full report</button>
-    <div class="stamp" style="margin-top:12px;">verdict computed from this text alone · the archive was not consulted ·
-    the relational analyzer was not consulted · re-running yields this exact verdict</div>
+    <div class="stamp" style="margin-top:12px;"><span id="op-stamp-cal">calibration: factory</span> ·
+    archive and notebook not consulted · same text + same calibration state reproduces this exact verdict</div>
   </div>
 </section>
 
@@ -150,11 +153,25 @@ B: The stamp turns the lease from a timing guess into a checkable contract.</tex
 <!-- ── ROOM 4: the calibration ledger ───────────────────────────────────── -->
 <section class="room" id="room-ledger">
   <div class="card">
-    <h2>THE LEDGER — THE INSTRUMENT MAY CHANGE, BUT NEVER SILENTLY</h2>
-    <p class="muted" style="font-size:13.5px;max-width:76ch;">January recalibrated itself: win-rate statistics
-    silently reweighted verdict votes by up to ±20%, per device, unledgered. Here, the notebook may <i>propose</i>
-    a calibration change with its evidence; nothing happens unless you apply it; applied changes are recorded
-    append-only, reversible, and stamped on every verdict they affect.</p>
+    <h2>PROGRESSION — THE SYSTEM'S OWN ARC, AND ITS LICENSE TO ACT ON IT</h2>
+    <p class="muted" style="font-size:13.5px;max-width:76ch;">The system keeps January's federated-learning
+    statistics — per-pattern win rates against average confidence — and <b>recalibrates itself</b> when the
+    evidence implies it: multipliers clamped to ±20%, silent until five samples, applied automatically. What
+    January did invisibly, this does on the record: every self-change appends a ledger entry with its evidence,
+    every calibrated verdict carries the stamp, and the archive can attribute any changed verdict to the exact
+    entry that moved it.</p>
+    <label class="opt"><input type="checkbox" id="prog-autonomy" checked> autonomous recalibration
+      (uncheck to freeze at factory — existing ledger is kept)</label>
+    <table id="prog-summary" style="margin-top:12px;"></table>
+    <div id="prog-ledger" style="margin-top:12px;font-size:13px;"></div>
+    <button class="btn ghost" id="prog-reset" style="margin-top:12px;">Factory reset (appends to the ledger, never erases it)</button>
+    <button class="btn ghost" id="prog-export" style="margin-top:12px;">Copy progression state</button>
+  </div>
+  <div class="card">
+    <h2>RELATIONAL CALIBRATION — PROPOSED TO YOU, NEVER SELF-APPLIED</h2>
+    <p class="muted" style="font-size:13.5px;max-width:76ch;">The relational tier keeps the human-in-the-loop
+    contract: the exchange notebook may <i>propose</i> a calibration change with its evidence; nothing happens
+    unless you apply it; applied changes are recorded append-only, reversible, and stamped.</p>
     <div id="cal-current" class="mono" style="margin-top:10px;"></div>
     <div class="card" id="cal-proposal" style="background:var(--panel2);" hidden>
       <h2>PROPOSED — NOT APPLIED</h2>
@@ -190,14 +207,20 @@ B: The stamp turns the lease from a timing guess into a checkable contract.</tex
           <td>Computed from the archive for display after the verdict exists, never before.</td></tr>
       <tr><td>Pattern statistics</td>
           <td>Bookkeeping shown in the ledger room as evidence for humans; no weight is ever derived from it.</td></tr>
-      <tr><td>Calibration</td>
-          <td>Relational tier: proposed with evidence, human-applied, append-only ledgered, stamped on verdicts. Operational tier: no runtime hooks — changes go through source and the regression suite.</td></tr>
+      <tr><td>Self-calibration</td>
+          <td>Operational tier: the system acts on its own progression — January's win-rate learning, self-applied,
+          with every change ledgered with its evidence, stamped on verdicts, clamped ±20%, reversible, and a
+          visible freeze switch. Relational tier: proposals only, human-applied.</td></tr>
       <tr><td>Memory</td>
-          <td>Two device-only notebooks (verdicts, exchanges). They read the analyzers; the analyzers never read them.</td></tr>
+          <td>Three device-only records. The verdict archive and exchange notebook are never read by any analyzer
+          (test-enforced). The progression memory IS read by the operational analyzer — that is its purpose — and
+          every verdict it touches says so on its face.</td></tr>
     </table>
-    <p style="margin-top:14px;"><b>What this page will never do:</b> let one analyzer read the other, let memory
-    feed a verdict, recalibrate without the ledger, phone home, or emit a different verdict for the same input.
-    If you want those properties changed, change them in the source where the change can be seen.</p>
+    <p style="margin-top:14px;"><b>What this page will never do:</b> change its own judgment silently — every
+    self-recalibration is ledgered, stamped, and attributable; let the sealed notebooks feed a verdict; let one
+    analyzer read the other; phone home; or emit an unattributable verdict: same text plus same stamped
+    calibration state always reproduces the same verdict. If you want those properties changed, change them in
+    the source where the change can be seen.</p>
     <p class="muted" style="font-size:13px;">System map: <span class="mono">docs/CATHEDRAL-SYSTEM.md</span> ·
     certificates: <span class="mono">docs/REGISTER-PROGRAM.md</span> ·
     the retirement record: <span class="mono">docs/JANUARY-SALVAGE.md</span> ·
@@ -212,6 +235,7 @@ B: The stamp turns the lease from a timing guess into a checkable contract.</tex
 <script src="sovereignty-detector.js"></script>
 <script src="feedback-generator.js"></script>
 <script src="verdict-memory.js"></script>
+<script src="progression.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -223,18 +247,43 @@ document.querySelectorAll('#nav button').forEach(b => b.addEventListener('click'
   document.querySelectorAll('#nav button').forEach(x => x.classList.toggle('on', x === b));
   document.querySelectorAll('section.room').forEach(s => s.classList.toggle('on', s.id === 'room-' + b.dataset.room));
   if (b.dataset.room === 'notebook') { renderArchive(); renderNotebook(); }
-  if (b.dataset.room === 'ledger') renderCalibration();
+  if (b.dataset.room === 'ledger') { renderProgression(); renderCalibration(); }
 }));
 function getArchive() { return new VerdictMemory(VerdictMemory.localStorageStore('cathedral-verdict-archive')); }
+function getProgression() { return new ProgressionMemory(ProgressionMemory.localStorageStore('cathedral-progression')); }
+function autonomyOn() { try { return localStorage.getItem('cathedral-autonomy') !== '0'; } catch(e){ return true; } }
 let lastAnalysis = null, lastText = '';
 
 // ── room 1: operational ─────────────────────────────────────────────────
 function runOperational() {
   if (typeof CathedralCore === 'undefined') { notice('Modules did not load. Use the standalone build.'); return; }
   notice('');
-  let r;
-  try { r = CathedralCore.analyzeCathedral($('op-text').value); }
+  let r, prog = null;
+  try {
+    // The loop: the system analyzes UNDER its own self-set calibration…
+    let opts = {};
+    if (typeof ProgressionMemory !== 'undefined' && autonomyOn()) {
+      prog = getProgression();
+      const active = prog.active();
+      if (Object.keys(active).length) opts = { patternCalibration: active, calibrationLabel: prog.label() };
+    }
+    r = CathedralCore.analyzeCathedral($('op-text').value, opts);
+  }
   catch (e) { notice('Analysis error: ' + e.message); return; }
+  // …then remembers what happened, and acts on the memory — loudly.
+  $('op-selfcal').hidden = true;
+  if (prog) {
+    prog.observe(r);
+    const acted = prog.act();
+    if (acted.changed.length) {
+      $('op-selfcal').hidden = false;
+      $('op-selfcal').innerHTML = '⟲ The system recalibrated itself: ' +
+        acted.changed.map(e => '<b>' + esc(e.param) + '</b> ×' + (typeof e.from==='number'?e.from.toFixed(2):esc(String(e.from))) +
+          ' → ×' + (typeof e.to==='number'?e.to.toFixed(2):esc(String(e.to))) + ' (' + esc(e.why) + ')').join('; ') +
+        '. Ledger #' + acted.changed[acted.changed.length-1].n + ' — future verdicts carry the stamp <b>' + esc(prog.label()) + '</b>.';
+    }
+  }
+  $('op-stamp-cal').textContent = 'calibration: ' + (r.verdict.calibrationLabel || 'factory');
   $('op-out').hidden = false;
   $('op-status').textContent = r.verdict.status;
   const conf = pick(r.verdict, ['confidence']);
@@ -435,6 +484,39 @@ function renderNotebook(ctx) {
     : '';
 }
 $('nb-forget').addEventListener('click', () => { getMemory().clear(); renderNotebook(); });
+
+// ── progression: the system's own arc ───────────────────────────────────
+function renderProgression() {
+  if (typeof ProgressionMemory === 'undefined') return;
+  const prog = getProgression();
+  $('prog-autonomy').checked = autonomyOn();
+  const sum = prog.summary();
+  $('prog-summary').innerHTML = sum.length === 0
+    ? '<tr><td class="muted">No progression yet — analyze some texts and the system starts learning its own patterns.</td></tr>'
+    : '<tr><th>pattern</th><th>win rate</th><th>avg conf</th><th>samples</th><th>implied</th><th>applied</th></tr>' +
+      sum.map(s => '<tr><td>' + esc(s.pattern) + '</td><td>' + s.winRate + '</td><td>' + s.avgConfidence +
+        '</td><td>' + s.samples + '</td><td>' + s.calibration + '</td><td>' +
+        (s.applied === 1 ? '<span class="muted">—</span>' : '<b>×' + s.applied.toFixed(2) + '</b>') + '</td></tr>').join('');
+  const led = prog.ledger();
+  $('prog-ledger').innerHTML = led.length === 0
+    ? '<span class="muted">The self-change ledger is empty. When the system first recalibrates itself, the entry lands here with its evidence.</span>'
+    : '<b>Self-change ledger</b> (append-only):<br>' + led.slice().reverse().map(e =>
+        '<span class="mono">#' + e.n + '</span> ' + new Date(e.t).toLocaleString() + ' — <b>' + esc(String(e.param)) +
+        '</b> ' + (typeof e.from==='number' ? '×'+e.from.toFixed(2) : esc(String(e.from))) + ' → ' +
+        (typeof e.to==='number' ? '×'+e.to.toFixed(2) : esc(String(e.to))) +
+        (e.auto ? ' <span class="flag">[self-applied]</span>' : '') +
+        ' <span class="muted">' + esc(e.why) + '</span>').join('<br>');
+}
+$('prog-autonomy').addEventListener('change', e => {
+  try { localStorage.setItem('cathedral-autonomy', e.target.checked ? '1' : '0'); } catch(_){}
+});
+$('prog-reset').addEventListener('click', () => { getProgression().reset('Factory reset from Unified 2.0.'); renderProgression(); });
+$('prog-export').addEventListener('click', () => {
+  const s = getProgression().export();
+  const done = () => { $('prog-export').textContent = 'Copied'; setTimeout(() => $('prog-export').textContent = 'Copy progression state', 1500); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(s).then(done, done);
+  else done();
+});
 
 // ── room 4: calibration ledger ──────────────────────────────────────────
 let pendingProposal = null;

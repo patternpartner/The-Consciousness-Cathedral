@@ -60,6 +60,7 @@ function summarize(text, analysis) {
     observatoryScore: analysis.observatory && typeof analysis.observatory.score === 'number'
       ? Math.round(analysis.observatory.score * 1000) / 1000 : null,
     gaming: analysis.gamingDetection ? analysis.gamingDetection.assessment : null,
+    cal: analysis.verdict.calibrationLabel || 'factory',
     patterns: (analysis.parliament && analysis.parliament.patterns || [])
       .map(p => p.name).filter(Boolean),
     t: Date.now()
@@ -96,8 +97,16 @@ class VerdictMemory {
         lastSeen: last.t,
         // The deterministic core makes this inference exact: same bytes in,
         // different verdict out ⇒ the instrument changed between the runs.
+        // With the progression loop live there are two attributable causes,
+        // and the calibration stamp tells them apart — the question January
+        // could never answer ("why did the verdict change?") now has an
+        // address.
         meaning: statusChanged
-          ? 'Identical text, different verdict — the instrument changed between these analyses.'
+          ? (((last.cal || 'factory') !== (analysis.verdict.calibrationLabel || 'factory'))
+              ? 'Identical text, different verdict — the system recalibrated itself between these runs (' +
+                (last.cal || 'factory') + ' → ' + (analysis.verdict.calibrationLabel || 'factory') +
+                '); the progression ledger has the entry.'
+              : 'Identical text, different verdict — the instrument changed between these analyses.')
           : null
       };
     }

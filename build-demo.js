@@ -44,5 +44,5 @@ build('relational-demo.html', ['relational-core.js', 'relational-memory.js', 're
 build('cathedral-demo.html', ['cathedral-core.js', 'feedback-generator.js'], 'cathedral-demo-standalone.html');
 build('cathedral-unified-2.html',
   ['cathedral-core.js', 'relational-core.js', 'relational-memory.js', 'relational-calibration.js',
-   'sovereignty-detector.js', 'feedback-generator.js', 'verdict-memory.js'],
+   'sovereignty-detector.js', 'feedback-generator.js', 'verdict-memory.js', 'progression.js'],
   'cathedral-unified-2-standalone.html');

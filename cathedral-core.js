@@ -1898,7 +1898,7 @@ const ReasoningStyleClassifier = {
         };
 
 const Parliament = {
-            deliberate: function(text, observatory, contrarian, justification, failureMode, structure, bindings, gamingDetection) {
+            deliberate: function(text, observatory, contrarian, justification, failureMode, structure, bindings, gamingDetection, patternCalibration) {
                 const synthesis = {
                     patterns: [],
                     emergentInsights: [],
@@ -2142,6 +2142,29 @@ const Parliament = {
                             detail: `${strongClaims} strong claims but only ${evidence} examples`,
                             severity: 'MINOR'
                         });
+                    }
+                }
+
+                // SELF-CALIBRATION (v3.38.0) — the January loop's application
+                // point (legacy/cathedral-unified.html PHASE 4), rebuilt loud.
+                // Multipliers arrive from the progression ledger via
+                // analyzeCathedral(text, opts), are clamped to January's ±20%,
+                // and are applied BEFORE the confidence calculation so the
+                // synthesis below runs on calibrated weights — which means
+                // calibration can genuinely change verdicts (the flagship's
+                // parliament.confidence > 0.8 gate moves). Every touched
+                // pattern keeps its baseConfidence and carries its multiplier;
+                // the verdict is stamped downstream. Absent calibration this
+                // block is inert and the instrument is byte-identical to the
+                // uncalibrated one (run-progression-tests.js pins both sides).
+                if (patternCalibration) {
+                    for (const p of synthesis.patterns) {
+                        const m = patternCalibration[p.name];
+                        if (typeof m === 'number' && isFinite(m) && m !== 1) {
+                            p.baseConfidence = p.confidence;
+                            p.calibration = Math.max(0.8, Math.min(1.2, m));
+                            p.confidence = Math.min(p.confidence * p.calibration, 0.99);
+                        }
                     }
                 }
 
@@ -2464,7 +2487,7 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
         }
 
 // Main analysis function
-function analyzeCathedral(text) {
+function analyzeCathedral(text, opts) {
     // TIER 1: Structural Extraction
     const structure = StructuralExtractor.extract(text);
     const bindings = BindingValidator.validate(structure, text);
@@ -2508,8 +2531,12 @@ function analyzeCathedral(text) {
     const reasoningStyleResult = ReasoningStyleClassifier.classify(text);
 
     // TIER 3: Synthesis
-    const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection);
+    const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection, opts && opts.patternCalibration);
     const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings);
+    // Attribution stamp: a calibrated verdict names the state that produced
+    // it, restoring the reproducibility January lost — verdict + label is a
+    // reproducible pair (same text, same ledger state → same verdict).
+    if (opts && opts.calibrationLabel) verdict.calibrationLabel = opts.calibrationLabel;
 
     return {
         text,
