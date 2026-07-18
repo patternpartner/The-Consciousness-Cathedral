@@ -87,7 +87,7 @@ Each verdict carries a confidence score and a full structural breakdown.
 - **Tier 2 — Conversational normalization.** Maps everyday language onto operational structure: synonym expansion ("problems" ≈ "failures", "pull back" ≈ "abort"), implicit trigger detection ("if we see problems").
 - **Tier 3 — Semantic understanding** is deliberately *not* implemented. It would require an LLM and would cost the properties (determinism, transparency, locality) that make Cathedral trustworthy. This is a trade, consciously made.
 
-Details in **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
+Details in **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**. For how the parts — both analyzers, the register method, the memory and calibration contracts, the governance — form one system with a single load-bearing shape, see **[docs/CATHEDRAL-SYSTEM.md](docs/CATHEDRAL-SYSTEM.md)**, the reassembly map.
 
 ## The relational tier (R1)
 
