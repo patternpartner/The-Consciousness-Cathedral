@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cathedral Unified 2.0</title>
+<style>
+  :root {
+    --bg:#0b0e14; --panel:#131824; --panel2:#0f1420; --line:#232c40;
+    --text:#d6dbe7; --muted:#8b94a7; --accent:#7aa2f7; --ok:#9ece6a;
+    --warn:#e0af68; --bad:#f7768e; --mid:#7dcfff;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .wrap { max-width:980px; margin:0 auto; padding:28px 18px 80px; }
+  header h1 { font-size:22px; letter-spacing:.06em; margin:0; }
+  header h1 .v2 { color:var(--accent); }
+  header .sub { color:var(--muted); font-size:13.5px; margin-top:6px; max-width:70ch; }
+  .stamp { font:11.5px/1.6 ui-monospace,Menlo,monospace; color:var(--muted);
+           border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin-top:14px; }
+  nav { display:flex; gap:6px; margin:22px 0 18px; flex-wrap:wrap; }
+  nav button { background:var(--panel2); color:var(--muted); border:1px solid var(--line);
+               border-radius:9px; padding:8px 14px; font:600 12.5px/1 inherit;
+               letter-spacing:.08em; cursor:pointer; }
+  nav button.on { color:var(--text); border-color:var(--accent); background:var(--panel); }
+  section.room { display:none; }
+  section.room.on { display:block; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px;
+          padding:16px 18px; margin:14px 0; }
+  .card h2 { font-size:13px; letter-spacing:.12em; color:var(--muted); margin:0 0 10px; }
+  textarea { width:100%; min-height:150px; background:var(--panel2); color:var(--text);
+             border:1px solid var(--line); border-radius:10px; padding:12px;
+             font:13.5px/1.55 ui-monospace,Menlo,monospace; resize:vertical; }
+  .btn { background:var(--accent); color:#0b0e14; border:none; border-radius:9px;
+         padding:10px 18px; font:700 13.5px/1 inherit; cursor:pointer; margin-top:10px; }
+  .btn.ghost { background:transparent; color:var(--muted); border:1px solid var(--line); font-weight:600; }
+  .verdict { font-size:20px; font-weight:700; letter-spacing:.04em; }
+  .conf { color:var(--muted); font-size:13px; margin-left:8px; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th,td { text-align:left; padding:5px 10px 5px 0; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
+  .ok { color:var(--ok); } .flag { color:var(--warn); } .bad { color:var(--bad); }
+  .muted { color:var(--muted); } .mono { font-family:ui-monospace,Menlo,monospace; font-size:12.5px; }
+  .chip { display:inline-block; border:1px solid var(--line); border-radius:999px;
+          padding:3px 10px; margin:3px 4px 0 0; font-size:12px; color:var(--muted); }
+  label.opt { display:inline-flex; gap:7px; align-items:center; color:var(--muted);
+              font-size:13px; margin-top:10px; cursor:pointer; }
+  .contract p { max-width:76ch; }
+  .contract td, .contract th { font-size:13.5px; padding:7px 12px 7px 0; }
+  .boundary { border-left:3px solid var(--mid); padding:8px 12px; margin-top:12px;
+              color:var(--muted); font-size:13px; background:var(--panel2); border-radius:0 8px 8px 0; }
+  .fb { margin:10px 0; padding:10px 12px; border-left:3px solid var(--mid);
+        background:var(--panel2); border-radius:0 8px 8px 0; }
+  .fb.high { border-left-color:var(--warn); }
+  a { color:var(--accent); }
+  #notice { color:var(--warn); font-size:13px; margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>◆ CATHEDRAL <span class="v2">UNIFIED 2.0</span></h1>
+  <div class="sub">One artifact again — both analyzers, the notebook, the calibration ledger, the escape-pattern
+  scan, and the contract that keeps them honest. The January build (<span class="mono">legacy/cathedral-unified.html</span>)
+  was unified by merger: everything touched everything, and hidden state silently changed verdicts.
+  This one is unified by contract: the rooms share a roof and nothing else.</div>
+  <div class="stamp" id="stamp">generated from the tested modules · deterministic: identical input → identical verdict ·
+  memory is never consulted by any analyzer (test-enforced) · calibration only changes through the ledger below, never silently</div>
+</header>
+
+<nav id="nav">
+  <button data-room="operational" class="on">OPERATIONAL</button>
+  <button data-room="relational">RELATIONAL</button>
+  <button data-room="notebook">NOTEBOOK</button>
+  <button data-room="ledger">LEDGER</button>
+  <button data-room="contract">THE CONTRACT</button>
+</nav>
+<div id="notice" hidden></div>
+
+<!-- ── ROOM 1: single-text operational analysis ─────────────────────────── -->
+<section class="room on" id="room-operational">
+  <div class="card">
+    <h2>DOES THIS TEXT BIND, OR JUST SOUND BOUND?</h2>
+    <textarea id="op-text">If error rate exceeds 5%, we abort deployment and roll back within ten minutes.
+We have three failure modes: cache overflow, API timeout, edge case bugs.
+For each, we monitor a dashboard metric and a rollback runbook exists.
+Because rollback was rehearsed last quarter, we know the procedure completes in under six minutes.</textarea>
+    <br><button class="btn" id="op-run">Analyze</button>
+    <label class="opt"><input type="checkbox" id="op-sov"> also run the escape-pattern scan
+      (validated patterns only — flags textual moves, never intent)</label>
+  </div>
+  <div class="card" id="op-out" hidden>
+    <div><span class="verdict" id="op-status"></span><span class="conf" id="op-conf"></span></div>
+    <div class="muted" id="op-reason" style="margin-top:6px;"></div>
+    <div id="op-gaming" style="margin-top:10px;"></div>
+    <table id="op-engines" style="margin-top:12px;"></table>
+    <div id="op-sovout" style="margin-top:10px;"></div>
+    <h2 style="margin-top:18px;">WHAT WOULD MAKE IT BIND</h2>
+    <div id="op-feedback"></div>
+    <div class="boundary" id="op-boundary"></div>
+    <div class="stamp" style="margin-top:12px;">verdict computed from this text alone · the notebook was not consulted ·
+    the relational analyzer was not consulted · re-running yields this exact verdict</div>
+  </div>
+</section>
+
+<!-- ── ROOM 2: relational analysis ──────────────────────────────────────── -->
+<section class="room" id="room-relational">
+  <div class="card">
+    <h2>DOES THIS REPLY TAKE UP, OR JUST REFLECT?</h2>
+    <div class="muted" style="font-size:13px;margin-bottom:8px;">One turn per line as
+      <span class="mono">Name: message</span>.</div>
+    <textarea id="rel-text">A: Maybe we introduce a lease, a lock that carries an expiry.
+B: A lease could work — pair it with a version stamp so readers detect staleness.
+A: The version stamp closes the gap: acquire lease, write with stamp.
+B: The stamp turns the lease from a timing guess into a checkable contract.</textarea>
+    <br><button class="btn" id="rel-run">Analyze</button>
+  </div>
+  <div class="card" id="rel-out" hidden>
+    <div><span class="verdict" id="rel-status"></span><span class="conf" id="rel-conf"></span></div>
+    <div class="muted" id="rel-read" style="margin-top:6px;"></div>
+    <table id="rel-detail" style="margin-top:12px;"></table>
+    <div class="boundary" id="rel-boundary"></div>
+    <div class="stamp" id="rel-stamp" style="margin-top:12px;"></div>
+  </div>
+</section>
+
+<!-- ── ROOM 3: the notebook ─────────────────────────────────────────────── -->
+<section class="room" id="room-notebook">
+  <div class="card">
+    <h2>THE NOTEBOOK — ALLOWED TO REMEMBER BECAUSE IT IS FORBIDDEN TO SPEAK</h2>
+    <p class="muted" style="font-size:13.5px;max-width:76ch;">Exchanges you analyze in the relational room are
+    recorded here, on this device only (plain localStorage, nothing leaves the page). The analyzers cannot read
+    this notebook — a verdict is identical with it empty or full, and a test in the repository enforces that.
+    January's version of this idea fed memory back into judgment silently; two devices drifted apart and no
+    verdict was reproducible. Same ambition, wiring reversed: the instrument stays fixed, the history accumulates
+    around it.</p>
+    <div id="nb-summary" class="muted" style="margin-top:8px;">Nothing remembered yet.</div>
+    <div id="nb-lexicon" style="margin-top:8px;"></div>
+    <button class="btn ghost" id="nb-forget" style="margin-top:12px;">Forget everything (one tap, no confirmation theater)</button>
+  </div>
+</section>
+
+<!-- ── ROOM 4: the calibration ledger ───────────────────────────────────── -->
+<section class="room" id="room-ledger">
+  <div class="card">
+    <h2>THE LEDGER — THE INSTRUMENT MAY CHANGE, BUT NEVER SILENTLY</h2>
+    <p class="muted" style="font-size:13.5px;max-width:76ch;">January recalibrated itself: win-rate statistics
+    silently reweighted verdict votes by up to ±20%, per device, unledgered. Here, the notebook may <i>propose</i>
+    a calibration change with its evidence; nothing happens unless you apply it; applied changes are recorded
+    append-only, reversible, and stamped on every verdict they affect.</p>
+    <div id="cal-current" class="mono" style="margin-top:10px;"></div>
+    <div class="card" id="cal-proposal" style="background:var(--panel2);" hidden>
+      <h2>PROPOSED — NOT APPLIED</h2>
+      <div id="cal-proposal-text" style="font-size:13.5px;"></div>
+      <button class="btn" id="cal-apply">Apply (ledgered, reversible)</button>
+      <button class="btn ghost" id="cal-dismiss">Not now</button>
+    </div>
+    <div id="cal-ledger" style="margin-top:10px;font-size:13.5px;"></div>
+    <button class="btn ghost" id="cal-reset" style="margin-top:10px;">Reset to factory calibration (also ledgered)</button>
+  </div>
+</section>
+
+<!-- ── ROOM 5: the contract ─────────────────────────────────────────────── -->
+<section class="room contract" id="room-contract">
+  <div class="card">
+    <h2>WHY 2.0 EXISTS</h2>
+    <p>The old unified system had qualities no component has alone: it responded to its history, its verdicts
+    emerged from parts in mutual influence, and it was one thing you could encounter. It was retired anyway,
+    because its unity was also the disease — with everything wired to everything, its adaptation was
+    indistinguishable from its corruption, and there was nothing fixed to compare it against. It had to be taken
+    apart to even be assessed. Every part was then rebuilt with a certificate: eleven validation registers for the
+    operational analyzer, six pre-registered runs for the relational one, a frozen red-team strike, gates committed
+    to git before verdicts, failures published as failures.</p>
+    <p><b>2.0 is the reassembly with the learnings.</b> The unity moved from shared state to shared shape — every
+    load-bearing structure here is a condition bound to a response, committed before the event it governs — and the
+    qualities January had are not deleted but re-homed at timescales where they can be trusted:</p>
+    <table>
+      <tr><th>January 1.0 (silent)</th><th>Unified 2.0 (under contract)</th></tr>
+      <tr><td>Memory fed judgment invisibly; devices drifted apart</td>
+          <td>The notebook remembers everything and informs nothing; the no-feedback rule is test-enforced</td></tr>
+      <tr><td>Auto-calibration reweighted verdicts ±20% from hidden state</td>
+          <td>Calibration is proposed with evidence, human-applied, append-only ledgered, stamped on verdicts</td></tr>
+      <tr><td>Adaptation happened at runtime, unobservably</td>
+          <td>Adaptation happens across versions, in a public ledger — the git history is the developmental arc</td></tr>
+      <tr><td>Parts influenced each other inside one merged process</td>
+          <td>Parts are composed on this page and isolated in measurement; relation itself became the subject matter of the second analyzer</td></tr>
+      <tr><td>Unity asserted by narrative</td>
+          <td>Unity enacted by discipline; every claim links to its certificate in <span class="mono">docs/</span></td></tr>
+    </table>
+    <p style="margin-top:14px;"><b>The boundaries carry their reopening conditions.</b> Nothing here is accepted
+    forever by default: the flagship's known soft boundary reopens at ≥ 10/20 shuffle retention on fresh data;
+    the mandated-binding decision reopens on evidence of boilerplate earning structural verdicts; even the
+    presumption about the assistant that built this page has a proposed gate in the session record. A boundary
+    without a reopening condition is not a decision — it is a default nobody has to defend.</p>
+    <p><b>What this page will never do:</b> let one analyzer read the other, let memory feed a verdict, recalibrate
+    without the ledger, phone home, or emit a different verdict for the same input. If you want those properties
+    changed, change them in the source where the change can be seen — that is the entire lesson, and the reason
+    this file exists at all.</p>
+    <p class="muted" style="font-size:13px;">Full system map: <span class="mono">docs/CATHEDRAL-SYSTEM.md</span> ·
+    method &amp; certificates: <span class="mono">docs/REGISTER-PROGRAM.md</span> ·
+    what was salvaged and why: <span class="mono">docs/JANUARY-SALVAGE.md</span> ·
+    what text can never prove: <span class="mono">PHILOSOPHY.md</span></p>
+  </div>
+</section>
+
+<script src="cathedral-core.js"></script>
+<script src="relational-core.js"></script>
+<script src="relational-memory.js"></script>
+<script src="relational-calibration.js"></script>
+<script src="sovereignty-detector.js"></script>
+<script src="feedback-generator.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pick = (o, keys) => { if (!o) return null; for (const k of keys) if (o[k] !== undefined && o[k] !== null) return o[k]; return null; };
+function notice(msg) { const n=$('notice'); if (!msg){n.hidden=true;return;} n.hidden=false; n.textContent=msg; }
+
+// ── rooms ────────────────────────────────────────────────────────────────
+document.querySelectorAll('#nav button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#nav button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('section.room').forEach(s => s.classList.toggle('on', s.id === 'room-' + b.dataset.room));
+  if (b.dataset.room === 'notebook') renderNotebook();
+  if (b.dataset.room === 'ledger') renderCalibration();
+}));
+
+// ── room 1: operational ─────────────────────────────────────────────────
+function runOperational() {
+  if (typeof CathedralCore === 'undefined') { notice('Modules did not load. Use the standalone build.'); return; }
+  notice('');
+  let r;
+  try { r = CathedralCore.analyzeCathedral($('op-text').value); }
+  catch (e) { notice('Analysis error: ' + e.message); return; }
+  $('op-out').hidden = false;
+  $('op-status').textContent = r.verdict.status;
+  const conf = pick(r.verdict, ['confidence']);
+  $('op-conf').textContent = conf !== null ? Math.round(conf * 100) + '%' : '';
+  $('op-reason').textContent = pick(r.verdict, ['verdict','reason','explanation']) || '';
+  const engines = [
+    ['Bindings', pick(r.bindings,['overallBindingScore']), pick(r.bindings,['assessment'])],
+    ['Observatory', pick(r.observatory,['score','observatoryScore']), pick(r.observatory,['level','assessment'])],
+    ['Justification', pick(r.justification,['score','justificationScore']), pick(r.justification,['level','assessment'])],
+    ['Failure modes', pick(r.failureMode,['score','failureModeScore']), pick(r.failureMode,['level','assessment'])],
+    ['Temporal', pick(r.temporal,['score','temporalScore']), pick(r.temporal,['level','assessment'])],
+    ['Parliament', pick(r.parliament,['confidence']), (r.parliament && r.parliament.patterns || []).join(', ') || null]
+  ];
+  $('op-engines').innerHTML = '<tr><th>engine</th><th>score</th><th>reading</th></tr>' +
+    engines.map(([n,s,rd]) => `<tr><td>${n}</td><td>${s===null?'—':typeof s==='number'?s.toFixed(2):esc(s)}</td><td>${rd===null?'—':esc(rd)}</td></tr>`).join('');
+  const g = r.gamingDetection || {};
+  const flagged = pick(g,['detected','gaming','isGaming']);
+  const label = pick(g,['assessment','type','reason']);
+  $('op-gaming').innerHTML = flagged
+    ? `<span class="flag">Gaming signals: ${esc(label||'detected')}</span>`
+    : `<span class="ok">No gaming signals</span>${label?' <span class="muted">('+esc(label)+')</span>':''}`;
+
+  // sovereignty scan — opt-in, presentation-only, never feeds the verdict above
+  $('op-sovout').innerHTML = '';
+  if ($('op-sov').checked && typeof SovereigntyDetector !== 'undefined') {
+    const d = SovereigntyDetector.detect($('op-text').value);
+    $('op-sovout').innerHTML = (d.flagged
+      ? '<span class="flag">Escape patterns: ' + d.flags.map(f => esc(f.pattern || f)).join(', ') + '</span>'
+      : '<span class="ok">No escape patterns</span>')
+      + '<div class="muted" style="font-size:12px;margin-top:4px;">' + esc(d.note || '') + '</div>';
+  }
+
+  if (typeof FeedbackGenerator !== 'undefined') {
+    const f = FeedbackGenerator.generate(r);
+    $('op-feedback').innerHTML = f.suggestions.length === 0
+      ? `<span class="ok">${esc(f.note || 'No structural fixes to suggest.')}</span>`
+      : f.suggestions.map(s => `<div class="fb ${s.priority==='HIGH'?'high':''}">
+          <div style="font-weight:600;">${esc(s.issue)} <span class="muted" style="font-weight:400;font-size:11.5px;">· ${esc(s.priority)}</span></div>
+          ${s.detail?`<div class="muted" style="margin-top:4px;font-size:13px;">${esc(s.detail)}</div>`:''}
+          <div style="margin-top:4px;font-size:13.5px;">${esc(s.action)}</div>
+          ${s.template?`<div class="mono muted" style="margin-top:5px;">${esc(s.template)}</div>`:''}</div>`).join('');
+    $('op-boundary').textContent = f.boundary;
+  }
+}
+$('op-run').addEventListener('click', runOperational);
+
+// ── room 2: relational ──────────────────────────────────────────────────
+function toTurns(raw) {
+  const turns = []; let cur = null;
+  for (const line of raw.split('\n')) {
+    const m = line.match(/^\s*([A-Za-z][\w .-]{0,24})\s*:\s*(.*)$/);
+    if (m) { cur = { speaker: m[1].trim(), text: m[2].trim() }; turns.push(cur); }
+    else if (cur && line.trim()) cur.text += ' ' + line.trim();
+  }
+  return turns.filter(t => t.text.length);
+}
+function getMemory() { return new ExchangeMemory(ExchangeMemory.localStorageStore('cathedral-exchange-memory')); }
+function getLedger() { return new CalibrationLedger(CalibrationLedger.localStorageStore('cathedral-calibration-ledger')); }
+
+function runRelational() {
+  if (typeof RelationalCathedral === 'undefined') { notice('Modules did not load. Use the standalone build.'); return; }
+  notice('');
+  const raw = $('rel-text').value;
+  const turns = toTurns(raw);
+  let result;
+  try {
+    const ledger = getLedger();
+    const overrides = ledger.overrides();
+    result = RelationalCathedral.analyzeExchange(turns.length ? turns : raw,
+      overrides ? { calibration: overrides, calibrationLabel: ledger.label() } : {});
+  } catch (e) { notice('Analysis error: ' + e.message); return; }
+  $('rel-out').hidden = false;
+  $('rel-status').textContent = pick(result.verdict,['status']) || '—';
+  const conf = pick(result.verdict,['confidence']);
+  $('rel-conf').textContent = conf !== null ? Math.round(conf*100)+'%' : '';
+  $('rel-read').textContent = pick(result.verdict,['verdict','reason','summary']) || '';
+  const co = result.coConstruction || {};
+  const rows = [
+    ['Turns read', turns.length + ' from ' + [...new Set(turns.map(t=>t.speaker))].length + ' speakers'],
+    ['Round trips', pick(co,['roundTrips']) ?? '—'],
+    ['Uptake', pick(result.uptake||co,['uptakeRate','rate']) ?? '—'],
+    ['Convergence', pick(result.convergence,['trend','assessment','score']) ?? '—'],
+    ['Symmetry', pick(result.asymmetry,['assessment','level','score']) ?? '—'],
+    ['Repair', pick(result.repair,['count','assessment']) ?? '—'],
+  ];
+  $('rel-detail').innerHTML = rows.map(([k,v]) => `<tr><th>${k}</th><td>${esc(String(v))}</td></tr>`).join('');
+  $('rel-boundary').textContent = pick(result,['boundary']) ||
+    'This measures interaction structure — uptake, round trips, repair — never consciousness or intent.';
+
+  // memory: context strictly against the past, then record — never before
+  const mem = getMemory();
+  const ctx = mem.context(result);
+  mem.record(result);
+  $('rel-stamp').textContent = 'verdict computed from this transcript alone · notebook consulted: never (it now holds ' +
+    mem.size() + ' exchange' + (mem.size()===1?'':'s') + ') · calibration: ' + (getLedger().size() > 0 ? getLedger().label() : 'factory');
+  renderNotebook(ctx);
+  renderCalibration();
+}
+$('rel-run').addEventListener('click', runRelational);
+
+// ── room 3: notebook ────────────────────────────────────────────────────
+function renderNotebook(ctx) {
+  if (typeof ExchangeMemory === 'undefined') return;
+  const mem = getMemory();
+  if (mem.size() === 0) { $('nb-summary').textContent = 'Nothing remembered yet. Analyze an exchange in the relational room.'; $('nb-lexicon').innerHTML=''; return; }
+  let h = 'This page has seen <b>' + mem.size() + '</b> of your exchanges (this device only).';
+  if (ctx && ctx.percentiles) {
+    h += '<br>The last one had more uptake than <b>' + ctx.percentiles.uptakeRate + '%</b> and more round trips than <b>' + ctx.percentiles.roundTrips + '%</b> of your history.';
+  }
+  if (ctx && ctx.returningNow && ctx.returningNow.length) {
+    h += '<br>Returning vocabulary: <b>' + ctx.returningNow.map(esc).join(', ') + '</b>.';
+  }
+  $('nb-summary').innerHTML = h;
+  const lex = (ctx && ctx.recurringLexicon) || [];
+  $('nb-lexicon').innerHTML = lex.length
+    ? lex.map(x => '<span class="chip"><b>' + esc(x.term) + '</b> · ' + x.exchanges + ' exchanges</span>').join('')
+    : '';
+}
+$('nb-forget').addEventListener('click', () => { getMemory().clear(); renderNotebook(); });
+
+// ── room 4: calibration ledger ──────────────────────────────────────────
+let pendingProposal = null;
+function renderCalibration() {
+  if (typeof CalibrationLedger === 'undefined') return;
+  const ledger = getLedger();
+  $('cal-current').textContent = 'current calibration: ' + (ledger.size() > 0 ? ledger.label() : 'factory defaults') +
+    ' · ledger entries: ' + ledger.size();
+  pendingProposal = ledger.propose(getMemory().data);
+  $('cal-proposal').hidden = !pendingProposal;
+  if (pendingProposal) {
+    $('cal-proposal-text').innerHTML = '<b>' + esc(pendingProposal.param) + '</b>: previously <b>' +
+      pendingProposal.from + '</b>, proposed <b>' + pendingProposal.to + '</b>.<br>' + esc(pendingProposal.why) +
+      '<br><span class="muted">Nothing changes unless you apply it.</span>';
+  }
+  $('cal-ledger').innerHTML = ledger.size() > 0
+    ? ledger.explain().map(esc).join('<br><br>')
+    : '<span class="muted">The ledger is empty — the instrument is at factory calibration. If the notebook ever ' +
+      'accumulates evidence that a threshold is mis-set for your conversations, a proposal will appear here. ' +
+      'January skipped this room and applied the change silently; the room is the difference.</span>';
+}
+$('cal-apply').addEventListener('click', () => {
+  if (pendingProposal) { getLedger().accept(pendingProposal); pendingProposal = null; renderCalibration(); }
+});
+$('cal-dismiss').addEventListener('click', () => { $('cal-proposal').hidden = true; });
+$('cal-reset').addEventListener('click', () => { getLedger().reset('Reset from Unified 2.0.'); renderCalibration(); });
+
+// first paint
+runOperational();
+</script>
+</body>
+</html>
