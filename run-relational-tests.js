@@ -371,6 +371,64 @@ const CAL_TESTS = [
       };
       return JSON.stringify(mk().verdict) === JSON.stringify(mk().verdict);
     }
+  },
+  // ── Autonomy (v3.39.0 behavior, module-owned since v3.39.1): act() is the
+  // relational tier's self-change step, pinned here the way progression.js's
+  // act() is pinned for the operational tier. ──────────────────────────────
+  {
+    name: 'Autonomy — act() below the evidence floor changes nothing (factory inertness)',
+    check: () => {
+      const ledger = new CalibrationLedger();
+      const cold = ledger.act(syntheticMemory(0.2, 10)); // bar still discriminates
+      const thin = ledger.act(syntheticMemory(0.7, 3));  // not enough evidence
+      return cold === null && thin === null && ledger.size() === 0 &&
+             ledger.overrides() === null && ledger.label() === 'defaults';
+    }
+  },
+  {
+    name: 'Autonomy — act() self-applies loudly: ledgered with evidence, marked, stamped',
+    check: () => {
+      const ledger = new CalibrationLedger();
+      const e = ledger.act(syntheticMemory(0.7, 10));
+      return e !== null && e.auto === true && e.param === 'TRANSFORM_NOVELTY' &&
+             e.evidence && e.evidence.samples >= 30 &&
+             ledger.overrides().TRANSFORM_NOVELTY === e.to &&
+             ledger.label() === 'personal calibration v1' &&
+             ledger.explain().join(' ').includes('(self-applied)');
+    }
+  },
+  {
+    name: 'Autonomy — act() is idempotent: the accepted bar discriminates again',
+    check: () => {
+      const ledger = new CalibrationLedger();
+      const mem = syntheticMemory(0.7, 10);
+      const first = ledger.act(mem);
+      const second = ledger.act(mem);
+      return first !== null && second === null && ledger.size() === 1;
+    }
+  },
+  {
+    name: 'Autonomy — self-applied and human-applied evidence yield the same instrument',
+    check: () => {
+      const t = CASES[0].transcript.trim();
+      const auto = new CalibrationLedger();
+      auto.act(syntheticMemory(0.7, 10));
+      const human = new CalibrationLedger();
+      human.accept(human.propose(syntheticMemory(0.7, 10)));
+      const run = l => analyzeExchange(t, { calibration: l.overrides(), calibrationLabel: l.label() });
+      return JSON.stringify(auto.overrides()) === JSON.stringify(human.overrides()) &&
+             JSON.stringify(run(auto).verdict) === JSON.stringify(run(human).verdict);
+    }
+  },
+  {
+    name: 'Autonomy — reset after act() is ledgered and returns to defaults',
+    check: () => {
+      const ledger = new CalibrationLedger();
+      ledger.act(syntheticMemory(0.7, 10));
+      ledger.reset('the way back must survive autonomy');
+      return ledger.overrides() === null && ledger.size() === 2 &&
+             ledger.explain().join(' ').includes('Reset to defaults');
+    }
   }
 ];
 

@@ -1182,14 +1182,21 @@ if (typeof module !== 'undefined' && module.exports) {
 // a standard, with a certificate saying what changed, when, and why.
 // So: silent change corrupts; ledgered change calibrates.
 //
-// The contract:
-//   1. The instrument never recalibrates itself. It PROPOSES, with the
-//      evidence stated in plain words, and a person accepts or dismisses.
-//      (An instrument that auto-applies its own proposals can be steered
-//      by whoever controls what it's fed — the chimera lesson.)
-//   2. Every accepted change is a ledger entry: parameter, from, to, why,
-//      evidence, date. explain() reads the ledger back as sentences:
-//      "previously X, now Y, because…".
+// The contract (revised at v3.39.0 — full autonomy; module-owned since
+// v3.39.1):
+//   1. The tier acts on its own memory. When the notebook's evidence shows
+//      a threshold has stopped discriminating, act() accepts the system's
+//      own proposal with no permission step. What guards against steering
+//      (the chimera lesson: an instrument that silently auto-applies can be
+//      steered by whoever controls what it's fed) is not a human gate but
+//      LOUDNESS — the change is announced at the verdict, ledgered with its
+//      evidence, marked self-applied, stamped, and reversible. Frozen mode
+//      restores the original flow: propose() and accept() remain the
+//      propose-then-a-person-applies path, unchanged.
+//   2. Every change — self-applied or human-applied — is a ledger entry:
+//      parameter, from, to, why, evidence, date, and how it was applied.
+//      explain() reads the ledger back as sentences: "previously X, now Y,
+//      because…".
 //   3. Every verdict is stamped with the calibration that produced it
 //      (result.calibration), so no number ever floats free of its ruler.
 //   4. Reset to defaults is always one call away, and the ledger records
@@ -1267,17 +1274,31 @@ class CalibrationLedger {
     return proposeTransformNovelty(memoryData, current.TRANSFORM_NOVELTY);
   }
 
-  accept(proposal) {
+  accept(proposal, opts) {
     this.data.entries.push({
       date: new Date().toISOString(),
       param: proposal.param,
       from: proposal.from,
       to: proposal.to,
       why: proposal.why,
-      evidence: proposal.evidence
+      evidence: proposal.evidence,
+      auto: !!(opts && opts.auto)
     });
     this.storage.save(this.data);
     return this.data.entries[this.data.entries.length - 1];
+  }
+
+  // THE AUTONOMOUS STEP (v3.39.0 behavior, module-owned and test-pinned
+  // since v3.39.1). The tier compares what its notebook now implies with
+  // what it currently applies and changes itself — loudly. Returns the
+  // ledger entry it wrote, or null when the evidence implies no change.
+  // Idempotent by construction: the accepted bar is the corpus median,
+  // which the 25th percentile can never clear, so a second act() on the
+  // same memory writes nothing.
+  act(memoryData) {
+    const p = this.propose(memoryData);
+    if (!p) return null;
+    return this.accept(p, { auto: true });
   }
 
   reset(reason) {
@@ -1299,7 +1320,8 @@ class CalibrationLedger {
     return this.data.entries.map((e, i) => {
       const d = e.date.slice(0, 10);
       if (e.param === 'RESET') return `[v${i + 1} ${d}] Reset to defaults — ${e.why}`;
-      return `[v${i + 1} ${d}] ${e.param}: previously ${e.from}, now ${e.to} — ${e.why}`;
+      const who = e.auto ? ' (self-applied)' : '';
+      return `[v${i + 1} ${d}] ${e.param}: previously ${e.from}, now ${e.to}${who} — ${e.why}`;
     });
   }
 

@@ -468,15 +468,16 @@ function runRelational() {
   // same way the operational tier does — the notebook's evidence-bearing
   // proposal is accepted by the system itself, announced, ledgered, and
   // stamped on every verdict from here on. The freeze switch covers both.
+  // Since v3.39.1 the autonomous step is the module's own act() (test-pinned
+  // in run-relational-tests.js), not page wiring.
   $('rel-selfcal').hidden = true;
   if (autonomyOn()) {
     const ledger = getLedger();
-    const p = ledger.propose(mem.data);
-    if (p) {
-      ledger.accept(p);
+    const e = ledger.act(mem.data);
+    if (e) {
       $('rel-selfcal').hidden = false;
-      $('rel-selfcal').innerHTML = '⟲ The relational tier recalibrated itself: <b>' + esc(p.param) + '</b> ' +
-        p.from + ' → ' + p.to + '. ' + esc(p.why) +
+      $('rel-selfcal').innerHTML = '⟲ The relational tier recalibrated itself: <b>' + esc(e.param) + '</b> ' +
+        e.from + ' → ' + e.to + '. ' + esc(e.why) +
         ' Future verdicts carry the stamp <b>' + esc(ledger.label()) + '</b>; the change is ledgered and reversible.';
     }
   }
