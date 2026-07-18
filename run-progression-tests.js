@@ -114,6 +114,46 @@ test('Reset is reversible and itself ledgered', () => {
   assert.strictEqual(m.ledger()[m.size() - 1].to, 'factory');
 });
 
+// ── Frozen mode (v3.39.2): freezing gates self-change, never learning. ───
+
+test('Observation is not self-change: observe() alone never touches active state or ledger', () => {
+  const m = new ProgressionMemory(ProgressionMemory.memoryStore());
+  for (let i = 0; i < 10; i++) m.observe(core.analyzeCathedral(SOUND_TEXT));
+  assert.deepStrictEqual(m.active(), {}, 'no multiplier applied by observation');
+  assert.strictEqual(m.size(), 0, 'no ledger entry written by observation');
+  assert.strictEqual(m.label(), 'factory');
+  assert.ok(m.pending().length >= 1, 'yet the memory holds a real implied change');
+});
+
+test('pending() previews the exact diff act() would commit, without committing', () => {
+  const m = new ProgressionMemory(ProgressionMemory.memoryStore());
+  for (let i = 0; i < 5; i++) m.observe(core.analyzeCathedral(SOUND_TEXT));
+  const preview = m.pending();
+  assert.strictEqual(m.size(), 0, 'preview writes nothing');
+  const { changed } = m.act();
+  assert.deepStrictEqual(
+    preview.map(c => [c.param, c.from, c.to, c.why]),
+    changed.map(c => [c.param, c.from, c.to, c.why]),
+    'preview and commit must carry the same numbers and the same evidence');
+  assert.deepStrictEqual(m.pending(), [], 'after commit, nothing is pending');
+});
+
+test('applyImplied() is the human path: same end state as act(), entries marked human-applied', () => {
+  const mk = () => {
+    const m = new ProgressionMemory(ProgressionMemory.memoryStore());
+    for (let i = 0; i < 5; i++) m.observe(core.analyzeCathedral(SOUND_TEXT));
+    return m;
+  };
+  const auto = mk(); auto.act();
+  const human = mk(); const applied = human.applyImplied();
+  assert.ok(applied.changed.length >= 1 && applied.changed.every(e => e.auto === false),
+    'human-applied entries must not claim self-application');
+  assert.deepStrictEqual(human.active(), auto.active(),
+    'the two paths converge to the same instrument');
+  assert.ok(/^calibrated #\d+/.test(human.label()),
+    'the stamp must not claim self-calibration for a human-applied change');
+});
+
 test('Proposals map matches the verdict branches it was read from', () => {
   const r = core.analyzeCathedral(SOUND_TEXT);
   assert.strictEqual(PROPOSALS.OPERATIONAL_EXCELLENCE, r.verdict.status,

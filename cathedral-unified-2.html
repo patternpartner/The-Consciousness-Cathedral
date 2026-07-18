@@ -162,7 +162,13 @@ B: The stamp turns the lease from a timing guess into a checkable contract.</tex
     every calibrated verdict carries the stamp, and the archive can attribute any changed verdict to the exact
     entry that moved it.</p>
     <label class="opt"><input type="checkbox" id="prog-autonomy" checked> autonomous recalibration
-      (uncheck to freeze at factory — existing ledger is kept)</label>
+      (uncheck to freeze: the ledgered calibration stays applied, learning continues, and new
+      changes wait below as proposals for you to apply)</label>
+    <div class="card" id="prog-proposal" style="background:var(--panel2);margin-top:12px;" hidden>
+      <h2>IMPLIED — NOT APPLIED (frozen)</h2>
+      <div id="prog-proposal-text" style="font-size:13.5px;"></div>
+      <button class="btn" id="prog-apply">Apply (ledgered, reversible)</button>
+    </div>
     <table id="prog-summary" style="margin-top:12px;"></table>
     <div id="prog-ledger" style="margin-top:12px;font-size:13px;"></div>
     <button class="btn ghost" id="prog-reset" style="margin-top:12px;">Factory reset (appends to the ledger, never erases it)</button>
@@ -265,9 +271,12 @@ function runOperational() {
   notice('');
   let r, prog = null;
   try {
-    // The loop: the system analyzes UNDER its own self-set calibration…
+    // The loop: the system analyzes UNDER its ledgered calibration. The
+    // applied state persists whether or not autonomy is on — it is the
+    // ledgered instrument, and returning to factory is a ledgered reset,
+    // never a switch side-effect (v3.39.2, matching the relational tier).
     let opts = {};
-    if (typeof ProgressionMemory !== 'undefined' && autonomyOn()) {
+    if (typeof ProgressionMemory !== 'undefined') {
       prog = getProgression();
       const active = prog.active();
       if (Object.keys(active).length) opts = { patternCalibration: active, calibrationLabel: prog.label() };
@@ -275,11 +284,13 @@ function runOperational() {
     r = CathedralCore.analyzeCathedral($('op-text').value, opts);
   }
   catch (e) { notice('Analysis error: ' + e.message); return; }
-  // …then remembers what happened, and acts on the memory — loudly.
+  // …then remembers what happened (observation is not self-change; frozen
+  // mode never stops learning), and acts on the memory only when autonomy
+  // is on — frozen, the same change waits as a proposal in the ledger room.
   $('op-selfcal').hidden = true;
   if (prog) {
     prog.observe(r);
-    const acted = prog.act();
+    const acted = autonomyOn() ? prog.act() : { changed: [] };
     if (acted.changed.length) {
       $('op-selfcal').hidden = false;
       $('op-selfcal').innerHTML = '⟲ The system recalibrated itself: ' +
@@ -513,6 +524,16 @@ function renderProgression() {
   if (typeof ProgressionMemory === 'undefined') return;
   const prog = getProgression();
   $('prog-autonomy').checked = autonomyOn();
+  // Frozen: the memory's implied-but-unapplied diff waits here for a person
+  // (pending() is the same numbers and evidence act() would commit).
+  const pend = autonomyOn() ? [] : prog.pending();
+  $('prog-proposal').hidden = pend.length === 0;
+  if (pend.length) {
+    $('prog-proposal-text').innerHTML = 'The memory implies a change the frozen system may not self-apply: ' +
+      pend.map(c => '<b>' + esc(c.param) + '</b> ×' + c.from.toFixed(2) + ' → ×' + c.to.toFixed(2) +
+        ' <span class="muted">(' + esc(c.why) + ')</span>').join('; ') +
+      '.<br><span class="muted">Nothing changes unless you apply it. Applied changes are ledgered and reversible.</span>';
+  }
   const sum = prog.summary();
   $('prog-summary').innerHTML = sum.length === 0
     ? '<tr><td class="muted">No progression yet — analyze some texts and the system starts learning its own patterns.</td></tr>'
@@ -532,7 +553,9 @@ function renderProgression() {
 }
 $('prog-autonomy').addEventListener('change', e => {
   try { localStorage.setItem('cathedral-autonomy', e.target.checked ? '1' : '0'); } catch(_){}
+  renderProgression();
 });
+$('prog-apply').addEventListener('click', () => { getProgression().applyImplied(); renderProgression(); });
 $('prog-reset').addEventListener('click', () => { getProgression().reset('Factory reset from Unified 2.0.'); renderProgression(); });
 $('prog-export').addEventListener('click', () => {
   const s = getProgression().export();
