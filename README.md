@@ -8,16 +8,19 @@ Cathedral answers one question about a piece of reasoning: *is this actually act
 const cathedral = require('./index.js');
 
 const result = cathedral.analyze(`
-  If error rate exceeds 5%, we abort deployment.
+  If error rate exceeds 5%, we abort deployment and roll back within ten minutes.
   We have three failure modes: cache overflow, API timeout, edge case bugs.
-  For each, we monitor metrics and have rollback procedures.
+  For each, we monitor a dashboard metric and a rollback runbook exists.
+  Because rollback was rehearsed last quarter, we know the procedure completes in under six minutes.
 `);
 
 console.log(result.verdict.status);     // "OPERATIONALLY SOUND"
-console.log(result.verdict.confidence); // 0.88
+console.log(result.verdict.confidence); // 0.95  (this exact text is pinned by regression case 20)
 ```
 
 Or open **[`cathedral-demo-standalone.html`](cathedral-demo-standalone.html)** in a browser — one self-contained file, phone-friendly, generated from the tested module — paste text, and hit Analyze.
+
+Or open **[`cathedral-unified-2-standalone.html`](cathedral-unified-2-standalone.html)** — **Cathedral Unified 2.0**: the whole system in one file again. Both analyzers, the device-only notebook, the calibration ledger, the escape-pattern scan, and the contract that keeps them honest, rebuilt from the tested modules. The successor to the retired January monolith (`legacy/cathedral-unified.html`) — same unity, wiring reversed: composed on the page, isolated in measurement, nothing silent.
 
 ---
 
