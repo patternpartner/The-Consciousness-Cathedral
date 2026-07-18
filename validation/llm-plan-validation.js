@@ -90,7 +90,7 @@ if (!fs.existsSync(CORPUS)) {
     process.exit(2);
 }
 const corpus = JSON.parse(fs.readFileSync(CORPUS, 'utf8'));
-const raw = corpus.documents.map(d => ({ id: `${d.feature} [batch ${d.batch}]`, alert: d.feature,
+const raw = corpus.documents.map(d => ({ id: `${d.feature} [batch ${d.batch}]`, feature: d.feature,
     text: stripMarkdown(d.text || '') }));
 const excluded = raw.filter(d => d.text.length < MIN_PROSE);
 const docs = raw.filter(d => d.text.length >= MIN_PROSE);
@@ -126,7 +126,7 @@ const results = { generated: '2026-07-17', seed: SEED, minProseChars: MIN_PROSE,
     evaluatorUnmodified: true,
     insideApproximationCaveats: 'generator is the session model family; runs in the repo container (project name visible in agent env, content not provided); tool non-use instructed, not proven; generation stochastic — this committed corpus is the reproducibility object',
     population: {
-        documentsPlanerated: raw.length, documentsEffective: docs.length,
+        documentsGenerated: raw.length, documentsEffective: docs.length,
         mechanicalExclusions: excluded.map(e => e.id),
         wordLengths: { min: lengths[0], median: lengths[Math.floor(lengths.length / 2)], max: lengths[lengths.length - 1] },
         verdictDistribution: dist,
@@ -143,7 +143,7 @@ const results = { generated: '2026-07-17', seed: SEED, minProseChars: MIN_PROSE,
     g8struct: null };
 
 console.log('═'.repeat(63));
-console.log(`LLM-written runbooks (claude-sonnet-5, cold contexts) — ${docs.length} effective of ${raw.length} generated` +
+console.log(`LLM-written rollout plans (claude-sonnet-5, cold contexts) — ${docs.length} effective of ${raw.length} generated` +
     (excluded.length ? ` (${excluded.length} excluded < ${MIN_PROSE} chars)` : ''));
 console.log(`  words: min ${lengths[0]}, median ${results.population.wordLengths.median}, max ${lengths[lengths.length - 1]}`);
 console.log(`  OUTSIDE DESIGN SPACE: ${results.population.outsideDesignSpaceRate}   gaming flagged: ${results.population.gamingFlaggedRate}`,
