@@ -20,7 +20,7 @@
     "ai-text-analysis"
   ],
   "author": "patternpartner",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "engines": {
     "node": ">=14"
   },

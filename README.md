@@ -175,7 +175,7 @@ This project began as an attempt to measure something much larger than operation
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Currently unlicensed — all rights reserved (the MIT license was withdrawn 2026-07-18; a license may be restored later). Contact the maintainer about reuse.
 
 ## Citation
 
