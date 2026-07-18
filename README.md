@@ -20,7 +20,7 @@ console.log(result.verdict.confidence); // 0.95  (this exact text is pinned by r
 
 Or open **[`cathedral-demo-standalone.html`](cathedral-demo-standalone.html)** in a browser — one self-contained file, phone-friendly, generated from the tested module — paste text, and hit Analyze.
 
-Or open **[`cathedral-unified-2-standalone.html`](cathedral-unified-2-standalone.html)** — **Cathedral Unified 2.0**: the whole system in one file again. Both analyzers, the device-only notebook, the calibration ledger, the escape-pattern scan, and the contract that keeps them honest, rebuilt from the tested modules. The successor to the retired January monolith (`legacy/cathedral-unified.html`) — same unity, wiring reversed: composed on the page, isolated in measurement, nothing silent.
+Or open **[`cathedral-unified-2-standalone.html`](cathedral-unified-2-standalone.html)** — **Cathedral Unified 2.0**: the whole system in one file. Both analyzers; a device-only verdict archive with **instrument-drift detection** (identical text returning a different verdict is flagged — the analyzer is deterministic, so that can only mean the instrument changed); score-volatility and confidence-trajectory display; Parliament pattern statistics as ledger evidence; the exchange notebook; the calibration ledger; the escape-pattern scan; and full report export. Every capability of the retired January monolith, with the wiring reversed: the notebooks read the analyzers, the analyzers never read the notebooks (`run-verdict-memory-tests.js` pins it).
 
 ---
 

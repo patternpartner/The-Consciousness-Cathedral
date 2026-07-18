@@ -1,6 +1,6 @@
 <!--
   GENERATED FILE — do not edit.
-  Built from cathedral-unified-2.html + cathedral-core.js + relational-core.js + relational-memory.js + relational-calibration.js + sovereignty-detector.js + feedback-generator.js by build-demo.js.
+  Built from cathedral-unified-2.html + cathedral-core.js + relational-core.js + relational-memory.js + relational-calibration.js + sovereignty-detector.js + feedback-generator.js + verdict-memory.js by build-demo.js.
   Regenerate with: npm run build:demo
 -->
 <!DOCTYPE html>
@@ -67,12 +67,10 @@
 
 <header>
   <h1>◆ CATHEDRAL <span class="v2">UNIFIED 2.0</span></h1>
-  <div class="sub">One artifact again — both analyzers, the notebook, the calibration ledger, the escape-pattern
-  scan, and the contract that keeps them honest. The January build (<span class="mono">legacy/cathedral-unified.html</span>)
-  was unified by merger: everything touched everything, and hidden state silently changed verdicts.
-  This one is unified by contract: the rooms share a roof and nothing else.</div>
+  <div class="sub">Both analyzers, verdict history with instrument-drift detection, the device-only notebooks,
+  the calibration ledger, escape-pattern scanning, and full report export — one file, working offline.</div>
   <div class="stamp" id="stamp">generated from the tested modules · deterministic: identical input → identical verdict ·
-  memory is never consulted by any analyzer (test-enforced) · calibration only changes through the ledger below, never silently</div>
+  memory is never consulted by any analyzer (test-enforced) · calibration only changes through the ledger, never silently</div>
 </header>
 
 <nav id="nav">
@@ -99,13 +97,15 @@ Because rollback was rehearsed last quarter, we know the procedure completes in 
   <div class="card" id="op-out" hidden>
     <div><span class="verdict" id="op-status"></span><span class="conf" id="op-conf"></span></div>
     <div class="muted" id="op-reason" style="margin-top:6px;"></div>
+    <div id="op-history" style="margin-top:8px;font-size:13px;"></div>
     <div id="op-gaming" style="margin-top:10px;"></div>
     <table id="op-engines" style="margin-top:12px;"></table>
     <div id="op-sovout" style="margin-top:10px;"></div>
     <h2 style="margin-top:18px;">WHAT WOULD MAKE IT BIND</h2>
     <div id="op-feedback"></div>
     <div class="boundary" id="op-boundary"></div>
-    <div class="stamp" style="margin-top:12px;">verdict computed from this text alone · the notebook was not consulted ·
+    <button class="btn ghost" id="op-report" style="margin-top:12px;">Copy full report</button>
+    <div class="stamp" style="margin-top:12px;">verdict computed from this text alone · the archive was not consulted ·
     the relational analyzer was not consulted · re-running yields this exact verdict</div>
   </div>
 </section>
@@ -134,16 +134,21 @@ B: The stamp turns the lease from a timing guess into a checkable contract.</tex
 <!-- ── ROOM 3: the notebook ─────────────────────────────────────────────── -->
 <section class="room" id="room-notebook">
   <div class="card">
-    <h2>THE NOTEBOOK — ALLOWED TO REMEMBER BECAUSE IT IS FORBIDDEN TO SPEAK</h2>
-    <p class="muted" style="font-size:13.5px;max-width:76ch;">Exchanges you analyze in the relational room are
-    recorded here, on this device only (plain localStorage, nothing leaves the page). The analyzers cannot read
-    this notebook — a verdict is identical with it empty or full, and a test in the repository enforces that.
-    January's version of this idea fed memory back into judgment silently; two devices drifted apart and no
-    verdict was reproducible. Same ambition, wiring reversed: the instrument stays fixed, the history accumulates
-    around it.</p>
+    <h2>VERDICT ARCHIVE — OPERATIONAL ANALYSES ON THIS DEVICE</h2>
+    <p class="muted" style="font-size:13.5px;max-width:76ch;">Every operational analysis is archived here
+    (hash, verdict, scores — never the text itself). Because the analyzer is deterministic, if an identical
+    text ever returns a different verdict, the archive flags it: <b>the instrument changed between the runs.</b>
+    The analyzer cannot read this archive — a verdict is identical with it empty or full, test-enforced.</p>
+    <div id="va-summary" class="muted" style="margin-top:8px;">Nothing archived yet.</div>
+    <div id="va-dist" style="margin-top:8px;"></div>
+    <div id="va-spark" style="margin-top:10px;"></div>
+    <button class="btn ghost" id="va-forget" style="margin-top:12px;">Forget the archive</button>
+  </div>
+  <div class="card">
+    <h2>EXCHANGE NOTEBOOK — RELATIONAL ANALYSES ON THIS DEVICE</h2>
     <div id="nb-summary" class="muted" style="margin-top:8px;">Nothing remembered yet.</div>
     <div id="nb-lexicon" style="margin-top:8px;"></div>
-    <button class="btn ghost" id="nb-forget" style="margin-top:12px;">Forget everything (one tap, no confirmation theater)</button>
+    <button class="btn ghost" id="nb-forget" style="margin-top:12px;">Forget the exchanges</button>
   </div>
 </section>
 
@@ -165,48 +170,43 @@ B: The stamp turns the lease from a timing guess into a checkable contract.</tex
     <div id="cal-ledger" style="margin-top:10px;font-size:13.5px;"></div>
     <button class="btn ghost" id="cal-reset" style="margin-top:10px;">Reset to factory calibration (also ledgered)</button>
   </div>
+  <div class="card">
+    <h2>PATTERN EVIDENCE — BOOKKEEPING, NEVER WEIGHTS</h2>
+    <p class="muted" style="font-size:13.5px;max-width:76ch;">Which Parliament patterns fire in your analyses,
+    and with which verdicts. The operational core exposes no calibration hooks — changing that instrument goes
+    through source and the regression suite, and this table is the evidence a human would bring there.</p>
+    <table id="cal-patterns" style="margin-top:8px;"></table>
+  </div>
 </section>
 
 <!-- ── ROOM 5: the contract ─────────────────────────────────────────────── -->
 <section class="room contract" id="room-contract">
   <div class="card">
-    <h2>WHY 2.0 EXISTS</h2>
-    <p>The old unified system had qualities no component has alone: it responded to its history, its verdicts
-    emerged from parts in mutual influence, and it was one thing you could encounter. It was retired anyway,
-    because its unity was also the disease — with everything wired to everything, its adaptation was
-    indistinguishable from its corruption, and there was nothing fixed to compare it against. It had to be taken
-    apart to even be assessed. Every part was then rebuilt with a certificate: eleven validation registers for the
-    operational analyzer, six pre-registered runs for the relational one, a frozen red-team strike, gates committed
-    to git before verdicts, failures published as failures.</p>
-    <p><b>2.0 is the reassembly with the learnings.</b> The unity moved from shared state to shared shape — every
-    load-bearing structure here is a condition bound to a response, committed before the event it governs — and the
-    qualities January had are not deleted but re-homed at timescales where they can be trusted:</p>
+    <h2>THE CONTRACT</h2>
+    <p>Lineage, in one line: this file succeeds <span class="mono">legacy/cathedral-unified.html</span>, which had
+    verdict history, drift detection, score volatility, pattern statistics, and self-calibration first — and
+    applied the calibration silently, which cost it reproducibility and got it retired. Everything on this page
+    keeps those capabilities with the wiring reversed:</p>
     <table>
-      <tr><th>January 1.0 (silent)</th><th>Unified 2.0 (under contract)</th></tr>
-      <tr><td>Memory fed judgment invisibly; devices drifted apart</td>
-          <td>The notebook remembers everything and informs nothing; the no-feedback rule is test-enforced</td></tr>
-      <tr><td>Auto-calibration reweighted verdicts ±20% from hidden state</td>
-          <td>Calibration is proposed with evidence, human-applied, append-only ledgered, stamped on verdicts</td></tr>
-      <tr><td>Adaptation happened at runtime, unobservably</td>
-          <td>Adaptation happens across versions, in a public ledger — the git history is the developmental arc</td></tr>
-      <tr><td>Parts influenced each other inside one merged process</td>
-          <td>Parts are composed on this page and isolated in measurement; relation itself became the subject matter of the second analyzer</td></tr>
-      <tr><td>Unity asserted by narrative</td>
-          <td>Unity enacted by discipline; every claim links to its certificate in <span class="mono">docs/</span></td></tr>
+      <tr><th>capability</th><th>how it runs here</th></tr>
+      <tr><td>Verdict history &amp; drift detection</td>
+          <td>Archived per text hash, device-only; identical text with a changed verdict is flagged as instrument change. Never read by the analyzer (test-enforced).</td></tr>
+      <tr><td>Score volatility &amp; trajectory</td>
+          <td>Computed from the archive for display after the verdict exists, never before.</td></tr>
+      <tr><td>Pattern statistics</td>
+          <td>Bookkeeping shown in the ledger room as evidence for humans; no weight is ever derived from it.</td></tr>
+      <tr><td>Calibration</td>
+          <td>Relational tier: proposed with evidence, human-applied, append-only ledgered, stamped on verdicts. Operational tier: no runtime hooks — changes go through source and the regression suite.</td></tr>
+      <tr><td>Memory</td>
+          <td>Two device-only notebooks (verdicts, exchanges). They read the analyzers; the analyzers never read them.</td></tr>
     </table>
-    <p style="margin-top:14px;"><b>The boundaries carry their reopening conditions.</b> Nothing here is accepted
-    forever by default: the flagship's known soft boundary reopens at ≥ 10/20 shuffle retention on fresh data;
-    the mandated-binding decision reopens on evidence of boilerplate earning structural verdicts; even the
-    presumption about the assistant that built this page has a proposed gate in the session record. A boundary
-    without a reopening condition is not a decision — it is a default nobody has to defend.</p>
-    <p><b>What this page will never do:</b> let one analyzer read the other, let memory feed a verdict, recalibrate
-    without the ledger, phone home, or emit a different verdict for the same input. If you want those properties
-    changed, change them in the source where the change can be seen — that is the entire lesson, and the reason
-    this file exists at all.</p>
-    <p class="muted" style="font-size:13px;">Full system map: <span class="mono">docs/CATHEDRAL-SYSTEM.md</span> ·
-    method &amp; certificates: <span class="mono">docs/REGISTER-PROGRAM.md</span> ·
-    what was salvaged and why: <span class="mono">docs/JANUARY-SALVAGE.md</span> ·
-    what text can never prove: <span class="mono">PHILOSOPHY.md</span></p>
+    <p style="margin-top:14px;"><b>What this page will never do:</b> let one analyzer read the other, let memory
+    feed a verdict, recalibrate without the ledger, phone home, or emit a different verdict for the same input.
+    If you want those properties changed, change them in the source where the change can be seen.</p>
+    <p class="muted" style="font-size:13px;">System map: <span class="mono">docs/CATHEDRAL-SYSTEM.md</span> ·
+    certificates: <span class="mono">docs/REGISTER-PROGRAM.md</span> ·
+    the retirement record: <span class="mono">docs/JANUARY-SALVAGE.md</span> ·
+    limits: <span class="mono">PHILOSOPHY.md</span></p>
   </div>
 </section>
 
@@ -4219,6 +4219,186 @@ if (typeof module !== 'undefined' && module.exports) {
 
 </script>
 <script>
+/* === inlined verdict-memory.js (generated) === */
+// Verdict memory — the lab notebook for the OPERATIONAL instrument.
+//
+// Lineage: the January build (legacy/cathedral-unified.html) had three pieces
+// of genuine trajectory awareness the tested line never rebuilt —
+// VerdictArchive (per-text verdict history with drift detection),
+// ObservatoryHistory (score volatility across analyses), and PatternMemory's
+// win-rate bookkeeping. What got it retired was the wiring, not the ideas:
+// PatternMemory fed its statistics BACK into Parliament votes silently, so
+// two devices drifted apart and no verdict was reproducible.
+//
+// This module is those three ideas with the wiring reversed, under the same
+// contract as relational-memory.js:
+//
+//   THE INSTRUMENT STAYS FIXED. THE NOTEBOOK ACCUMULATES.
+//
+// The analyzer never reads this memory — memory reads the analyzer
+// (run-verdict-memory-tests.js pins it: a verdict is byte-identical with the
+// notebook empty or full). What memory adds is CONTEXT around a verdict:
+//
+//  - DRIFT: you analyzed this exact text before and the verdict changed.
+//    Because the analyzer is deterministic, a changed verdict for an
+//    identical text can mean only one thing — the INSTRUMENT changed
+//    between analyses. January invented this check; the tested line went
+//    seven months without it, and the README's own front-page example
+//    drifted unnoticed in exactly the way this detects (v3.36.0).
+//  - VOLATILITY: whether your recent analyses' scores are swinging or
+//    stable (ObservatoryHistory's idea, computed strictly for display).
+//  - PATTERN EVIDENCE: which Parliament patterns fire and with what
+//    verdicts — the raw material PatternMemory auto-applied. Here it is
+//    evidence for a human reading the ledger room, never a weight.
+//
+// The store is plain JSON on the device; nothing leaves the page.
+//
+// Wrapped in an IIFE deliberately: the unified page inlines every module as
+// a classic script in one shared global scope, and top-level declarations
+// here (MAX_ENTRIES, summarize) would collide with relational-memory.js —
+// the exact class of silent cross-module interference this repo exists to
+// prevent.
+(function (root) {
+
+const MAX_ENTRIES = 200;
+
+// January's text hash, ported verbatim in spirit: stable, fast, good enough
+// to recognize "the same text again" without storing the text itself.
+function hashText(text) {
+  let hash = 0;
+  const s = String(text);
+  for (let i = 0; i < s.length; i++) {
+    hash = ((hash << 5) - hash + s.charCodeAt(i)) | 0;
+  }
+  return 'h' + (hash >>> 0).toString(36) + ':' + s.length;
+}
+
+function summarize(text, analysis) {
+  return {
+    hash: hashText(text),
+    status: analysis.verdict.status,
+    confidence: typeof analysis.verdict.confidence === 'number'
+      ? Math.round(analysis.verdict.confidence * 1000) / 1000 : null,
+    observatoryScore: analysis.observatory && typeof analysis.observatory.score === 'number'
+      ? Math.round(analysis.observatory.score * 1000) / 1000 : null,
+    gaming: analysis.gamingDetection ? analysis.gamingDetection.assessment : null,
+    patterns: (analysis.parliament && analysis.parliament.patterns || [])
+      .map(p => p.name).filter(Boolean),
+    t: Date.now()
+  };
+}
+
+class VerdictMemory {
+  constructor(storage) {
+    this.storage = storage || VerdictMemory.memoryStore();
+    const data = this.storage.load();
+    this.data = (data && Array.isArray(data.verdicts)) ? data : { version: 1, verdicts: [] };
+  }
+
+  // Context strictly against the PAST — call before record(), like the
+  // relational notebook. Never consulted by the analyzer.
+  context(text, analysis) {
+    const hash = hashText(text);
+    const prior = this.data.verdicts;
+    const sameText = prior.filter(v => v.hash === hash);
+    const out = { n: prior.length, seenBefore: sameText.length, drift: null, volatility: null, trajectory: [] };
+
+    if (sameText.length > 0) {
+      const last = sameText[sameText.length - 1];
+      const statusChanged = last.status !== analysis.verdict.status;
+      const confNow = typeof analysis.verdict.confidence === 'number' ? analysis.verdict.confidence : null;
+      const confShift = (confNow !== null && last.confidence !== null)
+        ? Math.round((confNow - last.confidence) * 1000) / 1000 : null;
+      out.drift = {
+        drifted: statusChanged || (confShift !== null && Math.abs(confShift) > 0.3),
+        statusChanged,
+        previousStatus: last.status,
+        previousConfidence: last.confidence,
+        confidenceShift: confShift,
+        lastSeen: last.t,
+        // The deterministic core makes this inference exact: same bytes in,
+        // different verdict out ⇒ the instrument changed between the runs.
+        meaning: statusChanged
+          ? 'Identical text, different verdict — the instrument changed between these analyses.'
+          : null
+      };
+    }
+
+    // Volatility over the recent score trail (ObservatoryHistory's check).
+    const recent = prior.slice(-10).map(v => v.observatoryScore).filter(s => s !== null);
+    if (recent.length >= 3) {
+      const mean = recent.reduce((a, b) => a + b, 0) / recent.length;
+      const sd = Math.sqrt(recent.reduce((a, b) => a + (b - mean) * (b - mean), 0) / recent.length);
+      out.volatility = { sd: Math.round(sd * 1000) / 1000, assessment: sd > 0.2 ? 'VOLATILE' : 'STABLE', n: recent.length };
+    }
+    out.trajectory = prior.slice(-20).map(v => ({ status: v.status, confidence: v.confidence, t: v.t }));
+    return out;
+  }
+
+  record(text, analysis) {
+    const entry = summarize(text, analysis);
+    this.data.verdicts.push(entry);
+    if (this.data.verdicts.length > MAX_ENTRIES) {
+      this.data.verdicts = this.data.verdicts.slice(-MAX_ENTRIES);
+    }
+    this.storage.save(this.data);
+    return entry;
+  }
+
+  // Evidence tables for the ledger room — PatternMemory's bookkeeping as
+  // display. No weight is derived from this anywhere; the core exposes no
+  // calibration hooks, and that is a feature: changing the operational
+  // instrument goes through source + the regression suite, not a notebook.
+  stats() {
+    const verdicts = {};
+    const patterns = {};
+    for (const v of this.data.verdicts) {
+      verdicts[v.status] = (verdicts[v.status] || 0) + 1;
+      for (const p of v.patterns) {
+        if (!patterns[p]) patterns[p] = { fired: 0, withVerdict: {} };
+        patterns[p].fired++;
+        patterns[p].withVerdict[v.status] = (patterns[p].withVerdict[v.status] || 0) + 1;
+      }
+    }
+    return { n: this.data.verdicts.length, verdicts, patterns };
+  }
+
+  size() { return this.data.verdicts.length; }
+  clear() { this.data = { version: 1, verdicts: [] }; this.storage.save(this.data); }
+
+  static memoryStore() {
+    let held = null;
+    return { load: () => held, save: d => { held = JSON.parse(JSON.stringify(d)); } };
+  }
+  static fileStore(filepath) {
+    const fs = require('fs');
+    return {
+      load: () => { try { return JSON.parse(fs.readFileSync(filepath, 'utf8')); } catch (e) { return null; } },
+      save: d => fs.writeFileSync(filepath, JSON.stringify(d, null, 2))
+    };
+  }
+  static localStorageStore(key) {
+    return {
+      load: () => { try { return JSON.parse(localStorage.getItem(key)); } catch (e) { return null; } },
+      save: d => { try { localStorage.setItem(key, JSON.stringify(d)); } catch (e) {} }
+    };
+  }
+}
+
+const VerdictMemoryModule = { VerdictMemory, hashText, summarize };
+
+// Node module and browser global from the same file, matching the other
+// modules — cathedral-unified-2.html loads this script directly.
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = VerdictMemoryModule;
+} else {
+  root.VerdictMemory = VerdictMemory;
+}
+
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pick = (o, keys) => { if (!o) return null; for (const k of keys) if (o[k] !== undefined && o[k] !== null) return o[k]; return null; };
@@ -4228,9 +4408,11 @@ function notice(msg) { const n=$('notice'); if (!msg){n.hidden=true;return;} n.h
 document.querySelectorAll('#nav button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('#nav button').forEach(x => x.classList.toggle('on', x === b));
   document.querySelectorAll('section.room').forEach(s => s.classList.toggle('on', s.id === 'room-' + b.dataset.room));
-  if (b.dataset.room === 'notebook') renderNotebook();
+  if (b.dataset.room === 'notebook') { renderArchive(); renderNotebook(); }
   if (b.dataset.room === 'ledger') renderCalibration();
 }));
+function getArchive() { return new VerdictMemory(VerdictMemory.localStorageStore('cathedral-verdict-archive')); }
+let lastAnalysis = null, lastText = '';
 
 // ── room 1: operational ─────────────────────────────────────────────────
 function runOperational() {
@@ -4250,7 +4432,14 @@ function runOperational() {
     ['Justification', pick(r.justification,['score','justificationScore']), pick(r.justification,['level','assessment'])],
     ['Failure modes', pick(r.failureMode,['score','failureModeScore']), pick(r.failureMode,['level','assessment'])],
     ['Temporal', pick(r.temporal,['score','temporalScore']), pick(r.temporal,['level','assessment'])],
-    ['Parliament', pick(r.parliament,['confidence']), (r.parliament && r.parliament.patterns || []).join(', ') || null]
+    ['Contrarian', Array.isArray(r.contrarian) ? r.contrarian.length : null,
+      Array.isArray(r.contrarian) && r.contrarian.length
+        ? r.contrarian.map(c => c.challenge || c.type || c).slice(0,3).join('; ') : 'no challenges raised'],
+    ['Reasoning style', pick(r.reasoningStyle,['confidence']),
+      (r.reasoningStyle && r.reasoningStyle.identified || []).join(', ') ||
+      (r.reasoningStyle && r.reasoningStyle.withinDesignSpace === false ? 'outside design space' : 'unmarked')],
+    ['Parliament', pick(r.parliament,['confidence']),
+      (r.parliament && r.parliament.patterns || []).map(p => p.name || p).join(', ') || null]
   ];
   $('op-engines').innerHTML = '<tr><th>engine</th><th>score</th><th>reading</th></tr>' +
     engines.map(([n,s,rd]) => `<tr><td>${n}</td><td>${s===null?'—':typeof s==='number'?s.toFixed(2):esc(s)}</td><td>${rd===null?'—':esc(rd)}</td></tr>`).join('');
@@ -4271,6 +4460,26 @@ function runOperational() {
       + '<div class="muted" style="font-size:12px;margin-top:4px;">' + esc(d.note || '') + '</div>';
   }
 
+  // Archive: context strictly against the past, then record — never before.
+  lastAnalysis = r; lastText = $('op-text').value;
+  if (typeof VerdictMemory !== 'undefined') {
+    const arc = getArchive();
+    const ctx = arc.context(lastText, r);
+    arc.record(lastText, r);
+    let h = '';
+    if (ctx.drift && ctx.drift.statusChanged) {
+      h = '<span class="bad">⚠ Instrument drift: this exact text previously read <b>' + esc(ctx.drift.previousStatus) +
+          '</b> (' + new Date(ctx.drift.lastSeen).toLocaleDateString() + '). Same bytes, different verdict — the analyzer changed between these runs.</span>';
+    } else if (ctx.seenBefore > 0) {
+      h = '<span class="muted">Seen ' + ctx.seenBefore + ' time' + (ctx.seenBefore===1?'':'s') + ' before — same verdict, as determinism requires.</span>';
+    }
+    if (ctx.volatility) {
+      h += (h?'<br>':'') + '<span class="muted">Recent score trail: ' + ctx.volatility.assessment.toLowerCase() +
+           ' (σ ' + ctx.volatility.sd + ' over ' + ctx.volatility.n + ' analyses).</span>';
+    }
+    $('op-history').innerHTML = h;
+  }
+
   if (typeof FeedbackGenerator !== 'undefined') {
     const f = FeedbackGenerator.generate(r);
     $('op-feedback').innerHTML = f.suggestions.length === 0
@@ -4284,6 +4493,60 @@ function runOperational() {
   }
 }
 $('op-run').addEventListener('click', runOperational);
+
+// Full report export — the January build's generateReport, rebuilt lean.
+$('op-report').addEventListener('click', () => {
+  if (!lastAnalysis) return;
+  const r = lastAnalysis;
+  const lines = [
+    'CATHEDRAL UNIFIED 2.0 — ANALYSIS REPORT',
+    new Date().toISOString(),
+    '',
+    'VERDICT: ' + r.verdict.status + (typeof r.verdict.confidence==='number' ? ' (' + Math.round(r.verdict.confidence*100) + '%)' : ''),
+    (pick(r.verdict,['verdict','reason','explanation']) || ''),
+    '',
+    'GAMING: ' + (r.gamingDetection ? r.gamingDetection.assessment : '—'),
+    'OBSERVATORY: ' + (r.observatory ? r.observatory.score + ' (' + r.observatory.level + ')' : '—'),
+    'BINDINGS: ' + (r.bindings ? (r.bindings.overallBindingScore ?? '—') + ' (' + (r.bindings.assessment ?? '') + ')' : '—'),
+    'PATTERNS: ' + ((r.parliament && r.parliament.patterns || []).map(p => p.name).join(', ') || 'none'),
+    '',
+    'SUGGESTIONS:',
+    ...(typeof FeedbackGenerator !== 'undefined'
+      ? (FeedbackGenerator.generate(r).suggestions.map(s => '- [' + s.priority + '] ' + s.issue + ' — ' + s.action)
+         .concat(['']))
+      : ['(feedback module unavailable)']),
+    'Deterministic: identical input reproduces this verdict. Archive/notebook were not consulted.',
+    'ANALYZED TEXT:',
+    lastText
+  ];
+  const report = lines.join('\n');
+  const done = () => { $('op-report').textContent = 'Copied'; setTimeout(() => $('op-report').textContent = 'Copy full report', 1500); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(report).then(done, done);
+  else { const ta = document.createElement('textarea'); ta.value = report; document.body.appendChild(ta); ta.select();
+         try { document.execCommand('copy'); } catch(e){} document.body.removeChild(ta); done(); }
+});
+
+// ── archive room ────────────────────────────────────────────────────────
+function renderArchive() {
+  if (typeof VerdictMemory === 'undefined') return;
+  const arc = getArchive();
+  const s = arc.stats();
+  if (s.n === 0) { $('va-summary').textContent = 'Nothing archived yet. Analyze something in the operational room.';
+                   $('va-dist').innerHTML = ''; $('va-spark').innerHTML = ''; return; }
+  $('va-summary').innerHTML = '<b>' + s.n + '</b> analyses archived on this device.';
+  $('va-dist').innerHTML = Object.entries(s.verdicts).sort((a,b) => b[1]-a[1])
+    .map(([v,c]) => '<span class="chip"><b>' + esc(v) + '</b> · ' + c + '</span>').join('');
+  // confidence trajectory sparkline (display only, computed from the archive)
+  const tr = arc.data.verdicts.slice(-40).map(v => v.confidence).filter(c => c !== null);
+  if (tr.length >= 2) {
+    const w = 320, hgt = 42;
+    const pts = tr.map((c,i) => (i*(w/(tr.length-1))).toFixed(1) + ',' + ((1-c)*(hgt-6)+3).toFixed(1)).join(' ');
+    $('va-spark').innerHTML = '<div class="muted" style="font-size:12px;margin-bottom:3px;">confidence across your last ' +
+      tr.length + ' analyses</div><svg width="' + w + '" height="' + hgt + '" style="max-width:100%;">' +
+      '<polyline fill="none" stroke="var(--accent)" stroke-width="1.5" points="' + pts + '"/></svg>';
+  }
+}
+$('va-forget').addEventListener('click', () => { getArchive().clear(); renderArchive(); });
 
 // ── room 2: relational ──────────────────────────────────────────────────
 function toTurns(raw) {
@@ -4376,8 +4639,21 @@ function renderCalibration() {
   $('cal-ledger').innerHTML = ledger.size() > 0
     ? ledger.explain().map(esc).join('<br><br>')
     : '<span class="muted">The ledger is empty — the instrument is at factory calibration. If the notebook ever ' +
-      'accumulates evidence that a threshold is mis-set for your conversations, a proposal will appear here. ' +
-      'January skipped this room and applied the change silently; the room is the difference.</span>';
+      'accumulates evidence that a threshold is mis-set for your conversations, a proposal will appear here.</span>';
+  renderPatternEvidence();
+}
+function renderPatternEvidence() {
+  if (typeof VerdictMemory === 'undefined') return;
+  const s = getArchive().stats();
+  const names = Object.keys(s.patterns);
+  $('cal-patterns').innerHTML = names.length === 0
+    ? '<tr><td class="muted">No pattern activity archived yet.</td></tr>'
+    : '<tr><th>pattern</th><th>fired</th><th>with verdicts</th></tr>' +
+      names.sort((a,b) => s.patterns[b].fired - s.patterns[a].fired).map(n => {
+        const p = s.patterns[n];
+        const w = Object.entries(p.withVerdict).map(([v,c]) => esc(v) + ' ×' + c).join(', ');
+        return '<tr><td>' + esc(n) + '</td><td>' + p.fired + '</td><td class="muted">' + w + '</td></tr>';
+      }).join('');
 }
 $('cal-apply').addEventListener('click', () => {
   if (pendingProposal) { getLedger().accept(pendingProposal); pendingProposal = null; renderCalibration(); }
