@@ -1,0 +1,25 @@
+# The System, Reassembled
+
+*2026-07-18. The January build (`legacy/cathedral-unified.html`) was one file named "unified," and its unity was the reason it was retired: one narrative, silently self-calibrating from hidden device state, no verdict reproducible, no change ledgered ([JANUARY-SALVAGE.md](JANUARY-SALVAGE.md)). The salvage disassembled it — every component dispositioned one at a time, ported with a certificate or cut with a number. What followed was a year of parts: two analyzers, two memory contracts, eleven register runs, a red-team suite, two decisions, a contribution pipeline — each validated separately, each documented separately. Looked at one document at a time, the repository is a drawer of instruments. Looked at all at once, it is a unified system again — one that nobody had put back together. This document is the reassembly. Its rule: **the assembly adds no claims.** Every joint below is a link to a document that already exists; if a connection has no certificate, it isn't drawn.*
+
+## The unifying shape
+
+Every load-bearing structure in this repository is the same shape: **a condition bound to a response, committed before the event it governs.** The instruments measure that shape in text. The method enacts it in git. The governance encodes it in decisions. The old system asserted unity in what it said; this one enacts unity in what it does — which is why the ledger's own documents read `UNDECIDABLE` to the instrument (reports about bindings contain no bindings) while the practice they describe binds at every level.
+
+## The four altitudes
+
+**Altitude 1 — the sentence.** `cathedral-core.js` measures whether a text binds thresholds to actions, failures to mitigations, policies to instrumentation — structure, not presence. Certificate: eleven external registers, ~4,500 documents, every gate pre-registered, every operational-family verdict shuffle-adjudicated ([REGISTER-PROGRAM.md](REGISTER-PROGRAM.md)); a frozen white-box red-team strike held on all fourteen seams ([REDTEAM-VALIDATION.md](REDTEAM-VALIDATION.md)).
+
+**Altitude 2 — the exchange.** `relational-core.js` measures the same thing one level up: whether a reply binds to what the other speaker introduced — uptake, round trips, repair — rather than merely sounding like a reply. Mirroring is the keyword-stuffing of dialogue and is detected the same way. Certificate: six pre-registered runs against nine conversational corpora ([FINDINGS.md](FINDINGS.md), [RELATIONAL-PROGRAM.md](RELATIONAL-PROGRAM.md)).
+
+**Altitude 3 — the experiment.** The register method is the instrument's shape applied to the program itself: a gate is a threshold bound to a consequence, committed to git *before* the measurement exists — pass and the claim stands, fail and the failure is published with its diagnosis. Certificate: every run since v3.24.0, including two gates that failed honestly and two fixes rejected by their own pre-committed budgets ([FLAGSHIP-SYNTAX-BUDGET.md](FLAGSHIP-SYNTAX-BUDGET.md)); extended to submissions that don't exist yet ([CONTRIBUTING-CORPUS.md](CONTRIBUTING-CORPUS.md), whose gates were committed before any external corpus).
+
+**Altitude 4 — the governance.** Decisions are conditions bound to reopening triggers ([REGISTER-DECISIONS.md](REGISTER-DECISIONS.md): the count-route boundary reopens at ≥ 10/20 per-text on fresh data — a threshold bound to an action, governing the project itself). Memory is bound to a no-feedback contract (the notebook accumulates; the verdict is test-enforced identical with it empty or full). Calibration is bound to a ledger (proposed with evidence, human-applied, append-only, stamped on verdicts) — the January build's silent ±20% reweighting rebuilt as the same ambition with the certificate attached.
+
+## What is deliberately not reassembled
+
+The old system was unified by *merger* — everything touched everything, which is how hidden state corrupted verdicts. This system is unified by *contract*, and the gaps are the contract: the analyzers do not share state; memory never feeds analysis (test-enforced); the relational tier does not consult the core; the generator cannot see the analyzer ([the purity tests](../run-feedback-tests.js)); external submissions run under gates their submitters can read in advance. The reassembly is a map, not a merge. Put the parts in one file again and wire them together, and you rebuild January.
+
+## What the name now means
+
+The repository is called The Consciousness Cathedral, and [PHILOSOPHY.md](PHILOSOPHY.md) records why the original ambition — measuring consciousness — resists this kind of instrument: text is precisely the surface a system can produce without anything behind it. That founding defeat became the founding principle (never trust surface markers; verify structure), and the principle, applied at four altitudes for a year, produced this system. The cathedral was never one building. It is the discipline that keeps many rooms honest — and the rooms are now, visibly, one architecture.
