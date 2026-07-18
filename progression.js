@@ -118,7 +118,14 @@ class ProgressionMemory {
   // THE AUTONOMOUS STEP. The system compares what its memory now implies
   // with what it currently applies, and changes itself — loudly. Returns
   // the entries it wrote (empty when memory implies no change).
-  act() {
+  //
+  // `validator` is the exogenous check (Decision 3): a function the loop
+  // does not own, called with the candidate calibration before it is
+  // applied. If the validator refuses — e.g. the anchor's pinned verdicts
+  // would flip — the change is NOT applied, and the refusal itself becomes
+  // an append-only ledger entry carrying the evidence. No human in the
+  // loop either way; the difference is a standard the loop cannot author.
+  act(validator) {
     const next = this.calibration();
     const changed = [];
     const names = new Set([...Object.keys(next), ...Object.keys(this.data.active)]);
@@ -136,18 +143,41 @@ class ProgressionMemory {
           : 'insufficient data — reverting to 1.0'
       });
     }
-    if (changed.length) {
-      this.data.ledger.push(...changed);
-      this.data.active = next;
-      this.storage.save(this.data);
+    if (!changed.length) return { active: this.data.active, changed: [], rejected: null };
+
+    if (typeof validator === 'function') {
+      let check;
+      try { check = validator(next); }
+      catch (e) { check = { ok: false, failures: [{ name: 'validator error', expected: '—', got: e.message }] }; }
+      if (!check.ok) {
+        const rejection = {
+          n: this.data.ledger.length + 1, t: Date.now(), param: '*',
+          from: 'candidate', to: 'rejected', auto: true, rejected: true,
+          candidate: next,
+          why: 'self-recalibration rejected by the anchor: ' +
+            (check.failures || []).map(f => '"' + f.name + '" would read ' + f.got +
+              ' (pinned: ' + f.expected + ')').join('; ') + ' — change not applied'
+        };
+        this.data.ledger.push(rejection);
+        this.storage.save(this.data);
+        return { active: this.data.active, changed: [], rejected: rejection };
+      }
     }
-    return { active: this.data.active, changed };
+
+    this.data.ledger.push(...changed);
+    this.data.active = next;
+    this.storage.save(this.data);
+    return { active: this.data.active, changed, rejected: null };
   }
 
   active() { return this.data.active; }
   label() {
-    return this.data.ledger.length === 0 ? 'factory'
-      : 'self-calibrated #' + this.data.ledger[this.data.ledger.length - 1].n;
+    if (Object.keys(this.data.active).length === 0) return 'factory';
+    for (let i = this.data.ledger.length - 1; i >= 0; i--) {
+      const e = this.data.ledger[i];
+      if (!e.rejected && e.param !== '*') return 'self-calibrated #' + e.n;
+    }
+    return 'factory';
   }
   ledger() { return this.data.ledger.slice(); }
 

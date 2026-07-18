@@ -241,6 +241,7 @@ B: The stamp turns the lease from a timing guess into a checkable contract.</tex
 <script src="feedback-generator.js"></script>
 <script src="verdict-memory.js"></script>
 <script src="progression.js"></script>
+<script src="anchor-cases.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -279,13 +280,20 @@ function runOperational() {
   $('op-selfcal').hidden = true;
   if (prog) {
     prog.observe(r);
-    const acted = prog.act();
+    const anchor = (typeof CathedralAnchor !== 'undefined')
+      ? candidate => CathedralAnchor.checkCalibration(CathedralCore.analyzeCathedral, candidate)
+      : undefined;
+    const acted = prog.act(anchor);
     if (acted.changed.length) {
       $('op-selfcal').hidden = false;
       $('op-selfcal').innerHTML = '⟲ The system recalibrated itself: ' +
         acted.changed.map(e => '<b>' + esc(e.param) + '</b> ×' + (typeof e.from==='number'?e.from.toFixed(2):esc(String(e.from))) +
           ' → ×' + (typeof e.to==='number'?e.to.toFixed(2):esc(String(e.to))) + ' (' + esc(e.why) + ')').join('; ') +
         '. Ledger #' + acted.changed[acted.changed.length-1].n + ' — future verdicts carry the stamp <b>' + esc(prog.label()) + '</b>.';
+    } else if (acted.rejected) {
+      $('op-selfcal').hidden = false;
+      $('op-selfcal').innerHTML = '⚠ Recalibration candidate refused by the anchor — change not applied. ' +
+        esc(acted.rejected.why) + ' (Ledger #' + acted.rejected.n + ')';
     }
   }
   $('op-stamp-cal').textContent = 'calibration: ' + (r.verdict.calibrationLabel || 'factory');

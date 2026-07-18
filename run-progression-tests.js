@@ -120,6 +120,33 @@ test('Proposals map matches the verdict branches it was read from', () => {
     'the flagship branch and the ballot map must agree');
 });
 
+test('The anchor holds under factory calibration (pinned truth is self-consistent)', () => {
+  const { checkCalibration } = require('./anchor-cases.js');
+  const r = checkCalibration(core.analyzeCathedral, {});
+  assert.ok(r.ok, 'anchor must pass uncalibrated: ' + JSON.stringify(r.failures));
+  assert.strictEqual(r.total, 8);
+});
+
+test('Exogenous rejection: a candidate that flips pinned truth is refused and ledgered', () => {
+  const { checkCalibration } = require('./anchor-cases.js');
+  const m = new ProgressionMemory(ProgressionMemory.memoryStore());
+  // Chronic losses on both patterns drive calibration to the 0.8 floor.
+  // We know from the "real power" test that {OPERATIONAL_EXCELLENCE: 0.8,
+  // CAUTIOUS_GROUNDEDNESS: 0.8} flips the OPERATIONALLY SOUND anchor case.
+  for (let i = 0; i < 10; i++) {
+    m._record('OPERATIONAL_EXCELLENCE', false, 0.9, 'low_gaming');
+    m._record('CAUTIOUS_GROUNDEDNESS', false, 0.9, 'low_gaming');
+  }
+  const validator = candidate => checkCalibration(core.analyzeCathedral, candidate);
+  const acted = m.act(validator);
+  assert.strictEqual(acted.changed.length, 0, 'a truth-flipping candidate must not be applied');
+  assert.ok(acted.rejected && acted.rejected.rejected === true, 'rejection must be returned');
+  assert.strictEqual(m.size(), 1, 'rejection is ledgered — exactly one entry appended');
+  assert.ok(/anchor/.test(m.ledger()[0].why), 'rejection entry must name the anchor in its why');
+  // Active calibration must still be factory — the candidate was refused
+  assert.deepStrictEqual(m.active(), {});
+});
+
 let passed = 0, failed = 0;
 for (const c of cases) {
   try { c.fn(); passed++; console.log('✓ ' + c.name); }
