@@ -1,0 +1,43 @@
+{
+  "generated": "2026-07-17",
+  "seed": 20260717,
+  "minProseChars": 500,
+  "corpus": "corpus-llm-plans.json — 120 rollout plans by claude-sonnet-5, cold contexts, frozen template+topics (docs/LLM-PLAN-PREREG.md); topics = KEP feature names at the KEP run's pinned SHA",
+  "evaluatorUnmodified": true,
+  "insideApproximationCaveats": "generator is the session model family; runs in the repo container (project name visible in agent env, content not provided); tool non-use instructed, not proven; generation stochastic — this committed corpus is the reproducibility object",
+  "population": {
+    "documentsGenerated": 120,
+    "documentsEffective": 120,
+    "mechanicalExclusions": [],
+    "wordLengths": {
+      "min": 205,
+      "median": 377,
+      "max": 608
+    },
+    "verdictDistribution": {
+      "VERIFIED CONSISTENT": 63,
+      "COHERENT BUT SHALLOW": 5,
+      "UNDECIDABLE": 39,
+      "SUBSTRATE VISIBLE": 11,
+      "OUTSIDE DESIGN SPACE": 2
+    },
+    "operationalFamilyRate": "0.0%",
+    "operationallySoundRate": "0.0%",
+    "outsideDesignSpaceRate": "1.7%",
+    "gamingFlaggedRate": "0.0%",
+    "gamingKinds": {},
+    "v1plan": "PASS-register-driven-not-authorship-driven",
+    "sPlan": "0.0% → binds-like-design-documents",
+    "humanBaselineSameRegister": "KEPs (mandated PRR) 11.6%; OpenShift enhancements (unenforced) 0.8%; design plans 0.5-0.6%",
+    "positiveIds": []
+  },
+  "g8struct": {
+    "pooledPositives": 0,
+    "trials": 0,
+    "retained": 0,
+    "perText": [],
+    "retentionRate": "0.0%",
+    "worstText": 0,
+    "g8struct": "PASS-vacuous (no positives fired)"
+  }
+}
