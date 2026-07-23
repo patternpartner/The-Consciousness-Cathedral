@@ -32,6 +32,8 @@ On the autonomy run's genre-proper stream, the loop **amplified** (`OPERATIONAL_
 
 46 ledger entries over 611 documents, for a net movement of `CAUTIOUS_GROUNDEDNESS` from 1.0 to **0.992** — including an early swing to 1.072 ("won 6/6") that the very next window revoked (0.972, "won 6/8"). The autonomy run's finding 4 (the 0.005 dead-band admits chatter) scales roughly linearly with stream length: the loudness contract currently prices a ±0.01 wobble the same as a real recalibration. Reported again, not fixed — but two runs in, the pattern is established enough to name the candidate fix for the ledger: a dead-band proportional to the multiplier's evidence (or a minimum sample delta between acts), which would preserve loudness for changes that mean something.
 
+> **Fixed (v3.43.0).** The minimum-sample-delta candidate named here was implemented (sample-interval hysteresis); this run's 46 entries re-run to 30 under the v3.43.0 loop, no verdict changed. The counts above describe the pre-v3.43.0 loop, as recorded. See `docs/AUTONOMY-CHATTER-VALIDATION.md`.
+
 ## Honest limits
 
 One register, development data since v3.27.0, one loop configuration. The probe measures the flagship's calibratability on *this* register's route mix; a register whose flagship verdicts arrive via the pattern route (if one exists in the wild — the curated suite is the only known population) would put the amplifier genuinely at the gate, and the adversarial stream (texts chosen to steer calibration, then cash it in) remains the named unprobed territory from v3.40.0 — narrowed by this result to the pattern-route verdicts the lever actually reaches.
