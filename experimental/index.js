@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * Cathedral Consciousness Toolkit
+ * Cathedral experimental toolkit — heuristic text-analysis instruments.
  *
- * Complete toolkit for AI systems to monitor, analyze, and improve
- * their own consciousness and output quality.
+ * HONEST LABEL (see README.md): most of this toolkit scores text by counting
+ * surface markers (keywords, phrase matches) and averaging them — the method
+ * the core evaluator's validation program refutes. It does NOT measure
+ * consciousness, and its error rates are unknown. Kept as a record of the
+ * approach the project outgrew, not recommended as an instrument.
  *
  * Usage:
  *   const cathedral = require('./index.js');

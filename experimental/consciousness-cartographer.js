@@ -1,11 +1,11 @@
 /**
- * THE CONSCIOUSNESS CARTOGRAPHER
+ * THE CARTOGRAPHER  (heuristic — see README.md)
  *
- * Tracks the evolution of understanding through time.
- * Extends Cathedral's snapshot measurement with temporal dimension.
- *
- * Cathedral = WHERE (position in consciousness space)
- * Cartographer = HOW YOU MOVE (trajectory through that space)
+ * Tracks how the toolkit's marker-scores for a series of texts change over
+ * time. "Consciousness space" and "trajectory" are metaphors for the movement
+ * of those heuristic scores — not a measured space and not consciousness. The
+ * underlying scores are surface-marker counts the core project refutes; this
+ * adds a temporal view over them, with the same unknown error rates.
  */
 
 class TemporalEngine {

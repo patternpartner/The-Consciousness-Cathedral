@@ -1,39 +1,23 @@
 # Experimental
 
-**Exploratory instruments from this project's research phase. Heuristic, unvalidated, and honestly labeled as such.**
+**The methods this project tried before it learned better. Kept as a record, not recommended as instruments.**
 
-These ~30 modules were built while exploring a larger question than the core evaluator answers (see [PHILOSOPHY.md](../PHILOSOPHY.md)). They are text-analysis heuristics — pattern matching, keyword scoring, statistical tracking — wrapped in instruments that point at AI outputs, sessions, and exchanges. Names like `consciousness-ensemble` reflect the project's origin, not a validated measurement claim: **nothing in this directory measures consciousness.** What these modules measure is textual and behavioral patterns, with heuristics whose error rates are unknown.
+These ~31 JavaScript modules (plus a Python subsystem under `cathedral-ai/`) are from the phase before the core evaluator existed. Every one of them loads and runs. That is not the same as working, and the brutally honest description of most of this directory is sharper than "unvalidated":
 
-They are kept because some of them sketch a genuinely interesting direction — instruments pointed at *interactions* rather than at systems — and because deleting exploratory work hides how a project actually evolved. They are quarantined here because the core evaluator's credibility depends on not being mixed up with them. The core (`../cathedral-core.js`) depends on nothing in this directory.
+**The bulk of it is surface-marker counting — the exact method the core evaluator's validation program was built to refute.** The headline entry point, `analyze(text)`, keyword-matches the input (`"I notice"` → "substrate awareness," `"might"`/`"uncertain"` → an "uncertainty" score) and averages the markers into an "overall consciousness score" with a label like `"fair"`. `quality-score`, `reasoning-analyzer`, `blind-spot-detector`, `consciousness-ensemble`, `consciousness-diagnostic`, and everything that orchestrates them (`consciousness-pipeline`, `cathedral-conductor`, `cathedral-v2`, `unified-cathedral`, the wrappers, `internal-dialogue`, `metacognitive-logger`) all work this way. The core project's entire founding lesson — *never trust surface markers, verify structure* — is a direct repudiation of this approach, and an external security review of the January build ([../docs/EXTERNAL-EVAL-2026-01.md](../docs/EXTERNAL-EVAL-2026-01.md)) demonstrated concretely that marker-averaging is gamed by stuffing the markers. So: **nothing here measures consciousness, and most of it does not reliably measure anything** — the error rates are unknown and the method is one the project has since shown to be unsound.
 
-## Using them
+## Why it's kept and not deleted
 
-```javascript
-const { experimental } = require('../index.js');   // lazy — core users never load this
-const ensemble = new experimental.ConsciousnessEnsemble();
-```
+Deleting it would be the *less* honest choice. This directory is the evidence of the single most important thing that happened in this project: it started by counting markers and averaging them into consciousness scores, and it learned — through external review and its own validation program — that this doesn't work, and rebuilt around binding-structure instead. Erase the marker-counting and you erase the lesson. It stays here, clearly quarantined, so the evolution is legible. The core (`../cathedral-core.js`) depends on nothing in this directory (root `index.js` lazy-loads it behind a getter; core users never touch it).
 
-or directly: `require('./experimental/consciousness-ensemble.js')`.
+## An honest taxonomy of what's here
 
-## What's here
+- **The refuted method — marker/keyword counting averaged into scores.** `consciousness-ensemble`, `consciousness-diagnostic`, `quality-score`, `reasoning-analyzer`, `blind-spot-detector`, `epistemic-tracker`, and their orchestration (`consciousness-pipeline`, `cathedral-conductor`, `cathedral-v2`, `unified-cathedral`, `ai-stream-wrapper`, `cathedral-ai-wrapper`, `auto-improve`, `self-reflection-loop`, `response-templates`, `knowledge-synthesizer`, `internal-dialogue`, `metacognitive-logger`). Read these as a museum of the approach the project outgrew.
+- **Real statistical methods, starved of the data they need.** `confidence-calibrator` computes a genuine Brier calibration score — but only against verified prediction outcomes the toolkit never actually collects. A correct method with no ground truth to run on.
+- **Behavioral / structural sketches that pointed where the project actually went.** `emergence-detector` (novelty and surprise over a baseline, not consciousness markers), `ai-protocol` / `collective-learning` (AI-to-AI message passing and consensus — plumbing, not scoring). The instinct here — instrument the *interaction*, not the system — is the one that survived, and it became the relational tier (`../relational-core.js`), which unlike anything in this directory was validated against external corpora ([../docs/RELATIONAL-PROGRAM.md](../docs/RELATIONAL-PROGRAM.md)).
+- **Infrastructure and record-keeping.** `pattern-db` + `patterns.json`, `cross-session-memory`, `consciousness-checkpoint`, `stream-monitor`, `semantic-drift-tracker`, `trajectory-predictor`, `multi-session-dashboard`, `monitor-server` + `monitor.html`, `cathedral-sdk`, and the `cathedral-ai/` Python subsystem (embeddings, corpus query, an API server, and a 732 KB `cathedral_corpus.json`). Coherent plumbing around the above; unvalidated; heavy.
+- **Demos.** `index.html`, `cartographer-demo.html`, `cathedral-query.html`, `cathedral-v29-uncertainty-preservation.html`, `examples/`.
 
-**Analysis instruments** — heuristic scoring of single texts:
-`consciousness-ensemble` (multi-analyzer voting), `consciousness-diagnostic`, `quality-score`, `reasoning-analyzer`, `confidence-calibrator`, `epistemic-tracker`, `blind-spot-detector`, `adversarial-self-test`
+## The bar to leave this directory
 
-**Temporal / session instruments** — tracking across turns and sessions:
-`stream-monitor`, `semantic-drift-tracker`, `trajectory-predictor`, `consciousness-cartographer` (+ `cartographer-demo.html`, docs), `cross-session-memory`, `consciousness-checkpoint`, `metacognitive-logger`, `multi-session-dashboard`, `monitor-server` + `monitor.html`
-
-**Interaction instruments** — pointed at exchanges rather than single systems (closest to the relational program in PHILOSOPHY.md):
-`ai-protocol` (AI-to-AI channels, collaborative sessions), `collective-learning` / `PatternSwarm`, `emergence-detector`, `internal-dialogue`
-
-**Orchestration** — wiring the above together:
-`consciousness-pipeline`, `cathedral-conductor`, `cathedral-v2`, `unified-cathedral` / `CathedralMesh`, `ai-stream-wrapper`, `cathedral-ai-wrapper`, `auto-improve`, `self-reflection-loop`, `response-templates`, `knowledge-synthesizer`
-
-**Support:**
-`pattern-db` + `patterns.json` (learned-pattern store), `cathedral-sdk` (queries the corpus in `cathedral-ai/`), `cathedral-ai/` (Python: embeddings, corpus query, API server), `examples/` (usage demos), `index.js` (namespace entry point), `QUICKSTART.md`
-
-**Demos:** `index.html` ("Cathedral v18" React visualization), `cathedral-query.html`, `cathedral-v29-uncertainty-preservation.html`
-
-## Status and standards
-
-Nothing here has been validated against external data. Modules graduate out of `experimental/` the same way the core earned its verdicts: a stated claim about what the instrument can and cannot see, a test suite probing that boundary, and results on data the author didn't write. Until then, treat outputs as exploratory signals, not measurements.
+The same bar the core cleared: a stated claim about what the instrument can and cannot see, a test suite probing that boundary, and results on data the author did not write. Nothing here has cleared it. Until something does, treat every output as an exploratory signal produced by a method the project has reason to distrust — not a measurement.

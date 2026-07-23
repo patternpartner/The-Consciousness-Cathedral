@@ -173,7 +173,7 @@ docs/                     Architecture and tier-by-tier findings
 experimental/             Exploratory instruments built around the core — see its README
 ```
 
-The **[`experimental/`](experimental/)** directory contains ~30 heuristic modules (ensembles, drift trackers, session memory, dashboards, an AI-to-AI protocol…) from this project's exploratory phase. They are interesting, unvalidated, and clearly labeled as such. The core evaluator does not depend on any of them.
+The **[`experimental/`](experimental/)** directory contains ~30 heuristic modules from this project's exploratory phase — and the honest label is blunt: most of them score text by **counting surface markers and averaging them**, which is precisely the method this project later showed to be unsound and rebuilt away from. They are kept as the record of the approach the project outgrew, not as instruments; nothing there is validated, and the core evaluator depends on none of it. See [`experimental/README.md`](experimental/README.md) for the honest per-cluster taxonomy.
 
 ## Philosophy
 
