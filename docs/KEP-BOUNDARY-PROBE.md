@@ -35,3 +35,5 @@ On the autonomy run's genre-proper stream, the loop **amplified** (`OPERATIONAL_
 ## Honest limits
 
 One register, development data since v3.27.0, one loop configuration. The probe measures the flagship's calibratability on *this* register's route mix; a register whose flagship verdicts arrive via the pattern route (if one exists in the wild — the curated suite is the only known population) would put the amplifier genuinely at the gate, and the adversarial stream (texts chosen to steer calibration, then cash it in) remains the named unprobed territory from v3.40.0 — narrowed by this result to the pattern-route verdicts the lever actually reaches.
+
+> **Followed up (v3.42.0):** the adversarial stream was probed. A white-box attacker who *engineers* the stream to reach the pattern gate still cannot cross it — the lever's 1.04× ceiling, its disjoint firing band, and its pattern coupling each independently forbid the mint. See `docs/AUTONOMY-ADVERSARY-VALIDATION.md`.
