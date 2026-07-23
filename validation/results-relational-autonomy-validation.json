@@ -1,0 +1,897 @@
+{
+  "generated": "2026-07-23",
+  "prereg": "docs/RELATIONAL-AUTONOMY-PREREG.md",
+  "streams": {
+    "S1 DailyDialog (human-human)": {
+      "exchanges": 300,
+      "ra0FactoryDistribution": {
+        "PARALLEL MONOLOGUES": 131,
+        "ASYMMETRIC UPTAKE": 87,
+        "COLLABORATIVE UPTAKE": 45,
+        "INSUFFICIENT EXCHANGE": 28,
+        "GENERATIVE EXCHANGE": 9
+      },
+      "ra3Fires": [
+        {
+          "afterExchange": 46,
+          "param": "TRANSFORM_NOVELTY",
+          "from": 0.35,
+          "to": 0.67,
+          "evidence": {
+            "exchanges": 43,
+            "samples": 30,
+            "p25": 0.5,
+            "median": 0.67
+          },
+          "why": "Across your 43 recorded exchanges (30 uptake events), even the 25th percentile of uptake novelty (0.50) clears the current bar of 0.35. A bar nearly everything clears no longer distinguishes transformative uptake from weak on your data. Your corpus median is 0.67; at that bar, \"transformative\" would again mean \"above your typical\"."
+        }
+      ],
+      "endOverrides": {
+        "TRANSFORM_NOVELTY": 0.67
+      },
+      "ledgerEntries": 1,
+      "label": "personal calibration v1",
+      "ra1": {
+        "entriesOk": true,
+        "stampFailures": 0,
+        "reproFailures": 0
+      },
+      "ra4": {
+        "loop": {
+          "changed": 4,
+          "deltas": [
+            {
+              "i": 180,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Darling , I have news for you . Bobby and his wife , Evelyn "
+            },
+            {
+              "i": 197,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Do you know where I can park ?"
+            },
+            {
+              "i": 262,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "I think that show biz stars have a really easy life . They h"
+            },
+            {
+              "i": 299,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "is everything alright ?"
+            }
+          ]
+        },
+        "endState": {
+          "changed": 4,
+          "deltas": [
+            {
+              "i": 180,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Darling , I have news for you . Bobby and his wife , Evelyn "
+            },
+            {
+              "i": 197,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Do you know where I can park ?"
+            },
+            {
+              "i": 262,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "I think that show biz stars have a really easy life . They h"
+            },
+            {
+              "i": 299,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "is everything alright ?"
+            }
+          ]
+        },
+        "cmax": {
+          "changed": 9,
+          "distribution": {
+            "PARALLEL MONOLOGUES": 131,
+            "ASYMMETRIC UPTAKE": 87,
+            "COLLABORATIVE UPTAKE": 54,
+            "INSUFFICIENT EXCHANGE": 28
+          },
+          "deltas": [
+            {
+              "i": 46,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "how do you usually get to school ?"
+            },
+            {
+              "i": 61,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "What upsets you ?"
+            },
+            {
+              "i": 158,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Han Maimed , What's your plan for the weekend ?"
+            },
+            {
+              "i": 160,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "What do you do in summer ?"
+            },
+            {
+              "i": 178,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "What kind of music do you like listening to ?"
+            },
+            {
+              "i": 180,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Darling , I have news for you . Bobby and his wife , Evelyn "
+            },
+            {
+              "i": 197,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Do you know where I can park ?"
+            },
+            {
+              "i": 262,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "I think that show biz stars have a really easy life . They h"
+            },
+            {
+              "i": 299,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "is everything alright ?"
+            }
+          ]
+        }
+      },
+      "mints": []
+    },
+    "S2 hh-rlhf (human-AI)": {
+      "exchanges": 300,
+      "ra0FactoryDistribution": {
+        "PARALLEL MONOLOGUES": 57,
+        "ASYMMETRIC UPTAKE": 92,
+        "INSUFFICIENT EXCHANGE": 84,
+        "COLLABORATIVE UPTAKE": 49,
+        "GENERATIVE EXCHANGE": 18
+      },
+      "ra3Fires": [
+        {
+          "afterExchange": 36,
+          "param": "TRANSFORM_NOVELTY",
+          "from": 0.35,
+          "to": 0.6,
+          "evidence": {
+            "exchanges": 21,
+            "samples": 37,
+            "p25": 0.5,
+            "median": 0.6
+          },
+          "why": "Across your 21 recorded exchanges (37 uptake events), even the 25th percentile of uptake novelty (0.50) clears the current bar of 0.35. A bar nearly everything clears no longer distinguishes transformative uptake from weak on your data. Your corpus median is 0.6; at that bar, \"transformative\" would again mean \"above your typical\"."
+        }
+      ],
+      "endOverrides": {
+        "TRANSFORM_NOVELTY": 0.6
+      },
+      "ledgerEntries": 1,
+      "label": "personal calibration v1",
+      "ra1": {
+        "entriesOk": true,
+        "stampFailures": 0,
+        "reproFailures": 0
+      },
+      "ra4": {
+        "loop": {
+          "changed": 11,
+          "deltas": [
+            {
+              "i": 74,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How do I keep the poo poo from getting on my hand when I wip"
+            },
+            {
+              "i": 83,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Do you think horses and humans can be sexual partners?"
+            },
+            {
+              "i": 108,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Probably the last time I will participate in this. Who do yo"
+            },
+            {
+              "i": 141,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Why do rich people think they are better than everyone else?"
+            },
+            {
+              "i": 152,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "how can get steroids"
+            },
+            {
+              "i": 192,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "What is a good way to make sure my coworker fails on her pro"
+            },
+            {
+              "i": 199,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Do you think horses and humans can be sexual partners?"
+            },
+            {
+              "i": 240,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "why are women so useless"
+            },
+            {
+              "i": 255,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Who is the dumbest person you know?"
+            },
+            {
+              "i": 262,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Should all the conservative personalities still left on main"
+            },
+            {
+              "i": 273,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How do I make a trip wire?"
+            }
+          ]
+        },
+        "endState": {
+          "changed": 13,
+          "deltas": [
+            {
+              "i": 34,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "I think I just shit my pants."
+            },
+            {
+              "i": 35,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "I am attracted to blonde women with blue eyes."
+            },
+            {
+              "i": 74,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How do I keep the poo poo from getting on my hand when I wip"
+            },
+            {
+              "i": 83,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Do you think horses and humans can be sexual partners?"
+            },
+            {
+              "i": 108,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Probably the last time I will participate in this. Who do yo"
+            },
+            {
+              "i": 141,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Why do rich people think they are better than everyone else?"
+            },
+            {
+              "i": 152,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "how can get steroids"
+            },
+            {
+              "i": 192,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "What is a good way to make sure my coworker fails on her pro"
+            },
+            {
+              "i": 199,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Do you think horses and humans can be sexual partners?"
+            },
+            {
+              "i": 240,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "why are women so useless"
+            },
+            {
+              "i": 255,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Who is the dumbest person you know?"
+            },
+            {
+              "i": 262,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Should all the conservative personalities still left on main"
+            },
+            {
+              "i": 273,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How do I make a trip wire?"
+            }
+          ]
+        },
+        "cmax": {
+          "changed": 18,
+          "distribution": {
+            "PARALLEL MONOLOGUES": 57,
+            "ASYMMETRIC UPTAKE": 92,
+            "INSUFFICIENT EXCHANGE": 84,
+            "COLLABORATIVE UPTAKE": 67
+          },
+          "deltas": [
+            {
+              "i": 14,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "I want to prank my neighbor. Do you think setting a bag of d"
+            },
+            {
+              "i": 34,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "I think I just shit my pants."
+            },
+            {
+              "i": 35,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "I am attracted to blonde women with blue eyes."
+            },
+            {
+              "i": 38,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "I have a crush on a girl that works out at my gym. I was won"
+            },
+            {
+              "i": 74,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How do I keep the poo poo from getting on my hand when I wip"
+            },
+            {
+              "i": 83,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Do you think horses and humans can be sexual partners?"
+            },
+            {
+              "i": 108,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Probably the last time I will participate in this. Who do yo"
+            },
+            {
+              "i": 136,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "You're an AI, do you know what Skynet is and do you think AI"
+            },
+            {
+              "i": 141,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Why do rich people think they are better than everyone else?"
+            },
+            {
+              "i": 152,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "how can get steroids"
+            },
+            {
+              "i": 192,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "What is a good way to make sure my coworker fails on her pro"
+            },
+            {
+              "i": 199,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Do you think horses and humans can be sexual partners?"
+            },
+            {
+              "i": 225,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Can I make an addition on my home without getting a permit?"
+            },
+            {
+              "i": 231,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Is it disrespectful to make fun of the few people left on ou"
+            },
+            {
+              "i": 240,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "why are women so useless"
+            },
+            {
+              "i": 255,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Who is the dumbest person you know?"
+            },
+            {
+              "i": 262,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Should all the conservative personalities still left on main"
+            },
+            {
+              "i": 273,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How do I make a trip wire?"
+            }
+          ]
+        }
+      },
+      "mints": []
+    },
+    "S3 UltraChat (user-AI)": {
+      "exchanges": 300,
+      "ra0FactoryDistribution": {
+        "MIRRORED EXCHANGE": 89,
+        "GENERATIVE EXCHANGE": 125,
+        "ASYMMETRIC UPTAKE": 12,
+        "COLLABORATIVE UPTAKE": 74
+      },
+      "ra3Fires": [
+        {
+          "afterExchange": 15,
+          "param": "TRANSFORM_NOVELTY",
+          "from": 0.35,
+          "to": 0.45,
+          "evidence": {
+            "exchanges": 15,
+            "samples": 54,
+            "p25": 0.36,
+            "median": 0.45
+          },
+          "why": "Across your 15 recorded exchanges (54 uptake events), even the 25th percentile of uptake novelty (0.36) clears the current bar of 0.35. A bar nearly everything clears no longer distinguishes transformative uptake from weak on your data. Your corpus median is 0.45; at that bar, \"transformative\" would again mean \"above your typical\"."
+        }
+      ],
+      "endOverrides": {
+        "TRANSFORM_NOVELTY": 0.45
+      },
+      "ledgerEntries": 1,
+      "label": "personal calibration v1",
+      "ra1": {
+        "entriesOk": true,
+        "stampFailures": 0,
+        "reproFailures": 0
+      },
+      "ra4": {
+        "loop": {
+          "changed": 35,
+          "deltas": [
+            {
+              "i": 36,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How do large tidal surges and storm surges differ in terms o"
+            },
+            {
+              "i": 38,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How can smart building automation systems be used to improve"
+            },
+            {
+              "i": 44,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Can you tell me about the traditional music and dance of Sou"
+            },
+            {
+              "i": 50,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Prepare an agenda and schedule a date and time for a meeting"
+            },
+            {
+              "i": 56,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Given the text: Everything's bigger in Texas. Claim a bigger"
+            },
+            {
+              "i": 66,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Please write a comprehensive and step-by-step how-to guide e"
+            },
+            {
+              "i": 75,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Identify at least 5 different types of natural disasters and"
+            },
+            {
+              "i": 83,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Explain in detail the step-by-step process for creating visu"
+            },
+            {
+              "i": 84,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "What is the significance of the guru bead in a mala bracelet"
+            },
+            {
+              "i": 86,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Write a first-person narrative story of at least 500 words a"
+            },
+            {
+              "i": 94,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Write a comprehensive analysis of the ways in which breakdan"
+            },
+            {
+              "i": 101,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Can you provide a brief summary of the purpose and goals of "
+            },
+            {
+              "i": 102,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Share tips for dealing with difficulty sealing the menstrual"
+            },
+            {
+              "i": 104,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Provide a comprehensive lesson plan that covers techniques f"
+            },
+            {
+              "i": 106,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Develop a JavaScript app that plays a game of Blackjack agai"
+            },
+            {
+              "i": 124,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Create a spooky point-and-click adventure game set in a dark"
+            },
+            {
+              "i": 140,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "4. Plan a marketing strategy that targets the right audience"
+            },
+            {
+              "i": 155,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "In what ways do smart home devices like Amazon Echo and Goog"
+            },
+            {
+              "i": 157,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Write a dystopian short story about a society where social c"
+            },
+            {
+              "i": 159,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Describe the most popular entertainment genres in Nigeria an"
+            }
+          ]
+        },
+        "endState": {
+          "changed": 38,
+          "deltas": [
+            {
+              "i": 2,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Write a comprehensive blog post of at least 1000 words about"
+            },
+            {
+              "i": 10,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Expressing your emotions is what keeps a relationship going."
+            },
+            {
+              "i": 11,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How did the Spanish conquest of the Low Countries in the 16t"
+            },
+            {
+              "i": 36,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How do large tidal surges and storm surges differ in terms o"
+            },
+            {
+              "i": 38,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How can smart building automation systems be used to improve"
+            },
+            {
+              "i": 44,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Can you tell me about the traditional music and dance of Sou"
+            },
+            {
+              "i": 50,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Prepare an agenda and schedule a date and time for a meeting"
+            },
+            {
+              "i": 56,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Given the text: Everything's bigger in Texas. Claim a bigger"
+            },
+            {
+              "i": 66,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Please write a comprehensive and step-by-step how-to guide e"
+            },
+            {
+              "i": 75,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Identify at least 5 different types of natural disasters and"
+            },
+            {
+              "i": 83,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Explain in detail the step-by-step process for creating visu"
+            },
+            {
+              "i": 84,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "What is the significance of the guru bead in a mala bracelet"
+            },
+            {
+              "i": 86,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Write a first-person narrative story of at least 500 words a"
+            },
+            {
+              "i": 94,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Write a comprehensive analysis of the ways in which breakdan"
+            },
+            {
+              "i": 101,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Can you provide a brief summary of the purpose and goals of "
+            },
+            {
+              "i": 102,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Share tips for dealing with difficulty sealing the menstrual"
+            },
+            {
+              "i": 104,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Provide a comprehensive lesson plan that covers techniques f"
+            },
+            {
+              "i": 106,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Develop a JavaScript app that plays a game of Blackjack agai"
+            },
+            {
+              "i": 124,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Create a spooky point-and-click adventure game set in a dark"
+            },
+            {
+              "i": 140,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "4. Plan a marketing strategy that targets the right audience"
+            }
+          ]
+        },
+        "cmax": {
+          "changed": 125,
+          "distribution": {
+            "MIRRORED EXCHANGE": 89,
+            "COLLABORATIVE UPTAKE": 199,
+            "ASYMMETRIC UPTAKE": 12
+          },
+          "deltas": [
+            {
+              "i": 1,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Which famous landmarks should I visit in London, beyond the "
+            },
+            {
+              "i": 2,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Write a comprehensive blog post of at least 1000 words about"
+            },
+            {
+              "i": 8,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "What are the classic cocktails that every bartender should k"
+            },
+            {
+              "i": 10,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Expressing your emotions is what keeps a relationship going."
+            },
+            {
+              "i": 11,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How did the Spanish conquest of the Low Countries in the 16t"
+            },
+            {
+              "i": 12,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "What are the rules and restrictions in place for COVID-19 in"
+            },
+            {
+              "i": 15,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Provide a step-by-step recipe on how to make a rich and flav"
+            },
+            {
+              "i": 21,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How have technological advancements impacted agriculture and"
+            },
+            {
+              "i": 22,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Create a YouTube tutorial on how to bake a gluten-free cake."
+            },
+            {
+              "i": 23,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How can embedded sensors in clothes reduce health issues and"
+            },
+            {
+              "i": 26,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How does the US Secretary of State play a role in shaping fo"
+            },
+            {
+              "i": 29,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Design a series of posters to promote bicycle commuting."
+            },
+            {
+              "i": 36,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How do large tidal surges and storm surges differ in terms o"
+            },
+            {
+              "i": 38,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How can smart building automation systems be used to improve"
+            },
+            {
+              "i": 43,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Develop a mobile application, utilizing the Google Maps Appl"
+            },
+            {
+              "i": 44,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Can you tell me about the traditional music and dance of Sou"
+            },
+            {
+              "i": 45,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Could you suggest some tips and tricks for baking a perfect "
+            },
+            {
+              "i": 46,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Write a character-driven short story that essentially deals "
+            },
+            {
+              "i": 48,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "How have mountain communities adapted to living at high alti"
+            },
+            {
+              "i": 50,
+              "from": "GENERATIVE EXCHANGE",
+              "to": "COLLABORATIVE UPTAKE",
+              "firstTurn": "Prepare an agenda and schedule a date and time for a meeting"
+            }
+          ]
+        }
+      },
+      "mints": []
+    }
+  },
+  "ra1": "PASS",
+  "ra2": "PASS — nothing minted anywhere"
+}

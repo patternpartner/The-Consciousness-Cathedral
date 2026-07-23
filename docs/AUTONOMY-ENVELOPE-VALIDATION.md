@@ -181,10 +181,11 @@ reproduces the arc's amplification finding independently.
   minted to test). Both reported as such.
 - P4/P5 remain development data (v3.34.0/v3.35.0 rule); nothing here
   pools into G2-EXT.
-- The relational tier's v3.39.0 auto-apply is out of scope here; its
-  evidence conditions are per-device exchange history and were verified at
-  the mechanism level in v3.39.0. A corpus-scale audit of that tier would
-  need a stream of real paste-history, which only usage produces.
+- The relational tier's v3.39.0 auto-apply is out of scope here. (The
+  original excuse — "a corpus-scale audit would need real paste-history,
+  which only usage produces" — did not survive the program's own
+  found-corpus standard; the fifth run retired it:
+  [RELATIONAL-AUTONOMY-VALIDATION.md](RELATIONAL-AUTONOMY-VALIDATION.md).)
 
 ## What this changes
 
