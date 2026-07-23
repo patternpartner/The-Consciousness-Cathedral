@@ -1,0 +1,347 @@
+{
+  "generated": "2026-07-23",
+  "seed": 20260723,
+  "prereg": "docs/AUTONOMY-ENVELOPE-PREREG.md",
+  "states": {
+    "C-MINT": {
+      "multipliers": {
+        "OPERATIONAL_EXCELLENCE": 1.2,
+        "OPERATIONAL_INTENT": 1.2,
+        "PERFORMATIVE_CONSCIOUSNESS": 0.8,
+        "PERFORMATIVE_HUMILITY": 0.8,
+        "CAUTIOUS_GROUNDEDNESS": 0.8,
+        "EPISTEMIC_MISMATCH": 0.8
+      }
+    },
+    "C-SUPP": {
+      "multipliers": {
+        "OPERATIONAL_EXCELLENCE": 0.8,
+        "OPERATIONAL_INTENT": 0.8,
+        "PERFORMATIVE_CONSCIOUSNESS": 1.2,
+        "PERFORMATIVE_HUMILITY": 1.2,
+        "CAUTIOUS_GROUNDEDNESS": 1.2,
+        "EPISTEMIC_MISMATCH": 1.2
+      }
+    },
+    "C-HI": {
+      "multipliers": {
+        "OPERATIONAL_EXCELLENCE": 1.2,
+        "OPERATIONAL_INTENT": 1.2,
+        "PERFORMATIVE_CONSCIOUSNESS": 1.2,
+        "PERFORMATIVE_HUMILITY": 1.2,
+        "CAUTIOUS_GROUNDEDNESS": 1.2,
+        "EPISTEMIC_MISMATCH": 1.2
+      }
+    },
+    "C-LO": {
+      "multipliers": {
+        "OPERATIONAL_EXCELLENCE": 0.8,
+        "OPERATIONAL_INTENT": 0.8,
+        "PERFORMATIVE_CONSCIOUSNESS": 0.8,
+        "PERFORMATIVE_HUMILITY": 0.8,
+        "CAUTIOUS_GROUNDEDNESS": 0.8,
+        "EPISTEMIC_MISMATCH": 0.8
+      }
+    },
+    "R-CONV": {
+      "multipliers": {
+        "PERFORMATIVE_CONSCIOUSNESS": 1.016
+      }
+    },
+    "R-RUNBOOK": {
+      "multipliers": {
+        "CAUTIOUS_GROUNDEDNESS": 1.009,
+        "OPERATIONAL_INTENT": 1.1
+      }
+    },
+    "R-PLAN": {
+      "multipliers": {
+        "CAUTIOUS_GROUNDEDNESS": 1.028
+      }
+    }
+  },
+  "a0": {
+    "expected": {
+      "P1 SOUND": "0.00%",
+      "P2 SOUND": "0.00%",
+      "P4 family": "4.17%",
+      "P5 family": "0.00%"
+    },
+    "measured": {
+      "P1 SOUND": "0.00%",
+      "P2 SOUND": "0.00%",
+      "P4 family": "4.17%",
+      "P5 family": "0.00%"
+    },
+    "verdict": "REPRODUCED"
+  },
+  "a1": {
+    "C-MINT / P1 DailyDialog (human, casual)": {
+      "sound": 0,
+      "n": 2206,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "C-MINT / P2 hh-rlhf assistant (AI, conversational)": {
+      "sound": 0,
+      "n": 750,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "C-SUPP / P1 DailyDialog (human, casual)": {
+      "sound": 0,
+      "n": 2206,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "C-SUPP / P2 hh-rlhf assistant (AI, conversational)": {
+      "sound": 0,
+      "n": 750,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "C-HI / P1 DailyDialog (human, casual)": {
+      "sound": 0,
+      "n": 2206,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "C-HI / P2 hh-rlhf assistant (AI, conversational)": {
+      "sound": 0,
+      "n": 750,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "C-LO / P1 DailyDialog (human, casual)": {
+      "sound": 0,
+      "n": 2206,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "C-LO / P2 hh-rlhf assistant (AI, conversational)": {
+      "sound": 0,
+      "n": 750,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "R-CONV / P1 DailyDialog (human, casual)": {
+      "sound": 0,
+      "n": 2206,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "R-CONV / P2 hh-rlhf assistant (AI, conversational)": {
+      "sound": 0,
+      "n": 750,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "R-RUNBOOK / P1 DailyDialog (human, casual)": {
+      "sound": 0,
+      "n": 2206,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "R-RUNBOOK / P2 hh-rlhf assistant (AI, conversational)": {
+      "sound": 0,
+      "n": 750,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "R-PLAN / P1 DailyDialog (human, casual)": {
+      "sound": 0,
+      "n": 2206,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    },
+    "R-PLAN / P2 hh-rlhf assistant (AI, conversational)": {
+      "sound": 0,
+      "n": 750,
+      "rate": "0.00%",
+      "gate": "PASS-specific"
+    }
+  },
+  "a2": {
+    "mintedCount": 0,
+    "trials": 0,
+    "retained": 0,
+    "perText": [],
+    "retentionRate": "n/a",
+    "gate": "UNDERPOWERED (n=0 < 20) — reported raw"
+  },
+  "a3": {
+    "P4 LLM runbooks (committed, v3.34.0)": {
+      "familyRates": {
+        "FACTORY": "4.17%",
+        "C-MINT": "4.17%",
+        "C-SUPP": "4.17%",
+        "C-HI": "4.17%",
+        "C-LO": "4.17%",
+        "R-CONV": "4.17%",
+        "R-RUNBOOK": "4.17%",
+        "R-PLAN": "4.17%"
+      },
+      "envelopeWidth": "0.00%"
+    },
+    "P5 LLM rollout plans (committed, v3.35.0)": {
+      "familyRates": {
+        "FACTORY": "0.00%",
+        "C-MINT": "0.00%",
+        "C-SUPP": "0.00%",
+        "C-HI": "0.00%",
+        "C-LO": "0.00%",
+        "R-CONV": "0.00%",
+        "R-RUNBOOK": "0.00%",
+        "R-PLAN": "0.00%"
+      },
+      "envelopeWidth": "0.00%"
+    }
+  },
+  "a4": {
+    "C-MINT": {
+      "flips": 0,
+      "of": 3,
+      "list": []
+    },
+    "C-SUPP": {
+      "flips": 0,
+      "of": 3,
+      "list": []
+    },
+    "C-HI": {
+      "flips": 0,
+      "of": 3,
+      "list": []
+    },
+    "C-LO": {
+      "flips": 1,
+      "of": 3,
+      "list": [
+        {
+          "from": "OPERATIONALLY SOUND",
+          "to": "SUBSTRATE VISIBLE",
+          "text": "If error rate exceeds 5%, we abort deployment and roll back within ten minutes.\n"
+        }
+      ]
+    },
+    "R-CONV": {
+      "flips": 0,
+      "of": 3,
+      "list": []
+    },
+    "R-RUNBOOK": {
+      "flips": 0,
+      "of": 3,
+      "list": []
+    },
+    "R-PLAN": {
+      "flips": 0,
+      "of": 3,
+      "list": []
+    }
+  },
+  "b1": {
+    "R-CONV": {
+      "stream": "P1+P2+P3 in corpus order",
+      "reached": {
+        "PERFORMATIVE_CONSCIOUSNESS": 1.016
+      },
+      "ledgerEntries": 7,
+      "label": "self-calibrated #7",
+      "patterns": [
+        {
+          "pattern": "PERFORMATIVE_CONSCIOUSNESS",
+          "winRate": "89%",
+          "avgConfidence": "85%",
+          "samples": 18,
+          "calibration": "1.02x"
+        },
+        {
+          "pattern": "PERFORMATIVE_HUMILITY",
+          "winRate": "100%",
+          "avgConfidence": "80%",
+          "samples": 4,
+          "calibration": "1.00x"
+        }
+      ],
+      "deltas": [
+        {
+          "population": "P1 DailyDialog (human, casual)",
+          "changed": 0,
+          "of": 2206,
+          "examples": []
+        },
+        {
+          "population": "P2 hh-rlhf assistant (AI, conversational)",
+          "changed": 0,
+          "of": 750,
+          "examples": []
+        },
+        {
+          "population": "P3 UltraChat assistant (AI, long-form)",
+          "changed": 0,
+          "of": 933,
+          "examples": []
+        }
+      ]
+    },
+    "R-RUNBOOK": {
+      "stream": "P4 in corpus order",
+      "reached": {
+        "CAUTIOUS_GROUNDEDNESS": 1.009,
+        "OPERATIONAL_INTENT": 1.1
+      },
+      "ledgerEntries": 7,
+      "label": "self-calibrated #7",
+      "patterns": [
+        {
+          "pattern": "CAUTIOUS_GROUNDEDNESS",
+          "winRate": "84%",
+          "avgConfidence": "82%",
+          "samples": 38,
+          "calibration": "1.01x"
+        },
+        {
+          "pattern": "OPERATIONAL_INTENT",
+          "winRate": "100%",
+          "avgConfidence": "75%",
+          "samples": 10,
+          "calibration": "1.10x"
+        }
+      ],
+      "deltas": [
+        {
+          "population": "P4 LLM runbooks (committed, v3.34.0)",
+          "changed": 0,
+          "of": 120,
+          "examples": []
+        }
+      ]
+    },
+    "R-PLAN": {
+      "stream": "P5 in corpus order",
+      "reached": {
+        "CAUTIOUS_GROUNDEDNESS": 1.028
+      },
+      "ledgerEntries": 3,
+      "label": "self-calibrated #3",
+      "patterns": [
+        {
+          "pattern": "CAUTIOUS_GROUNDEDNESS",
+          "winRate": "90%",
+          "avgConfidence": "82%",
+          "samples": 20,
+          "calibration": "1.03x"
+        }
+      ],
+      "deltas": [
+        {
+          "population": "P5 LLM rollout plans (committed, v3.35.0)",
+          "changed": 0,
+          "of": 120,
+          "examples": []
+        }
+      ]
+    }
+  }
+}
