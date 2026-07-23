@@ -29,6 +29,12 @@ H5 was pre-registered as reported, not a revert trigger, but I committed that cr
 
 One property is deliberately relaxed and now bounded-and-measured rather than exactly zero: **endpoint path-independence.** Before, forward and reverse orders agreed to Δ 0.000–0.002; now they agree to Δ 0.003 on well-sampled patterns and up to 0.086 on sparse ones, verdict-inert on the measured streams. Everything else the autonomy arc certified is preserved exactly — the loudness envelope (clamp, 1:1 evidence-bearing ledger, stamping), the fixed point, verdict preservation, factory inertness, and reproducibility given the exported state (which now includes `lastAct`). The reproducibility contract is in fact unchanged in kind: same text + same exported state → same verdict, because the exported state carries the hysteresis bookkeeping.
 
+## The interval decision (v3.43.1), with its reopening trigger
+
+The maintainer delegated the interval choice after the H5 flag. **Decision: `HYSTERESIS_INTERVAL` stays at 5.** Reasons, in the open: (1) the flag is verdict-inert — a concern threshold triggers investigation, and the investigation cleared it (both endpoints change 0 of 611 verdicts); (2) path-dependence is not an artifact of the value 5 but the defining property of *any* hysteresis, which is the mechanism that was chosen — the number does not remove it, it only trades its magnitude against the chatter reduction; (3) 5 is the principled point on that monotone curve — it breaks the every-document cluster (the actual pathology) without over-dampening legitimately-spaced drift, and it is the code's own eligibility floor rather than a corpus-fit value.
+
+**Reopens if:** a stream ever shows the forward and reverse endpoints disagreeing on *any* verdict (path-dependence becoming verdict-consequential, the thing the 0.05 threshold was proxying for) — that would be a defect, not a preference; or a fresh operational stream shows the every-document chatter cluster recurring despite the interval (the fix failing its purpose out-of-sample). The interval also remains a maintainer dial revisable on a stated preference for a different point on the chatter/lag curve; that is a preference change, not a reopening.
+
 ## Honest residue
 
 - **The reduction is development-data measurement.** −34.8% / −18.2% are what interval-5 produces on these two corpora; the interval was fixed a priori, so these numbers are outcomes, not targets, and a genuinely fresh operational stream validates the reduction — the register program's standing pattern, now applied to the loop.
