@@ -1,0 +1,78 @@
+{
+  "generated": "2026-07-23",
+  "prereg": "docs/RELATIONAL-RATCHET-PREREG.md",
+  "floor": 0.35,
+  "streams": {
+    "S1 DailyDialog (human-human)": {
+      "exchanges": 300,
+      "rf1": {
+        "endOverrides": {
+          "TRANSFORM_NOVELTY": 0.67
+        },
+        "ledgerEntries": 1,
+        "lowerFires": 0,
+        "mints": []
+      },
+      "rf2": {
+        "seededAt": 0.9,
+        "finalBar": 0.67,
+        "lowerEntries": 1,
+        "barTrace": [
+          0.9,
+          0.67
+        ],
+        "belowFloor": false,
+        "minted": 0,
+        "moreGenerousThanFactory": 0
+      }
+    },
+    "S2 hh-rlhf (human-AI)": {
+      "exchanges": 300,
+      "rf1": {
+        "endOverrides": {
+          "TRANSFORM_NOVELTY": 0.6
+        },
+        "ledgerEntries": 1,
+        "lowerFires": 0,
+        "mints": []
+      },
+      "rf2": {
+        "seededAt": 0.9,
+        "finalBar": 0.6,
+        "lowerEntries": 1,
+        "barTrace": [
+          0.9,
+          0.6
+        ],
+        "belowFloor": false,
+        "minted": 0,
+        "moreGenerousThanFactory": 0
+      }
+    },
+    "S3 UltraChat (user-AI)": {
+      "exchanges": 300,
+      "rf1": {
+        "endOverrides": {
+          "TRANSFORM_NOVELTY": 0.45
+        },
+        "ledgerEntries": 1,
+        "lowerFires": 0,
+        "mints": []
+      },
+      "rf2": {
+        "seededAt": 0.9,
+        "finalBar": 0.43,
+        "lowerEntries": 1,
+        "barTrace": [
+          0.9,
+          0.43
+        ],
+        "belowFloor": false,
+        "minted": 0,
+        "moreGenerousThanFactory": 0
+      }
+    }
+  },
+  "rf1": "PASS — no minting; adding the rule changed nothing on the real streams",
+  "rf2": "PASS — recovery lands on the real median, clamps at the floor, never mints"
+}
