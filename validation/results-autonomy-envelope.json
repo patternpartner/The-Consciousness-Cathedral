@@ -50,13 +50,13 @@
     },
     "R-RUNBOOK": {
       "multipliers": {
-        "CAUTIOUS_GROUNDEDNESS": 1.009,
+        "CAUTIOUS_GROUNDEDNESS": 1.025,
         "OPERATIONAL_INTENT": 1.1
       }
     },
     "R-PLAN": {
       "multipliers": {
-        "CAUTIOUS_GROUNDEDNESS": 1.028
+        "CAUTIOUS_GROUNDEDNESS": 1.022
       }
     }
   },
@@ -246,8 +246,8 @@
       "reached": {
         "PERFORMATIVE_CONSCIOUSNESS": 1.016
       },
-      "ledgerEntries": 7,
-      "label": "self-calibrated #7",
+      "ledgerEntries": 3,
+      "label": "self-calibrated #3",
       "patterns": [
         {
           "pattern": "PERFORMATIVE_CONSCIOUSNESS",
@@ -288,11 +288,11 @@
     "R-RUNBOOK": {
       "stream": "P4 in corpus order",
       "reached": {
-        "CAUTIOUS_GROUNDEDNESS": 1.009,
+        "CAUTIOUS_GROUNDEDNESS": 1.025,
         "OPERATIONAL_INTENT": 1.1
       },
-      "ledgerEntries": 7,
-      "label": "self-calibrated #7",
+      "ledgerEntries": 5,
+      "label": "self-calibrated #5",
       "patterns": [
         {
           "pattern": "CAUTIOUS_GROUNDEDNESS",
@@ -321,10 +321,10 @@
     "R-PLAN": {
       "stream": "P5 in corpus order",
       "reached": {
-        "CAUTIOUS_GROUNDEDNESS": 1.028
+        "CAUTIOUS_GROUNDEDNESS": 1.022
       },
-      "ledgerEntries": 3,
-      "label": "self-calibrated #3",
+      "ledgerEntries": 2,
+      "label": "self-calibrated #2",
       "patterns": [
         {
           "pattern": "CAUTIOUS_GROUNDEDNESS",

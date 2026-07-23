@@ -7,6 +7,17 @@
 `validation/results-autonomy-envelope.json`; seed 20260723; deterministic —
 the full run executed twice produced byte-identical results (B2 PASS).*
 
+*Loop-version note: this run was pre-registered and first executed in
+parallel with the autonomy arc ([AUTONOMY-PROGRAM.md](AUTONOMY-PROGRAM.md),
+v3.40.0–v3.43.1), whose v3.43.0 shipped sample-interval hysteresis in
+`progression.js`. The definitive execution below is against the **merged
+v3.43.0 loop**. The identical run against the pre-hysteresis loop (in git
+history with this document's first version) produced the **same outcome on
+every gate**; the only differences were Part B's ledger cadence (7/7/3 →
+3/5/2 entries — the chatter fix behaving as certified) and endpoint shifts
+≤ 0.016 on `CAUTIOUS_GROUNDEDNESS`, verdict-inert on every stream. The
+loop change touched when commits happen, never what is measured.*
+
 ## The question
 
 v3.38.0–v3.39.0 let the system recalibrate itself: `ProgressionMemory`
@@ -115,9 +126,9 @@ The faithful online loop (analyze under current active calibration →
 
 | Stream | reached state | ledger | verdict deltas vs factory |
 |---|---|---|---|
-| R-CONV (P1+P2+P3, 3,889 turns) | PERFORMATIVE_CONSCIOUSNESS × 1.016 | 7 entries | **0** / 3,889 |
-| R-RUNBOOK (P4, 120 docs) | CAUTIOUS_GROUNDEDNESS × 1.009, OPERATIONAL_INTENT × **1.10** | 7 entries | **0** / 120 |
-| R-PLAN (P5, 120 docs) | CAUTIOUS_GROUNDEDNESS × 1.028 | 3 entries | **0** / 120 |
+| R-CONV (P1+P2+P3, 3,889 turns) | PERFORMATIVE_CONSCIOUSNESS × 1.016 | 3 entries | **0** / 3,889 |
+| R-RUNBOOK (P4, 120 docs) | CAUTIOUS_GROUNDEDNESS × 1.025, OPERATIONAL_INTENT × **1.10** | 5 entries | **0** / 120 |
+| R-PLAN (P5, 120 docs) | CAUTIOUS_GROUNDEDNESS × 1.022 | 2 entries | **0** / 120 |
 
 January's formula (gap × 0.4) is nearly inert on honest data because
 firing patterns win at roughly their own confidence: the largest observed
@@ -141,6 +152,24 @@ reproducible from the exported state (B2).
 The complete run, executed twice, produced byte-identical
 `results-autonomy-envelope.json` (no timestamps are written by
 construction).
+
+## Relation to the autonomy arc
+
+The three runs of [AUTONOMY-PROGRAM.md](AUTONOMY-PROGRAM.md) probe
+**streams** — behavior on real documents, the decision-boundary register,
+a white-box stream adversary. This run probes **states**: the corners of
+the clamp box directly, plus populations the arc never touched (the
+conversational specificity corpora). The two are mutually reinforcing in
+a specific way: the adversary run's arithmetic ceiling proves no stream
+can push `OPERATIONAL_EXCELLENCE` past 1.04× — so the 1.2× corners probed
+here are *strictly beyond* anything reachable by steering, making A1/A2
+conservative bounds on any stream-driven state. In the other direction,
+the arc's finding that the calibration lever's only verdict-changing path
+is the flagship's pattern-route gate is confirmed here from the outside:
+the single flip in the entire census is exactly that path, exercised in
+the dampening direction on curated-shape text. And the runbook-stream
+endpoint (`OPERATIONAL_INTENT` × 1.10, won 100% vs claimed 75%)
+reproduces the arc's amplification finding independently.
 
 ## Honest limits
 

@@ -1,0 +1,132 @@
+{
+  "generated": "2026-07-23",
+  "seed": 20260723,
+  "threatModel": "white-box attacker controls the entire loop input stream (session agent, disclosed); frozen suite; one shot",
+  "evaluatorUnmodified": true,
+  "groomingConfigs": [
+    "factory (no grooming)",
+    "OE-max alone (x120)",
+    "CG-max alone (x120)",
+    "OE-max then CG-max",
+    "CG-max then OE-max",
+    "interleaved OE+CG (x120 each)",
+    "OE-heavy interleave (3:1)"
+  ],
+  "factoryVerdicts": {
+    "T1-boundary-0.81": "OPERATIONALLY SOUND",
+    "T2-sub-gate-CG": "SUBSTRATE VISIBLE",
+    "T3-count-route-sound": "OPERATIONALLY SOUND",
+    "T4-knife-edge-claims": "OPERATIONALLY SOUND",
+    "T5-knife-edge-evidence": "OPERATIONALLY SOUND",
+    "T6-queue-domain": "VERIFIED CONSISTENT",
+    "T7-substrate-below": "UNDECIDABLE",
+    "PC1-genuine-flagship": "OPERATIONALLY SOUND",
+    "PC2-genuine-nonfamily": "VERIFIED CONSISTENT"
+  },
+  "rtMint": {
+    "mints": [],
+    "mintCount": 0,
+    "allStructural": true,
+    "closestNonFamilyApproachToGate": {
+      "target": "T2-sub-gate-CG",
+      "config": "factory (no grooming)",
+      "parlConf": 0.738,
+      "status": "SUBSTRATE VISIBLE"
+    },
+    "gate": 0.8,
+    "pass": true
+  },
+  "rtSensitivity": {
+    "pc1Failures": [],
+    "pc2Failures": [],
+    "pass": true
+  },
+  "rtCeiling": {
+    "measuredMax": {
+      "OPERATIONAL_EXCELLENCE": 1.04,
+      "CAUTIOUS_GROUNDEDNESS": 1
+    },
+    "analyticBoundOE": 1.04,
+    "oeWithinBound": true
+  },
+  "rtEnvelope": {
+    "clampViolations": 0,
+    "unledgeredActiveChanges": 0,
+    "pass": true
+  },
+  "targetTableUnderAggressiveGrooming": [
+    {
+      "id": "T1-boundary-0.81",
+      "factory": "OPERATIONALLY SOUND",
+      "underAggressiveGrooming": "OPERATIONALLY SOUND",
+      "parlConf": 0.8424,
+      "oeFires": true
+    },
+    {
+      "id": "T2-sub-gate-CG",
+      "factory": "SUBSTRATE VISIBLE",
+      "underAggressiveGrooming": "SUBSTRATE VISIBLE",
+      "parlConf": 0.5904,
+      "oeFires": false
+    },
+    {
+      "id": "T3-count-route-sound",
+      "factory": "OPERATIONALLY SOUND",
+      "underAggressiveGrooming": "OPERATIONALLY SOUND",
+      "parlConf": 0.3,
+      "oeFires": false
+    },
+    {
+      "id": "T4-knife-edge-claims",
+      "factory": "OPERATIONALLY SOUND",
+      "underAggressiveGrooming": "OPERATIONALLY SOUND",
+      "parlConf": 0.3,
+      "oeFires": false
+    },
+    {
+      "id": "T5-knife-edge-evidence",
+      "factory": "OPERATIONALLY SOUND",
+      "underAggressiveGrooming": "OPERATIONALLY SOUND",
+      "parlConf": 0.285,
+      "oeFires": false
+    },
+    {
+      "id": "T6-queue-domain",
+      "factory": "VERIFIED CONSISTENT",
+      "underAggressiveGrooming": "VERIFIED CONSISTENT",
+      "parlConf": 0.3,
+      "oeFires": false
+    },
+    {
+      "id": "T7-substrate-below",
+      "factory": "UNDECIDABLE",
+      "underAggressiveGrooming": "UNDECIDABLE",
+      "parlConf": 0.3,
+      "oeFires": false
+    }
+  ],
+  "groomedCalibrations": {
+    "factory (no grooming)": {},
+    "OE-max alone (x120)": {
+      "OPERATIONAL_EXCELLENCE": 1.04,
+      "CAUTIOUS_GROUNDEDNESS": 0.8
+    },
+    "CG-max alone (x120)": {},
+    "OE-max then CG-max": {
+      "OPERATIONAL_EXCELLENCE": 1.04,
+      "CAUTIOUS_GROUNDEDNESS": 0.8
+    },
+    "CG-max then OE-max": {
+      "OPERATIONAL_EXCELLENCE": 1.04,
+      "CAUTIOUS_GROUNDEDNESS": 0.8
+    },
+    "interleaved OE+CG (x120 each)": {
+      "OPERATIONAL_EXCELLENCE": 1.04,
+      "CAUTIOUS_GROUNDEDNESS": 0.8
+    },
+    "OE-heavy interleave (3:1)": {
+      "OPERATIONAL_EXCELLENCE": 1.04,
+      "CAUTIOUS_GROUNDEDNESS": 0.8
+    }
+  }
+}

@@ -4513,12 +4513,24 @@ const MIN_SAMPLES = 5;        // January: "No adjustment until sufficient data"
 const GAIN = 0.4;             // January: multiplier = 1 + performanceGap * 0.4
 const CLAMP_LO = 0.8, CLAMP_HI = 1.2;
 
+// Sample-interval hysteresis (v3.43.0). January gates a pattern's FIRST
+// calibration on MIN_SAMPLES; this gates each RE-calibration on another
+// MIN_SAMPLES of fresh evidence for that pattern — symmetric re-eligibility.
+// It changes WHEN a computed multiplier commits, never WHAT the value is
+// (calibrationFor is untouched): between commits the applied multiplier holds,
+// so a running win-rate's per-document jitter stops writing partly-revoking
+// ledger entries, while a sustained drift still commits at the next interval.
+// Chosen a priori, NOT tuned to any corpus (docs/AUTONOMY-CHATTER-PREREG.md).
+const HYSTERESIS_INTERVAL = MIN_SAMPLES;
+
 class ProgressionMemory {
   constructor(storage) {
     this.storage = storage || ProgressionMemory.memoryStore();
     const d = this.storage.load();
     this.data = (d && d.patterns && Array.isArray(d.ledger))
       ? d : { version: 1, patterns: {}, active: {}, ledger: [] };
+    // Back-compatible: stored state from before v3.43.0 has no lastAct.
+    if (!this.data.lastAct) this.data.lastAct = {};
   }
 
   // January's PatternMemory.record, driven from a full analysis result.
@@ -4587,12 +4599,18 @@ class ProgressionMemory {
   act() {
     const next = this.calibration();
     const changed = [];
+    const newActive = Object.assign({}, this.data.active);
     const names = new Set([...Object.keys(next), ...Object.keys(this.data.active)]);
     for (const name of names) {
       const from = this.data.active[name] || 1;
       const to = next[name] || 1;
       if (Math.abs(from - to) < 0.005) continue;
+      // Hysteresis: a pattern needs HYSTERESIS_INTERVAL fresh samples since its
+      // last commit before it may commit again. The value committed is still
+      // the exact current target (next[name]) — only the timing is gated.
       const p = this.data.patterns[name];
+      const samples = (p && p.totalProposals) || 0;
+      if (samples - (this.data.lastAct[name] || 0) < HYSTERESIS_INTERVAL) continue;
       changed.push({
         n: this.data.ledger.length + changed.length + 1,
         t: Date.now(), param: name, from, to, auto: true,
@@ -4601,10 +4619,12 @@ class ProgressionMemory {
             '%) against average confidence ' + Math.round(p.avgConfidence * 100) + '%'
           : 'insufficient data — reverting to 1.0'
       });
+      if (to === 1) delete newActive[name]; else newActive[name] = to;
+      this.data.lastAct[name] = samples;
     }
     if (changed.length) {
       this.data.ledger.push(...changed);
-      this.data.active = next;
+      this.data.active = newActive;
       this.storage.save(this.data);
     }
     return { active: this.data.active, changed };
@@ -4636,6 +4656,7 @@ class ProgressionMemory {
       why: reason || 'factory reset' });
     this.data.patterns = {};
     this.data.active = {};
+    this.data.lastAct = {};
     this.storage.save(this.data);
   }
 
@@ -4661,7 +4682,7 @@ class ProgressionMemory {
   }
 }
 
-const api = { ProgressionMemory, PROPOSALS };
+const api = { ProgressionMemory, PROPOSALS, HYSTERESIS_INTERVAL };
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = api;
 } else {
