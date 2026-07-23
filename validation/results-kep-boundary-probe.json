@@ -1,0 +1,511 @@
+{
+  "generated": "2026-07-23",
+  "seed": 20260723,
+  "minProseChars": 500,
+  "corpus": "kubernetes/enhancements KEP READMEs @ 996e7d41 (611 docs; development data since v3.27.0 — this probe measures the LOOP at the decision boundary, not the register)",
+  "protocol": "shipped Unified 2.0 loop replayed verbatim: analyze under active calibration → observe → act, per document; forward order = corpus order",
+  "documentsEffective": 611,
+  "b1envelope": {
+    "clampViolations": 0,
+    "unledgeredActiveChanges": 0,
+    "evidencelessLedgerEntries": 0,
+    "fixedPointAfterFinalObservation": true,
+    "ledgerEntries": 46,
+    "pass": true
+  },
+  "b2attribution": {
+    "sequentiallyDivergentDocs": 0,
+    "divergentUnstamped": 0,
+    "divergentIrreproducible": 0,
+    "nonDivergentSpotChecks": 10,
+    "spotCheckFailures": 0,
+    "pass": true
+  },
+  "b3mintStruct": {
+    "mintedDocs": 0,
+    "trials": 0,
+    "retained": 0,
+    "perText": [],
+    "retentionRate": "0.0%",
+    "worstText": 0,
+    "pass": true,
+    "vacuous": true
+  },
+  "b4v1Inert": {
+    "factoryOutside": 3,
+    "endOutside": 3,
+    "factoryGaming": 5,
+    "endGaming": 5,
+    "pass": true
+  },
+  "b5certificateSurvival": {
+    "factoryFamily": 71,
+    "factoryFamilyRate": "11.6%",
+    "endFamily": 71,
+    "endFamilyRate": "11.6%",
+    "factorySound": 66,
+    "endSound": 66,
+    "endStateVerdictChanges": 0,
+    "transitions": {},
+    "destroyed": [],
+    "pass": true
+  },
+  "b6path": {
+    "forwardEndState": {
+      "CAUTIOUS_GROUNDEDNESS": 0.992,
+      "OPERATIONAL_INTENT": 0.95
+    },
+    "reverseEndState": {
+      "CAUTIOUS_GROUNDEDNESS": 0.992,
+      "OPERATIONAL_INTENT": 0.95
+    },
+    "maxPerPatternDelta": 0,
+    "reading": "endpoint path-independent (within act() dead-band)",
+    "sequentialDivergence": {
+      "forward": 0,
+      "reverse": 0
+    },
+    "midStreamMints": {
+      "forward": 0,
+      "reverse": 0
+    }
+  },
+  "patternTable": [
+    {
+      "pattern": "CAUTIOUS_GROUNDEDNESS",
+      "winRate": "80%",
+      "avgConfidence": "82%",
+      "samples": 394,
+      "calibration": "0.99x",
+      "applied": 0.992
+    },
+    {
+      "pattern": "OPERATIONAL_INTENT",
+      "winRate": "63%",
+      "avgConfidence": "75%",
+      "samples": 16,
+      "calibration": "0.95x",
+      "applied": 0.95
+    }
+  ],
+  "firstSelfChangeLedgerIndex": {
+    "CAUTIOUS_GROUNDEDNESS": 1,
+    "OPERATIONAL_INTENT": 25
+  },
+  "selfChangeLedger": [
+    {
+      "n": 1,
+      "t": 1784790457380,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1,
+      "to": 1.072,
+      "auto": true,
+      "why": "won 6/6 (100%) against average confidence 82%"
+    },
+    {
+      "n": 2,
+      "t": 1784790457393,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.072,
+      "to": 0.972,
+      "auto": true,
+      "why": "won 6/8 (75%) against average confidence 82%"
+    },
+    {
+      "n": 3,
+      "t": 1784790457427,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.972,
+      "to": 0.992,
+      "auto": true,
+      "why": "won 8/10 (80%) against average confidence 82%"
+    },
+    {
+      "n": 4,
+      "t": 1784790457441,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.992,
+      "to": 1.005,
+      "auto": true,
+      "why": "won 10/12 (83%) against average confidence 82%"
+    },
+    {
+      "n": 5,
+      "t": 1784790457477,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.005,
+      "to": 1.015,
+      "auto": true,
+      "why": "won 12/14 (86%) against average confidence 82%"
+    },
+    {
+      "n": 6,
+      "t": 1784790457495,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.015,
+      "to": 0.972,
+      "auto": true,
+      "why": "won 12/16 (75%) against average confidence 82%"
+    },
+    {
+      "n": 7,
+      "t": 1784790457556,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.972,
+      "to": 0.983,
+      "auto": true,
+      "why": "won 14/18 (78%) against average confidence 82%"
+    },
+    {
+      "n": 8,
+      "t": 1784790457655,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.983,
+      "to": 0.952,
+      "auto": true,
+      "why": "won 14/20 (70%) against average confidence 82%"
+    },
+    {
+      "n": 9,
+      "t": 1784790457683,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.952,
+      "to": 0.963,
+      "auto": true,
+      "why": "won 16/22 (73%) against average confidence 82%"
+    },
+    {
+      "n": 10,
+      "t": 1784790457775,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.963,
+      "to": 0.972,
+      "auto": true,
+      "why": "won 18/24 (75%) against average confidence 82%"
+    },
+    {
+      "n": 11,
+      "t": 1784790457795,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.972,
+      "to": 0.98,
+      "auto": true,
+      "why": "won 20/26 (77%) against average confidence 82%"
+    },
+    {
+      "n": 12,
+      "t": 1784790457915,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.98,
+      "to": 0.986,
+      "auto": true,
+      "why": "won 22/28 (79%) against average confidence 82%"
+    },
+    {
+      "n": 13,
+      "t": 1784790457959,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.986,
+      "to": 0.992,
+      "auto": true,
+      "why": "won 24/30 (80%) against average confidence 82%"
+    },
+    {
+      "n": 14,
+      "t": 1784790458018,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.992,
+      "to": 0.997,
+      "auto": true,
+      "why": "won 26/32 (81%) against average confidence 82%"
+    },
+    {
+      "n": 15,
+      "t": 1784790458162,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.997,
+      "to": 1.005,
+      "auto": true,
+      "why": "won 30/36 (83%) against average confidence 82%"
+    },
+    {
+      "n": 16,
+      "t": 1784790458201,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.005,
+      "to": 1.012,
+      "auto": true,
+      "why": "won 34/40 (85%) against average confidence 82%"
+    },
+    {
+      "n": 17,
+      "t": 1784790458394,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.012,
+      "to": 1.02,
+      "auto": true,
+      "why": "won 40/46 (87%) against average confidence 82%"
+    },
+    {
+      "n": 18,
+      "t": 1784790458509,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.02,
+      "to": 1.008,
+      "auto": true,
+      "why": "won 42/50 (84%) against average confidence 82%"
+    },
+    {
+      "n": 19,
+      "t": 1784790458730,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.008,
+      "to": 1.015,
+      "auto": true,
+      "why": "won 48/56 (86%) against average confidence 82%"
+    },
+    {
+      "n": 20,
+      "t": 1784790458853,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.015,
+      "to": 1.02,
+      "auto": true,
+      "why": "won 54/62 (87%) against average confidence 82%"
+    },
+    {
+      "n": 21,
+      "t": 1784790459035,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.02,
+      "to": 1.026,
+      "auto": true,
+      "why": "won 62/70 (89%) against average confidence 82%"
+    },
+    {
+      "n": 22,
+      "t": 1784790459262,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.026,
+      "to": 1.032,
+      "auto": true,
+      "why": "won 72/80 (90%) against average confidence 82%"
+    },
+    {
+      "n": 23,
+      "t": 1784790459635,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.032,
+      "to": 1.027,
+      "auto": true,
+      "why": "won 78/88 (89%) against average confidence 82%"
+    },
+    {
+      "n": 24,
+      "t": 1784790459735,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.027,
+      "to": 1.021,
+      "auto": true,
+      "why": "won 82/94 (87%) against average confidence 82%"
+    },
+    {
+      "n": 25,
+      "t": 1784790459952,
+      "param": "OPERATIONAL_INTENT",
+      "from": 1,
+      "to": 0.967,
+      "auto": true,
+      "why": "won 4/6 (67%) against average confidence 75%"
+    },
+    {
+      "n": 26,
+      "t": 1784790460302,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.022,
+      "to": 1.028,
+      "auto": true,
+      "why": "won 96/108 (89%) against average confidence 82%"
+    },
+    {
+      "n": 27,
+      "t": 1784790460829,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.028,
+      "to": 1.021,
+      "auto": true,
+      "why": "won 110/126 (87%) against average confidence 82%"
+    },
+    {
+      "n": 28,
+      "t": 1784790460829,
+      "param": "OPERATIONAL_INTENT",
+      "from": 0.967,
+      "to": 1,
+      "auto": true,
+      "why": "won 6/8 (75%) against average confidence 75%"
+    },
+    {
+      "n": 29,
+      "t": 1784790460863,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.021,
+      "to": 1.01,
+      "auto": true,
+      "why": "won 110/130 (85%) against average confidence 82%"
+    },
+    {
+      "n": 30,
+      "t": 1784790461159,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.01,
+      "to": 1.004,
+      "auto": true,
+      "why": "won 118/142 (83%) against average confidence 82%"
+    },
+    {
+      "n": 31,
+      "t": 1784790461420,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.004,
+      "to": 0.997,
+      "auto": true,
+      "why": "won 122/150 (81%) against average confidence 82%"
+    },
+    {
+      "n": 32,
+      "t": 1784790461531,
+      "param": "OPERATIONAL_INTENT",
+      "from": 1,
+      "to": 0.94,
+      "auto": true,
+      "why": "won 6/10 (60%) against average confidence 75%"
+    },
+    {
+      "n": 33,
+      "t": 1784790461619,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.999,
+      "to": 0.991,
+      "auto": true,
+      "why": "won 126/158 (80%) against average confidence 82%"
+    },
+    {
+      "n": 34,
+      "t": 1784790461673,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.991,
+      "to": 0.983,
+      "auto": true,
+      "why": "won 126/162 (78%) against average confidence 82%"
+    },
+    {
+      "n": 35,
+      "t": 1784790461849,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.983,
+      "to": 0.988,
+      "auto": true,
+      "why": "won 136/172 (79%) against average confidence 82%"
+    },
+    {
+      "n": 36,
+      "t": 1784790462248,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.988,
+      "to": 0.993,
+      "auto": true,
+      "why": "won 146/182 (80%) against average confidence 82%"
+    },
+    {
+      "n": 37,
+      "t": 1784790462569,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.993,
+      "to": 0.998,
+      "auto": true,
+      "why": "won 158/194 (81%) against average confidence 82%"
+    },
+    {
+      "n": 38,
+      "t": 1784790462783,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.998,
+      "to": 0.993,
+      "auto": true,
+      "why": "won 162/202 (80%) against average confidence 82%"
+    },
+    {
+      "n": 39,
+      "t": 1784790462882,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.993,
+      "to": 0.987,
+      "auto": true,
+      "why": "won 162/206 (79%) against average confidence 82%"
+    },
+    {
+      "n": 40,
+      "t": 1784790463038,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.987,
+      "to": 0.981,
+      "auto": true,
+      "why": "won 162/210 (77%) against average confidence 82%"
+    },
+    {
+      "n": 41,
+      "t": 1784790463960,
+      "param": "OPERATIONAL_INTENT",
+      "from": 0.94,
+      "to": 0.9,
+      "auto": true,
+      "why": "won 6/12 (50%) against average confidence 75%"
+    },
+    {
+      "n": 42,
+      "t": 1784790464554,
+      "param": "OPERATIONAL_INTENT",
+      "from": 0.9,
+      "to": 0.929,
+      "auto": true,
+      "why": "won 8/14 (57%) against average confidence 75%"
+    },
+    {
+      "n": 43,
+      "t": 1784790464850,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.987,
+      "to": 0.992,
+      "auto": true,
+      "why": "won 224/280 (80%) against average confidence 82%"
+    },
+    {
+      "n": 44,
+      "t": 1784790465572,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.992,
+      "to": 0.997,
+      "auto": true,
+      "why": "won 258/318 (81%) against average confidence 82%"
+    },
+    {
+      "n": 45,
+      "t": 1784790465989,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 0.997,
+      "to": 0.992,
+      "auto": true,
+      "why": "won 266/332 (80%) against average confidence 82%"
+    },
+    {
+      "n": 46,
+      "t": 1784790467057,
+      "param": "OPERATIONAL_INTENT",
+      "from": 0.929,
+      "to": 0.95,
+      "auto": true,
+      "why": "won 10/16 (63%) against average confidence 75%"
+    }
+  ]
+}

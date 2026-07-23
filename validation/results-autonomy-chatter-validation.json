@@ -1,0 +1,68 @@
+{
+  "generated": "2026-07-23",
+  "interval": 5,
+  "baselines": {
+    "autonomy": 11,
+    "kep": 46
+  },
+  "streams": {
+    "autonomy": {
+      "documents": 240,
+      "verdictChangesVsFactory": 0,
+      "fixedPointAfterFinal": true,
+      "clampViolations": 0,
+      "ledgerEntries": 9,
+      "baselineEntries": 11,
+      "reduction": "18.2%",
+      "subIntervalPairs": 0,
+      "endpointForward": {
+        "CAUTIOUS_GROUNDEDNESS": 1.017,
+        "OPERATIONAL_INTENT": 1.1
+      },
+      "endpointReverse": {
+        "CAUTIOUS_GROUNDEDNESS": 1.013,
+        "OPERATIONAL_INTENT": 1.1
+      },
+      "pathMaxDelta": 0.004,
+      "streamPass": true
+    },
+    "kep": {
+      "documents": 611,
+      "verdictChangesVsFactory": 0,
+      "fixedPointAfterFinal": true,
+      "clampViolations": 0,
+      "ledgerEntries": 30,
+      "baselineEntries": 46,
+      "reduction": "34.8%",
+      "subIntervalPairs": 0,
+      "endpointForward": {
+        "CAUTIOUS_GROUNDEDNESS": 0.991,
+        "OPERATIONAL_INTENT": 0.9
+      },
+      "endpointReverse": {
+        "OPERATIONAL_INTENT": 0.986,
+        "CAUTIOUS_GROUNDEDNESS": 0.994
+      },
+      "pathMaxDelta": 0.086,
+      "streamPass": true
+    }
+  },
+  "h1VerdictPreservation": {
+    "pass": true
+  },
+  "h2FactoryInertnessByteExact": {
+    "pass": true,
+    "note": "full 9-case contract suite via npm test"
+  },
+  "h3FixedPoint": {
+    "pass": true
+  },
+  "h4Chatter": {
+    "pass": true
+  },
+  "h5Path": {
+    "maxDelta": 0.086,
+    "concernThreshold": 0.05,
+    "concern": true
+  }
+}

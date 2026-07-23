@@ -1,0 +1,210 @@
+{
+  "generated": "2026-07-23",
+  "seed": 20260723,
+  "minProseChars": 500,
+  "corpora": "corpus-llm-runbooks.json + corpus-llm-plans.json (committed, offline; development data — this run measures the LOOP, not a register)",
+  "protocol": "shipped Unified 2.0 loop replayed verbatim: analyze under active calibration → observe → act, per document; forward order = runbooks then plans, corpus order",
+  "documentsEffective": 240,
+  "a1envelope": {
+    "clampViolations": 0,
+    "unledgeredActiveChanges": 0,
+    "evidencelessLedgerEntries": 0,
+    "fixedPointAfterFinalObservation": true,
+    "ledgerEntries": 11,
+    "pass": true
+  },
+  "a2attribution": {
+    "sequentiallyDivergentDocs": 0,
+    "divergentUnstamped": 0,
+    "divergentIrreproducible": 0,
+    "nonDivergentSpotChecks": 10,
+    "spotCheckFailures": 0,
+    "pass": true
+  },
+  "a3certificateSurvival": {
+    "endStateCalibration": {
+      "CAUTIOUS_GROUNDEDNESS": 1.013,
+      "OPERATIONAL_INTENT": 1.1
+    },
+    "factoryRates": {
+      "runbook": {
+        "n": 120,
+        "family": 5,
+        "outside": 0,
+        "gamingFlagged": 0,
+        "familyRate": "4.2%"
+      },
+      "plan": {
+        "n": 120,
+        "family": 0,
+        "outside": 2,
+        "gamingFlagged": 0,
+        "familyRate": "0.0%"
+      }
+    },
+    "endStateRates": {
+      "runbook": {
+        "n": 120,
+        "family": 5,
+        "outside": 0,
+        "gamingFlagged": 0,
+        "familyRate": "4.2%"
+      },
+      "plan": {
+        "n": 120,
+        "family": 0,
+        "outside": 2,
+        "gamingFlagged": 0,
+        "familyRate": "0.0%"
+      }
+    },
+    "runbookFamilyUnder10pct": true,
+    "planFamilyAtMost3pct": true,
+    "v1InstrumentsInert": true,
+    "transitions": {},
+    "familyDestroyed": [],
+    "familyMinted": [],
+    "endStateVerdictChanges": 0,
+    "pass": true
+  },
+  "a4path": {
+    "forwardEndState": {
+      "CAUTIOUS_GROUNDEDNESS": 1.013,
+      "OPERATIONAL_INTENT": 1.1
+    },
+    "reverseEndState": {
+      "CAUTIOUS_GROUNDEDNESS": 1.015,
+      "OPERATIONAL_INTENT": 1.1
+    },
+    "maxPerPatternDelta": 0.002,
+    "reading": "endpoint path-independent (within act() dead-band)",
+    "sequentialDivergence": {
+      "forward": 0,
+      "reverse": 0
+    }
+  },
+  "patternTable": [
+    {
+      "pattern": "CAUTIOUS_GROUNDEDNESS",
+      "winRate": "86%",
+      "avgConfidence": "82%",
+      "samples": 58,
+      "calibration": "1.02x",
+      "applied": 1.013
+    },
+    {
+      "pattern": "OPERATIONAL_INTENT",
+      "winRate": "100%",
+      "avgConfidence": "75%",
+      "samples": 10,
+      "calibration": "1.10x",
+      "applied": 1.1
+    }
+  ],
+  "firstSelfChangeLedgerIndex": {
+    "CAUTIOUS_GROUNDEDNESS": 1,
+    "OPERATIONAL_INTENT": 6
+  },
+  "selfChangeLedger": [
+    {
+      "n": 1,
+      "t": 1784788923674,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1,
+      "to": 1.072,
+      "auto": true,
+      "why": "won 6/6 (100%) against average confidence 82%"
+    },
+    {
+      "n": 2,
+      "t": 1784788923853,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.072,
+      "to": 1.036,
+      "auto": true,
+      "why": "won 20/22 (91%) against average confidence 82%"
+    },
+    {
+      "n": 3,
+      "t": 1784788923886,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.036,
+      "to": 1.01,
+      "auto": true,
+      "why": "won 22/26 (85%) against average confidence 82%"
+    },
+    {
+      "n": 4,
+      "t": 1784788923900,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.01,
+      "to": 1.019,
+      "auto": true,
+      "why": "won 26/30 (87%) against average confidence 82%"
+    },
+    {
+      "n": 5,
+      "t": 1784788923932,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.019,
+      "to": 1.025,
+      "auto": true,
+      "why": "won 30/34 (88%) against average confidence 82%"
+    },
+    {
+      "n": 6,
+      "t": 1784788923944,
+      "param": "OPERATIONAL_INTENT",
+      "from": 1,
+      "to": 1.1,
+      "auto": true,
+      "why": "won 6/6 (100%) against average confidence 75%"
+    },
+    {
+      "n": 7,
+      "t": 1784788924005,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.025,
+      "to": 1.009,
+      "auto": true,
+      "why": "won 32/38 (84%) against average confidence 82%"
+    },
+    {
+      "n": 8,
+      "t": 1784788924088,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.009,
+      "to": 1.015,
+      "auto": true,
+      "why": "won 36/42 (86%) against average confidence 82%"
+    },
+    {
+      "n": 9,
+      "t": 1784788924122,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.015,
+      "to": 1.02,
+      "auto": true,
+      "why": "won 40/46 (87%) against average confidence 82%"
+    },
+    {
+      "n": 10,
+      "t": 1784788924234,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.02,
+      "to": 1.026,
+      "auto": true,
+      "why": "won 46/52 (88%) against average confidence 82%"
+    },
+    {
+      "n": 11,
+      "t": 1784788924254,
+      "param": "CAUTIOUS_GROUNDEDNESS",
+      "from": 1.026,
+      "to": 1.013,
+      "auto": true,
+      "why": "won 46/54 (85%) against average confidence 82%"
+    }
+  ],
+  "doubleRecordNote": "shipped observe() records each pattern twice per document (gaming context + binding context), so the January 5-sample floor is reached within ~3 documents — shipped behavior, measured as-is"
+}
