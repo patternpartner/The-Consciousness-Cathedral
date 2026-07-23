@@ -1237,6 +1237,57 @@ function proposeTransformNovelty(memoryData, currentValue) {
   };
 }
 
+// Rule 2 — TRANSFORM_NOVELTY recovery. The mirror of rule 1, and the reason
+// the bar is no longer a one-way ratchet (the relational autonomy run's open
+// flag; RELATIONAL-RATCHET-PREREG.md). Watches the same pooled novelties.
+// Fires when: >=8 exchanges, >=30 samples, the current bar is ABOVE the
+// factory default, and even the 75th percentile of uptake novelty sits BELOW
+// the current bar — meaning <25% of your uptake still clears it, so a
+// previously-raised bar has stopped discriminating in the STRICT direction
+// (it now labels almost everything WEAK). Proposes: lowering the bar to your
+// corpus median, CLAMPED AT THE FACTORY DEFAULT.
+//
+// The clamp is the whole safety argument. The relational autonomy run's "no
+// minting" result held because the bar was monotone-up: a bar at or above the
+// default can only classify uptake equal-or-stricter than factory, so the
+// loop can never mint a verdict the factory instrument would refuse. Making
+// the bar movable forfeits that guarantee unless the downward move stops at
+// the default — so the clamp turns an accident of monotonicity into an
+// explicit invariant: the autonomous loop is never more lenient than the
+// shipped instrument, in either direction of adaptation.
+function proposeTransformNoveltyLower(memoryData, currentValue) {
+  const samples = [];
+  for (const e of memoryData.exchanges) {
+    if (Array.isArray(e.uptakeNovelties)) samples.push(...e.uptakeNovelties);
+  }
+  if (memoryData.exchanges.length < 8 || samples.length < 30) return null;
+  if (currentValue <= DEFAULTS.TRANSFORM_NOVELTY) return null; // already at/below the floor
+
+  const sorted = [...samples].sort((a, b) => a - b);
+  const q = p => sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))];
+  const p75 = q(0.75);
+  const median = +q(0.5).toFixed(2);
+  const to = Math.max(DEFAULTS.TRANSFORM_NOVELTY, median); // never below factory
+
+  if (p75 >= currentValue) return null;               // the bar still discriminates
+  if (Math.abs(to - currentValue) < 0.1) return null; // change too small to matter
+
+  const clamped = to > median;
+  return {
+    param: 'TRANSFORM_NOVELTY',
+    from: currentValue,
+    to,
+    why: `Across your ${memoryData.exchanges.length} recorded exchanges (${samples.length} uptake events), ` +
+         `even the 75th percentile of uptake novelty (${p75.toFixed(2)}) sits below the current bar of ${currentValue}. ` +
+         `A bar nearly nothing clears no longer distinguishes transformative uptake from weak on your data — in the strict direction. ` +
+         `Your corpus median is ${median}; lowering the bar to ${to}` +
+         (clamped ? ` (clamped at the factory default ${DEFAULTS.TRANSFORM_NOVELTY} — recovery never goes below the globally validated bar)` : '') +
+         ` restores the distinction.`,
+    evidence: { exchanges: memoryData.exchanges.length, samples: samples.length,
+                p75: +p75.toFixed(2), median, floor: DEFAULTS.TRANSFORM_NOVELTY, clamped }
+  };
+}
+
 class CalibrationLedger {
   // storage: same adapter shape as ExchangeMemory ({load, save})
   constructor(storage) {
@@ -1261,10 +1312,14 @@ class CalibrationLedger {
     return o ? `personal calibration v${this.data.entries.length}` : 'defaults';
   }
 
-  // Ask the rules whether the notebook justifies any recalibration.
+  // Ask the rules whether the notebook justifies any recalibration. The
+  // raise rule is tried first, so every pre-v3.46.0 behavior is byte-
+  // preserved; the recovery rule can only fire when the raise rule does not
+  // (mutually exclusive by construction — p25 > current vs p75 < current).
   propose(memoryData) {
     const current = Object.assign({}, DEFAULTS, this.overrides() || {});
-    return proposeTransformNovelty(memoryData, current.TRANSFORM_NOVELTY);
+    return proposeTransformNovelty(memoryData, current.TRANSFORM_NOVELTY)
+        || proposeTransformNoveltyLower(memoryData, current.TRANSFORM_NOVELTY);
   }
 
   accept(proposal) {

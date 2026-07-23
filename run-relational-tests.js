@@ -305,7 +305,7 @@ for (const t of MEM_TESTS) {
 }
 
 // ── Calibration ledger: change must be explicit, explained, replayable ───
-const { CalibrationLedger } = require('./relational-calibration.js');
+const { CalibrationLedger, DEFAULTS } = require('./relational-calibration.js');
 
 function syntheticMemory(noveltyLevel, exchanges) {
   return { exchanges: Array.from({ length: exchanges }, () => ({
@@ -336,6 +336,39 @@ const CAL_TESTS = [
       const thin = ledger.propose(syntheticMemory(0.7, 3));   // not enough evidence
       return hot !== null && hot.param === 'TRANSFORM_NOVELTY' && hot.to > hot.from &&
              cold === null && thin === null;
+    }
+  },
+  {
+    name: 'Calibration — the bar recovers: a previously-raised bar lowers when novelty drops, clamped at the floor',
+    check: () => {
+      // Seed an over-raised bar, then feed a low-novelty notebook.
+      const raised = new CalibrationLedger();
+      raised.data.entries.push({ date: new Date().toISOString(), param: 'TRANSFORM_NOVELTY',
+        from: 0.35, to: 0.9, why: 'seeded high for the recovery test', evidence: {} });
+      // median ~0.2 is below the floor → recovery must clamp to 0.35, not below.
+      const low = raised.propose(syntheticMemory(0.2, 10));
+      const clamps = low !== null && low.to === DEFAULTS.TRANSFORM_NOVELTY &&
+                     low.from === 0.9 && low.to < low.from && low.evidence.clamped === true;
+      // median ~0.5 is above the floor → recovery lands on the median, not the floor.
+      const mid = raised.propose(syntheticMemory(0.5, 10));
+      const recoversToMedian = mid !== null && mid.to > DEFAULTS.TRANSFORM_NOVELTY &&
+                               mid.to < 0.9 && mid.evidence.clamped === false;
+      return clamps && recoversToMedian;
+    }
+  },
+  {
+    name: 'Calibration — raise and recovery are mutually exclusive, and neither reverses itself',
+    check: () => {
+      const atFloor = new CalibrationLedger();
+      // At the factory floor, the recovery rule never fires (nothing to lower).
+      const noLowerAtFloor = atFloor.propose(syntheticMemory(0.2, 10)) === null;
+      // A raise lands on the median; immediately after, the same notebook
+      // cannot trigger a recovery (p75 >= median), so no oscillation.
+      const raised = new CalibrationLedger();
+      const up = raised.propose(syntheticMemory(0.7, 10));
+      raised.accept(up);
+      const noImmediateReversal = raised.propose(syntheticMemory(0.7, 10)) === null;
+      return noLowerAtFloor && up.to > up.from && noImmediateReversal;
     }
   },
   {
