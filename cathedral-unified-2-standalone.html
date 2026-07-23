@@ -68,8 +68,9 @@
 <header>
   <h1>◆ CATHEDRAL <span class="v2">UNIFIED 2.0</span></h1>
   <div class="sub">Both analyzers, verdict history with drift detection, the device-only notebooks, escape-pattern
-  scanning, report export — and a system that remembers its own progression and acts on it: pattern win-rates
-  recalibrate the Parliament automatically, with every self-change ledgered, stamped on verdicts, and reversible.</div>
+  scanning, report export — plus bounded runtime self-calibration: pattern win-rates nudge the Parliament's
+  confidence weights within a ±20% clamp, applied automatically, with every adjustment ledgered, stamped on
+  verdicts, and reversible. (A small logged function, not agency — see The Contract.)</div>
   <div class="stamp" id="stamp">generated from the tested modules · reproducible: verdict + calibration stamp is the pair
   (same text + same ledger state → same verdict) · self-changes are ledgered with their evidence, never silent ·
   the exchange notebook and verdict archive are never consulted by any analyzer (test-enforced)</div>
@@ -159,13 +160,14 @@ B: The stamp turns the lease from a timing guess into a checkable contract.</tex
 <!-- ── ROOM 4: the calibration ledger ───────────────────────────────────── -->
 <section class="room" id="room-ledger">
   <div class="card">
-    <h2>PROGRESSION — THE SYSTEM'S OWN ARC, AND ITS LICENSE TO ACT ON IT</h2>
-    <p class="muted" style="font-size:13.5px;max-width:76ch;">The system keeps January's federated-learning
-    statistics — per-pattern win rates against average confidence — and <b>recalibrates itself</b> when the
-    evidence implies it: multipliers clamped to ±20%, silent until five samples, applied automatically. What
-    January did invisibly, this does on the record: every self-change appends a ledger entry with its evidence,
-    every calibrated verdict carries the stamp, and the archive can attribute any changed verdict to the exact
-    entry that moved it.</p>
+    <h2>PROGRESSION — RUNTIME SELF-CALIBRATION, BOUNDED AND LOGGED</h2>
+    <p class="muted" style="font-size:13.5px;max-width:76ch;">The evaluator keeps per-pattern statistics — how
+    often each pattern's proposed verdict wins, against its average confidence — and <b>adjusts its own
+    confidence weights</b> when the evidence implies it: a multiplier clamped to ±20%, silent until five samples,
+    applied automatically. Mechanically it is a small bounded function, not agency; the point is that unlike the
+    retired January build it is never silent — every adjustment appends a ledger entry with its evidence, every
+    calibrated verdict carries the stamp, and the archive can attribute any changed verdict to the exact entry
+    that moved it.</p>
     <label class="opt"><input type="checkbox" id="prog-autonomy" checked> autonomous recalibration
       (uncheck to freeze at factory — existing ledger is kept)</label>
     <table id="prog-summary" style="margin-top:12px;"></table>
@@ -174,12 +176,12 @@ B: The stamp turns the lease from a timing guess into a checkable contract.</tex
     <button class="btn ghost" id="prog-export" style="margin-top:12px;">Copy progression state</button>
   </div>
   <div class="card">
-    <h2>RELATIONAL CALIBRATION — SAME AUTONOMY, SAME RECORD</h2>
-    <p class="muted" style="font-size:13.5px;max-width:76ch;">The relational tier acts on its own memory too:
+    <h2>RELATIONAL CALIBRATION — SAME MECHANISM, SAME RECORD</h2>
+    <p class="muted" style="font-size:13.5px;max-width:76ch;">The relational tier self-calibrates the same way:
     when the exchange notebook's evidence implies the uptake bar has stopped discriminating on your
-    conversations, the system moves the bar itself — announced at the verdict, appended to this ledger with the
-    evidence, stamped on every verdict it affects, reversible below. Freeze autonomy above and proposals wait
-    for your click instead.</p>
+    conversations, the bar shifts automatically — announced at the verdict, appended to this ledger with the
+    evidence, stamped on every verdict it affects, reversible below, and bounded so it never drops below the
+    factory default. Freeze it above and proposals wait for your click instead.</p>
     <div id="cal-current" class="mono" style="margin-top:10px;"></div>
     <div class="card" id="cal-proposal" style="background:var(--panel2);" hidden>
       <h2>PROPOSED — NOT APPLIED</h2>
@@ -216,11 +218,12 @@ B: The stamp turns the lease from a timing guess into a checkable contract.</tex
       <tr><td>Pattern statistics</td>
           <td>Bookkeeping shown in the ledger room as evidence for humans; no weight is ever derived from it.</td></tr>
       <tr><td>Self-calibration</td>
-          <td>Both tiers act on their own memory. Operational: January's win-rate learning, self-applied, clamped
-          ±20%. Relational: the uptake bar moves itself when the notebook's evidence says it stopped
-          discriminating. Every self-change on either tier is announced at the verdict, ledgered with its
-          evidence, stamped, reversible, and covered by one visible freeze switch — no change is ever silent,
-          and none waits for permission.</td></tr>
+          <td>Both tiers adjust one internal threshold at runtime, within a hard bound. Operational: a win-rate
+          multiplier on pattern confidence, clamped ±20%. Relational: the uptake bar shifts when the notebook's
+          evidence says it stopped discriminating, bounded so it never drops below the factory default. Each is a
+          small logged function, not agency — bounded so neither can ever make the instrument more lenient than
+          the factory version. Every adjustment is announced at the verdict, ledgered with its evidence, stamped,
+          reversible, and covered by one visible freeze switch — never silent, never unbounded.</td></tr>
       <tr><td>Memory</td>
           <td>Three device-only records. The verdict archive and exchange notebook are never read by any analyzer
           (test-enforced). The progression memory IS read by the operational analyzer — that is its purpose — and
@@ -4970,10 +4973,10 @@ function runRelational() {
   const ctx = mem.context(result);
   mem.record(result);
 
-  // Full autonomy (v3.39.0): the relational tier acts on its own memory the
-  // same way the operational tier does — the notebook's evidence-bearing
-  // proposal is accepted by the system itself, announced, ledgered, and
-  // stamped on every verdict from here on. The freeze switch covers both.
+  // Auto-apply (v3.39.0): the relational tier self-calibrates the same way
+  // the operational tier does — the notebook's evidence-bearing proposal is
+  // applied automatically (no confirmation dialog), then announced, ledgered,
+  // and stamped on every verdict from here on. The freeze switch covers both.
   $('rel-selfcal').hidden = true;
   if (autonomyOn()) {
     const ledger = getLedger();

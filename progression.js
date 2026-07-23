@@ -1,5 +1,10 @@
-// Progression — the system's memory of its own arc, and the license to act
-// on it.
+// Progression — bounded runtime self-calibration for the operational tier.
+//
+// Scale, stated plainly: this is a confidence-weight multiplier clamped to
+// ±20%. "Acts on its own" below means "applied automatically without a
+// confirmation dialog" — not agency. The value of the module is not the
+// adjustment (which is small and, on real data, nearly inert — see
+// docs/AUTONOMY-PROGRAM.md) but the audit trail around it.
 //
 // This is the January build's PatternMemory (legacy/cathedral-unified.html,
 // "PHASE 4: federated learning") ported from the template, not paraphrased:
