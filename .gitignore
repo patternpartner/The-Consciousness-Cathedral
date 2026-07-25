@@ -1,2 +1,9 @@
 node_modules/
 validation/data/
+
+# Test-run outputs. Written by `npm test` on every run, so committing them
+# meant the suite dirtied the working tree and every run produced a diff.
+# The validation records under validation/results-*.json are the durable
+# evidence; these two are transient console captures of the last local run.
+test-results.txt
+test-results.json

@@ -1,0 +1,76 @@
+name: CI
+
+# The test floor was enforced by discipline alone until v3.47.0 — no CI config
+# existed. For a project whose method is pre-registered gates and published
+# failures, the floor being unenforced by machine was the odd gap. This closes it.
+#
+# Deliberately minimal and dependency-free, matching the evaluator: no install
+# step, because there is nothing to install.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # package.json declares engines.node >= 14; test the declared floor and
+        # current LTS so the claim stays true rather than aspirational.
+        node: ['14', '20', '22']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: No dependencies (the zero-dependency claim, enforced)
+        run: |
+          if [ -f package-lock.json ] || [ -d node_modules ]; then
+            echo "Dependencies present — the zero-dependency claim no longer holds."
+            exit 1
+          fi
+          node -e "const p=require('./package.json');
+            if (p.dependencies && Object.keys(p.dependencies).length) { console.error('dependencies declared'); process.exit(1); }
+            if (p.devDependencies && Object.keys(p.devDependencies).length) { console.error('devDependencies declared'); process.exit(1); }
+            console.log('zero dependencies confirmed');"
+      - name: Test suite
+        run: npm test
+      - name: Determinism (identical input, identical verdict)
+        run: |
+          node -e "
+            const c = require('./index.js');
+            const texts = [
+              'If error rate exceeds 5%, we abort deployment and roll back within ten minutes. We have three failure modes: cache overflow, API timeout, edge case bugs.',
+              'Light on water, and the gulls turning. The morning came the way mornings do.',
+              'We will absolutely monitor everything closely and respond immediately to any issue.'
+            ];
+            for (const t of texts) {
+              const a = JSON.stringify(c.analyze(t));
+              for (let i = 0; i < 5; i++) {
+                // interleave a different text to catch cross-call state leakage
+                c.analyze(texts[(i + 1) % texts.length]);
+                if (JSON.stringify(c.analyze(t)) !== a) { console.error('non-deterministic: ' + t.slice(0, 40)); process.exit(1); }
+              }
+            }
+            console.log('determinism confirmed across ' + texts.length + ' texts');"
+
+  boundary:
+    # The boundary program's gates run against external corpora that are not
+    # committed. Network-dependent, so it may not run everywhere — it reports
+    # rather than blocking the merge floor, and the committed results JSON is
+    # the record of the last good run.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Fetch external corpora
+        run: bash validation/fetch-corpora.sh
+      - name: Boundary gates
+        run: npm run validate:boundary

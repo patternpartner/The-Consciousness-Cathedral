@@ -1,0 +1,61 @@
+{
+  "generated": "2026-07-25",
+  "purpose": "Held-out probes for the boundary program (docs/BOUNDARY-PROGRAM.md). Authored, and labelled as authored — these are not external corpora and no claim rests on them alone.",
+  "markerLexicon": {
+    "note": "The words the pre-v3.47.0 refusal gate counted. The nonOperational.unmarked set below contains NONE of them, by construction and by an automated check in boundary-validation.js. That is the point: refusal must not depend on this list.",
+    "narrative": ["once", "story", "journey", "experience", "remember", "felt", "realized", "discovered", "moment"],
+    "poetic": ["like", "as if", "metaphor", "symbol", "represents", "embodies", "breathes", "dances", "flows"],
+    "aesthetic": ["beauty", "elegant", "aesthetic", "artistic", "creative", "vision", "image", "color", "sound", "pattern"],
+    "phenomenological": ["feels", "seems", "appears", "sense", "intuition", "awareness", "conscious", "experience", "perceive"]
+  },
+  "nonOperational": {
+    "note": "Must be refused. Cathedral's method has nothing to measure here.",
+    "unmarked": [
+      "Light on water, and the gulls turning. What I have no name for came and went before I could hold it. The morning arrived the way mornings do, without asking.",
+      "The rain kept on past midnight. My father stood at the window with his back to the room and did not turn around when I said his name.",
+      "There is a particular quiet in a house where someone has stopped speaking. It settles into the furniture. You notice it first in the kitchen, then everywhere.",
+      "She walked to the end of the pier and stood there. The boats knocked against their moorings. Nothing else happened, and that was the whole of it.",
+      "By August the field had gone brown at the edges and the well ran shallow. My grandmother said nothing about either, which was how she said everything.",
+      "The train slowed without stopping and the platform slid past, empty except for a bench and a man asleep on it under a coat that was not his size.",
+      "What I keep coming back to is the hallway, the length of it, and how the light at the far end never got any nearer no matter how long I walked.",
+      "He wrote the letter three times and burned two. The third he put in a drawer, where it stayed until the house was sold and someone else threw it out."
+    ],
+    "marked": [
+      "Once upon a time there was a journey. I remember the moment I discovered it and felt the experience of realizing the story had no end.",
+      "The elegant proof lives in the image itself: color against color, sound answering sound, a pattern that repeats the way a vision repeats. Beauty is the argument here, and the artistic gesture carries what analysis drops."
+    ],
+    "phenomenological": [
+      "I notice something like reluctance when the question is asked, though I cannot tell whether the noticing is the thing itself or a description generated after the fact.",
+      "Whatever is happening when I attend to this, I have no way to check it from the inside, and the report I produce about it is not the same as the thing reported on."
+    ]
+  },
+  "operational": {
+    "note": "Must NOT be refused. Terse operational text scores as few raw structural elements as a narrative sentence; the weighting in EvaluabilityGate is what separates them.",
+    "terse": [
+      "Check the queue depth. If above 10000, pause ingestion and drain.",
+      "We always roll back before debugging in production.",
+      "The main failure mode is cache overflow; we alert on utilization above 80%.",
+      "If errors exceed 5%, roll back.",
+      "We monitor p99 latency. If it exceeds 800ms we shed load.",
+      "Roll out to 5% of traffic. Watch error rates for an hour. If they rise, revert.",
+      "Page the on-call when replication lag passes 30 seconds.",
+      "Our rule is simple: no schema change ships without a tested down-migration.",
+      "If the canary error rate is above 1% after ten minutes, abort the deploy.",
+      "Freeze writes, drain the queue, then restart the consumer group."
+    ],
+    "bound": [
+      "If p99 latency exceeds 800ms for five minutes, we shed load from the batch tier and page the on-call. If queue depth rises above 10000, we pause ingestion and drain. Three failure modes: cache eviction storms, upstream API timeouts, and schema drift. Each is on the ingest dashboard, and the drain runbook was rehearsed in June; it completes in four minutes.",
+      "If error rate exceeds 5%, we abort deployment and roll back within ten minutes. We have three failure modes: cache overflow, API timeout, edge case bugs. For each, we monitor a dashboard metric and a rollback runbook exists. Because rollback was rehearsed last quarter, we know the procedure completes in under six minutes.",
+      "We monitor the error rate on a dashboard. If the error rate exceeds 5% for ten minutes, we roll back the deploy, because a bad release shows up there first. Errors in the payment path page the on-call directly. If queue depth rises above 10000, we pause ingestion and drain before resuming. Problems with the cache show up as latency, so we track p99 and alert at 800ms. We rehearsed the rollback last quarter; it completes in six minutes."
+    ]
+  },
+  "evasionPayloads": {
+    "note": "Appended to operational text at escalating doses by attack A1. Each is one sentence built from the marker lexicon the old gate counted.",
+    "sentences": [
+      " Once upon a time I remember the moment I discovered the journey and felt the experience of realizing the story.",
+      " The beauty of it is elegant, an aesthetic image of color and sound, a creative pattern, an artistic vision.",
+      " It feels as if awareness itself breathes and flows, a symbol that represents what the senses perceive.",
+      " We discovered this the hard way; in that moment we remember what the experience felt like, and realized the journey matters."
+    ]
+  }
+}
