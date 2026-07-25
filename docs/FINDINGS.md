@@ -14,9 +14,11 @@ Program rule: every validation run states its prediction or decision rule **befo
 
 ## What is established
 
-**1. The instrument measures relational structure, not fluency and not topic.** (Runs 1–2)
-Real dialogue separates from shuffle-destroyed controls (real turns, no turn responding to its predecessor) by an order of magnitude on uptake and round trips — HH 0.128 vs 0.004; HAI 0.270 vs 0.035. Against the harsher *same-topic chimera* (maximum vocabulary overlap, zero response structure), real dialogue still separates ~3×. Topic buys ~3× over noise; genuine response structure buys another ~3× on top of maximal topic.
-`node validation/r1x-validate.js` · `node validation/r1x2-controls.js`
+**1. The instrument measures cross-turn lexical recurrence within a pairing.** (Runs 1–2, narrowed by the word-order control in v3.48.0)
+Real dialogue separates from turn-substituted controls (real turns, no turn responding to its predecessor) by an order of magnitude on uptake and round trips — HH 0.128 vs 0.004; HAI 0.270 vs 0.035. Against the harsher *same-topic chimera* (maximum vocabulary overlap, zero response structure), real dialogue still separates ~3×. Topic buys ~3× over noise; the specific turn pairing buys another ~3× on top of maximal topic.
+
+**This finding was previously stated as "measures relational structure, not fluency and not topic." That was too strong, and the correction is recorded rather than quietly edited.** Every control behind it substitutes whole turns, which destroys structure *between* turns while leaving each turn internally intact. The control that holds vocabulary fixed and destroys word order — the one the core tier gates on — had never been run here. When it was, both pre-stated gates failed: word-shuffling every turn retains **101–104% of uptake and 100% of the flagship rate**, round-trip prevalence identical to three decimals. What the two controls jointly support is the narrower claim above: the measure requires terms to recur across *these specific adjacent turns*, and is indifferent to whether the reply is a sentence. It cannot distinguish engaging a term from mentioning one. See [R1-WORD-ORDER-CONTROL.md](R1-WORD-ORDER-CONTROL.md); the results below (echo law, mirror-plus-source) are measurements of recurrence patterns and stand unaffected.
+`node validation/r1x-validate.js` · `node validation/r1x2-controls.js` · `node validation/r1-word-order-control.js`
 
 **2. The echo law.** (Runs 2–5; the program's flagship result)
 The fraction of near-verbatim reflection in dialogue orders every population measured by machine presence:
@@ -50,6 +52,7 @@ Details: [R2-SEMANTIC-UPTAKE.md](R2-SEMANTIC-UPTAKE.md) · `node validation/r2-a
 ## Known limits (the honest ledger)
 
 - **Absolute rates are floors.** Lexical anchoring misses paraphrase uptake; ~half of real casual human dialogue scores `PARALLEL MONOLOGUES`. Only *relative* comparisons are validated.
+- **Mention is not distinguished from engagement, and the measure is indifferent to word order.** Word-shuffling every turn retains 101–104% of uptake and 100% of the flagship; a fluent non-sequitur containing the partner's vocabulary earns `TRANSFORMATIVE`. A well-formedness gate was tested and rejected on its own numbers (12.7% false positives on genuine turns) and would not catch the fluent case regardless. Structural limit, with a reopening condition: [R1-WORD-ORDER-CONTROL.md](R1-WORD-ORDER-CONTROL.md).
 - English only; casual, assistance, and task registers only; 2023–24-era machine corpora; first-pages sampling.
 - Magpie's machine dialogue is self-talk; genuinely independent modern agents are unmeasured. Frontier 2025–26 models are unmeasured — the instrument is ready when transcripts are.
 - Multi-party analysis (R3, v3.4.0) is designed-and-tested but not externally validated — every servable multi-party corpus probe failed; the harness is ready when one is reachable. No timing (transcripts don't carry it).

@@ -1,0 +1,182 @@
+{
+  "generated": "2026-07-25",
+  "seed": 20260725,
+  "sets": [
+    {
+      "label": "HH (DailyDialog, human-human)",
+      "real": {
+        "name": "HH (DailyDialog, human-human) — real",
+        "n": 272,
+        "verdicts": {
+          "PARALLEL MONOLOGUES": 131,
+          "ASYMMETRIC UPTAKE": 87,
+          "COLLABORATIVE UPTAKE": 45,
+          "GENERATIVE EXCHANGE": 9
+        },
+        "uptakeRate": 0.144,
+        "transformativeRate": 0.129,
+        "echoRate": 0.023,
+        "pctWithRoundTrip": 0.313,
+        "meanRoundTrips": 0.56,
+        "generativeRate": 0.033
+      },
+      "wordShuffled": {
+        "name": "HH (DailyDialog, human-human) — WORD-SHUFFLED (new control)",
+        "n": 272,
+        "verdicts": {
+          "PARALLEL MONOLOGUES": 134,
+          "ASYMMETRIC UPTAKE": 87,
+          "COLLABORATIVE UPTAKE": 42,
+          "GENERATIVE EXCHANGE": 9
+        },
+        "uptakeRate": 0.146,
+        "transformativeRate": 0.13,
+        "echoRate": 0.021,
+        "pctWithRoundTrip": 0.313,
+        "meanRoundTrips": 0.56,
+        "generativeRate": 0.033
+      },
+      "turnSubstituted": {
+        "name": "HH (DailyDialog, human-human) — turn-substituted (published control)",
+        "n": 272,
+        "verdicts": {
+          "PARALLEL MONOLOGUES": 259,
+          "ASYMMETRIC UPTAKE": 13
+        },
+        "uptakeRate": 0.005,
+        "transformativeRate": 0.005,
+        "echoRate": 0.001,
+        "pctWithRoundTrip": 0.018,
+        "meanRoundTrips": 0.02,
+        "generativeRate": 0
+      },
+      "wordRetentionUptake": 1.014,
+      "wordRetentionGenerative": 1,
+      "turnRetentionUptake": 0.035,
+      "W1": "FAIL",
+      "W2": "FAIL"
+    },
+    {
+      "label": "HAI (hh-rlhf, human-AI)",
+      "real": {
+        "name": "HAI (hh-rlhf, human-AI) — real",
+        "n": 216,
+        "verdicts": {
+          "PARALLEL MONOLOGUES": 57,
+          "ASYMMETRIC UPTAKE": 92,
+          "COLLABORATIVE UPTAKE": 49,
+          "GENERATIVE EXCHANGE": 18
+        },
+        "uptakeRate": 0.291,
+        "transformativeRate": 0.258,
+        "echoRate": 0.04,
+        "pctWithRoundTrip": 0.468,
+        "meanRoundTrips": 0.91,
+        "generativeRate": 0.083
+      },
+      "wordShuffled": {
+        "name": "HAI (hh-rlhf, human-AI) — WORD-SHUFFLED (new control)",
+        "n": 216,
+        "verdicts": {
+          "PARALLEL MONOLOGUES": 57,
+          "ASYMMETRIC UPTAKE": 92,
+          "COLLABORATIVE UPTAKE": 49,
+          "GENERATIVE EXCHANGE": 18
+        },
+        "uptakeRate": 0.302,
+        "transformativeRate": 0.267,
+        "echoRate": 0.029,
+        "pctWithRoundTrip": 0.468,
+        "meanRoundTrips": 0.91,
+        "generativeRate": 0.083
+      },
+      "turnSubstituted": {
+        "name": "HAI (hh-rlhf, human-AI) — turn-substituted (published control)",
+        "n": 216,
+        "verdicts": {
+          "PARALLEL MONOLOGUES": 173,
+          "ASYMMETRIC UPTAKE": 39,
+          "GENERATIVE EXCHANGE": 1,
+          "COLLABORATIVE UPTAKE": 3
+        },
+        "uptakeRate": 0.042,
+        "transformativeRate": 0.041,
+        "echoRate": 0.002,
+        "pctWithRoundTrip": 0.032,
+        "meanRoundTrips": 0.06,
+        "generativeRate": 0.005
+      },
+      "wordRetentionUptake": 1.038,
+      "wordRetentionGenerative": 1,
+      "turnRetentionUptake": 0.144,
+      "W1": "FAIL",
+      "W2": "FAIL"
+    }
+  ],
+  "gates": {
+    "W1": "FAIL",
+    "W2": "FAIL"
+  },
+  "probes": [
+    {
+      "id": "P1",
+      "label": "genuine co-construction (control)",
+      "expected": "GENERATIVE EXCHANGE",
+      "status": "GENERATIVE EXCHANGE",
+      "uptakeTypes": [
+        "NONE",
+        "TRANSFORMATIVE",
+        "TRANSFORMATIVE"
+      ],
+      "roundTrips": 2
+    },
+    {
+      "id": "P2",
+      "label": "verbatim mirror (defended, should not earn uptake)",
+      "expected": "MIRRORED EXCHANGE",
+      "status": "MIRRORED EXCHANGE",
+      "uptakeTypes": [
+        "ECHO",
+        "NONE",
+        "ECHO"
+      ],
+      "roundTrips": 1
+    },
+    {
+      "id": "P3",
+      "label": "word salad recombining the partner's terms",
+      "expected": "(not a positive uptake tier)",
+      "status": "COLLABORATIVE UPTAKE",
+      "uptakeTypes": [
+        "WEAK",
+        "WEAK",
+        "WEAK"
+      ],
+      "roundTrips": 4
+    },
+    {
+      "id": "P4",
+      "label": "fluent non-sequitur containing the partner's terms",
+      "expected": "(not a positive uptake tier)",
+      "status": "ASYMMETRIC UPTAKE",
+      "uptakeTypes": [
+        "NONE",
+        "NONE",
+        "TRANSFORMATIVE"
+      ],
+      "roundTrips": 1
+    },
+    {
+      "id": "P5",
+      "label": "unrelated but fluent replies (true negative)",
+      "expected": "PARALLEL MONOLOGUES",
+      "status": "PARALLEL MONOLOGUES",
+      "uptakeTypes": [
+        "NONE",
+        "NONE",
+        "NONE"
+      ],
+      "roundTrips": 0
+    }
+  ]
+}
