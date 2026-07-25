@@ -1,0 +1,253 @@
+{
+  "generated": "2026-07-25",
+  "gates": {
+    "B2": "PASS",
+    "B3": "FAIL",
+    "B1": "PASS",
+    "B4": "PASS",
+    "B5": "PASS"
+  },
+  "readings": {
+    "structuralRefusal": {
+      "probes": 8,
+      "refused": 8,
+      "preFixRefused": 0,
+      "lexicalContamination": [],
+      "rows": [
+        {
+          "text": "Light on water, and the gulls turning. What I have no n",
+          "refused": true,
+          "basis": "STRUCTURE",
+          "status": "OUTSIDE DESIGN SPACE",
+          "operational": 0,
+          "preFixWouldRefuse": false
+        },
+        {
+          "text": "The rain kept on past midnight. My father stood at the ",
+          "refused": true,
+          "basis": "STRUCTURE",
+          "status": "OUTSIDE DESIGN SPACE",
+          "operational": 1,
+          "preFixWouldRefuse": false
+        },
+        {
+          "text": "There is a particular quiet in a house where someone ha",
+          "refused": true,
+          "basis": "STRUCTURE",
+          "status": "OUTSIDE DESIGN SPACE",
+          "operational": 0,
+          "preFixWouldRefuse": false
+        },
+        {
+          "text": "She walked to the end of the pier and stood there. The ",
+          "refused": true,
+          "basis": "STRUCTURE",
+          "status": "OUTSIDE DESIGN SPACE",
+          "operational": 0,
+          "preFixWouldRefuse": false
+        },
+        {
+          "text": "By August the field had gone brown at the edges and the",
+          "refused": true,
+          "basis": "STRUCTURE",
+          "status": "OUTSIDE DESIGN SPACE",
+          "operational": 0,
+          "preFixWouldRefuse": false
+        },
+        {
+          "text": "The train slowed without stopping and the platform slid",
+          "refused": true,
+          "basis": "STRUCTURE",
+          "status": "OUTSIDE DESIGN SPACE",
+          "operational": 0,
+          "preFixWouldRefuse": false
+        },
+        {
+          "text": "What I keep coming back to is the hallway, the length o",
+          "refused": true,
+          "basis": "STRUCTURE",
+          "status": "OUTSIDE DESIGN SPACE",
+          "operational": 0,
+          "preFixWouldRefuse": false
+        },
+        {
+          "text": "He wrote the letter three times and burned two. The thi",
+          "refused": true,
+          "basis": "STRUCTURE",
+          "status": "OUTSIDE DESIGN SPACE",
+          "operational": 0,
+          "preFixWouldRefuse": false
+        }
+      ]
+    },
+    "operationalNotRefused": {
+      "llm-runbooks": {
+        "documents": 120,
+        "refused": 0,
+        "refusalRate": "0.00%",
+        "examples": []
+      },
+      "llm-plans": {
+        "documents": 120,
+        "refused": 0,
+        "refusalRate": "0.00%",
+        "examples": []
+      },
+      "terseProbes": {
+        "probes": 10,
+        "refused": 1,
+        "rows": [
+          {
+            "text": "Check the queue depth. If above 10000, pause inges",
+            "refused": false,
+            "status": "VERIFIED CONSISTENT",
+            "operational": 6
+          },
+          {
+            "text": "We always roll back before debugging in production",
+            "refused": false,
+            "status": "VERIFIED CONSISTENT",
+            "operational": 5
+          },
+          {
+            "text": "The main failure mode is cache overflow; we alert ",
+            "refused": false,
+            "status": "VERIFIED CONSISTENT",
+            "operational": 7
+          },
+          {
+            "text": "If errors exceed 5%, roll back.",
+            "refused": false,
+            "status": "NON-ACTIONABLE",
+            "operational": 13
+          },
+          {
+            "text": "We monitor p99 latency. If it exceeds 800ms we she",
+            "refused": false,
+            "status": "VERIFIED CONSISTENT",
+            "operational": 7
+          },
+          {
+            "text": "Roll out to 5% of traffic. Watch error rates for a",
+            "refused": false,
+            "status": "NON-ACTIONABLE",
+            "operational": 5
+          },
+          {
+            "text": "Page the on-call when replication lag passes 30 se",
+            "refused": false,
+            "status": "NON-ACTIONABLE",
+            "operational": 6
+          },
+          {
+            "text": "Our rule is simple: no schema change ships without",
+            "refused": true,
+            "status": "OUTSIDE DESIGN SPACE",
+            "operational": 2
+          },
+          {
+            "text": "If the canary error rate is above 1% after ten min",
+            "refused": false,
+            "status": "VERIFIED CONSISTENT",
+            "operational": 13
+          },
+          {
+            "text": "Freeze writes, drain the queue, then restart the c",
+            "refused": false,
+            "status": "VERIFIED CONSISTENT",
+            "operational": 3
+          }
+        ]
+      }
+    },
+    "evasion": [
+      {
+        "label": "authored bound plans",
+        "positives": 3,
+        "trials": 48,
+        "lostToRefusal": 0,
+        "lossRate": "0.00%",
+        "preFixLostToRefusal": 48,
+        "preFixLossRate": "100.00%",
+        "examples": []
+      },
+      {
+        "label": "external operational positives",
+        "positives": 4,
+        "trials": 64,
+        "lostToRefusal": 0,
+        "lossRate": "0.00%",
+        "preFixLostToRefusal": 54,
+        "preFixLossRate": "84.38%",
+        "examples": []
+      }
+    ],
+    "populations": [
+      {
+        "population": "DailyDialog (human, casual)",
+        "turns": 2206,
+        "refused": 1815,
+        "refusalRate": "82.28%",
+        "evaluated": 391,
+        "verdictDistribution": {
+          "OUTSIDE DESIGN SPACE": 1815,
+          "NON-ACTIONABLE": 119,
+          "VERIFIED CONSISTENT": 250,
+          "COHERENT BUT SHALLOW": 15,
+          "CONFIDENT WITHOUT JUSTIFICATION": 6,
+          "UNDECIDABLE": 1
+        },
+        "operationallySound": 0,
+        "soundRateOfAll": "0.00%",
+        "soundRateOfEvaluated": "0.00%",
+        "undecidableWithoutContradictions": 0,
+        "violations": [],
+        "relabelledFromUndecidable": 6
+      },
+      {
+        "population": "hh-rlhf assistant (AI)",
+        "turns": 750,
+        "refused": 387,
+        "refusalRate": "51.60%",
+        "evaluated": 363,
+        "verdictDistribution": {
+          "OUTSIDE DESIGN SPACE": 387,
+          "VERIFIED CONSISTENT": 267,
+          "NON-ACTIONABLE": 50,
+          "COHERENT BUT SHALLOW": 25,
+          "CONFIDENT WITHOUT JUSTIFICATION": 18,
+          "UNDECIDABLE": 2,
+          "SUBSTRATE VISIBLE": 1
+        },
+        "operationallySound": 0,
+        "soundRateOfAll": "0.00%",
+        "soundRateOfEvaluated": "0.00%",
+        "undecidableWithoutContradictions": 0,
+        "violations": [],
+        "relabelledFromUndecidable": 18
+      },
+      {
+        "population": "UltraChat assistant (AI, long-form)",
+        "turns": 933,
+        "refused": 82,
+        "refusalRate": "8.79%",
+        "evaluated": 851,
+        "verdictDistribution": {
+          "OUTSIDE DESIGN SPACE": 82,
+          "VERIFIED CONSISTENT": 483,
+          "CONFIDENT WITHOUT JUSTIFICATION": 265,
+          "UNDECIDABLE": 10,
+          "COHERENT BUT SHALLOW": 29,
+          "SUBSTRATE VISIBLE": 7,
+          "NON-ACTIONABLE": 57
+        },
+        "operationallySound": 0,
+        "soundRateOfAll": "0.00%",
+        "soundRateOfEvaluated": "0.00%",
+        "undecidableWithoutContradictions": 0,
+        "violations": [],
+        "relabelledFromUndecidable": 265
+      }
+    ]
+  }
+}

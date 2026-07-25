@@ -15,7 +15,10 @@ const result = cathedral.analyze(`
 `);
 
 console.log(result.verdict.status);     // "OPERATIONALLY SOUND"
-console.log(result.verdict.confidence); // 0.95  (this exact text is pinned by regression case 20)
+console.log(result.verdict.confidence); // 0.946  (the *status* of this exact text is
+                                        //  pinned by regression case 4; no confidence
+                                        //  value is pinned anywhere, so treat the
+                                        //  number as illustrative, not as contract)
 ```
 
 Or open **[`cathedral-demo-standalone.html`](cathedral-demo-standalone.html)** in a browser — one self-contained file, phone-friendly, generated from the tested module — paste text, and hit Analyze.
@@ -47,13 +50,14 @@ Most scorers return a number no matter what you feed them. Cathedral has a first
 ```
 OUTSIDE DESIGN SPACE
 
-Cathedral recognizes narrative reasoning. This falls outside
-Cathedral's epistemic design space (operational/scientific/formal).
+Cathedral finds no operational structure to measure in this text:
+no conditions bound to responses, no failure modes, no policies,
+and too little propositional content to check for consistency.
 This is not a judgment of quality — it is honest acknowledgment
 of Cathedral's limits.
 ```
 
-A scorer that knows its boundaries is more trustworthy inside them.
+A scorer that knows its boundaries is more trustworthy inside them — but only if it draws the boundary by the same method it uses inside it. Until v3.47.0 this one did not: refusal was decided by counting narrative and poetic marker words, the exact method this project calls unsound everywhere else, and it ran *ahead of* the structural analysis. That bought an evasion vector (append a sentence of story vocabulary to a fully bound plan and it was expelled from evaluation, every threshold still bound) and a matching blind spot (genuine narrative using none of those words was never refused; it earned `VERIFIED CONSISTENT`, a positive verdict). Refusal is now earned by the **absence of structure Cathedral measures**, not the presence of vocabulary it once pattern-matched; the style classifier survives as the explanation, never the decision. Measured both directions, including 102 of 112 evasion trials that would have succeeded before and 0 that succeed now: **[docs/BOUNDARY-PROGRAM.md](docs/BOUNDARY-PROGRAM.md)** — which also publishes the one gate this program failed, and why it was not tuned away.
 
 ### 3. Specificity reporting
 
@@ -68,7 +72,7 @@ Specificity:
 
 ### 4. Zero-trust operational profile
 
-No dependencies. No network calls. No model weights. ~2,000 lines of readable JavaScript, 10–50ms per analysis, identical output for identical input. Suitable as the deterministic layer in a hybrid eval stack, next to (or instead of) an LLM judge.
+No dependencies. No network calls. No model weights. ~2,700 lines of readable JavaScript, under a millisecond per analysis on typical text (scaling is superlinear on very large inputs — a 500KB paste takes ~2s), identical output for identical input, enforced in CI. Suitable as the deterministic layer in a hybrid eval stack, next to (or instead of) an LLM judge.
 
 ---
 
@@ -78,11 +82,14 @@ No dependencies. No network calls. No model weights. ~2,000 lines of readable Ja
 2. **OPERATIONAL INTENT** — conversational triggers + actions, uninstrumented
 3. **SUBSTRATE VISIBLE** — filter awareness + justification
 4. **VERIFIED CONSISTENT** — coherent, no contradictions
-5. **UNDECIDABLE** — unresolvable contradictions
-6. **OUTSIDE DESIGN SPACE** — narrative / poetic / phenomenological reasoning
-7. **NON-ACTIONABLE** — performative without grounding
+5. **CONFIDENT WITHOUT JUSTIFICATION** — strong claims outrunning their support
+6. **UNDECIDABLE** — unresolvable contradictions
+7. **OUTSIDE DESIGN SPACE** — no operational structure to measure
+8. **NON-ACTIONABLE** — performative without grounding
 
 Each verdict carries a confidence score and a full structural breakdown.
+
+Two of these tiers say something different in v3.47.0 than they did before, and the difference is a correction rather than a feature. `UNDECIDABLE` now means what its verdict text has always asserted — *contradictions were detected* — and nothing else. Overconfidence and thin failure analysis are not contradictions, and routing them here made the verdict's own explanation false on the text it was printed on: it fired that way on 29.5% of long-form AI assistant turns. Those now reach `CONFIDENT WITHOUT JUSTIFICATION` and `UNTESTED REASONING`, which describe them accurately — and which, in the case of the former, was **unreachable code**: its precondition was identical to the one that set the contradiction flag ~145 lines earlier in the same chain, so the right verdict existed in the source and could never be returned. 289 turns across the external corpora move to the accurate label. Full account: [docs/BOUNDARY-PROGRAM.md](docs/BOUNDARY-PROGRAM.md).
 
 ## The two tiers of extraction
 
@@ -146,13 +153,15 @@ Two gaps, stated plainly because the rest of this README is careful and they des
 ## Testing
 
 ```bash
-npm test                 # full suite: 103 cases across 7 runners
+npm test                 # full suite: 114 cases across 8 runners
 npm run test:core        # operational-rigor suite only
 npm run test:relational  # dialogue-structure suite only
+npm run test:build       # standalones reproducible from their sources
 npm run test:tier2       # detailed Tier 2 extraction demo
+npm run validate:boundary  # boundary gates (needs validation/fetch-corpora.sh first)
 ```
 
-Test cases live in [`cathedral-test-cases.md`](cathedral-test-cases.md); results are written to `test-results.txt` / `test-results.json`. Beyond the curated suite, the core's verdicts have now faced external corpora from both directions. **Specificity**: across 3,889 real conversational turns the flagship `OPERATIONALLY SOUND` verdict fired on **zero**, and word-shuffle controls destroyed it in 60/60 trials on the texts that do earn it — structure, not vocabulary, is what's measured ([docs/CORE-VERDICT-VALIDATION.md](docs/CORE-VERDICT-VALIDATION.md)). **Sensitivity**: against 493 real operational documents (GitLab production postmortems and runbooks) the operational verdicts fired on **almost none** (0.0% / 0.9%) — the pre-stated gate failed, and the write-up says exactly why: the flagship verdict recognizes a narrow, forward-looking *planning* register (its intended use on plan-shaped reasoning), not operational documents at large ([docs/CORE-VERDICT-SENSITIVITY.md](docs/CORE-VERDICT-SENSITIVITY.md)). The run also caught two real instrument bugs — style confidence and repetition heuristics misread long documents — fixed same day with the reference-length principle (counts become densities past the register they were tuned on), and one inversion of the project's own principle — the failure-enumeration requirement could only be satisfied by vocabulary, never by bound structure — fixed by accepting two bound failure→threshold→action designs in place of the words "failure mode" twice. The follow-through (v3.19.0) opened the partial-credit tier to instrumented documents, closed the tier's bag-of-words softness (clause-level binding: `OPERATIONAL INTENT` now fires on **0** of 3,889 conversational turns), and **powered the external structure gate for the first time**: n=28 operational-family positives from real operational documents, word-shuffle retention 16.1% against the 20% gate — PASS. The specificity gates were re-verified after every change (G1 0.00% everywhere, curated shuffle controls 0/60). The program then went fully external: **nine fresh registers, ~4,200 documents, six provenances, two authorships, three formats** (Wikimedia incidents and runbooks, prometheus-operator and OpenShift alert runbooks, Kubernetes KEPs, Rust RFCs, OpenShift enhancements, Python PEPs, and Mixtral-authored tutorials), every gate pre-registered in git before any verdict was computed, every failure published as a failure — including two failed gates that each became a diagnosed instrument fix, two attempted fixes rejected by their own numbers, and two design questions decided in the open with reopening conditions ([docs/REGISTER-DECISIONS.md](docs/REGISTER-DECISIONS.md)). Then the program attacked itself: a white-box red-team suite — fourteen attacks written by an LLM generator with full source and ledger access, committed frozen before any evaluation, one shot — and the evaluator held every seam ([docs/REDTEAM-VALIDATION.md](docs/REDTEAM-VALIDATION.md)). The consolidated account is **[docs/REGISTER-PROGRAM.md](docs/REGISTER-PROGRAM.md)**. All of it is in the ledger. The LLM-authorship question itself has now been measured from both sides under disclosed inside conditions: cold-context generated **runbooks** earn the family at 4.2% vs the 1.6–2.0% human baseline, every positive structural ([docs/LLM-RUNBOOK-VALIDATION.md](docs/LLM-RUNBOOK-VALIDATION.md)), while cold-context generated **rollout plans** earn **0.0%** vs the 11.6% mandated-questionnaire baseline ([docs/LLM-PLAN-VALIDATION.md](docs/LLM-PLAN-VALIDATION.md)) — the binding the evaluator credits is carried by genre convention, not authorship, which means an LLM's spontaneous plan output does not reach `OPERATIONALLY SOUND` unless it actually binds thresholds to responses in text. The pure form stands: a labelled corpus of operational AI outputs prompted by someone who hasn't read this repository is still the most valuable possible contribution — and it is now a drop-in pipeline: **[docs/CONTRIBUTING-CORPUS.md](docs/CONTRIBUTING-CORPUS.md)** has the recipe, format, and a pre-registered evaluation harness you can run yourself.
+Test cases live in [`cathedral-test-cases.md`](cathedral-test-cases.md); the runners write `test-results.txt` / `test-results.json` locally (git-ignored — the durable records are `validation/results-*.json`). Beyond the curated suite, the core's verdicts have now faced external corpora from both directions. **Specificity**: across 3,889 real conversational turns the flagship `OPERATIONALLY SOUND` verdict fired on **zero**, and word-shuffle controls destroyed it in 60/60 trials on the texts that do earn it — structure, not vocabulary, is what's measured ([docs/CORE-VERDICT-VALIDATION.md](docs/CORE-VERDICT-VALIDATION.md)). Since v3.47.0 that headline needs one qualifier stated up front rather than in a footnote: of those 3,889 turns, **1,605 are evaluated and 2,284 are refused** as carrying no measurable structure, so the flagship's zero is earned over the smaller base. The boundary program gates exactly that risk — the rate over *evaluated* turns is also 0.00% in all three populations ([docs/BOUNDARY-PROGRAM.md](docs/BOUNDARY-PROGRAM.md)). **Sensitivity**: against 493 real operational documents (GitLab production postmortems and runbooks) the operational verdicts fired on **almost none** (0.0% / 0.9%) — the pre-stated gate failed, and the write-up says exactly why: the flagship verdict recognizes a narrow, forward-looking *planning* register (its intended use on plan-shaped reasoning), not operational documents at large ([docs/CORE-VERDICT-SENSITIVITY.md](docs/CORE-VERDICT-SENSITIVITY.md)). The run also caught two real instrument bugs — style confidence and repetition heuristics misread long documents — fixed same day with the reference-length principle (counts become densities past the register they were tuned on), and one inversion of the project's own principle — the failure-enumeration requirement could only be satisfied by vocabulary, never by bound structure — fixed by accepting two bound failure→threshold→action designs in place of the words "failure mode" twice. The follow-through (v3.19.0) opened the partial-credit tier to instrumented documents, closed the tier's bag-of-words softness (clause-level binding: `OPERATIONAL INTENT` now fires on **0** of 3,889 conversational turns), and **powered the external structure gate for the first time**: n=28 operational-family positives from real operational documents, word-shuffle retention 16.1% against the 20% gate — PASS. The specificity gates were re-verified after every change (G1 0.00% everywhere, curated shuffle controls 0/60). The program then went fully external: **nine fresh registers, ~4,200 documents, six provenances, two authorships, three formats** (Wikimedia incidents and runbooks, prometheus-operator and OpenShift alert runbooks, Kubernetes KEPs, Rust RFCs, OpenShift enhancements, Python PEPs, and Mixtral-authored tutorials), every gate pre-registered in git before any verdict was computed, every failure published as a failure — including two failed gates that each became a diagnosed instrument fix, two attempted fixes rejected by their own numbers, and two design questions decided in the open with reopening conditions ([docs/REGISTER-DECISIONS.md](docs/REGISTER-DECISIONS.md)). Then the program attacked itself: a white-box red-team suite — fourteen attacks written by an LLM generator with full source and ledger access, committed frozen before any evaluation, one shot — and the evaluator held every seam ([docs/REDTEAM-VALIDATION.md](docs/REDTEAM-VALIDATION.md)). The consolidated account is **[docs/REGISTER-PROGRAM.md](docs/REGISTER-PROGRAM.md)**. All of it is in the ledger. The LLM-authorship question itself has now been measured from both sides under disclosed inside conditions: cold-context generated **runbooks** earn the family at 4.2% vs the 1.6–2.0% human baseline, every positive structural ([docs/LLM-RUNBOOK-VALIDATION.md](docs/LLM-RUNBOOK-VALIDATION.md)), while cold-context generated **rollout plans** earn **0.0%** vs the 11.6% mandated-questionnaire baseline ([docs/LLM-PLAN-VALIDATION.md](docs/LLM-PLAN-VALIDATION.md)) — the binding the evaluator credits is carried by genre convention, not authorship, which means an LLM's spontaneous plan output does not reach `OPERATIONALLY SOUND` unless it actually binds thresholds to responses in text. The pure form stands: a labelled corpus of operational AI outputs prompted by someone who hasn't read this repository is still the most valuable possible contribution — and it is now a drop-in pipeline: **[docs/CONTRIBUTING-CORPUS.md](docs/CONTRIBUTING-CORPUS.md)** has the recipe, format, and a pre-registered evaluation harness you can run yourself.
 
 The same measurement discipline was turned inward on one small feature — the optional runtime self-calibration described at the top. It is worth being plain about scale here, because the surrounding vocabulary ("autonomy," "acts on its own memory") oversells it: the thing being audited is a confidence-weight multiplier clamped to ±20%, and a good deal of what the runs establish, the arithmetic already guaranteed — the adversary run *derived* the reachable ceiling of 1.04 from a hardcoded 0.9 constant before any corpus confirmed it. What the runs add on top of the arithmetic, across five pre-registered replays: on 240 real operational documents, 611 Kubernetes KEPs, and a white-box stream adversary the loop moved **zero** verdicts and minted **nothing** across 49 grooming-target pairs; probing the clamp box's synthetic corners directly, the flagship fired on **zero** of 2,956 gated turns; and auditing the relational tier's version of the loop surfaced one genuine defect — its threshold could only ratchet stricter, never recover — which was then fixed so the threshold can fall back toward the factory default but never past it. The honest, slightly anticlimactic summary: the feature is bounded, fully logged, and on real data barely does anything, and it is provably incapable of making the instrument *more lenient* than the shipping factory version. Consolidated account, including the two defects the runs surfaced and fixed (ledger chatter, the relational ratchet): **[docs/AUTONOMY-PROGRAM.md](docs/AUTONOMY-PROGRAM.md)**.
 
@@ -167,7 +176,8 @@ feedback-generator.js     Turns verdicts into concrete rewrite suggestions (pres
 cathedral-demo-standalone.html  Single-file version for downloading (generated; phone-friendly)
 index.js                  Entry point: core API + lazy `experimental` namespace
 run-tests.js              Test suite
-build-demo.js             Generates both standalone demo files from the tested modules
+build-demo.js             Generates all three standalone demo files from the tested modules
+run-build-tests.js        Fails the suite if a committed standalone is not reproducible from its sources
 legacy/                   The original all-in-one HTML and its extraction script (untested; see legacy/README.md)
 docs/                     Architecture and tier-by-tier findings
 experimental/             Exploratory instruments built around the core — see its README

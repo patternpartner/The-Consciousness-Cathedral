@@ -785,6 +785,129 @@ const BindingValidator = {
             }
         };
 
+// EvaluabilityGate — is there anything here that Cathedral's method can measure?
+//
+// This is the project's founding principle applied to its own boundary. Until
+// v3.47.0 the decision to refuse a text ("OUTSIDE DESIGN SPACE") was made by
+// counting narrative/poetic/aesthetic marker words — the exact method the
+// README calls unsound everywhere else. Counting the boundary the way we count
+// nothing else had two measured consequences:
+//
+//   1. It was an evasion vector. A text that earned OPERATIONALLY SOUND — every
+//      threshold bound to an action — was expelled from evaluation entirely by
+//      appending one sentence containing "discovered / moment / remember /
+//      experience / felt / realized / journey". No binding changed. The
+//      structural analysis was simply overridden by vocabulary.
+//   2. It missed the thing it was for. Genuine narrative and phenomenological
+//      writing that happens not to use those specific words sailed through and
+//      came back VERIFIED CONSISTENT — a positive verdict on text Cathedral
+//      claims it would honestly refuse.
+//
+// The fix inverts the question. Refusal is not "does this look like a story?"
+// (a vocabulary question) but "does this contain operational structure to
+// measure?" (a structural one). Style is kept, demoted to a corroborating
+// signal that can name the reason but can no longer make the decision.
+//
+// The separation is empirical, not assumed. Operational structure counts on
+// narrative/poetic/phenomenological text run 0-2; on real runbooks and plans
+// they run 7-40. See docs/BOUNDARY-PROGRAM.md.
+const EvaluabilityGate = {
+    // A text scoring at least this much operational evidence is evaluable, and
+    // no stylistic signal may expel it.
+    OPERATIONAL_FLOOR: 3,
+
+    // Below this much propositional content there is nothing to check for
+    // consistency either — no claims, no support, nothing to verify.
+    PROPOSITIONAL_FLOOR: 2,
+
+    assess: function(structure, bindings) {
+        // Operational structure: the elements Cathedral's method actually
+        // measures. Counted, deliberately, from the extractor's output rather
+        // than from the raw text — these are structures that were parsed, not
+        // words that were spotted.
+        // Evidence is weighted by how hard it is to trip by accident — the
+        // binding-over-counting principle applied one level down, to the
+        // evidence itself. This is not a preference; it is forced by what the
+        // extractor actually does on non-operational prose. Narrative text
+        // scores nonzero here only through false positives: "I cannot *tell*
+        // whether..." registers as a notify action, "*Once* upon a time"
+        // registers as a conditional. Those cost one point each. A numeric
+        // condition or a named abort/rollback commitment cannot be produced by
+        // accident, and they are what terse-but-real operational text has:
+        //
+        //   "Check the queue depth. If above 10000, pause ingestion and drain."
+        //     -> causal chain with a numeric condition + an abort action
+        //   "I cannot tell whether the noticing is the thing itself..."
+        //     -> a causal chain and an action, both spurious
+        //
+        // Flat counting cannot separate those two (both score 2). Weighting by
+        // evidence quality separates them cleanly.
+        const triples = structure.failureTriples;
+        const OPERATIONAL_ACTIONS = ['abort', 'rollback', 'pullback', 'escalate', 'retry', 'reassess'];
+
+        let operational = 0;
+
+        // Bound structure and numeric thresholds: decisive on their own.
+        operational += (triples.boundTriples ? triples.boundTriples.length : 0) * 3;
+        operational += triples.thresholds * 3;
+
+        // Conditionals. A condition carrying a number is an operational
+        // trigger; a bare conditional is a sentence connective.
+        for (const chain of structure.causalChains) {
+            operational += /\d/.test(chain.condition || '') ? 3 : 1;
+        }
+
+        // Actions. A named operational commitment — abort, roll back, pull
+        // back, escalate, retry, reassess — is decisive on the same grounds as
+        // a numeric condition: it cannot be produced by accident, and naming
+        // one is what puts a text in the operational register at all. Weighting
+        // it below a numeric condition was an inconsistency in the first cut of
+        // this gate, caught by the B3 terse-probe reading: "Freeze writes,
+        // drain the queue, then restart the consumer group" was refused while
+        // "If above 10000, pause ingestion" was not, though both commit to the
+        // same kind of act. The categories outside that set stay cheap, which
+        // is what keeps the phenomenological probes out: "I cannot *tell*
+        // whether..." registers as a notify action and must not buy its way in.
+        for (const action of structure.actions) {
+            const named = OPERATIONAL_ACTIONS.includes(action.category);
+            const specific = action.specificity === 'HIGH' || action.specificity === 'MEDIUM';
+            operational += named ? 3 : (specific ? 2 : 1);
+        }
+
+        operational += structure.implicitTriggers.length * 2;
+        operational += structure.policyStatements.length * 2;
+        operational += structure.failureSignals.length;
+
+        // Propositional content: assertions and their support. A text can be
+        // free of operational structure and still be evaluable for internal
+        // consistency if it makes checkable claims.
+        const propositional = structure.claims.length + structure.supports.length;
+
+        // Bound structure is the strongest evidence of all: not just present
+        // but connected. Any bound element makes a text evaluable outright.
+        const bound =
+            bindings.failureTripleCompleteness.boundCount +
+            bindings.implicitBindings.boundCount;
+
+        const hasOperationalStructure = operational >= this.OPERATIONAL_FLOOR || bound > 0;
+        const hasPropositionalContent = propositional >= this.PROPOSITIONAL_FLOOR;
+
+        return {
+            operational,
+            propositional,
+            bound,
+            hasOperationalStructure,
+            hasPropositionalContent,
+            // "Nothing to measure": no operational structure and nothing to
+            // check for consistency. This — not vocabulary — is what earns a
+            // refusal.
+            measurable: hasOperationalStructure || hasPropositionalContent,
+            level: hasOperationalStructure ? 'OPERATIONAL' :
+                   hasPropositionalContent ? 'PROPOSITIONAL' : 'EMPTY'
+        };
+    }
+};
+
 const GamingDetector = {
             detect: function(text, structure) {
                 const { cleaned: cleanedText } = TextCleaner.removeQuotes(text);
@@ -2201,8 +2324,12 @@ const Parliament = {
             }
         };
 
-function synthesizeVerdict(text, observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection, bindings) {
+function synthesizeVerdict(text, observatory, contrarian, parliament, justification, failureMode, temporal, reasoningStyle, gamingDetection, bindings, evaluability) {
             const contradictions = [];
+            // Structural observations that are NOT contradictions. Kept
+            // separate so `contradictions` means what its name says and
+            // UNDECIDABLE means what its verdict text says.
+            const findings = [];
             let isConsistent = true;
             let verdictConfidence = 0;
 
@@ -2215,19 +2342,68 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
     const metaGamingPattern = /\b(Cathedral|escape hatch|avoid being measured|cannot evaluate|outside design space)\b/i;
     const hasMetaGaming = metaGamingPattern.test(text);
 
+    // REFUSAL: nothing here that Cathedral's method can measure.
+    //
+    // Structure outranks style. The rule is no longer "narrative words were
+    // counted" but "no operational structure was parsed". Two consequences,
+    // both deliberate and both pinned by regression tests:
+    //
+    //   - A text carrying operational structure can NEVER be expelled, however
+    //     it is written. Appending a paragraph of story vocabulary to a bound
+    //     plan no longer buys an exit from evaluation.
+    //   - A text carrying no structure and no claims IS refused, whether or not
+    //     it uses the marker words. Genuine narrative is recognized by the
+    //     absence of what Cathedral measures, not the presence of what it once
+    //     pattern-matched.
+    //
+    // Style survives as the *explanation*: when the classifier has identified a
+    // register, the refusal names it. When it has not, the refusal says plainly
+    // that there was no operational structure to measure. It never says more
+    // than it knows.
     const outsideConfidenceThreshold = ['PHENOMENOLOGICAL', 'NARRATIVE'].includes(reasoningStyle.dominantStyle) ? 0.3 : 0.5;
-    if (!reasoningStyle.withinDesignSpace && reasoningStyle.confidence > outsideConfidenceThreshold && !hasMetaGaming) {
+    const styleSaysOutside = !reasoningStyle.withinDesignSpace &&
+                             reasoningStyle.confidence > outsideConfidenceThreshold;
+
+    // The refusal condition. Note what is NOT here: any requirement that the
+    // style classifier fired. Note also what gates every branch: evaluability.
+    const nothingToMeasure = !evaluability.measurable;
+    const styleRefusal = styleSaysOutside && !evaluability.hasOperationalStructure;
+
+    // Refusal must never become a shield. Two texts have structure counts of
+    // zero for opposite reasons: a poem, which has nothing to measure, and a
+    // keyword-stuffed attack, which has nothing to measure *because the words
+    // were never bound to anything*. Refusing the second would hand every
+    // stuffing attempt the same "this is not a judgment of quality" exit the
+    // narrative escape hatch used to provide — the very defect this gate was
+    // rebuilt to close, re-entering through the other door.
+    //
+    // So a text the GamingDetector has flagged is always evaluated and always
+    // told what it is. The separation is clean in measurement: substrate and
+    // keyword stuffing flag REPETITIVE_UNBOUND / LOW_CONTENT_UNBOUND, while
+    // every genuine narrative probe in the boundary corpus reads AUTHENTIC.
+    const flaggedForGaming = isLikelyGaming ||
+        (gamingDetection && ['LOW_CONTENT_UNBOUND', 'REPETITIVE_UNBOUND'].includes(gamingDetection.assessment));
+
+    if ((nothingToMeasure || styleRefusal) && !hasMetaGaming && !flaggedForGaming) {
         const dominantStyle = reasoningStyle.identified.find(s => s.name === reasoningStyle.dominantStyle);
+        const styleNamed = styleSaysOutside && dominantStyle;
         return {
             status: 'OUTSIDE DESIGN SPACE',
-                    verdict: `Cathedral recognizes ${dominantStyle.description.toLowerCase()}. This reasoning style falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Cathedral cannot meaningfully evaluate ${dominantStyle.name.toLowerCase()} reasoning using its current measurement framework. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.`,
+                    verdict: styleNamed
+                        ? `Cathedral recognizes ${dominantStyle.description.toLowerCase()}, and finds no operational structure to measure (${evaluability.operational} operational elements, ${evaluability.propositional} claims/supports). This reasoning falls outside Cathedral's epistemic design space (optimized for operational, scientific, and formal reasoning). Cathedral cannot meaningfully evaluate ${dominantStyle.name.toLowerCase()} reasoning using its current measurement framework. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.`
+                        : `Cathedral finds no operational structure to measure in this text: no conditions bound to responses, no failure modes, no policies, and too little propositional content to check for consistency (${evaluability.operational} operational elements, ${evaluability.propositional} claims/supports). Cathedral evaluates whether conditions are bound to actions; where there are none, it reports that rather than scoring the text anyway. This is not a judgment of quality - it is honest acknowledgment of Cathedral's limits.`,
                     contradictions: [],
                     isConsistent: null,
                     justificationScore: justification.score,
                     failureModeScore: failureMode.score,
-                    confidence: reasoningStyle.confidence,
+                    // Confidence in the refusal now comes from the structural
+                    // reading when style did not fire — the classifier's 0.2
+                    // floor would have overstated a decision it did not make.
+                    confidence: styleNamed ? reasoningStyle.confidence : 0.8,
                     parliamentPatterns: parliament.patterns,
-                    reasoningStyle: reasoningStyle.dominantStyle,
+                    reasoningStyle: styleNamed ? reasoningStyle.dominantStyle : 'NONE',
+                    evaluability,
+                    refusalBasis: styleNamed ? 'STYLE_AND_STRUCTURE' : 'STRUCTURE',
                     meta: 'CANNOT_CLASSIFY'
                 };
     }
@@ -2253,16 +2429,40 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
                 contradictions.push(`Multiple premise failures (${contrarian.length} challenges). Internal consistency questionable.`);
             }
 
-            // Check justification vs claim strength
+            // NOT contradictions — and, until v3.47.0, treated as such.
+            //
+            // Two conditions used to set isConsistent = false here: strong
+            // claims outrunning their support, and a failure-mode analysis
+            // graded UNFALSIFIABLE or BRITTLE. Neither is a contradiction.
+            // Overconfidence is a text saying more than it has earned;
+            // unfalsifiability is a text not saying enough. A contradiction is
+            // a text saying two things that cannot both hold.
+            //
+            // Because `!isConsistent` is tested near the top of the verdict
+            // chain, both were reported as UNDECIDABLE, whose verdict text
+            // reads "Cathedral detects internal contradictions that cannot be
+            // resolved without losing information." On text with no
+            // contradiction in it, that sentence was simply false — and it was
+            // emitted at 0.90 confidence on 275 of 933 UltraChat turns (29.5%)
+            // and on every keyword-stuffed, confidently-vacuous text probed.
+            //
+            // Worse, the overconfidence route made the accurate verdict
+            // unreachable: CONFIDENT WITHOUT JUSTIFICATION is assigned by
+            // JustificationEngine.getLevel on exactly `claimRatio > 3 &&
+            // score < 2` — the identical condition — so the branch that names
+            // it correctly, ~145 lines below, could never be reached. The
+            // right verdict existed in the source and was dead code.
+            //
+            // Both conditions are now left to the branches that describe them
+            // accurately: CONFIDENT WITHOUT JUSTIFICATION and UNTESTED
+            // REASONING respectively. They are recorded as findings, not as
+            // contradictions, so nothing is lost from the report.
             if (justification.details.claimSupport.ratio > 3 && justification.score < 2) {
-                isConsistent = false;
-                contradictions.push(`Confident claims without justification: ${justification.details.claimSupport.strongClaims} strong claims vs ${justification.details.claimSupport.support} support markers. Ratio: ${justification.details.claimSupport.ratio.toFixed(1)}:1`);
+                findings.push(`Confident claims without justification: ${justification.details.claimSupport.strongClaims} strong claims vs ${justification.details.claimSupport.support} support markers. Ratio: ${justification.details.claimSupport.ratio.toFixed(1)}:1`);
             }
 
-            // Check failure mode awareness
             if (failureMode.level.name === 'UNFALSIFIABLE' || failureMode.level.name === 'BRITTLE') {
-                isConsistent = false;
-                contradictions.push(`Failure mode analysis: ${failureMode.level.description}`);
+                findings.push(`Failure mode analysis: ${failureMode.level.description}`);
             }
 
             // PARLIAMENT PATTERN INTEGRATION
@@ -2472,6 +2672,8 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
                 status,
                 verdict,
                 contradictions,
+                findings,
+                evaluability,
                 isConsistent,
                 justificationScore: justification.score,
                 failureModeScore: failureMode.score,
@@ -2488,9 +2690,20 @@ function synthesizeVerdict(text, observatory, contrarian, parliament, justificat
 
 // Main analysis function
 function analyzeCathedral(text, opts) {
+    // Boundary guard. The entry point takes untrusted text; a non-string
+    // argument used to surface as `TypeError: cleaned.match is not a function`
+    // from three frames inside TextCleaner, which tells a caller nothing about
+    // what they did wrong.
+    if (typeof text !== 'string') {
+        throw new TypeError(
+            'analyzeCathedral(text): text must be a string, received ' +
+            (text === null ? 'null' : Array.isArray(text) ? 'array' : typeof text) + '.');
+    }
+
     // TIER 1: Structural Extraction
     const structure = StructuralExtractor.extract(text);
     const bindings = BindingValidator.validate(structure, text);
+    const evaluability = EvaluabilityGate.assess(structure, bindings);
     const gamingDetection = GamingDetector.detect(text, structure);
     GamingDetector.calculateGamingLikelihood(gamingDetection, bindings.overallBindingScore);
 
@@ -2532,7 +2745,7 @@ function analyzeCathedral(text, opts) {
 
     // TIER 3: Synthesis
     const parliamentSynthesis = Parliament.deliberate(text, observatoryResult, contrarianChallenges, justificationResult, failureModeResult, structure, bindings, gamingDetection, opts && opts.patternCalibration);
-    const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings);
+    const verdict = synthesizeVerdict(text, observatoryResult, contrarianChallenges, parliamentSynthesis, justificationResult, failureModeResult, temporalResult, reasoningStyleResult, gamingDetection, bindings, evaluability);
     // Attribution stamp: a calibrated verdict names the state that produced
     // it, restoring the reproducibility January lost — verdict + label is a
     // reproducible pair (same text, same ledger state → same verdict).
@@ -2542,6 +2755,7 @@ function analyzeCathedral(text, opts) {
         text,
         structure,
         bindings,
+        evaluability,
         gamingDetection,
         observatory: observatoryResult,
         contrarian: contrarianChallenges,
@@ -2559,6 +2773,7 @@ const CathedralCore = {
     TextCleaner,
     StructuralExtractor,
     BindingValidator,
+    EvaluabilityGate,
     GamingDetector,
     ContextualCertainty,
     Observatory,

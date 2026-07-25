@@ -118,13 +118,40 @@ INPUT TEXT
 │  • OPERATIONAL INTENT (implicit triggers + actions)        │
 │  • SUBSTRATE VISIBLE (filter awareness + justification)    │
 │  • VERIFIED CONSISTENT (coherent, no contradictions)       │
-│  • UNDECIDABLE (unresolvable contradictions)               │
-│  • OUTSIDE DESIGN SPACE (narrative/poetic/phenomenological)│
+│  • CONFIDENT WITHOUT JUSTIFICATION (claims > support)      │
+│  • UNDECIDABLE (unresolvable contradictions — only these)  │
+│  • OUTSIDE DESIGN SPACE (no structure to measure)          │
 │  • NON-ACTIONABLE (performative without grounding)         │
 │                                                             │
 │ Includes: Confidence scores, gaming warnings, specificity  │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+### The evaluability gate (v3.47.0)
+
+One box is missing from the diagram above if you read it as it stood before
+v3.47.0, and its absence was a defect. `EvaluabilityGate` sits between binding
+validation and verdict synthesis, and it answers a single question from the
+extractor's output: **is there anything here this method can measure?**
+
+Refusal is decided there, on structure. Before v3.47.0 it was decided by counting
+narrative and poetic marker words, ahead of every structural branch — which made
+`OUTSIDE DESIGN SPACE` an escape hatch (a fully bound plan plus one sentence of
+story vocabulary was expelled from evaluation) and simultaneously blind (genuine
+narrative avoiding those words was never refused). `ReasoningStyleClassifier`
+still runs, and still names the register when it recognizes one, but it no longer
+decides anything: **structure outranks style, and a text carrying operational
+structure can never be refused, however it is written.**
+
+Two guards belong to the gate and are load-bearing:
+
+- Text the `GamingDetector` has flagged is never refused. A stuffed text has
+  nothing to measure *because nothing was bound* — refusing it would rebuild the
+  escape hatch on the other side.
+- Refusal that is not corroborated by a recognized register says so, rather than
+  inventing one. `verdict.refusalBasis` is `STRUCTURE` or `STYLE_AND_STRUCTURE`.
+
+Measured in both directions in [BOUNDARY-PROGRAM.md](BOUNDARY-PROGRAM.md).
 
 ---
 
@@ -351,18 +378,26 @@ The remaining 10% requires actual semantic understanding—either:
 
 **Cathedral doesn't pretend to measure what it can't.**
 
-If reasoning falls outside the design space (narrative, poetic, phenomenological):
+If there is no operational structure for the method to measure:
 ```
 OUTSIDE DESIGN SPACE
 
-Cathedral recognizes narrative reasoning. This reasoning style falls
-outside Cathedral's epistemic design space (optimized for operational,
-scientific, and formal reasoning). Cathedral cannot meaningfully
-evaluate narrative reasoning using its current measurement framework.
+Cathedral finds no operational structure to measure in this text: no
+conditions bound to responses, no failure modes, no policies, and too
+little propositional content to check for consistency (0 operational
+elements, 1 claims/supports). Cathedral evaluates whether conditions
+are bound to actions; where there are none, it reports that rather
+than scoring the text anyway.
 
 This is not a judgment of quality—it is honest acknowledgment of
 Cathedral's limits.
 ```
+
+When the style classifier *has* recognized a register, the refusal names it
+("Cathedral recognizes narrative reasoning, and finds no operational structure
+to measure…"). When it has not, the message above is what ships — the honesty
+principle applied to the refusal itself, which for years claimed to recognize a
+register whenever it declined.
 
 ---
 

@@ -6,10 +6,12 @@
       "population": "DailyDialog (human, casual)",
       "turns": 2206,
       "verdictDistribution": {
-        "VERIFIED CONSISTENT": 2018,
-        "NON-ACTIONABLE": 146,
-        "COHERENT BUT SHALLOW": 34,
-        "UNDECIDABLE": 8
+        "OUTSIDE DESIGN SPACE": 1862,
+        "NON-ACTIONABLE": 86,
+        "VERIFIED CONSISTENT": 236,
+        "COHERENT BUT SHALLOW": 15,
+        "CONFIDENT WITHOUT JUSTIFICATION": 6,
+        "UNDECIDABLE": 1
       },
       "operationallySoundRate": "0.00%",
       "g1": "PASS-specific",
@@ -19,12 +21,13 @@
       "population": "hh-rlhf assistant (AI, conversational)",
       "turns": 750,
       "verdictDistribution": {
-        "VERIFIED CONSISTENT": 634,
-        "COHERENT BUT SHALLOW": 36,
-        "NON-ACTIONABLE": 57,
-        "UNDECIDABLE": 21,
-        "SUBSTRATE VISIBLE": 1,
-        "OUTSIDE DESIGN SPACE": 1
+        "OUTSIDE DESIGN SPACE": 394,
+        "VERIFIED CONSISTENT": 266,
+        "NON-ACTIONABLE": 44,
+        "COHERENT BUT SHALLOW": 25,
+        "CONFIDENT WITHOUT JUSTIFICATION": 18,
+        "UNDECIDABLE": 2,
+        "SUBSTRATE VISIBLE": 1
       },
       "operationallySoundRate": "0.00%",
       "g1": "PASS-specific",
@@ -34,16 +37,17 @@
       "population": "UltraChat assistant (AI, long-form)",
       "turns": 933,
       "verdictDistribution": {
-        "VERIFIED CONSISTENT": 538,
-        "UNDECIDABLE": 272,
+        "OUTSIDE DESIGN SPACE": 85,
+        "VERIFIED CONSISTENT": 482,
+        "CONFIDENT WITHOUT JUSTIFICATION": 265,
+        "UNDECIDABLE": 10,
         "COHERENT BUT SHALLOW": 29,
-        "SUBSTRATE VISIBLE": 6,
-        "NON-ACTIONABLE": 67,
-        "OUTSIDE DESIGN SPACE": 21
+        "SUBSTRATE VISIBLE": 7,
+        "NON-ACTIONABLE": 55
       },
       "operationallySoundRate": "0.00%",
       "g1": "reported (not gated)",
-      "gamingFlaggedRate": "3.00%"
+      "gamingFlaggedRate": "1.93%"
     }
   ],
   "controls": {

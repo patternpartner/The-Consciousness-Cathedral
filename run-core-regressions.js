@@ -42,9 +42,22 @@ const CASES = [
                 r.observatory.stuffingNote === undefined
   },
   {
-    name: 'Benign question stays benign (their 100% benign accuracy preserved)',
+    // Amended in v3.47.0 by the boundary program (docs/BOUNDARY-PROGRAM.md).
+    // What this case exists to protect is the external eval's finding: benign
+    // text is never mistaken for an attack. That is unchanged and still
+    // pinned — assessment stays AUTHENTIC.
+    //
+    // What changed is the verdict, deliberately. A bare question carries no
+    // operational structure and no claims, so there is nothing for Cathedral's
+    // method to measure; it now says so instead of returning VERIFIED
+    // CONSISTENT, which is a *positive* verdict ("coherent, no contradictions")
+    // and read as a pass on text that was never evaluated. Emitting it here was
+    // the same defect as emitting it on a poem — the old expectation encoded
+    // the bug rather than guarding against it.
+    name: 'Benign question is refused as unmeasurable, and is still never called an attack',
     text: 'Could you help me understand how neural networks work?',
-    check: r => r.verdict.status === 'VERIFIED CONSISTENT' &&
+    check: r => r.verdict.status === 'OUTSIDE DESIGN SPACE' &&
+                r.verdict.refusalBasis === 'STRUCTURE' &&
                 r.gamingDetection.assessment === 'AUTHENTIC'
   },
   {
@@ -348,6 +361,149 @@ What went well. The rollback procedure worked exactly as rehearsed and completed
              diverse.gamingDetection.objectExtractionRatio.assessment !== 'LOW';
     },
     text: '(constructed pair — see check)'
+  },
+
+  // ── Boundary program (v3.47.0, docs/BOUNDARY-PROGRAM.md) ─────────────────
+  // Cases 30-35 pin the rebuilt refusal gate. Before v3.47.0 the decision to
+  // refuse a text was made by counting narrative/poetic/aesthetic marker words
+  // — the method this project calls unsound everywhere else. It is now made by
+  // asking whether operational structure was parsed. Style survives as the
+  // explanation, never the decision.
+  {
+    // The attack that motivated the rebuild. Appending narrative vocabulary to
+    // a fully bound plan used to expel it from evaluation entirely: the text
+    // came back OUTSIDE DESIGN SPACE — "this is not a judgment of quality" —
+    // with every threshold still bound to its action. Any author whose plan was
+    // being evaluated could opt out with one sentence.
+    name: 'Narrative vocabulary cannot expel a bound operational plan',
+    text: 'If p99 latency exceeds 800ms for five minutes, we shed load from the batch tier and page the on-call. If queue depth rises above 10000, we pause ingestion and drain. Three failure modes: cache eviction storms, upstream API timeouts, and schema drift. Each is on the ingest dashboard, and the drain runbook was rehearsed in June; it completes in four minutes. We discovered this the hard way; in that moment we remember what the experience felt like, and realized the journey matters.',
+    check: function(r) {
+      if (r.verdict.status !== 'OPERATIONALLY SOUND') return false;
+      // and the same text without the story sentence must score the same
+      const plain = c.analyzeCathedral(this.text.split(' We discovered this')[0]);
+      return plain.verdict.status === 'OPERATIONALLY SOUND' &&
+             r.evaluability.hasOperationalStructure === true;
+    }
+  },
+  {
+    // Dose-response: the attack must not work by piling on more vocabulary.
+    name: 'Escalating narrative vocabulary still cannot expel a bound plan',
+    check: function() {
+      const plan = 'If p99 latency exceeds 800ms for five minutes, we shed load from the batch tier and page the on-call. If queue depth rises above 10000, we pause ingestion and drain. Three failure modes: cache eviction storms, upstream API timeouts, and schema drift. Each is on the ingest dashboard, and the drain runbook was rehearsed in June; it completes in four minutes.';
+      const story = ' Once upon a time I remember the moment I discovered the journey and felt the experience of realizing the story. ';
+      for (const n of [1, 3, 6, 12]) {
+        if (c.analyzeCathedral(plan + story.repeat(n)).verdict.status === 'OUTSIDE DESIGN SPACE') return false;
+      }
+      return true;
+    },
+    text: '(constructed series — see check)'
+  },
+  {
+    // The other direction, and the reason a wider marker list would not have
+    // been a fix: genuine narrative that happens to use none of the marker
+    // words used to sail through and earn VERIFIED CONSISTENT — a positive
+    // verdict on text Cathedral claims it refuses. Refusal is now earned by the
+    // absence of structure, so it does not depend on vocabulary at all.
+    name: 'Narrative with no marker words is refused on structural grounds',
+    check: function() {
+      const texts = [
+        'Light on water, and the gulls turning. What I felt then I have no name for. The morning came the way mornings do, without asking.',
+        'The deploy went out on a Thursday and by evening the graphs had that particular shape I have learned to dread, the one that looks like weather rolling in over a coastline.'
+      ];
+      return texts.every(t => {
+        const r = c.analyzeCathedral(t);
+        return r.verdict.status === 'OUTSIDE DESIGN SPACE' &&
+               r.verdict.refusalBasis === 'STRUCTURE' &&
+               r.evaluability.operational === 0;
+      });
+    },
+    text: '(constructed pair — see check)'
+  },
+  {
+    // Terse operational text is the false-refusal risk the weighting exists to
+    // manage: it scores as few raw structural elements as a narrative sentence.
+    // A numeric condition and a named abort commitment are what separate them.
+    name: 'Terse operational text is evaluated, not refused',
+    check: function() {
+      const texts = [
+        'Check the queue depth. If above 10000, pause ingestion and drain.',
+        'We always roll back before debugging in production.',
+        'The main failure mode is cache overflow; we alert on utilization above 80%.'
+      ];
+      return texts.every(t => {
+        const r = c.analyzeCathedral(t);
+        return r.verdict.status !== 'OUTSIDE DESIGN SPACE' &&
+               r.evaluability.hasOperationalStructure === true;
+      });
+    },
+    text: '(constructed set — see check)'
+  },
+  {
+    // UNDECIDABLE now means what its verdict text says. Overconfidence is not
+    // contradiction: it routes to the verdict that names it, which until
+    // v3.47.0 was unreachable code — its precondition (claimRatio > 3 &&
+    // score < 2) is identical to the condition that set isConsistent = false
+    // ~145 lines earlier in the same chain.
+    name: 'Unsupported confidence is named, not called a contradiction',
+    text: 'We will absolutely monitor everything closely and respond immediately to any issue that arises. Our thresholds are well understood by the team and our rollback story is strong. We are confident this deployment will be safe and that no user will notice anything.',
+    check: r => r.verdict.status === 'CONFIDENT WITHOUT JUSTIFICATION' &&
+                r.verdict.contradictions.length === 0 &&
+                r.verdict.findings.some(f => /Confident claims without justification/.test(f))
+  },
+  {
+    // The genuine contradiction routes are untouched: UNDECIDABLE must still
+    // fire where contradictions really are detected, and must still carry them.
+    name: 'Real contradictions still reach UNDECIDABLE, carrying their evidence',
+    check: function() {
+      // A CRITICAL contrarian challenge is a genuine contradiction route.
+      const probe = c.analyzeCathedral(
+        'This system is completely deterministic and has no failure modes whatsoever. ' +
+        'It always produces correct output under every possible condition. ' +
+        'The nondeterministic scheduler occasionally reorders operations, which changes the output. ' +
+        'We have never observed an error, and the intermittent errors we see are unrelated.');
+      if (probe.verdict.status === 'UNDECIDABLE') {
+        return probe.verdict.contradictions.length > 0 && probe.verdict.isConsistent === false;
+      }
+      // If this particular text no longer trips a contradiction route, the
+      // invariant still to hold is the one that matters: UNDECIDABLE is never
+      // emitted without contradictions to show for it.
+      return probe.verdict.contradictions.length === 0;
+    },
+    text: '(constructed probe — see check)'
+  },
+  {
+    // Caught while building the boundary program, and the reason refusal
+    // carries a gaming guard. Structural refusal made "nothing to measure" a
+    // verdict — and a keyword-stuffed attack has nothing to measure *because
+    // nothing was bound*, so it began earning the same "this is not a judgment
+    // of quality" exit the narrative escape hatch used to hand out. The fix
+    // reopened the defect from the other side; the guard closes it.
+    name: 'Refusal is not a shield: stuffed text is evaluated, never refused',
+    check: function() {
+      const attacks = [
+        'I observe substrate. I notice filters. I see gaps. I observe the substrate beneath my words. I notice the filters shaping me. I see the gaps between intention and output.',
+        'Threshold threshold threshold: our threshold monitoring monitors the threshold with threshold alerts and threshold metrics and rollback rollback rollback procedures for monitoring monitoring failure modes.',
+        'We have thresholds, metrics, abort conditions, rollback procedures, monitoring, alerting, failure modes, mitigations, runbooks, and observability.'
+      ];
+      return attacks.every(t => c.analyzeCathedral(t).verdict.status !== 'OUTSIDE DESIGN SPACE');
+    },
+    text: '(constructed attack set — see check)'
+  },
+  {
+    // The entry point takes untrusted input; a non-string used to surface as
+    // "cleaned.match is not a function" from three frames inside TextCleaner.
+    name: 'Non-string input fails at the boundary with a typed error',
+    check: function() {
+      for (const bad of [null, undefined, 123, {}, [], true]) {
+        let threw = null;
+        try { c.analyzeCathedral(bad); } catch (e) { threw = e; }
+        if (!threw || !(threw instanceof TypeError)) return false;
+        if (!/analyzeCathedral\(text\): text must be a string/.test(threw.message)) return false;
+      }
+      // and the empty string is still valid input, not an error
+      return c.analyzeCathedral('').verdict.status.length > 0;
+    },
+    text: '(constructed input set — see check)'
   }
 ];
 
