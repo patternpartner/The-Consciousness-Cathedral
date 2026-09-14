@@ -114,10 +114,77 @@ test('Reset is reversible and itself ledgered', () => {
   assert.strictEqual(m.ledger()[m.size() - 1].to, 'factory');
 });
 
+// ── Frozen mode (v3.39.2): freezing gates self-change, never learning. ───
+
+test('Observation is not self-change: observe() alone never touches active state or ledger', () => {
+  const m = new ProgressionMemory(ProgressionMemory.memoryStore());
+  for (let i = 0; i < 10; i++) m.observe(core.analyzeCathedral(SOUND_TEXT));
+  assert.deepStrictEqual(m.active(), {}, 'no multiplier applied by observation');
+  assert.strictEqual(m.size(), 0, 'no ledger entry written by observation');
+  assert.strictEqual(m.label(), 'factory');
+  assert.ok(m.pending().length >= 1, 'yet the memory holds a real implied change');
+});
+
+test('pending() previews the exact diff act() would commit, without committing', () => {
+  const m = new ProgressionMemory(ProgressionMemory.memoryStore());
+  for (let i = 0; i < 5; i++) m.observe(core.analyzeCathedral(SOUND_TEXT));
+  const preview = m.pending();
+  assert.strictEqual(m.size(), 0, 'preview writes nothing');
+  const { changed } = m.act();
+  assert.deepStrictEqual(
+    preview.map(c => [c.param, c.from, c.to, c.why]),
+    changed.map(c => [c.param, c.from, c.to, c.why]),
+    'preview and commit must carry the same numbers and the same evidence');
+  assert.deepStrictEqual(m.pending(), [], 'after commit, nothing is pending');
+});
+
+test('applyImplied() is the human path: same end state as act(), entries marked human-applied', () => {
+  const mk = () => {
+    const m = new ProgressionMemory(ProgressionMemory.memoryStore());
+    for (let i = 0; i < 5; i++) m.observe(core.analyzeCathedral(SOUND_TEXT));
+    return m;
+  };
+  const auto = mk(); auto.act();
+  const human = mk(); const applied = human.applyImplied();
+  assert.ok(applied.changed.length >= 1 && applied.changed.every(e => e.auto === false),
+    'human-applied entries must not claim self-application');
+  assert.deepStrictEqual(human.active(), auto.active(),
+    'the two paths converge to the same instrument');
+  assert.ok(/^calibrated #\d+/.test(human.label()),
+    'the stamp must not claim self-calibration for a human-applied change');
+});
+
 test('Proposals map matches the verdict branches it was read from', () => {
   const r = core.analyzeCathedral(SOUND_TEXT);
   assert.strictEqual(PROPOSALS.OPERATIONAL_EXCELLENCE, r.verdict.status,
     'the flagship branch and the ballot map must agree');
+});
+
+test('The anchor holds under factory calibration (pinned truth is self-consistent)', () => {
+  const { checkCalibration } = require('./anchor-cases.js');
+  const r = checkCalibration(core.analyzeCathedral, {});
+  assert.ok(r.ok, 'anchor must pass uncalibrated: ' + JSON.stringify(r.failures));
+  assert.strictEqual(r.total, 8);
+});
+
+test('Exogenous rejection: a candidate that flips pinned truth is refused and ledgered', () => {
+  const { checkCalibration } = require('./anchor-cases.js');
+  const m = new ProgressionMemory(ProgressionMemory.memoryStore());
+  // Chronic losses on both patterns drive calibration to the 0.8 floor.
+  // We know from the "real power" test that {OPERATIONAL_EXCELLENCE: 0.8,
+  // CAUTIOUS_GROUNDEDNESS: 0.8} flips the OPERATIONALLY SOUND anchor case.
+  for (let i = 0; i < 10; i++) {
+    m._record('OPERATIONAL_EXCELLENCE', false, 0.9, 'low_gaming');
+    m._record('CAUTIOUS_GROUNDEDNESS', false, 0.9, 'low_gaming');
+  }
+  const validator = candidate => checkCalibration(core.analyzeCathedral, candidate);
+  const acted = m.act(validator);
+  assert.strictEqual(acted.changed.length, 0, 'a truth-flipping candidate must not be applied');
+  assert.ok(acted.rejected && acted.rejected.rejected === true, 'rejection must be returned');
+  assert.strictEqual(m.size(), 1, 'rejection is ledgered — exactly one entry appended');
+  assert.ok(/anchor/.test(m.ledger()[0].why), 'rejection entry must name the anchor in its why');
+  // Active calibration must still be factory — the candidate was refused
+  assert.deepStrictEqual(m.active(), {});
 });
 
 let passed = 0, failed = 0;

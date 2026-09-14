@@ -33,7 +33,7 @@ const BUILDS = [
     { demo: 'cathedral-unified-2.html',
       cores: ['cathedral-core.js', 'relational-core.js', 'relational-memory.js',
               'relational-calibration.js', 'sovereignty-detector.js', 'feedback-generator.js',
-              'verdict-memory.js', 'progression.js'],
+              'verdict-memory.js', 'progression.js', 'anchor-cases.js'],
       out: 'cathedral-unified-2-standalone.html' }
 ];
 
