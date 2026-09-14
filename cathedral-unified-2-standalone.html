@@ -169,7 +169,13 @@ B: The stamp turns the lease from a timing guess into a checkable contract.</tex
     calibrated verdict carries the stamp, and the archive can attribute any changed verdict to the exact entry
     that moved it.</p>
     <label class="opt"><input type="checkbox" id="prog-autonomy" checked> autonomous recalibration
-      (uncheck to freeze at factory — existing ledger is kept)</label>
+      (uncheck to freeze: the ledgered calibration stays applied, learning continues, and new
+      changes wait below as proposals for you to apply)</label>
+    <div class="card" id="prog-proposal" style="background:var(--panel2);margin-top:12px;" hidden>
+      <h2>IMPLIED — NOT APPLIED (frozen)</h2>
+      <div id="prog-proposal-text" style="font-size:13.5px;"></div>
+      <button class="btn" id="prog-apply">Apply (ledgered, reversible)</button>
+    </div>
     <table id="prog-summary" style="margin-top:12px;"></table>
     <div id="prog-ledger" style="margin-top:12px;font-size:13px;"></div>
     <button class="btn ghost" id="prog-reset" style="margin-top:12px;">Factory reset (appends to the ledger, never erases it)</button>
@@ -4062,14 +4068,21 @@ if (typeof module !== 'undefined' && module.exports) {
 // a standard, with a certificate saying what changed, when, and why.
 // So: silent change corrupts; ledgered change calibrates.
 //
-// The contract:
-//   1. The instrument never recalibrates itself. It PROPOSES, with the
-//      evidence stated in plain words, and a person accepts or dismisses.
-//      (An instrument that auto-applies its own proposals can be steered
-//      by whoever controls what it's fed — the chimera lesson.)
-//   2. Every accepted change is a ledger entry: parameter, from, to, why,
-//      evidence, date. explain() reads the ledger back as sentences:
-//      "previously X, now Y, because…".
+// The contract (revised at v3.39.0 — full autonomy; module-owned since
+// v3.39.1):
+//   1. The tier acts on its own memory. When the notebook's evidence shows
+//      a threshold has stopped discriminating, act() accepts the system's
+//      own proposal with no permission step. What guards against steering
+//      (the chimera lesson: an instrument that silently auto-applies can be
+//      steered by whoever controls what it's fed) is not a human gate but
+//      LOUDNESS — the change is announced at the verdict, ledgered with its
+//      evidence, marked self-applied, stamped, and reversible. Frozen mode
+//      restores the original flow: propose() and accept() remain the
+//      propose-then-a-person-applies path, unchanged.
+//   2. Every change — self-applied or human-applied — is a ledger entry:
+//      parameter, from, to, why, evidence, date, and how it was applied.
+//      explain() reads the ledger back as sentences: "previously X, now Y,
+//      because…".
 //   3. Every verdict is stamped with the calibration that produced it
 //      (result.calibration), so no number ever floats free of its ruler.
 //   4. Reset to defaults is always one call away, and the ledger records
@@ -4202,17 +4215,31 @@ class CalibrationLedger {
         || proposeTransformNoveltyLower(memoryData, current.TRANSFORM_NOVELTY);
   }
 
-  accept(proposal) {
+  accept(proposal, opts) {
     this.data.entries.push({
       date: new Date().toISOString(),
       param: proposal.param,
       from: proposal.from,
       to: proposal.to,
       why: proposal.why,
-      evidence: proposal.evidence
+      evidence: proposal.evidence,
+      auto: !!(opts && opts.auto)
     });
     this.storage.save(this.data);
     return this.data.entries[this.data.entries.length - 1];
+  }
+
+  // THE AUTONOMOUS STEP (v3.39.0 behavior, module-owned and test-pinned
+  // since v3.39.1). The tier compares what its notebook now implies with
+  // what it currently applies and changes itself — loudly. Returns the
+  // ledger entry it wrote, or null when the evidence implies no change.
+  // Idempotent by construction: the accepted bar is the corpus median,
+  // which the 25th percentile can never clear, so a second act() on the
+  // same memory writes nothing.
+  act(memoryData) {
+    const p = this.propose(memoryData);
+    if (!p) return null;
+    return this.accept(p, { auto: true });
   }
 
   reset(reason) {
@@ -4234,7 +4261,8 @@ class CalibrationLedger {
     return this.data.entries.map((e, i) => {
       const d = e.date.slice(0, 10);
       if (e.param === 'RESET') return `[v${i + 1} ${d}] Reset to defaults — ${e.why}`;
-      return `[v${i + 1} ${d}] ${e.param}: previously ${e.from}, now ${e.to} — ${e.why}`;
+      const who = e.auto ? ' (self-applied)' : '';
+      return `[v${i + 1} ${d}] ${e.param}: previously ${e.from}, now ${e.to}${who} — ${e.why}`;
     });
   }
 
@@ -4769,6 +4797,13 @@ if (typeof module !== 'undefined' && module.exports) {
 //   REPRODUCIBLE verdict + label is a reproducible pair: same text, same
 //                exported state, same verdict (test-pinned).
 //
+// Frozen mode (v3.39.2) gates self-change, never learning: observe() keeps
+// accumulating (observation is not self-change — test-pinned), pending()
+// previews exactly what act() would commit, and applyImplied() is the same
+// change applied by a person, marked human-applied. The applied state is
+// the ledgered instrument either way; returning to factory is a ledgered
+// reset, never a switch side-effect.
+//
 // The register program's certificates describe the factory instrument;
 // analyzeCathedral(text) without opts remains byte-identical to it
 // (test-pinned), and any verdict this loop touched says so on its face.
@@ -4871,13 +4906,21 @@ class ProgressionMemory {
     return out;
   }
 
-  // THE AUTONOMOUS STEP. The system compares what its memory now implies
-  // with what it currently applies, and changes itself — loudly. Returns
-  // the entries it wrote (empty when memory implies no change).
-  act() {
+  // What the memory now implies but the applied state doesn't yet reflect —
+  // the exact diff act() would commit, previewable without committing
+  // anything. This is the frozen-mode proposal: same numbers, same evidence
+  // sentences, no writes. The hysteresis gate is evaluated here too, so a
+  // preview never shows a change the commit would hold back.
+  pending() { return this._implied().changed; }
+
+  // The shared computation behind pending() and _commit(): the gated diff,
+  // the active map it would produce, and the hysteresis marks it would set.
+  // Pure — it writes nothing, so previewing costs the ledger nothing.
+  _implied() {
     const next = this.calibration();
     const changed = [];
     const newActive = Object.assign({}, this.data.active);
+    const lastAct = {};
     const names = new Set([...Object.keys(next), ...Object.keys(this.data.active)]);
     for (const name of names) {
       const from = this.data.active[name] || 1;
@@ -4890,28 +4933,53 @@ class ProgressionMemory {
       const samples = (p && p.totalProposals) || 0;
       if (samples - (this.data.lastAct[name] || 0) < HYSTERESIS_INTERVAL) continue;
       changed.push({
-        n: this.data.ledger.length + changed.length + 1,
-        t: Date.now(), param: name, from, to, auto: true,
+        param: name, from, to,
         why: p
           ? 'won ' + p.totalWins + '/' + p.totalProposals + ' (' + Math.round(p.winRate * 100) +
             '%) against average confidence ' + Math.round(p.avgConfidence * 100) + '%'
           : 'insufficient data — reverting to 1.0'
       });
       if (to === 1) delete newActive[name]; else newActive[name] = to;
-      this.data.lastAct[name] = samples;
+      lastAct[name] = samples;
     }
+    return { changed, newActive, lastAct };
+  }
+
+  _commit(auto) {
+    const implied = this._implied();
+    const changed = implied.changed.map((c, i) => ({
+      n: this.data.ledger.length + i + 1,
+      t: Date.now(), param: c.param, from: c.from, to: c.to, auto,
+      why: c.why
+    }));
     if (changed.length) {
       this.data.ledger.push(...changed);
-      this.data.active = newActive;
+      this.data.active = implied.newActive;
+      Object.assign(this.data.lastAct, implied.lastAct);
       this.storage.save(this.data);
     }
     return { active: this.data.active, changed };
   }
 
+  // THE AUTONOMOUS STEP. The system compares what its memory now implies
+  // with what it currently applies, and changes itself — loudly. Returns
+  // the entries it wrote (empty when memory implies no change).
+  act() { return this._commit(true); }
+
+  // THE FROZEN-MODE STEP (v3.39.2). The same change, applied by a person:
+  // frozen mode gates self-change, it does not disable learning — the
+  // memory keeps implying, pending() shows the implication with its
+  // evidence, and this commits it with the entry marked human-applied
+  // (auto: false). Identical end state to act() on the same memory.
+  applyImplied() { return this._commit(false); }
+
   active() { return this.data.active; }
+  // The stamp says who applied the state it describes: "self-calibrated"
+  // only when the system did it (auto), "calibrated" when a person did.
   label() {
-    return this.data.ledger.length === 0 ? 'factory'
-      : 'self-calibrated #' + this.data.ledger[this.data.ledger.length - 1].n;
+    if (this.data.ledger.length === 0) return 'factory';
+    const last = this.data.ledger[this.data.ledger.length - 1];
+    return (last.auto ? 'self-calibrated #' : 'calibrated #') + last.n;
   }
   ledger() { return this.data.ledger.slice(); }
 
@@ -4994,9 +5062,12 @@ function runOperational() {
   notice('');
   let r, prog = null;
   try {
-    // The loop: the system analyzes UNDER its own self-set calibration…
+    // The loop: the system analyzes UNDER its ledgered calibration. The
+    // applied state persists whether or not autonomy is on — it is the
+    // ledgered instrument, and returning to factory is a ledgered reset,
+    // never a switch side-effect (v3.39.2, matching the relational tier).
     let opts = {};
-    if (typeof ProgressionMemory !== 'undefined' && autonomyOn()) {
+    if (typeof ProgressionMemory !== 'undefined') {
       prog = getProgression();
       const active = prog.active();
       if (Object.keys(active).length) opts = { patternCalibration: active, calibrationLabel: prog.label() };
@@ -5004,11 +5075,13 @@ function runOperational() {
     r = CathedralCore.analyzeCathedral($('op-text').value, opts);
   }
   catch (e) { notice('Analysis error: ' + e.message); return; }
-  // …then remembers what happened, and acts on the memory — loudly.
+  // …then remembers what happened (observation is not self-change; frozen
+  // mode never stops learning), and acts on the memory only when autonomy
+  // is on — frozen, the same change waits as a proposal in the ledger room.
   $('op-selfcal').hidden = true;
   if (prog) {
     prog.observe(r);
-    const acted = prog.act();
+    const acted = autonomyOn() ? prog.act() : { changed: [] };
     if (acted.changed.length) {
       $('op-selfcal').hidden = false;
       $('op-selfcal').innerHTML = '⟲ The system recalibrated itself: ' +
@@ -5193,19 +5266,20 @@ function runRelational() {
   const ctx = mem.context(result);
   mem.record(result);
 
-  // Auto-apply (v3.39.0): the relational tier self-calibrates the same way
-  // the operational tier does — the notebook's evidence-bearing proposal is
-  // applied automatically (no confirmation dialog), then announced, ledgered,
-  // and stamped on every verdict from here on. The freeze switch covers both.
+  // Full autonomy (v3.39.0): the relational tier acts on its own memory the
+  // same way the operational tier does — the notebook's evidence-bearing
+  // proposal is accepted by the system itself, announced, ledgered, and
+  // stamped on every verdict from here on. The freeze switch covers both.
+  // Since v3.39.1 the autonomous step is the module's own act() (test-pinned
+  // in run-relational-tests.js), not page wiring.
   $('rel-selfcal').hidden = true;
   if (autonomyOn()) {
     const ledger = getLedger();
-    const p = ledger.propose(mem.data);
-    if (p) {
-      ledger.accept(p);
+    const e = ledger.act(mem.data);
+    if (e) {
       $('rel-selfcal').hidden = false;
-      $('rel-selfcal').innerHTML = '⟲ The relational tier recalibrated itself: <b>' + esc(p.param) + '</b> ' +
-        p.from + ' → ' + p.to + '. ' + esc(p.why) +
+      $('rel-selfcal').innerHTML = '⟲ The relational tier recalibrated itself: <b>' + esc(e.param) + '</b> ' +
+        e.from + ' → ' + e.to + '. ' + esc(e.why) +
         ' Future verdicts carry the stamp <b>' + esc(ledger.label()) + '</b>; the change is ledgered and reversible.';
     }
   }
@@ -5241,6 +5315,16 @@ function renderProgression() {
   if (typeof ProgressionMemory === 'undefined') return;
   const prog = getProgression();
   $('prog-autonomy').checked = autonomyOn();
+  // Frozen: the memory's implied-but-unapplied diff waits here for a person
+  // (pending() is the same numbers and evidence act() would commit).
+  const pend = autonomyOn() ? [] : prog.pending();
+  $('prog-proposal').hidden = pend.length === 0;
+  if (pend.length) {
+    $('prog-proposal-text').innerHTML = 'The memory implies a change the frozen system may not self-apply: ' +
+      pend.map(c => '<b>' + esc(c.param) + '</b> ×' + c.from.toFixed(2) + ' → ×' + c.to.toFixed(2) +
+        ' <span class="muted">(' + esc(c.why) + ')</span>').join('; ') +
+      '.<br><span class="muted">Nothing changes unless you apply it. Applied changes are ledgered and reversible.</span>';
+  }
   const sum = prog.summary();
   $('prog-summary').innerHTML = sum.length === 0
     ? '<tr><td class="muted">No progression yet — analyze some texts and the system starts learning its own patterns.</td></tr>'
@@ -5260,7 +5344,9 @@ function renderProgression() {
 }
 $('prog-autonomy').addEventListener('change', e => {
   try { localStorage.setItem('cathedral-autonomy', e.target.checked ? '1' : '0'); } catch(_){}
+  renderProgression();
 });
+$('prog-apply').addEventListener('click', () => { getProgression().applyImplied(); renderProgression(); });
 $('prog-reset').addEventListener('click', () => { getProgression().reset('Factory reset from Unified 2.0.'); renderProgression(); });
 $('prog-export').addEventListener('click', () => {
   const s = getProgression().export();

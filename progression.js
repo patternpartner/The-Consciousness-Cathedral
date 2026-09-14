@@ -30,6 +30,13 @@
 //   REPRODUCIBLE verdict + label is a reproducible pair: same text, same
 //                exported state, same verdict (test-pinned).
 //
+// Frozen mode (v3.39.2) gates self-change, never learning: observe() keeps
+// accumulating (observation is not self-change — test-pinned), pending()
+// previews exactly what act() would commit, and applyImplied() is the same
+// change applied by a person, marked human-applied. The applied state is
+// the ledgered instrument either way; returning to factory is a ledgered
+// reset, never a switch side-effect.
+//
 // The register program's certificates describe the factory instrument;
 // analyzeCathedral(text) without opts remains byte-identical to it
 // (test-pinned), and any verdict this loop touched says so on its face.
@@ -132,13 +139,21 @@ class ProgressionMemory {
     return out;
   }
 
-  // THE AUTONOMOUS STEP. The system compares what its memory now implies
-  // with what it currently applies, and changes itself — loudly. Returns
-  // the entries it wrote (empty when memory implies no change).
-  act() {
+  // What the memory now implies but the applied state doesn't yet reflect —
+  // the exact diff act() would commit, previewable without committing
+  // anything. This is the frozen-mode proposal: same numbers, same evidence
+  // sentences, no writes. The hysteresis gate is evaluated here too, so a
+  // preview never shows a change the commit would hold back.
+  pending() { return this._implied().changed; }
+
+  // The shared computation behind pending() and _commit(): the gated diff,
+  // the active map it would produce, and the hysteresis marks it would set.
+  // Pure — it writes nothing, so previewing costs the ledger nothing.
+  _implied() {
     const next = this.calibration();
     const changed = [];
     const newActive = Object.assign({}, this.data.active);
+    const lastAct = {};
     const names = new Set([...Object.keys(next), ...Object.keys(this.data.active)]);
     for (const name of names) {
       const from = this.data.active[name] || 1;
@@ -151,28 +166,53 @@ class ProgressionMemory {
       const samples = (p && p.totalProposals) || 0;
       if (samples - (this.data.lastAct[name] || 0) < HYSTERESIS_INTERVAL) continue;
       changed.push({
-        n: this.data.ledger.length + changed.length + 1,
-        t: Date.now(), param: name, from, to, auto: true,
+        param: name, from, to,
         why: p
           ? 'won ' + p.totalWins + '/' + p.totalProposals + ' (' + Math.round(p.winRate * 100) +
             '%) against average confidence ' + Math.round(p.avgConfidence * 100) + '%'
           : 'insufficient data — reverting to 1.0'
       });
       if (to === 1) delete newActive[name]; else newActive[name] = to;
-      this.data.lastAct[name] = samples;
+      lastAct[name] = samples;
     }
+    return { changed, newActive, lastAct };
+  }
+
+  _commit(auto) {
+    const implied = this._implied();
+    const changed = implied.changed.map((c, i) => ({
+      n: this.data.ledger.length + i + 1,
+      t: Date.now(), param: c.param, from: c.from, to: c.to, auto,
+      why: c.why
+    }));
     if (changed.length) {
       this.data.ledger.push(...changed);
-      this.data.active = newActive;
+      this.data.active = implied.newActive;
+      Object.assign(this.data.lastAct, implied.lastAct);
       this.storage.save(this.data);
     }
     return { active: this.data.active, changed };
   }
 
+  // THE AUTONOMOUS STEP. The system compares what its memory now implies
+  // with what it currently applies, and changes itself — loudly. Returns
+  // the entries it wrote (empty when memory implies no change).
+  act() { return this._commit(true); }
+
+  // THE FROZEN-MODE STEP (v3.39.2). The same change, applied by a person:
+  // frozen mode gates self-change, it does not disable learning — the
+  // memory keeps implying, pending() shows the implication with its
+  // evidence, and this commits it with the entry marked human-applied
+  // (auto: false). Identical end state to act() on the same memory.
+  applyImplied() { return this._commit(false); }
+
   active() { return this.data.active; }
+  // The stamp says who applied the state it describes: "self-calibrated"
+  // only when the system did it (auto), "calibrated" when a person did.
   label() {
-    return this.data.ledger.length === 0 ? 'factory'
-      : 'self-calibrated #' + this.data.ledger[this.data.ledger.length - 1].n;
+    if (this.data.ledger.length === 0) return 'factory';
+    const last = this.data.ledger[this.data.ledger.length - 1];
+    return (last.auto ? 'self-calibrated #' : 'calibrated #') + last.n;
   }
   ledger() { return this.data.ledger.slice(); }
 
