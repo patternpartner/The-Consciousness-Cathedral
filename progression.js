@@ -178,41 +178,82 @@ class ProgressionMemory {
     return { changed, newActive, lastAct };
   }
 
-  _commit(auto) {
+  // The single commit path behind both the autonomous and the human-applied
+  // step. `validator` is the exogenous check (Decision 3): a function the
+  // loop does not own, called with the candidate active map before it is
+  // applied. If the validator refuses — e.g. the anchor's pinned verdicts
+  // would flip — the change is NOT applied, and the refusal itself becomes
+  // an append-only ledger entry carrying the evidence. No human in the loop
+  // either way; the difference is a standard the loop cannot author. It
+  // gates applyImplied() too: the anchor pins verdicts against the
+  // instrument, so who applies a change cannot change what it would break.
+  //
+  // The candidate checked is the hysteresis-gated map that would actually
+  // be applied (_implied().newActive), not the raw target — the anchor must
+  // judge the instrument the system would really run.
+  _commit(auto, validator) {
     const implied = this._implied();
+    if (!implied.changed.length) {
+      return { active: this.data.active, changed: [], rejected: null };
+    }
+
+    if (typeof validator === 'function') {
+      let check;
+      try { check = validator(implied.newActive); }
+      catch (e) { check = { ok: false, failures: [{ name: 'validator error', expected: '—', got: e.message }] }; }
+      if (!check.ok) {
+        const rejection = {
+          n: this.data.ledger.length + 1, t: Date.now(), param: '*',
+          from: 'candidate', to: 'rejected', auto, rejected: true,
+          candidate: implied.newActive,
+          why: 'self-recalibration rejected by the anchor: ' +
+            (check.failures || []).map(f => '"' + f.name + '" would read ' + f.got +
+              ' (pinned: ' + f.expected + ')').join('; ') + ' — change not applied'
+        };
+        this.data.ledger.push(rejection);
+        this.storage.save(this.data);
+        return { active: this.data.active, changed: [], rejected: rejection };
+      }
+    }
+
     const changed = implied.changed.map((c, i) => ({
       n: this.data.ledger.length + i + 1,
       t: Date.now(), param: c.param, from: c.from, to: c.to, auto,
       why: c.why
     }));
-    if (changed.length) {
-      this.data.ledger.push(...changed);
-      this.data.active = implied.newActive;
-      Object.assign(this.data.lastAct, implied.lastAct);
-      this.storage.save(this.data);
-    }
-    return { active: this.data.active, changed };
+    this.data.ledger.push(...changed);
+    this.data.active = implied.newActive;
+    Object.assign(this.data.lastAct, implied.lastAct);
+    this.storage.save(this.data);
+    return { active: this.data.active, changed, rejected: null };
   }
 
   // THE AUTONOMOUS STEP. The system compares what its memory now implies
   // with what it currently applies, and changes itself — loudly. Returns
   // the entries it wrote (empty when memory implies no change).
-  act() { return this._commit(true); }
+  act(validator) { return this._commit(true, validator); }
 
   // THE FROZEN-MODE STEP (v3.39.2). The same change, applied by a person:
   // frozen mode gates self-change, it does not disable learning — the
   // memory keeps implying, pending() shows the implication with its
   // evidence, and this commits it with the entry marked human-applied
   // (auto: false). Identical end state to act() on the same memory.
-  applyImplied() { return this._commit(false); }
+  applyImplied(validator) { return this._commit(false, validator); }
 
   active() { return this.data.active; }
   // The stamp says who applied the state it describes: "self-calibrated"
   // only when the system did it (auto), "calibrated" when a person did.
   label() {
-    if (this.data.ledger.length === 0) return 'factory';
-    const last = this.data.ledger[this.data.ledger.length - 1];
-    return (last.auto ? 'self-calibrated #' : 'calibrated #') + last.n;
+    // A rejection and a ledgered reset are both ledger entries that leave
+    // nothing self-applied, so the stamp is read back from the last entry
+    // that actually changed the instrument — and it names who applied it.
+    if (Object.keys(this.data.active).length === 0) return 'factory';
+    for (let i = this.data.ledger.length - 1; i >= 0; i--) {
+      const e = this.data.ledger[i];
+      if (e.rejected || e.param === '*') continue;
+      return (e.auto ? 'self-calibrated #' : 'calibrated #') + e.n;
+    }
+    return 'factory';
   }
   ledger() { return this.data.ledger.slice(); }
 
