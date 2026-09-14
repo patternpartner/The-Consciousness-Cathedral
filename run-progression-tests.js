@@ -161,10 +161,13 @@ test('Proposals map matches the verdict branches it was read from', () => {
 });
 
 test('The anchor holds under factory calibration (pinned truth is self-consistent)', () => {
-  const { checkCalibration } = require('./anchor-cases.js');
+  const { checkCalibration, ANCHOR_CASES } = require('./anchor-cases.js');
   const r = checkCalibration(core.analyzeCathedral, {});
   assert.ok(r.ok, 'anchor must pass uncalibrated: ' + JSON.stringify(r.failures));
-  assert.strictEqual(r.total, 8);
+  assert.strictEqual(r.total, ANCHOR_CASES.length, 'checkCalibration must run every pinned case');
+  // The anchor is a floor, so the count is a tripwire: a case leaves only with
+  // its reason recorded in the module header (see the dilution-attack note).
+  assert.strictEqual(r.total, 7);
 });
 
 test('Exogenous rejection: a candidate that flips pinned truth is refused and ledgered', () => {
